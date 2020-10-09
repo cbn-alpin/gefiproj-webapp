@@ -123,6 +123,10 @@
           }
         }
       }
-    }},
-  "defaultProject": "cbnaFront"
+    }
+  },
+  "defaultProject": "cbnaFront",
+  "cli": {
+    "analytics": false
+  }
 }
