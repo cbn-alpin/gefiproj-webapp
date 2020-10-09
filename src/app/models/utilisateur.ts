@@ -7,7 +7,7 @@ export interface Utilisateur {
     /**
      * Identifiant technique.
      */
-    id: number,
+    id: number;
 
     nom: string;
     prenom: string;
