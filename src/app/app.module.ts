@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-
+import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './components/home/home.component';
@@ -12,6 +12,8 @@ import { ResponsablesComponent } from './components/responsables/responsables.co
 import { FinanceursComponent } from './components/financeurs/financeurs.component';
 import { DepensesComponent } from './components/depenses/depenses.component';
 import { UtilisateursComponent } from './components/utilisateurs/utilisateurs.component';
+import { AuthService } from './services/auth.service';
+import { EnsureAuthenticatedService } from './services/ensure-authenticated.service';
 
 @NgModule({
   declarations: [
@@ -28,9 +30,12 @@ import { UtilisateursComponent } from './components/utilisateurs/utilisateurs.co
   ],
   imports: [
     BrowserModule,
+    HttpClientModule,
     AppRoutingModule
   ],
-  providers: [],
+  providers: [
+    AuthService,
+    EnsureAuthenticatedService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
