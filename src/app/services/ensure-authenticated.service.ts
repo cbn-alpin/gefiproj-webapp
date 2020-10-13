@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterStateSnapshot } from '@angular/router';
 import { AuthService } from './auth.service';
 
 /**
@@ -10,7 +10,10 @@ import { AuthService } from './auth.service';
   providedIn: 'root'
 })
 export class EnsureAuthenticatedService {
-  constructor(private authSrv: AuthService, private router: Router) { }
+  constructor(
+    private authSrv: AuthService,
+    private router: Router,
+    private state: RouterStateSnapshot) { }
 
   /**
    * Vérifie que l'utilisateur est authentifié. Dans le cas contraire, il sera redirigé vers la page de connexion.
@@ -19,8 +22,12 @@ export class EnsureAuthenticatedService {
   canActivate(): boolean {
     const isAuth = this.authSrv.isAuthenticated();
 
-    if (!isAuth) {
-      this.router.navigateByUrl('/login');
+    if (!isAuth) { // Affiche page d'authentification
+      this.router.navigate(['/login'], {
+        queryParams: {
+          returnUrl: this.state.url
+        }
+      });
     }
 
     return isAuth;
