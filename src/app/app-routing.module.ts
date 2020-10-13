@@ -9,6 +9,7 @@ import { ProjetsComponent } from './components/projets/projets.component';
 import { RapportsComponent } from './components/rapports/rapports.component';
 import { ResponsablesComponent } from './components/responsables/responsables.component';
 import { UtilisateursComponent } from './components/utilisateurs/utilisateurs.component';
+import { EnsureAuthenticatedService } from './services/ensure-authenticated.service';
 
 const routes: Routes = [
   {
@@ -29,7 +30,8 @@ const routes: Routes = [
   },
   {
     path: 'projet/:id',
-    component: ProjetComponent
+    component: ProjetComponent,
+    canActivate: [EnsureAuthenticatedService]
   },
   {
     path: 'projets',
