@@ -17,9 +17,4 @@ export interface Utilisateur {
      * Rôle principal de l'utilisateur (ex : admin).
      */
     role: Role;
-
-    /**
-     * Token de connexion fourni par le serveur.
-     */
-    access_token: string;
 }

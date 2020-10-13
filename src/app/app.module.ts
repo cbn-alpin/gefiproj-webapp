@@ -1,6 +1,7 @@
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { JwtModule } from '@auth0/angular-jwt';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ConnexionComponent } from './components/connexion/connexion.component';
@@ -13,7 +14,15 @@ import { RapportsComponent } from './components/rapports/rapports.component';
 import { ResponsablesComponent } from './components/responsables/responsables.component';
 import { UtilisateursComponent } from './components/utilisateurs/utilisateurs.component';
 import { AuthService } from './services/auth.service';
+import { AuthenticationHttpInterceptorService } from './services/authentication-http-interceptor.service';
 import { EnsureAuthenticatedService } from './services/ensure-authenticated.service';
+
+/**
+ * Retourne le token courant.
+ */
+export function tokenGetter(): string {
+  return localStorage.getItem(AuthService.tokenKey);
+}
 
 @NgModule({
   declarations: [
@@ -31,11 +40,18 @@ import { EnsureAuthenticatedService } from './services/ensure-authenticated.serv
   imports: [
     BrowserModule,
     HttpClientModule,
-    AppRoutingModule
+    AppRoutingModule,
+    JwtModule.forRoot({
+      config: {
+        tokenGetter
+      }
+    })
   ],
   providers: [
     AuthService,
-    EnsureAuthenticatedService],
+    EnsureAuthenticatedService,
+    AuthenticationHttpInterceptorService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

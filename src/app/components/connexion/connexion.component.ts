@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from 'src/app/services/auth.service';
-import { User } from 'src/app/services/user';
+import { UserLogin } from 'src/app/services/user-login';
 
 @Component({
   selector: 'app-connexion',
@@ -14,8 +14,8 @@ export class ConnexionComponent implements OnInit {
    * Initialisation du composant.
    */
   async ngOnInit(): Promise<void> {
-    try { //todo test !!
-      let sampleUser: User = {
+    try { // todo test !!
+      const sampleUser: UserLogin = {
         login: 'nom test',
         password: 'pass test'
       };
