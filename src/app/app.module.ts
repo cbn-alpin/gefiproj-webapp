@@ -1,4 +1,4 @@
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { JwtModule } from '@auth0/angular-jwt';
@@ -43,14 +43,18 @@ export function tokenGetter(): string {
     AppRoutingModule,
     JwtModule.forRoot({
       config: {
-        tokenGetter
+        tokenGetter,
+        disallowedRoutes: [/.*\/api\/auth\/.*/]
       }
     })
   ],
   providers: [
     AuthService,
     EnsureAuthenticatedService,
-    AuthenticationHttpInterceptorService
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthenticationHttpInterceptorService
+    }
   ],
   bootstrap: [AppComponent]
 })

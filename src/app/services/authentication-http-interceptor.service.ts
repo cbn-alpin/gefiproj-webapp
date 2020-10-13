@@ -27,9 +27,13 @@ export class AuthenticationHttpInterceptorService implements HttpInterceptor {
    */
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     try {
-      let stream = next.handle(req);
+      const stream = next.handle(req);
 
-      stream = this.addToken(req, stream, next);
+      //////////////////
+      // todo
+      // Pris en charge par JwtModule (à vérifier !!)
+      // stream = this.addToken(req, stream, next);
+      //////////////////
       return this.pipeCatchErrorAuth(stream);
     } catch (error) {
       console.error(error);
