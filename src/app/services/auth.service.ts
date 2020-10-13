@@ -1,8 +1,15 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { JwtHelperService } from '@auth0/angular-jwt';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { Utilisateur } from '../models/utilisateur';
-import { User } from './user';
+import { UserLogin as UserLogin } from './user-login';
+import { UtilisateurToken } from './utilisateurToken';
+
+/**
+ * URL de base des requêtes.
+ */
+const BASE_URL = '/api/auth';
 
 /**
  * Gère l'authentification de l'utilisateur avec le serveur.
@@ -13,24 +20,43 @@ import { User } from './user';
 })
 export class AuthService {
   /**
-   * URL de base des requêtes.
+   * URL pour ouvrir une session via un Token.
    */
-  private readonly BASE_URL = '/api/auth';
+  public static readonly LOGIN_URL = `${BASE_URL}/login`;
+
+  /**
+   * URL pour fermer sa session.
+   */
+  public static readonly LOGOUT_URL = `${BASE_URL}/logout`;
 
   /**
    * Header à injecter à chaque requête.
    */
-  private readonly headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+  private static readonly headers = {
+    'Content-Type': 'application/json'
+  };
 
   /**
    * Clef de stockage du Token de connexion pour l'utilisateur.
    */
-  private readonly tokenKey = 'token';
+  public static readonly tokenKey = 'token';
 
   /**
    * Publie les différentes sessions de l'utilisateur.
    */
-  private readonly userSubject = new Subject<Utilisateur>();
+  private readonly userSubject = new BehaviorSubject<Utilisateur>(null);
+
+  /**
+   * Utilisateur authentifié.
+   */
+  private utilisateur: Utilisateur = null;
+
+  /**
+   * Utilisateur authentifié.
+   */
+  public get userAuth(): Utilisateur {
+    return this.utilisateur || null;
+  }
 
   /**
    * Retourne un observable sur la session de l'utilisateur.
@@ -42,25 +68,35 @@ export class AuthService {
   /**
    * Retourne le Token courant depuis le stockage.
    */
-  private get token(): string {
-    return localStorage.getItem(this.tokenKey) || null;
+  public get accessToken(): string {
+    return localStorage.getItem(AuthService.tokenKey) || null;
   }
 
-  constructor(private http: HttpClient) { }
+  /**
+   * Création.
+   * @param http : Permet de lancer des requêtes.
+   */
+  constructor(private http: HttpClient, private jwtSrv: JwtHelperService) {
+    try {
+      this.next(null);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   /**
-   * Authentifie l'utilisateur.
-   * @param user : Login et password.
+   * Authentifie l'utilisateur et ouvre une session (via un Token).
+   * @param userLogin : Login et password.
    */
-  async login(user: User): Promise<Utilisateur> {
+  async login(userLogin: UserLogin): Promise<Utilisateur> {
     try {
-      const url = `${this.BASE_URL}/login`;
+      const url = AuthService.LOGIN_URL;
 
       const utilisateur = await this.http
-        .post<Utilisateur>(
+        .post<UtilisateurToken>(
           url,
-          user, {
-          headers: this.headers
+          userLogin, {
+          headers: new HttpHeaders(AuthService.headers)
         })
         .toPromise();
 
@@ -72,78 +108,116 @@ export class AuthService {
   }
 
   /**
-   * Vérifie que l'utilisateur possède un Token valide.
+   * Déconnecte l'utilisateur.
    */
-  async ensureAuthenticated(): Promise<boolean> {
+  async logout(): Promise<void> {
     try {
-      // 1. Vérification depuis le stockage
-      const token = this.token;
+      const accessToken = this.accessToken;
 
-      if (!token) {
-        return false;
+      if (accessToken) {
+        const url = AuthService.LOGOUT_URL;
+
+        await this.http
+          .post(
+            url,
+            accessToken, {
+            headers: new HttpHeaders(AuthService.headers)
+          })
+          .toPromise();
       }
 
-      // 2. Vérification sur le serveur
-      // Paramétrage pour vérification sur serveur
-      const url = `${this.BASE_URL}/status`;
-      const headers = new HttpHeaders({
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      });
-
-      // Vérification
-      await this.http.get(url, {
-        headers
-      })
-        .toPromise();
-
-      return true;
+      this.next(null);
     } catch (error) {
       console.error(error);
-      this.save(null);
       return Promise.reject(error);
     }
   }
 
   /**
-   * Enregistre l'utilisateur authentifié. De plus, enregistre son Token de connexion dans le LocalStorage.
-   * @param utilisateur : utilisateur authentifié.
+   * Vérifie que l'utilisateur possède un Token valide.
    */
-  private next(utilisateur: Utilisateur): Utilisateur {
+  isAuthenticated(): boolean {
     try {
-      this.userSubject.next(utilisateur);
+      const token = this.accessToken;
 
-      const token = this.getToken(utilisateur);
+      if (!token) {
+        return false;
+      }
+
+      return !this.jwtSrv.isTokenExpired(token);
+    } catch (error) {
+      console.error(error);
+      return true; // Pour ne pas avoir de faux positif, de toute façon c'est vérifier ensuite
+    }
+  }
+
+  /**
+   * Notifie de l'authentifié et enregistre le Token de connexion correspondant dans le LocalStorage.
+   * @param utilisateur : utilisateur authentifié. Si null, alors supprime la session.
+   */
+  private next(utilisateur?: UtilisateurToken): Utilisateur {
+    try {
+      utilisateur = utilisateur || null;
+      const token = this.extractToken(utilisateur);
+
       this.save(token);
+      this.notify(utilisateur);
 
-      return utilisateur;
+      return this.utilisateur = utilisateur;
     } catch (error) {
       console.error(error);
     }
   }
 
   /**
-   * Retourne le Token de connexion associé à l'utilisateur, ou null en cas de problème.
+   * Notifie d'une nouvelle authentification.
    * @param utilisateur : utilisateur authentifié.
    */
-  private getToken(utilisateur: Utilisateur): string {
-    return utilisateur && utilisateur.access_token
-      ? utilisateur.access_token
-      : null;
+  private notify(utilisateur?: UtilisateurToken): void {
+    try {
+      this.userSubject.next(utilisateur);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /**
+   * Retourne le Token de connexion associé à l'utilisateur, ou null en cas de problème. Le Token est retiré de l'objet.
+   * @param utilisateur : utilisateur authentifié.
+   */
+  private extractToken(utilisateur: UtilisateurToken): string {
+    try {
+      const token = utilisateur && utilisateur.access_token
+        ? utilisateur.access_token
+        : null;
+
+      if (token) { // Retrait du Token
+        delete utilisateur.access_token;
+
+        if (utilisateur.refresh_token) {
+          delete utilisateur.refresh_token;
+        }
+      }
+
+      return token;
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   /**
    * Enregistre le Token dans le LocalStorage.
-   * @param token : Token à enregistrer.
+   * @param token : Token à enregistrer. Si null, alors supprime la session.
    */
   private save(token: string): void {
     try {
-      const isAuth = !!token;
+      const isAuth = !!token
+        && !this.jwtSrv.isTokenExpired(token);
 
       if (isAuth) {
-        localStorage.setItem(this.tokenKey, token);
+        localStorage.setItem(AuthService.tokenKey, token);
       } else {
-        localStorage.removeItem(this.tokenKey);
+        localStorage.removeItem(AuthService.tokenKey);
       }
     } catch (error) {
       console.error(error);

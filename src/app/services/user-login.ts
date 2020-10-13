@@ -1,7 +1,7 @@
 /**
  * Réprésente un login/password.
  */
-export interface User {
+export interface UserLogin {
     /**
      * Nom de connexion.
      */
