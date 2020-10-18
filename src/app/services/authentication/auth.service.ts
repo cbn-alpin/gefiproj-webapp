@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { Utilisateur } from '../models/utilisateur';
+import { Utilisateur } from '../../models/utilisateur';
 import { UserLogin as UserLogin } from './user-login';
 import { UtilisateurToken } from './utilisateurToken';
 
@@ -73,8 +73,9 @@ export class AuthService {
   }
 
   /**
-   * Création.
-   * @param http : Permet de lancer des requêtes.
+   * Gère l'authentification de l'utilisateur avec le serveur.
+   * @param http : permet de lancer des requêtes.
+   * @param jwtSrv : gère le Token.
    */
   constructor(private http: HttpClient, private jwtSrv: JwtHelperService) {
     try {
@@ -88,7 +89,7 @@ export class AuthService {
    * Authentifie l'utilisateur et ouvre une session (via un Token).
    * @param userLogin : Login et password.
    */
-  async login(userLogin: UserLogin): Promise<Utilisateur> {
+  public async login(userLogin: UserLogin): Promise<Utilisateur> {
     try {
       const url = AuthService.LOGIN_URL;
 
@@ -110,7 +111,7 @@ export class AuthService {
   /**
    * Déconnecte l'utilisateur.
    */
-  async logout(): Promise<void> {
+  public async logout(): Promise<void> {
     try {
       const accessToken = this.accessToken;
 
@@ -136,7 +137,7 @@ export class AuthService {
   /**
    * Vérifie que l'utilisateur possède un Token valide.
    */
-  isAuthenticated(): boolean {
+  public isAuthenticated(): boolean {
     try {
       const token = this.accessToken;
 
@@ -147,7 +148,7 @@ export class AuthService {
       return !this.jwtSrv.isTokenExpired(token);
     } catch (error) {
       console.error(error);
-      return true; // Pour ne pas avoir de faux positif, de toute façon c'est vérifier ensuite
+      return false;
     }
   }
 

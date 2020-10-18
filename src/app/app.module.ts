@@ -1,6 +1,7 @@
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { RouterModule } from '@angular/router';
 import { JwtModule } from '@auth0/angular-jwt';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -11,11 +12,9 @@ import { HomeComponent } from './components/home/home.component';
 import { ProjetComponent } from './components/projet/projet.component';
 import { ProjetsComponent } from './components/projets/projets.component';
 import { RapportsComponent } from './components/rapports/rapports.component';
-import { ResponsablesComponent } from './components/responsables/responsables.component';
 import { UtilisateursComponent } from './components/utilisateurs/utilisateurs.component';
-import { AuthService } from './services/auth.service';
-import { AuthenticationHttpInterceptorService } from './services/authentication-http-interceptor.service';
-import { EnsureAuthenticatedService } from './services/ensure-authenticated.service';
+import { AuthService } from './services/authentication/auth.service';
+import { AuthenticationHttpInterceptorService } from './services/authentication/authentication-http-interceptor.service';
 
 /**
  * Retourne le token courant.
@@ -32,7 +31,6 @@ export function tokenGetter(): string {
     ProjetsComponent,
     ConnexionComponent,
     RapportsComponent,
-    ResponsablesComponent,
     FinanceursComponent,
     DepensesComponent,
     UtilisateursComponent
@@ -41,6 +39,7 @@ export function tokenGetter(): string {
     BrowserModule,
     HttpClientModule,
     AppRoutingModule,
+    RouterModule,
     JwtModule.forRoot({
       config: {
         tokenGetter,
@@ -49,13 +48,14 @@ export function tokenGetter(): string {
     })
   ],
   providers: [
-    AuthService,
-    EnsureAuthenticatedService,
     {
       provide: HTTP_INTERCEPTORS,
-      useClass: AuthenticationHttpInterceptorService
+      useClass: AuthenticationHttpInterceptorService,
+      multi: true
     }
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [
+    AppComponent
+  ]
 })
 export class AppModule { }

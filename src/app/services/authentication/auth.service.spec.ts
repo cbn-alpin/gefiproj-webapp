@@ -1,13 +1,13 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { JwtHelperService, JwtModule } from '@auth0/angular-jwt';
-import { tokenGetter } from '../app.module';
-import { Utilisateur } from './../models/utilisateur';
+import { tokenGetter } from '../../app.module';
+import { Utilisateur } from '../../models/utilisateur';
 import { AuthService } from './auth.service';
 import { UserLogin } from './user-login';
 import { UtilisateurToken } from './utilisateurToken';
 
-fdescribe('AuthService', () => {
+describe('AuthService', () => {
   let service: AuthService;
   let httpTestingController: HttpTestingController;
   let jwtSrv: JwtHelperService;
@@ -22,7 +22,8 @@ fdescribe('AuthService', () => {
           config: {
             tokenGetter
           }
-        })]
+        })
+      ]
     });
     service = TestBed.inject(AuthService);
     httpTestingController = TestBed.inject(HttpTestingController);
@@ -45,27 +46,27 @@ fdescribe('AuthService', () => {
 
     const isAuth = service.isAuthenticated();
 
-    expect(isAuth).toBeFalse();
+    expect(isAuth).toBeFalse(); // Pas authentifié
   });
 
-  it('isAuthenticated -> true', async () => {
+  it('isAuthenticated -> true', () => {
     localStorage.setItem(AuthService.tokenKey, accessToken);
     spyOn(jwtSrv, 'isTokenExpired').and
       .returnValue(false);
 
-    const promise = service.isAuthenticated(); // Action
+    const isAuth = service.isAuthenticated(); // Action
 
-    expect(promise).toBeTrue();
+    expect(isAuth).toBeTrue(); // Authentifié
   });
 
-  it('isAuthenticated -> false car Token périmé', async () => {
+  it('isAuthenticated -> false car Token périmé', () => {
     localStorage.setItem(AuthService.tokenKey, accessToken);
     spyOn(jwtSrv, 'isTokenExpired').and
       .returnValue(true);
 
-    const promise = service.isAuthenticated(); // Action
+    const isAuth = service.isAuthenticated(); // Action
 
-    expect(promise).toBeFalse();
+    expect(isAuth).toBeFalse(); // Pas authentifié
   });
 
   it('logout -> à partir d\'une session', async () => {
@@ -78,6 +79,7 @@ fdescribe('AuthService', () => {
       nom: '',
       prenom: '',
       mail: '',
+      initiales: '',
       role: 0,
       access_token: accessToken
     };
@@ -89,7 +91,7 @@ fdescribe('AuthService', () => {
     service.logout(); // Action
 
     const isAuth = service.isAuthenticated();
-    expect(isAuth).toBeFalse();
+    expect(isAuth).toBeFalse(); // Pas authentifié
   });
 
   it('login -> ok retourne un user et son Token', async () => {
@@ -102,6 +104,7 @@ fdescribe('AuthService', () => {
       nom: '',
       prenom: '',
       mail: '',
+      initiales: '',
       role: 0,
       access_token: accessToken
     };
@@ -115,15 +118,15 @@ fdescribe('AuthService', () => {
 
     const req = httpTestingController.expectOne(AuthService.LOGIN_URL);
     req.flush(user);
-    await expectAsync(promise).toBeResolvedTo(user);
-    expect(service.userAuth).toEqual(user);
-    expect(userInObs).toEqual(user);
-    expect(service.accessToken).toEqual(accessToken);
+    await expectAsync(promise).toBeResolvedTo(user); // Retourne l'utilisateur
+    expect(service.userAuth).toEqual(user); // Fourni l'utilisateur
+    expect(userInObs).toEqual(user); // Notification d'un nouvel utilisateur
+    expect(service.accessToken).toEqual(accessToken); // Token d'accès
     const isAuth = service.isAuthenticated();
-    expect(isAuth).toBeTrue();
+    expect(isAuth).toBeTrue(); // Est authentifié
   });
 
-  it('login -> Erreur', async () => {
+  it('login -> Erreur propagée suite à erreur serveur (normalement 401)', async () => {
     const userLogin: UserLogin = {
       login: '',
       password: ''

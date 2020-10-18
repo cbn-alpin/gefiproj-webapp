@@ -1,4 +1,4 @@
-import { Utilisateur } from '../models/utilisateur';
+import { Utilisateur } from '../../models/utilisateur';
 
 /**
  * Représente un utilisateur authentifié et fournit son Token de connexion.

@@ -5,11 +5,10 @@ import { DepensesComponent } from './components/depenses/depenses.component';
 import { FinanceursComponent } from './components/financeurs/financeurs.component';
 import { HomeComponent } from './components/home/home.component';
 import { ProjetComponent } from './components/projet/projet.component';
-import { ProjetsComponent } from './components/projets/projets.component';
 import { RapportsComponent } from './components/rapports/rapports.component';
-import { ResponsablesComponent } from './components/responsables/responsables.component';
 import { UtilisateursComponent } from './components/utilisateurs/utilisateurs.component';
-import { EnsureAuthenticatedService } from './services/ensure-authenticated.service';
+import { EnsureAuthenticatedService } from './services/authentication/ensure-authenticated.service';
+import { IsAdministratorGuardService } from './services/authentication/is-administrator-guard.service';
 
 const routes: Routes = [
   {
@@ -17,16 +16,19 @@ const routes: Routes = [
     component: ConnexionComponent
   },
   {
+    path: 'home',
+    component: HomeComponent,
+    canActivate: [EnsureAuthenticatedService]
+  },
+  {
     path: 'depenses',
-    component: DepensesComponent
+    component: DepensesComponent,
+    canActivate: [EnsureAuthenticatedService]
   },
   {
     path: 'financeurs',
-    component: FinanceursComponent
-  },
-  {
-    path: 'home',
-    component: HomeComponent
+    component: FinanceursComponent,
+    canActivate: [EnsureAuthenticatedService]
   },
   {
     path: 'projet/:id',
@@ -34,34 +36,34 @@ const routes: Routes = [
     canActivate: [EnsureAuthenticatedService]
   },
   {
-    path: 'projets',
-    component: ProjetsComponent
-  },
-  {
-    path: 'rapport',
-    component: RapportsComponent
-  },
-  {
-    path: 'responsables',
-    component: ResponsablesComponent
+    path: 'rapports',
+    component: RapportsComponent,
+    canActivate: [EnsureAuthenticatedService]
   },
   {
     path: 'utilisateurs',
-    component: UtilisateursComponent
+    component: UtilisateursComponent,
+    canActivate: [IsAdministratorGuardService]
   },
   {
     path: '',
     redirectTo: 'home',
-    pathMatch: 'full'
+    pathMatch: 'full',
+    canActivate: [EnsureAuthenticatedService]
   },
   {
     path: '**',
-    component: HomeComponent
+    component: HomeComponent,
+    canActivate: [EnsureAuthenticatedService]
   }
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  imports: [
+    RouterModule.forRoot(routes)
+  ],
+  exports: [
+    RouterModule
+  ]
 })
 export class AppRoutingModule { }
