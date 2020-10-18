@@ -5,10 +5,10 @@ export enum Role {
     /**
      * Accès en lecture et modification + reporting.
      */
-    Admin,
+    Admin = 1,
 
     /**
-     * Accès en lecture + reporting. 
+     * Accès en lecture + reporting.
      */
-    Consultant
+    Consultant = 0
 }

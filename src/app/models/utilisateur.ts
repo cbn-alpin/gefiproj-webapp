@@ -12,6 +12,7 @@ export interface Utilisateur {
     nom: string;
     prenom: string;
     mail: string;
+    initiales: string;
 
     /**
      * Rôle principal de l'utilisateur (ex : admin).
