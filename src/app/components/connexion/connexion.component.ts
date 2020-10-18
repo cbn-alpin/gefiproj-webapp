@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from 'src/app/services/auth.service';
-import { UserLogin } from 'src/app/services/user-login';
+import { AuthService } from 'src/app/services/authentication/auth.service';
+import { UserLogin } from 'src/app/services/authentication/user-login';
 
 @Component({
   selector: 'app-connexion',

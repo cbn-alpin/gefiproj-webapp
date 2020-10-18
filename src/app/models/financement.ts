@@ -1,4 +1,5 @@
 export interface Financement {
+  id: number;
   code: string;
   code_projet: number;
   montant_arrete: number;

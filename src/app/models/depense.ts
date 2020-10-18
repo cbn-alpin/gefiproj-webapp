@@ -1,3 +1,5 @@
 export interface Depense {
-  date: Date | string;
+  id: number;
+  date: Date;
+  montant: number;
 }
