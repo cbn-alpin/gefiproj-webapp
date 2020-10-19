@@ -1,0 +1,18 @@
+@import "~src/style/variables";
+
+.toolbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: $height-menu-lg;
+    display: flex;
+    align-items: center;
+    background-color: $header-color;
+    color: $white;
+    font-weight: 600;
+}
+
+.toolbar img {
+    margin: 5px 10px 0;
+}

@@ -15,6 +15,7 @@ import { RapportsComponent } from './components/rapports/rapports.component';
 import { UtilisateursComponent } from './components/utilisateurs/utilisateurs.component';
 import { AuthService } from './services/authentication/auth.service';
 import { AuthenticationHttpInterceptorService } from './services/authentication/authentication-http-interceptor.service';
+import { HeaderComponent } from './components/header/header.component';
 
 /**
  * Retourne le token courant.
@@ -33,7 +34,8 @@ export function tokenGetter(): string {
     RapportsComponent,
     FinanceursComponent,
     DepensesComponent,
-    UtilisateursComponent
+    UtilisateursComponent,
+    HeaderComponent
   ],
   imports: [
     BrowserModule,
