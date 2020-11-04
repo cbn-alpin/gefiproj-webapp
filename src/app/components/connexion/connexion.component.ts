@@ -9,19 +9,17 @@ import { UserLogin } from 'src/app/services/authentication/user-login';
   styleUrls: ['./connexion.component.scss']
 })
 export class ConnexionComponent implements OnInit {
-  constructor(private auth: AuthService, private http: HttpClient) { }
+  constructor(private auth: AuthService) { }
 
   /**
    * Initialisation du composant.
    */
   async ngOnInit(): Promise<void> {
-    try { // todo test !!
+    try { // todo pour avoir une connexion pendant le développement !!
       const sampleUser: UserLogin = {
         login: 'nom test',
         password: 'pass test'
       };
-
-      console.log(await (this.http.get('/api/users').toPromise()));
 
       console.log(await this.auth.login(sampleUser));
     } catch (error) {

@@ -8,5 +8,11 @@
       "initiales": "ja"
     }
   ],
+  "projets": [
+    {
+      "id": 1,
+      "nom": "Projet X"
+    }
+  ],
   "login": {}
 }
