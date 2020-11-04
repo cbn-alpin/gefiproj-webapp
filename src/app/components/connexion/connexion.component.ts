@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from 'src/app/services/authentication/auth.service';
 import { UserLogin } from 'src/app/services/authentication/user-login';
@@ -8,7 +9,7 @@ import { UserLogin } from 'src/app/services/authentication/user-login';
   styleUrls: ['./connexion.component.scss']
 })
 export class ConnexionComponent implements OnInit {
-  constructor(private auth: AuthService) { }
+  constructor(private auth: AuthService, private http: HttpClient) { }
 
   /**
    * Initialisation du composant.
@@ -19,6 +20,8 @@ export class ConnexionComponent implements OnInit {
         login: 'nom test',
         password: 'pass test'
       };
+
+      console.log(await (this.http.get('/api/users').toPromise()));
 
       console.log(await this.auth.login(sampleUser));
     } catch (error) {

@@ -1,0 +1,4 @@
+{
+	"/api/auth/login": "/login",
+	"/api/*": "/$1"
+}

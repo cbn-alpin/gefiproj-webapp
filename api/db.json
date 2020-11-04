@@ -1,0 +1,12 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "nom": "manu",
+      "prenom": "azp",
+      "mail": "m.a@mail.com",
+      "initiales": "ja"
+    }
+  ],
+  "login": {}
+}
