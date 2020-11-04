@@ -16,6 +16,8 @@ import { UtilisateursComponent } from './components/utilisateurs/utilisateurs.co
 import { AuthService } from './services/authentication/auth.service';
 import { AuthenticationHttpInterceptorService } from './services/authentication/authentication-http-interceptor.service';
 import { HeaderComponent } from './components/header/header.component';
+import {GenericTableDemoModule} from './components/generic-table-demo/generic-table-demo.module';
+import {SharedModule} from './shared/shared.module';
 
 /**
  * Retourne le token courant.
@@ -47,7 +49,9 @@ export function tokenGetter(): string {
         tokenGetter,
         disallowedRoutes: [/.*\/api\/auth\/.*/]
       }
-    })
+    }),
+    GenericTableDemoModule,
+    SharedModule
   ],
   providers: [
     {

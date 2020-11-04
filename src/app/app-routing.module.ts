@@ -9,6 +9,7 @@ import { RapportsComponent } from './components/rapports/rapports.component';
 import { UtilisateursComponent } from './components/utilisateurs/utilisateurs.component';
 import { EnsureAuthenticatedService } from './services/authentication/ensure-authenticated.service';
 import { IsAdministratorGuardService } from './services/authentication/is-administrator-guard.service';
+import {GenericTableDemoComponent} from './components/generic-table-demo/containers/generic-table-demo/generic-table-demo.component';
 
 const routes: Routes = [
   {
@@ -44,6 +45,11 @@ const routes: Routes = [
     path: 'utilisateurs',
     component: UtilisateursComponent,
     canActivate: [IsAdministratorGuardService]
+  },
+  // TODO: Supprimer le chemin 'tabledemo'
+  {
+    path: 'tabledemo',
+    component: GenericTableDemoComponent
   },
   {
     path: '',

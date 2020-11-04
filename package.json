@@ -3,18 +3,21 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --proxy-config proxy.conf.json",
+    "start": "ng serve --proxy-config proxy.conf.json --open",
     "build": "ng build",
     "test": "ng test",
+    "test-headless": "ng test --watch=false --browsers=ChromeHeadless",
     "lint": "ng lint",
     "e2e": "ng e2e"
   },
   "private": true,
   "dependencies": {
     "@angular/animations": "~10.1.4",
+    "@angular/cdk": "^10.2.7",
     "@angular/common": "~10.1.4",
     "@angular/compiler": "~10.1.4",
     "@angular/core": "~10.1.4",
+    "@angular/flex-layout": "^10.0.0-beta.32",
     "@angular/forms": "~10.1.4",
     "@angular/material": "10.2.3",
     "@angular/platform-browser": "~10.1.4",
