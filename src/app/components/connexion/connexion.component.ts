@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from 'src/app/services/authentication/auth.service';
 import { UserLogin } from 'src/app/services/authentication/user-login';
@@ -14,7 +15,7 @@ export class ConnexionComponent implements OnInit {
    * Initialisation du composant.
    */
   async ngOnInit(): Promise<void> {
-    try { // todo test !!
+    try { // todo pour avoir une connexion pendant le développement !!
       const sampleUser: UserLogin = {
         login: 'nom test',
         password: 'pass test'
