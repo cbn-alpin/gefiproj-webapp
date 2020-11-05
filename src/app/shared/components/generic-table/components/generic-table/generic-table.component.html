@@ -6,7 +6,7 @@
 <table mat-table [dataSource]="genericTableData" class="mat-elevation-z8">
 
   <ng-container *ngFor="let columnName of dataSourceColumnsName; let index = index" [matColumnDef]="columnName">
-    <th mat-header-cell *matHeaderCellDef> {{columnName | titlecase}} </th>
+    <th mat-header-cell *matHeaderCellDef> {{getColumnName(columnName)}} </th>
     <td mat-cell *matCellDef="let element">
 
       <!-- String -->

@@ -6,10 +6,10 @@
   .title {
     font-size: 20px;
   }
-  .number .mat-form-field, .string .mat-form-field, .currency .mat-form-field {
+  .number .mat-form-field, .string .mat-form-field {
     width: 50px;
   }
-  .selectbox .mat-form-field, .date .mat-form-field {
+  .selectbox .mat-form-field, .date .mat-form-field, .currency .mat-form-field {
     width: 105px;
   }
   .errors {

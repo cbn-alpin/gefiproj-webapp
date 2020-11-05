@@ -2,7 +2,8 @@ import {FamilleOrigine} from '../globals/famille-origine';
 
 export interface Famille {
   membres: number;
-  dateCreation: Date;
+  date_creation: Date;
   existante: boolean;
   origine: FamilleOrigine;
+  montant_tresorerie: number;
 }

@@ -52,6 +52,13 @@ export class GenericTableComponent<T> implements OnInit {
     return Object.keys(this.options.defaultEntity);
   }
 
+  public getColumnName(value: string): string {
+    const columnNameSplice = value.split('_');
+    let columnName = columnNameSplice.join(' ');
+    columnName = columnName[0].toUpperCase() + columnName.substr(1);
+    return columnName;
+  }
+
   public onEdit(entity: GenericTableEntity<T>): void {
     const entitySelected = JSON.parse(JSON.stringify(entity));
     const history: HistoryOfEntityUpdating<T> = {

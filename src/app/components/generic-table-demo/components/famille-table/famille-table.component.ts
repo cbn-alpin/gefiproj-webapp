@@ -44,19 +44,25 @@ export class FamilleTableComponent implements OnInit, GenericTableInterface<Fami
     origine: FamilleOrigine.ASIE,
     membres: undefined,
     existante: false,
-    dateCreation: undefined
+    date_creation: undefined,
+    montant_tresorerie: 0
   };
 
   /**
    * Extraire les noms de chaque propriétés du type Famille vers une énumération.
-   * Cette énumération nous facilite la vie
+   * Cette énumération nous facilite la vie.
+   * Attention: le nom de la propriété dans l'énum doit correspondre au nom de la propriété du type
+   * -> Ex: ORIGINE: 'origine' mais pas 'Origine'
+   * -> C'est pour cette raison qu'on extrait directement le nom de l'objet grâce à Object.keys
+   * TODO: Trouver une meilleur solution
    * @private
    */
   private EntityPropertyName = {
     ORIGINE: Object.keys(this.defaultEntity)[0],
     MEMBRES: Object.keys(this.defaultEntity)[1],
     EXISTANTE: Object.keys(this.defaultEntity)[2],
-    DATECREATION: Object.keys(this.defaultEntity)[3]
+    DATE_CREATION: Object.keys(this.defaultEntity)[3],
+    MONTANT_TRESORERIE: Object.keys(this.defaultEntity)[4]
   };
 
   /**
@@ -67,7 +73,8 @@ export class FamilleTableComponent implements OnInit, GenericTableInterface<Fami
     {name: this.EntityPropertyName.ORIGINE, type: GenericTableCellType.SELECTBOX},
     {name: this.EntityPropertyName.MEMBRES, type: GenericTableCellType.NUMBER},
     {name: this.EntityPropertyName.EXISTANTE, type: GenericTableCellType.BOOLEAN},
-    {name: this.EntityPropertyName.DATECREATION, type: GenericTableCellType.DATE},
+    {name: this.EntityPropertyName.DATE_CREATION, type: GenericTableCellType.DATE},
+    {name: this.EntityPropertyName.MONTANT_TRESORERIE, type: GenericTableCellType.CURRENCY}
   ];
 
   /**
@@ -92,7 +99,8 @@ export class FamilleTableComponent implements OnInit, GenericTableInterface<Fami
   private entityPlaceHolders: EntityPlaceholder[] = [
     {name: this.EntityPropertyName.ORIGINE, value: 'Américaine'},
     {name: this.EntityPropertyName.MEMBRES, value: '523'},
-    {name: this.EntityPropertyName.DATECREATION, value: '20/10/1758'},
+    {name: this.EntityPropertyName.DATE_CREATION, value: '20/10/1758'},
+    {name: this.EntityPropertyName.MONTANT_TRESORERIE, value: '50123'},
   ];
 
 
@@ -179,7 +187,7 @@ export class FamilleTableComponent implements OnInit, GenericTableInterface<Fami
   }
 
   /**
-   * Vérifier le format du champ 'dateCreation'
+   * Vérifier le format du champ 'date_creation'
    * Ex: format invalide, champ requis
    * @param dateCreation
    * @param genericTableFormErrors
@@ -187,11 +195,31 @@ export class FamilleTableComponent implements OnInit, GenericTableInterface<Fami
   public getDateFormError(dateCreation: Date, genericTableFormErrors: GenericTableFormError[]): GenericTableFormError[] {
     let msg = '';
     if (!dateCreation) {
-      msg = 'Date requiss';
+      msg = 'Date requise';
     }
     if (msg !== '') {
       genericTableFormErrors = genericTableFormErrors.concat({
-        name: this.EntityPropertyName.DATECREATION,
+        name: this.EntityPropertyName.DATE_CREATION,
+        message: msg
+      });
+    }
+    return genericTableFormErrors;
+  }
+
+  /**
+   * Vérifier le format du champ 'montant_tresorerie'
+   * Ex: format invalide, champ requis
+   * @param montant_tresorerie
+   * @param genericTableFormErrors
+   */
+  public getMontantTresorerieFormError(montant_tresorerie: number, genericTableFormErrors: GenericTableFormError[]): GenericTableFormError[] {
+    let msg = '';
+    if (!montant_tresorerie) {
+      msg = 'Montant requis';
+    }
+    if (msg !== '') {
+      genericTableFormErrors = genericTableFormErrors.concat({
+        name: this.EntityPropertyName.MONTANT_TRESORERIE,
         message: msg
       });
     }
@@ -204,9 +232,10 @@ export class FamilleTableComponent implements OnInit, GenericTableInterface<Fami
    */
   public handleFormErrors(entity: Famille): GenericTableFormError[] {
     let genericTableFormErrors: GenericTableFormError[] = [];
-    genericTableFormErrors = this.getDateFormError(entity.dateCreation, genericTableFormErrors);
+    genericTableFormErrors = this.getDateFormError(entity.date_creation, genericTableFormErrors);
     genericTableFormErrors = this.getMembresFormError(entity.membres, genericTableFormErrors);
     genericTableFormErrors = this.getOrigineFormError(entity.origine, genericTableFormErrors);
+    genericTableFormErrors = this.getMontantTresorerieFormError(entity.montant_tresorerie, genericTableFormErrors);
     return genericTableFormErrors.length > 0 ? genericTableFormErrors : undefined;
   }
 
