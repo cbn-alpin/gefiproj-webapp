@@ -4,7 +4,7 @@ import { ConnexionComponent } from './components/connexion/connexion.component';
 import { DepensesComponent } from './components/depenses/depenses.component';
 import { FinanceursComponent } from './components/financeurs/financeurs.component';
 import { HomeComponent } from './components/home/home.component';
-import { ProjetComponent } from './components/projet/projet.component';
+import { ProjetComponent } from './components/projet/containers/projet/projet.component';
 import { RapportsComponent } from './components/rapports/rapports.component';
 import { UtilisateursComponent } from './components/utilisateurs/utilisateurs.component';
 import { EnsureAuthenticatedService } from './services/authentication/ensure-authenticated.service';
