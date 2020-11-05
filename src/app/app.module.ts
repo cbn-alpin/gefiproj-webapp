@@ -1,7 +1,5 @@
-import { registerLocaleData } from '@angular/common';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import localeFr from '@angular/common/locales/fr';
-import { NgModule } from '@angular/core';
+import {LOCALE_ID, NgModule} from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { JwtModule } from '@auth0/angular-jwt';
@@ -11,16 +9,18 @@ import { AppComponent } from './app.component';
 import { ConnexionComponent } from './components/connexion/connexion.component';
 import { DepensesComponent } from './components/depenses/depenses.component';
 import { FinanceursComponent } from './components/financeurs/financeurs.component';
-import { GenericTableDemoModule } from './components/generic-table-demo/generic-table-demo.module';
-import { HeaderComponent } from './components/header/header.component';
 import { HomeComponent } from './components/home/home.component';
-import { ProjetComponent } from './components/projet/projet.component';
+import { ProjetComponent } from './components/projet/containers/projet/projet.component';
 import { ProjetsComponent } from './components/projets/projets.component';
 import { RapportsComponent } from './components/rapports/rapports.component';
 import { UtilisateursComponent } from './components/utilisateurs/utilisateurs.component';
 import { AuthService } from './services/authentication/auth.service';
 import { AuthenticationHttpInterceptorService } from './services/authentication/authentication-http-interceptor.service';
-import { SharedModule } from './shared/shared.module';
+import { HeaderComponent } from './components/header/header.component';
+import {GenericTableDemoModule} from './components/generic-table-demo/generic-table-demo.module';
+import {SharedModule} from './shared/shared.module';
+import {registerLocaleData} from '@angular/common';
+import localeFr from '@angular/common/locales/fr';
 
 /**
  * Retourne le token courant.
