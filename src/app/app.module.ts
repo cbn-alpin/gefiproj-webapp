@@ -1,5 +1,5 @@
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { NgModule } from '@angular/core';
+import {LOCALE_ID, NgModule} from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { JwtModule } from '@auth0/angular-jwt';
@@ -18,6 +18,8 @@ import { AuthenticationHttpInterceptorService } from './services/authentication/
 import { HeaderComponent } from './components/header/header.component';
 import {GenericTableDemoModule} from './components/generic-table-demo/generic-table-demo.module';
 import {SharedModule} from './shared/shared.module';
+import {registerLocaleData} from '@angular/common';
+import localeFr from '@angular/common/locales/fr';
 
 /**
  * Retourne le token courant.
@@ -25,6 +27,13 @@ import {SharedModule} from './shared/shared.module';
 export function tokenGetter(): string {
   return localStorage.getItem(AuthService.tokenKey);
 }
+
+/**
+ * Variable localeFr utilisé lors du formatage d'un nombre vers le format français (nombre transformé en montant  €).
+ * Ex: 14572 -> 14 572 €
+ */
+registerLocaleData(localeFr, 'fr-FR');
+
 
 @NgModule({
   declarations: [

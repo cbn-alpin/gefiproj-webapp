@@ -3,21 +3,24 @@ import {FamilleOrigine} from '../globals/famille-origine';
 
 export const familleMock: Famille[] = [
   {
-    dateCreation: new Date(),
+    date_creation: new Date(),
     existante: true,
     membres: 10,
-    origine: FamilleOrigine.ASIE
+    origine: FamilleOrigine.ASIE,
+    montant_tresorerie: 1452147
   },
   {
-    dateCreation: new Date(),
+    date_creation: new Date(),
     existante: false,
     membres: 3,
-    origine: FamilleOrigine.EUROPE
+    origine: FamilleOrigine.EUROPE,
+    montant_tresorerie: 1452147
   },
   {
-    dateCreation: new Date(),
+    date_creation: new Date(),
     existante: false,
     membres: 5,
-    origine: FamilleOrigine.AMERICAINE
+    origine: FamilleOrigine.AMERICAINE,
+    montant_tresorerie: 1452147
   }
 ]
