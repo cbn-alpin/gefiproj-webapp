@@ -20,7 +20,7 @@ export interface Financement {
 
 
 export enum Statut_F {
-  ANTR = 'ANTR',
-  ATR = 'ATR',
+  ANTR = 'Actif non totalement rattaché',
+  ATR = 'Actif totalement rattaché',
   SOLDE = 'Soldé'
 }

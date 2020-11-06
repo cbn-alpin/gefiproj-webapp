@@ -1,18 +1,17 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { GenericTableAction } from '../../globals/generic-table-action';
-import { GenericTableCellType } from '../../globals/generic-table-cell-types';
-import { GenericTableEntityState } from '../../globals/generic-table-entity-states';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {
   GenericTableEntity,
   GenericTableEntityErrors,
   GenericTableFormError,
   HistoryOfEntityUpdating
 } from '../../models/generic-table-entity';
-import { GenericTableEntityEvent } from '../../models/generic-table-entity-event';
-import { GenericTableOptions } from '../../models/generic-table-options';
+import {GenericTableCellType} from '../../globals/generic-table-cell-types';
+import {GenericTableEntityState} from '../../globals/generic-table-entity-states';
+import {GenericTableEntityEvent} from '../../models/generic-table-entity-event';
+import {GenericTableOptions} from '../../models/generic-table-options';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {GenericTableAction} from '../../globals/generic-table-action';
 import { EntityPlaceholder } from '../../models/entity-placeholder';
-import { EntityType } from '../../models/entity-types';
 
 @Component({
   selector: 'app-generic-table[title][options]',
@@ -20,38 +19,15 @@ import { EntityType } from '../../models/entity-types';
   styleUrls: ['./generic-table.component.scss']
 })
 export class GenericTableComponent<T> implements OnInit {
-  /**
-   * Défini les données à afficher et leur formatage.
-   */
-  // tslint:disable-next-line: variable-name
-  private _options: GenericTableOptions<T>;
-  /**
-   * Fourni le paramétrage d'affichage et les données du tableau.
-   */
-  get options(): GenericTableOptions<T> {
-    return this._options;
-  }
-  /**
-   * Défini le paramétrage d'affichage et les données du tableau.
-   */
-  @Input() set options(opt: GenericTableOptions<T>) {
-    try {
-      if (opt) {
-        this._options = opt;
-        this.initTable();
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }
+  @Input() options: GenericTableOptions<T>;
   @Input() title: string;
   @Input() showActions = true;
-  @Output() editEvent: EventEmitter<GenericTableEntityEvent<T>> = new EventEmitter<GenericTableEntityEvent<T>>();
-  @Output() createEvent: EventEmitter<GenericTableEntityEvent<T>> = new EventEmitter<GenericTableEntityEvent<T>>();
-  @Output() deleteEvent: EventEmitter<GenericTableEntityEvent<T>> = new EventEmitter<GenericTableEntityEvent<T>>();
+  @Output() editEvent: EventEmitter < GenericTableEntityEvent<T> > = new EventEmitter < GenericTableEntityEvent<T> > ();
+  @Output() createEvent: EventEmitter < GenericTableEntityEvent<T> > = new EventEmitter < GenericTableEntityEvent<T> > ();
+  @Output() deleteEvent: EventEmitter < GenericTableEntityEvent<T> > = new EventEmitter < GenericTableEntityEvent<T> > ();
 
   public genericTableData: GenericTableEntity<T>[];
-  public dataSourceColumnsName: EntityType[];
+  public dataSourceColumnsName: EntityPlaceholder[];
   public displayedColumns: string[];
   public actionsHeaderColumns = 'Actions';
   public GenericTableEntityState = GenericTableEntityState;
@@ -60,37 +36,25 @@ export class GenericTableComponent<T> implements OnInit {
 
   constructor(
     private snackBar: MatSnackBar
-  ) { }
+  ) {}
 
   ngOnInit(): void {
-    this.initTable();
-  }
-
-  /**
-   * Initialise le tableau.
-   */
-  private initTable(): void {
-    try {
     this.genericTableData = this.options.dataSource?.map((entity) => {
       return {
         data: entity,
         state: GenericTableEntityState.READ
       };
     });
-    this.dataSourceColumnsName = this.options.entityTypes;
-    this.displayedColumns = this.showActions 
-      ? this.getDisplayedColumns().concat(this.actionsHeaderColumns) 
-      : this.getDisplayedColumns();
-    } catch (error) {
-      console.error(error);
-    }
+    this.dataSourceColumnsName = this.options.entityPlaceHolders;
+    this.displayedColumns = this.showActions ? this.getDisplayedColumns().concat(this.actionsHeaderColumns) : this.getDisplayedColumns();
   }
-  
+
   public getDisplayedName(): string[] {
     return this.options.entityPlaceHolders.map(res => res.name);
   }
+
   public getDisplayedColumns(): string[] {
-    return this.options.entityTypes.map(res => res.code);
+    return this.options.entityPlaceHolders.map(res => res.value);
   }
 
   public getColumnName(value: string): string {
@@ -166,44 +130,32 @@ export class GenericTableComponent<T> implements OnInit {
   }
 
   public isString(entityName: any): boolean {
-    return this.options.entityTypes
-      ?.find((entity) => entity.name === entityName)
+    return this.options.entityTypes?.find((entity) => entity.name === entityName)
       .type === GenericTableCellType.TEXT;
   }
 
   public isNumber(entityName: any): boolean {
-    return this.options.entityTypes
-      ?.find((entity) => entity.name === entityName)
-      .type === GenericTableCellType.NUMBER;
+    return this.options.entityTypes?.find((entity) => entity.name === entityName).type === GenericTableCellType.NUMBER;
   }
 
   public isBoolean(entityName: any): boolean {
-    return this.options.entityTypes
-      ?.find((entity) => entity.name === entityName)
-      .type === GenericTableCellType.BOOLEAN;
+    return this.options.entityTypes?.find((entity) => entity.name === entityName).type === GenericTableCellType.BOOLEAN;
   }
 
   public isDate(entityName: any): boolean {
-    return this.options.entityTypes
-      ?.find((entity) => entity.name === entityName).type === GenericTableCellType.DATE;
+    return this.options.entityTypes?.find((entity) => entity.name === entityName).type === GenericTableCellType.DATE;
   }
 
   public isCurrency(entityName: any): boolean {
-    return this.options.entityTypes
-      ?.find((entity) => entity.name === entityName)
-      .type === GenericTableCellType.CURRENCY;
+    return this.options.entityTypes?.find((entity) => entity.name === entityName).type === GenericTableCellType.CURRENCY;
   }
 
   public isSelectBox(entityName: any): boolean {
-    return this.options.entityTypes
-      ?.find((entity) => entity.name === entityName)
-      .type === GenericTableCellType.SELECTBOX;
+    return this.options.entityTypes?.find((entity) => entity.name === entityName).type === GenericTableCellType.SELECTBOX;
   }
 
   public getEntitySelectBoxOptions(entityName: string): string[] {
-    return this.options.entitySelectBoxOptions
-      ?.find((entity) => entity.name === entityName)
-      .values || [];
+    return this.options.entitySelectBoxOptions?.find((entity) => entity.name === entityName).values;
   }
 
   public getDateValue(dateString: string): Date {
@@ -216,7 +168,7 @@ export class GenericTableComponent<T> implements OnInit {
 
   public hasErrors(entity: GenericTableEntity<T>, name: string): boolean {
     return entity.errors?.find((error) => error.name === name) !== undefined
-      && (entity.state === GenericTableEntityState.EDIT || entity.state === GenericTableEntityState.NEW);
+    && (entity.state === GenericTableEntityState.EDIT || entity.state === GenericTableEntityState.NEW);
   }
 
   public cleanErrors(entity: GenericTableEntity<T>): void {
@@ -224,7 +176,7 @@ export class GenericTableComponent<T> implements OnInit {
   }
 
   public handleFormErrors(entity: GenericTableEntity<T>, genericTableEntityErrors: GenericTableEntityErrors): boolean {
-    if (genericTableEntityErrors?.formErrors?.length > 0) {
+    if (genericTableEntityErrors.formErrors?.length > 0) {
       entity.errors = genericTableEntityErrors.formErrors;
       return true;
     }
@@ -232,7 +184,7 @@ export class GenericTableComponent<T> implements OnInit {
   }
 
   public handleBusinessErrors(entity: GenericTableEntity<T>, genericTableEntityErrors: GenericTableEntityErrors): boolean {
-    if (genericTableEntityErrors?.businessErrors?.length > 0) {
+    if (genericTableEntityErrors.businessErrors?.length > 0) {
       entity.errors = genericTableEntityErrors.businessErrors;
       return true;
     }
@@ -240,7 +192,7 @@ export class GenericTableComponent<T> implements OnInit {
   }
 
   public handleApiErrors(entity: GenericTableEntity<T>, genericTableEntityErrors: GenericTableEntityErrors): boolean {
-    if (genericTableEntityErrors?.apiError) {
+    if (genericTableEntityErrors.apiError) {
       this.openApiErrorSnackBar(genericTableEntityErrors.apiError);
       return true;
     }
@@ -249,11 +201,11 @@ export class GenericTableComponent<T> implements OnInit {
 
   public handleErrors(entity: GenericTableEntity<T>, genericTableEntityErrors: GenericTableEntityErrors): void {
     const hasFormErrors = this.handleFormErrors(entity, genericTableEntityErrors);
-    if (!hasFormErrors) {
+    if(!hasFormErrors) {
       const hasBusinessErrors = this.handleBusinessErrors(entity, genericTableEntityErrors);
-      if (!hasBusinessErrors) {
+      if(!hasBusinessErrors) {
         const hasApiErrors = this.handleApiErrors(entity, genericTableEntityErrors);
-        if (!hasApiErrors) {
+        if(!hasApiErrors) {
           this.handleAction(entity);
         }
       }
@@ -261,11 +213,11 @@ export class GenericTableComponent<T> implements OnInit {
   }
 
   public handleAction(entity: GenericTableEntity<T>): void {
-    if (this.genericTableAction === GenericTableAction.EDIT) {
+    if(this.genericTableAction === GenericTableAction.EDIT){
       this.handleActionEdit(entity);
-    } else if (this.genericTableAction === GenericTableAction.NEW) {
+    } else if(this.genericTableAction === GenericTableAction.NEW){
       this.handleActionNew(entity);
-    } else if (this.genericTableAction === GenericTableAction.DELETE) {
+    } else if(this.genericTableAction === GenericTableAction.DELETE){
       this.handleActionDelete(entity);
     }
   }
@@ -283,13 +235,11 @@ export class GenericTableComponent<T> implements OnInit {
   }
 
   public handleActionDelete(entity: GenericTableEntity<T>): void {
-    this.genericTableData = this.genericTableData
-      ?.filter((data) => entity.data !== data.data);
+    this.genericTableData = this.genericTableData?.filter((data) => entity.data !== data.data);
   }
 
   public getPlaceHolder(name: string): string {
-    return this.options.entityPlaceHolders
-      ?.find((entityPlaceHolder) => entityPlaceHolder.name === name)?.value || '';
+    return this.options.entityPlaceHolders.find((entityPlaceHolder) => entityPlaceHolder.name === name)?.value;
   }
 
   private openApiErrorSnackBar(message: string): void {

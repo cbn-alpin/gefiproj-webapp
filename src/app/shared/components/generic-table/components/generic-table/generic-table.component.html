@@ -1,40 +1,42 @@
+
 <div>
   <span class="title">{{title}}</span>
 </div>
 
-<table mat-table [(dataSource)]="genericTableData" class="mat-elevation-z8">
+<table mat-table [dataSource]="genericTableData" class="mat-elevation-z8">
 
-  <ng-container *ngFor="let columnName of dataSourceColumnsName; let index = index" [matColumnDef]="columnName.code">
-    <th mat-header-cell *matHeaderCellDef> {{columnName.name}} </th>
+  <ng-container *ngFor="let columnName of dataSourceColumnsName; let index = index" [matColumnDef]="columnName.value">
+    <th mat-header-cell *matHeaderCellDef> {{columnName.value}} </th>
     <td mat-cell *matCellDef="let element">
 
       <!-- String -->
       <div class="string">
-        <mat-form-field *ngIf="isString(columnName.code)" [ngClass]="{errors: hasErrors(element, columnName.code)}" floatLabel="never">
+        <mat-form-field *ngIf="isString(columnName.name)" [ngClass]="{errors: hasErrors(element, columnName.name)}" floatLabel="never">
           <input matInput [disabled]="element.state === GenericTableEntityState.READ" matTooltipClass="tooltip-error"
-                 [matTooltip]="getErrorMessage(element.errors, columnName.code)"
-                 [(ngModel)]="element.data[columnName.code]"
-                 [placeholder]="getPlaceHolder(columnName.code)">
+                 [matTooltip]="getErrorMessage(element.errors, columnName.name)"
+                 [(ngModel)]="element.data[columnName.name]"
+                 [placeholder]="getPlaceHolder(columnName.name)">
         </mat-form-field>
       </div>
 
       <!-- Number -->
       <div class="number">
-        <mat-form-field *ngIf="isNumber(columnName.code)" [ngClass]="{errors: hasErrors(element, columnName.code)}" floatLabel="never">
+        <mat-form-field *ngIf="isNumber(columnName.name)" [ngClass]="{errors: hasErrors(element, columnName.name)}" floatLabel="never">
           <input matInput numeric [disabled]="element.state === GenericTableEntityState.READ" matTooltipClass="tooltip-error"
-                 [matTooltip]="getErrorMessage(element.errors, columnName.code)"
-                 [(ngModel)]="element.data[columnName.code]"
-                 [placeholder]="getPlaceHolder(columnName.code)">
+                 [matTooltip]="getErrorMessage(element.errors, columnName.name)"
+                 [(ngModel)]="element.data[columnName.name]"
+                 [placeholder]="getPlaceHolder(columnName.name)">
         </mat-form-field>
       </div>
 
+
       <!-- Date -->
       <div class="date">
-        <mat-form-field *ngIf="isDate(columnName.code)" [ngClass]="{errors: hasErrors(element, columnName.code)}" floatLabel="never">
+        <mat-form-field *ngIf="isDate(columnName.name)" [ngClass]="{errors: hasErrors(element, columnName.name)}" floatLabel="never">
           <input matInput [disabled]="element.state === GenericTableEntityState.READ" [matDatepicker]="picker1" matTooltipClass="tooltip-error"
-                 [matTooltip]="getErrorMessage(element.errors, columnName.code)"
-                 [(ngModel)]="element.data[columnName.code]"
-                 [placeholder]="getPlaceHolder(columnName.code)">
+                 [matTooltip]="getErrorMessage(element.errors, columnName.name)"
+                 [(ngModel)]="element.data[columnName.name]"
+                 [placeholder]="getPlaceHolder(columnName.name)">
           <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
           <mat-datepicker #picker1></mat-datepicker>
         </mat-form-field>
@@ -42,28 +44,29 @@
 
       <!-- Currency -->
       <div class="currency">
-        <mat-form-field *ngIf="isCurrency(columnName.code)" [ngClass]="{errors: hasErrors(element, columnName.code)}" floatLabel="never">
+        <mat-form-field *ngIf="isCurrency(columnName.name)" [ngClass]="{errors: hasErrors(element, columnName.name)}" floatLabel="never">
           <input matInput numeric decimals="4" [disabled]="element.state === GenericTableEntityState.READ" matTooltipClass="tooltip-error"
-                 [matTooltip]="getErrorMessage(element.errors, columnName.code)"
-                 [ngModel]="element.state === GenericTableEntityState.READ ? ((element.data[columnName.code] | number:'1.0-0': 'fr-FR') + ' €') : element.data[columnName.code]"
-                 (ngModelChange)="element.data[columnName.code]=$event"
-                 [placeholder]="getPlaceHolder(columnName.code)">
+                 [matTooltip]="getErrorMessage(element.errors, columnName.name)"
+                 [ngModel]="element.state === GenericTableEntityState.READ ? ((element.data[columnName.name] | number:'1.0-0': 'fr-FR') + ' €') : element.data[columnName.name]"
+                 (ngModelChange)="element.data[columnName.name]=$event"
+                 [placeholder]="getPlaceHolder(columnName.name)">
         </mat-form-field>
       </div>
 
+
       <!-- Boolean -->
       <div class="checkbox">
-        <mat-checkbox *ngIf="isBoolean(columnName.code)" [(ngModel)]="element.data[columnName.code]"
+        <mat-checkbox *ngIf="isBoolean(columnName.name)" [(ngModel)]="element.data[columnName.name]"
                       [disabled]="element.state === GenericTableEntityState.READ">
         </mat-checkbox>
       </div>
 
       <!-- Select box -->
       <div class="selectbox">
-        <mat-form-field *ngIf="isSelectBox(columnName.code)" [ngClass]="{errors: hasErrors(element, columnName.code)}" floatLabel="never">
-          <mat-select [(ngModel)]="element.data[columnName.code]" [disabled]="element.state === GenericTableEntityState.READ" matTooltipClass="tooltip-error"
-                      [matTooltip]="getErrorMessage(element.errors, columnName.code)">
-            <mat-option *ngFor="let option of getEntitySelectBoxOptions(columnName.code)" [value]="option.code">{{option.value}}
+        <mat-form-field *ngIf="isSelectBox(columnName.name)" [ngClass]="{errors: hasErrors(element, columnName.name)}" floatLabel="never">
+          <mat-select [(ngModel)]="element.data[columnName.name]" [disabled]="element.state === GenericTableEntityState.READ" matTooltipClass="tooltip-error"
+                      [matTooltip]="getErrorMessage(element.errors, columnName.name)">
+            <mat-option *ngFor="let option of getEntitySelectBoxOptions(columnName.name)" [value]="option.code">{{option.value}}
             </mat-option>
           </mat-select>
         </mat-form-field>

@@ -1,14 +1,14 @@
-import { DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Router } from '@angular/router';
 import { Financement, Statut_F } from 'src/app/models/financement';
-import { FinancementsService } from 'src/app/services/financements.service';
 import { GenericTableCellType } from 'src/app/shared/components/generic-table/globals/generic-table-cell-types';
-import { EntitySelectBoxOptions } from 'src/app/shared/components/generic-table/models/entity-select-box-options';
-import { GenericTableEntityEvent } from 'src/app/shared/components/generic-table/models/generic-table-entity-event';
 import { GenericTableInterface } from 'src/app/shared/components/generic-table/models/generic-table-interface';
 import { GenericTableOptions } from 'src/app/shared/components/generic-table/models/generic-table-options';
+import { EntityType } from 'src/app/shared/components/generic-table/models/entity-types';
+import { EntitySelectBoxOptions } from 'src/app/shared/components/generic-table/models/entity-select-box-options';
+import { EntityPlaceholder } from 'src/app/shared/components/generic-table/models/entity-placeholder';
+import { FinancementsService } from 'src/app/services/financements.service';
+import { ActivatedRoute, Router } from '@angular/router';
+
 
 @Component({
   selector: 'app-projets',
@@ -20,7 +20,7 @@ export class ProjetsComponent implements OnInit, GenericTableInterface<Financeme
   /**
    * Titre du tableau générique
    */
-  readonly title = 'Financements';
+  public title = 'Financement Test';
 
   /**
    * id projet
@@ -28,68 +28,92 @@ export class ProjetsComponent implements OnInit, GenericTableInterface<Financeme
   public projectId: string;
 
   /**
+   * Options du tableau générique: données sources, entité par défaut, types des entités, les options des select box, les placeholders
+   */
+  public options: GenericTableOptions<Financement>;
+
+  /**
    * Données source du tableau générique
    * @private
    */
-  public financements: Financement[];
+  public dataSource: Financement[];
 
   /**
-   * Représente un nouveau financement et définit les colonnes à afficher.
+   * Entité par défaut utilisé lors de la création d'une nouvelle financement
+   * @private
    */
-  private readonly defaultEntity: Financement= {
-    id_f: undefined,
+  private defaultEntity: Financement = {
     id_p: undefined,
     id_financeur: undefined,
-    montant_arrete_f: undefined,
+    montant_arrete_f: 0,
     date_arrete_f: undefined,
     date_limite_solde_f: undefined,
     statut_f: Statut_F.ANTR,
     date_solde_f: undefined,
-    commentaire_admin_f: '',
-    commentaire_resp_f: '',
-    numero_titre_f: '',
-    annee_titre_f: '',
-    imputation_f: '',
-    difference: 0,
-  } ;
+    commentaire_admin_f: undefined,
+    commentaire_resp_f: undefined,
+    numero_titre_f: undefined,
+    annee_titre_f: undefined,
+    imputation_f: undefined,
+    difference: undefined
+  };
 
   /**
-   * Paramètres du tableau de financement.
+   * Extraire les noms de chaque propriétés du type Famille vers une énumération.
+   * Cette énumération nous facilite la vie.
+   * Attention: le nom de la propriété dans l'énum doit correspondre au nom de la propriété du type
+   * -> Ex: ORIGINE: 'origine' mais pas 'Origine'
+   * -> C'est pour cette raison qu'on extrait directement le nom de l'objet grâce à Object.keys
+   * TODO: Trouver une meilleur solution
+   * @private
    */
-  options: GenericTableOptions<Financement> = {
-    dataSource: [],
-    defaultEntity: this.defaultEntity,
-    entityTypes: [
-      {name: 'Montant Arreté', type: GenericTableCellType.CURRENCY, code: Object.keys(this.defaultEntity)[3]},
-      {name: 'Date arreté ou commande', type: GenericTableCellType.DATE, code: Object.keys(this.defaultEntity)[4]},
-      {name: 'Date limite de solde', type: GenericTableCellType.DATE, code: Object.keys(this.defaultEntity)[5]},
-      {name: 'Financeur', type: GenericTableCellType.SELECTBOX, code: Object.keys(this.defaultEntity)[2]},
-      {name: 'Statut', type: GenericTableCellType.SELECTBOX, code: Object.keys(this.defaultEntity)[6]},
-      {name: 'Date de solde', type: GenericTableCellType.DATE, code: Object.keys(this.defaultEntity)[7]},
-      {name: 'Commentaire admin', type: GenericTableCellType.TEXT, code: Object.keys(this.defaultEntity)[8]},
-      {name: 'Commentaire responsable', type: GenericTableCellType.TEXT, code: Object.keys(this.defaultEntity)[9]},
-      {name: 'Numéro titre', type: GenericTableCellType.TEXT, code: Object.keys(this.defaultEntity)[10]},
-      {name: 'Année titre', type: GenericTableCellType.TEXT, code: Object.keys(this.defaultEntity)[11]},
-      {name: 'Imputation', type: GenericTableCellType.TEXT, code: Object.keys(this.defaultEntity)[12]},
-      {name: 'Différence', type: GenericTableCellType.CURRENCY, code: Object.keys(this.defaultEntity)[13]}
-    ],
-    entityPlaceHolders: [],
-    entitySelectBoxOptions: []
+  private EntityPropertyName = {
+    PROJET: Object.keys(this.defaultEntity)[0],
+    FINANCEUR: Object.keys(this.defaultEntity)[1],
+    MONTANT_ARRETE: Object.keys(this.defaultEntity)[2],
+    DATE_ARRETE: Object.keys(this.defaultEntity)[3],
+    DATE_LIMITE_SOLDE: Object.keys(this.defaultEntity)[4],
+    STATUT: Object.keys(this.defaultEntity)[5],
+    DATE_SOLDE: Object.keys(this.defaultEntity)[6],
+    COMMENTAIRE_ADMIN: Object.keys(this.defaultEntity)[7],
+    COMMENTAIRE_RESP: Object.keys(this.defaultEntity)[8],
+    NUMERO_TITRE: Object.keys(this.defaultEntity)[9],
+    ANNEE_TITRE: Object.keys(this.defaultEntity)[10],
+    IMPUTATION: Object.keys(this.defaultEntity)[11],
+    DIFFERENCE: Object.keys(this.defaultEntity)[12],
   };
-  
+
   /**
-   * Tableau des options des select box de l'entité financement
+   * Tableau des types de l'entité financement
+   * @private
+   */
+  private entityTypes: EntityType[] = [
+    {name: this.EntityPropertyName.MONTANT_ARRETE, type: GenericTableCellType.CURRENCY},
+    {name: this.EntityPropertyName.DATE_ARRETE, type: GenericTableCellType.DATE},
+    {name: this.EntityPropertyName.DATE_SOLDE, type: GenericTableCellType.DATE},
+    {name: this.EntityPropertyName.FINANCEUR, type: GenericTableCellType.SELECTBOX},
+    {name: this.EntityPropertyName.STATUT, type: GenericTableCellType.SELECTBOX},
+    {name: this.EntityPropertyName.COMMENTAIRE_ADMIN, type: GenericTableCellType.TEXT},
+    {name: this.EntityPropertyName.COMMENTAIRE_RESP, type: GenericTableCellType.TEXT},
+    {name: this.EntityPropertyName.NUMERO_TITRE, type: GenericTableCellType.TEXT},
+    {name: this.EntityPropertyName.ANNEE_TITRE, type: GenericTableCellType.TEXT},
+    {name: this.EntityPropertyName.IMPUTATION, type: GenericTableCellType.TEXT},
+    {name: this.EntityPropertyName.DIFFERENCE, type: GenericTableCellType.CURRENCY}
+  ];
+
+  /**
+   * Tablau des options des select box de l'entité financement
    * @private
    */
   private entitySelectBoxOptions: EntitySelectBoxOptions[] = [
     {
-      name: Object.keys(this.defaultEntity)[2],
+      name: this.EntityPropertyName.FINANCEUR,
       values: [
         {code: 1, value: 1},
       ]
     },
     {
-      name: Object.keys(this.defaultEntity)[6],
+      name: this.EntityPropertyName.STATUT,
       values: [
         {code:'ANTR', value: Statut_F.ANTR},
         {code:'ATR', value: Statut_F.ATR},
@@ -98,124 +122,58 @@ export class ProjetsComponent implements OnInit, GenericTableInterface<Financeme
     }
   ];
 
+  /**
+   * Tableau des placeholders de l'entité financement
+   * @private
+   */
+  private entityPlaceHolders: EntityPlaceholder[] = [
+    {name: this.EntityPropertyName.MONTANT_ARRETE, value: 'Montant Arreté'},
+    {name: this.EntityPropertyName.DATE_ARRETE, value: 'Date arreté ou commande'},
+    {name: this.EntityPropertyName.DATE_SOLDE, value: 'Date soldé'},
+    {name: this.EntityPropertyName.FINANCEUR, value: 'Financeur'},
+    {name: this.EntityPropertyName.STATUT, value: 'Statut'},
+    {name: this.EntityPropertyName.COMMENTAIRE_ADMIN, value: 'Commentaire admin'},
+    {name: this.EntityPropertyName.COMMENTAIRE_RESP, value: 'Commentaire responsable'},
+    {name: this.EntityPropertyName.NUMERO_TITRE, value: 'Numéro titre'},
+    {name: this.EntityPropertyName.ANNEE_TITRE, value: 'Année titre'},
+    {name: this.EntityPropertyName.IMPUTATION, value: 'Imputation'},
+    {name: this.EntityPropertyName.DIFFERENCE, value: 'Différence'}
+  ];
+
   constructor(
     private financementsService: FinancementsService,
     private route: ActivatedRoute,
     private router: Router,
-    private snackBar: MatSnackBar,
   ) {
-    this.projectId = this.route.snapshot.params.id;
-    if(!this.projectId) this.router.navigate(['home'])
   }
 
-  async ngOnInit(): Promise<void> {
-    try {
-      await this.loadFinancements(this.projectId);
-    } catch (error) {
-      console.error(error);
-    }
+  ngOnInit(): void {
+    this.projectId = this.route.snapshot.params.id;
+    if(!this.projectId) this.router.navigate(['home'])
+    this.loadFinancements(this.projectId).then( () => {
+      this.options = {
+        dataSource: this.dataSource,
+        defaultEntity: this.defaultEntity,
+        entitySelectBoxOptions: this.entitySelectBoxOptions,
+        entityTypes: this.entityTypes,
+        entityPlaceHolders: this.entityPlaceHolders
+      };
+    });
   }
 
   /**
-   * Charge les financements depuis le serveur.
+   * Charge les projets depuis le serveur.
    */
   async loadFinancements(projetId: string): Promise<Financement[]> {
     try {
-      this.financements = await this.financementsService.get_by_id(projetId);
-      this.financements.forEach( res => {
+      const financements = await this.financementsService.get_by_id(projetId);
+      this.dataSource = financements;
+      financements.forEach( res => {
         res.difference = 0;
       });
-
-    console.log(this.financements)
-      this.options.dataSource = this.financements.reverse();
-      this.options.entitySelectBoxOptions = this.entitySelectBoxOptions;
     } catch (error) {
       console.error(error);
-      this.showInformation('Impossible de charger les projets.');
       return Promise.reject(error);
-    }
-  }
-
-  /**
-   * Affiche une information.
-   * @param message : message à afficher.
-   */
-  private showInformation(message: string): void {
-    try {
-      this.snackBar.open(
-        message,
-        'OK', {
-        duration: 5000,
-        horizontalPosition: 'right',
-        verticalPosition: 'top',
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  /**
-   * Un financement a été modifié dans le tableau.
-   * @param event : encapsule le financement à modifier.
-   */
-  async onEdit(event: GenericTableEntityEvent<Financement>): Promise<void> {
-    try {
-      let financement = event.entity;
-      if(financement.hasOwnProperty('difference')) delete financement.difference;
-      financement.id_p = Number(this.projectId);
-      const pipe = new DatePipe('fr-FR');
-
-      if(financement.date_arrete_f) financement.date_arrete_f = pipe.transform(new Date(financement.date_arrete_f), 'yyyy-MM-dd')
-      if(financement.date_limite_solde_f) financement.date_limite_solde_f = pipe.transform(new Date(financement.date_limite_solde_f), 'yyyy-MM-dd')
-      if(financement.date_solde_f) financement.date_solde_f = pipe.transform(new Date(financement.date_solde_f), 'yyyy-MM-dd')
-      console.log(financement)
-      await this.financementsService.put(financement);
-      //event.callBack(null);
-    } catch (error) {
-      console.error(error);
-      event?.callBack({
-        apiError: 'Impossible de modifier le financement.'
-      });
-    }
-  }
-  
-  /**
-  * Un financements a été créé et initialisé dans le tableau.
-  * @param event : encapsule le financements à modifier.
-  */
-  async onCreate(event: GenericTableEntityEvent<Financement>): Promise<void> {
-    try {
-      let financement = event.entity;
-      if(financement.hasOwnProperty('difference')) delete financement.difference;
-      financement.id_p = Number(this.projectId);
-      const pipe = new DatePipe('fr-FR');
-      
-      if(financement.date_arrete_f) financement.date_arrete_f = pipe.transform(new Date(financement.date_arrete_f), 'yyyy-MM-dd')
-      if(financement.date_limite_solde_f) financement.date_limite_solde_f = pipe.transform(new Date(financement.date_limite_solde_f), 'yyyy-MM-dd')
-      if(financement.date_solde_f) financement.date_solde_f = pipe.transform(new Date(financement.date_solde_f), 'yyyy-MM-dd')
-      await this.financementsService.post(event.entity);
-      //event.callBack(null);
-    } catch (error) {
-      console.error(error);
-      event?.callBack({
-        apiError: 'Impossible de créer le financements.'
-      });
-    }
-  }
-
-  /**
-   * Un financements a été supprimé du tableau.
-   * @param event : encapsule le financements à modifier.
-   */
-  async onDelete(event: GenericTableEntityEvent<Financement>): Promise<void> {
-    try {
-      await this.financementsService.delete(event.entity);
-      //event.callBack(null);
-    } catch (error) {
-      console.error(error);
-      event?.callBack({
-        apiError: 'Impossible de supprimer le financements.'
-      });
     }
   }
 }
