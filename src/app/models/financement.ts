@@ -1,15 +1,26 @@
+import { Financeur } from './financeur';
+
 export interface Financement {
-  id: number;
-  code: string;
-  code_projet: number;
-  montant_arrete: number;
-  date_arrete?: Date | string;
-  date_limite_solde?: Date | string;
-  financeur: string;
-  statut: string;
-  date_solde: Date | string;
-  commentaire?: string;
-  numero_titre?: string;
-  annee_titre?: number | string;
-  imputation?: string;
+  id_f?: number;
+  id_p: number;
+  id_financeur?: number;
+  financeur?: Financeur;
+  montant_arrete_f: number;
+  date_arrete_f?: Date | string;
+  date_limite_solde_f?: Date | string;
+  statut_f: Statut_F;
+  date_solde_f: Date | string;
+  commentaire_admin_f?: string;
+  commentaire_resp_f?: string;
+  numero_titre_f?: string;
+  annee_titre_f?: number | string;
+  imputation_f?: string;
+  difference?: number
+}
+
+
+export enum Statut_F {
+  ANTR = 'Actif non totalement rattaché',
+  ATR = 'Actif totalement rattaché',
+  SOLDE = 'Soldé'
 }

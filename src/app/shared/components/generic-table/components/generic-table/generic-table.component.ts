@@ -11,6 +11,7 @@ import {GenericTableEntityEvent} from '../../models/generic-table-entity-event';
 import {GenericTableOptions} from '../../models/generic-table-options';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {GenericTableAction} from '../../globals/generic-table-action';
+import { EntityPlaceholder } from '../../models/entity-placeholder';
 
 @Component({
   selector: 'app-generic-table[title][options]',
@@ -26,7 +27,7 @@ export class GenericTableComponent<T> implements OnInit {
   @Output() deleteEvent: EventEmitter < GenericTableEntityEvent<T> > = new EventEmitter < GenericTableEntityEvent<T> > ();
 
   public genericTableData: GenericTableEntity<T>[];
-  public dataSourceColumnsName: string[];
+  public dataSourceColumnsName: EntityPlaceholder[];
   public displayedColumns: string[];
   public actionsHeaderColumns = 'Actions';
   public GenericTableEntityState = GenericTableEntityState;
@@ -44,12 +45,16 @@ export class GenericTableComponent<T> implements OnInit {
         state: GenericTableEntityState.READ
       };
     });
-    this.dataSourceColumnsName = this.getDisplayedColumns();
-    this.displayedColumns = this.showActions ? this.dataSourceColumnsName.concat(this.actionsHeaderColumns) : this.dataSourceColumnsName;
+    this.dataSourceColumnsName = this.options.entityPlaceHolders;
+    this.displayedColumns = this.showActions ? this.getDisplayedColumns().concat(this.actionsHeaderColumns) : this.getDisplayedColumns();
+  }
+
+  public getDisplayedName(): string[] {
+    return this.options.entityPlaceHolders.map(res => res.name);
   }
 
   public getDisplayedColumns(): string[] {
-    return Object.keys(this.options.defaultEntity);
+    return this.options.entityPlaceHolders.map(res => res.value);
   }
 
   public getColumnName(value: string): string {
