@@ -1,13 +1,5 @@
-<p>home works!</p>
-<table>
-    <thead>
-        <tr>
-            <th>Nom</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td *ngFor="let projet of projets">{{projet.nom}}</td>
-        </tr>
-    </tbody>
-</table>
+<div style="width: 100%; display: inline-block;">
+    <app-generic-table [title]="title" [(options)]="options" [showActions]="true" (editEvent)="onEdit($event)"
+        (createEvent)="onCreate($event)" (deleteEvent)="onDelete($event)" style="width: 100%; display: inline-block;">
+    </app-generic-table>
+</div>

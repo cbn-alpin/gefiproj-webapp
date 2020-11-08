@@ -1,9 +1,8 @@
-
 <div>
   <span class="title">{{title}}</span>
 </div>
 
-<table mat-table [dataSource]="genericTableData" class="mat-elevation-z8">
+<table mat-table [(dataSource)]="genericTableData" class="mat-elevation-z8">
 
   <ng-container *ngFor="let columnName of dataSourceColumnsName; let index = index" [matColumnDef]="columnName">
     <th mat-header-cell *matHeaderCellDef> {{getColumnName(columnName)}} </th>
@@ -11,32 +10,31 @@
 
       <!-- String -->
       <div class="string">
-        <mat-form-field *ngIf="isString(columnName)" [ngClass]="{errors: hasErrors(element, columnName)}" floatLabel="never">
+        <mat-form-field *ngIf="isString(columnName)" [ngClass]="{errors: hasErrors(element, columnName)}"
+          floatLabel="never">
           <input matInput [disabled]="element.state === GenericTableEntityState.READ" matTooltipClass="tooltip-error"
-                 [matTooltip]="getErrorMessage(element.errors, columnName)"
-                 [(ngModel)]="element.data[columnName]"
-                 [placeholder]="getPlaceHolder(columnName)">
+            [matTooltip]="getErrorMessage(element.errors, columnName)" [(ngModel)]="element.data[columnName]"
+            [placeholder]="getPlaceHolder(columnName)">
         </mat-form-field>
       </div>
 
       <!-- Number -->
       <div class="number">
-        <mat-form-field *ngIf="isNumber(columnName)" [ngClass]="{errors: hasErrors(element, columnName)}" floatLabel="never">
-          <input matInput numeric [disabled]="element.state === GenericTableEntityState.READ" matTooltipClass="tooltip-error"
-                 [matTooltip]="getErrorMessage(element.errors, columnName)"
-                 [(ngModel)]="element.data[columnName]"
-                 [placeholder]="getPlaceHolder(columnName)">
+        <mat-form-field *ngIf="isNumber(columnName)" [ngClass]="{errors: hasErrors(element, columnName)}"
+          floatLabel="never">
+          <input matInput numeric [disabled]="element.state === GenericTableEntityState.READ"
+            matTooltipClass="tooltip-error" [matTooltip]="getErrorMessage(element.errors, columnName)"
+            [(ngModel)]="element.data[columnName]" [placeholder]="getPlaceHolder(columnName)">
         </mat-form-field>
       </div>
 
-
       <!-- Date -->
       <div class="date">
-        <mat-form-field *ngIf="isDate(columnName)" [ngClass]="{errors: hasErrors(element, columnName)}" floatLabel="never">
-          <input matInput [disabled]="element.state === GenericTableEntityState.READ" [matDatepicker]="picker1" matTooltipClass="tooltip-error"
-                 [matTooltip]="getErrorMessage(element.errors, columnName)"
-                 [(ngModel)]="element.data[columnName]"
-                 [placeholder]="getPlaceHolder(columnName)">
+        <mat-form-field *ngIf="isDate(columnName)" [ngClass]="{errors: hasErrors(element, columnName)}"
+          floatLabel="never">
+          <input matInput [disabled]="element.state === GenericTableEntityState.READ" [matDatepicker]="picker1"
+            matTooltipClass="tooltip-error" [matTooltip]="getErrorMessage(element.errors, columnName)"
+            [(ngModel)]="element.data[columnName]" [placeholder]="getPlaceHolder(columnName)">
           <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
           <mat-datepicker #picker1></mat-datepicker>
         </mat-form-field>
@@ -44,28 +42,28 @@
 
       <!-- Currency -->
       <div class="currency">
-        <mat-form-field *ngIf="isCurrency(columnName)" [ngClass]="{errors: hasErrors(element, columnName)}" floatLabel="never">
-          <input matInput numeric decimals="4" [disabled]="element.state === GenericTableEntityState.READ" matTooltipClass="tooltip-error"
-                 [matTooltip]="getErrorMessage(element.errors, columnName)"
-                 [ngModel]="element.state === GenericTableEntityState.READ ? ((element.data[columnName] | number:'1.0-0': 'fr-FR') + ' €') : element.data[columnName]"
-                 (ngModelChange)="element.data[columnName]=$event"
-                 [placeholder]="getPlaceHolder(columnName)">
+        <mat-form-field *ngIf="isCurrency(columnName)" [ngClass]="{errors: hasErrors(element, columnName)}"
+          floatLabel="never">
+          <input matInput numeric decimals="4" [disabled]="element.state === GenericTableEntityState.READ"
+            matTooltipClass="tooltip-error" [matTooltip]="getErrorMessage(element.errors, columnName)"
+            [ngModel]="element.state === GenericTableEntityState.READ ? ((element.data[columnName] | number:'1.0-0': 'fr-FR') + ' €') : element.data[columnName]"
+            (ngModelChange)="element.data[columnName]=$event" [placeholder]="getPlaceHolder(columnName)">
         </mat-form-field>
       </div>
-
 
       <!-- Boolean -->
       <div class="checkbox">
         <mat-checkbox *ngIf="isBoolean(columnName)" [(ngModel)]="element.data[columnName]"
-                      [disabled]="element.state === GenericTableEntityState.READ">
+          [disabled]="element.state === GenericTableEntityState.READ">
         </mat-checkbox>
       </div>
 
       <!-- Select box -->
       <div class="selectbox">
-        <mat-form-field *ngIf="isSelectBox(columnName)" [ngClass]="{errors: hasErrors(element, columnName)}" floatLabel="never">
-          <mat-select [(ngModel)]="element.data[columnName]" [disabled]="element.state === GenericTableEntityState.READ" matTooltipClass="tooltip-error"
-                      [matTooltip]="getErrorMessage(element.errors, columnName)">
+        <mat-form-field *ngIf="isSelectBox(columnName)" [ngClass]="{errors: hasErrors(element, columnName)}"
+          floatLabel="never">
+          <mat-select [(ngModel)]="element.data[columnName]" [disabled]="element.state === GenericTableEntityState.READ"
+            matTooltipClass="tooltip-error" [matTooltip]="getErrorMessage(element.errors, columnName)">
             <mat-option *ngFor="let option of getEntitySelectBoxOptions(columnName)" [value]="option">{{option}}
             </mat-option>
           </mat-select>
