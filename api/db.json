@@ -12,6 +12,10 @@
     {
       "id": 1,
       "nom": "Projet X"
+    },
+    {
+      "id": 2,
+      "nom": "Projet Y"
     }
   ],
   "login": {}
