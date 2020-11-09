@@ -32,7 +32,7 @@ export class AuthService {
   /**
    * Header à injecter à chaque requête.
    */
-  private static readonly headers = {
+  public static readonly headers = {
     'Content-Type': 'application/json'
   };
 
