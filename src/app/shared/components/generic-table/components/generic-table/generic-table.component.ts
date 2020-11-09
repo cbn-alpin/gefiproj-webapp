@@ -220,7 +220,7 @@ export class GenericTableComponent<T> implements OnInit {
   }
 
   public handleFormErrors(entity: GenericTableEntity<T>, genericTableEntityErrors: GenericTableEntityErrors): boolean {
-    if (genericTableEntityErrors.formErrors?.length > 0) {
+    if (genericTableEntityErrors?.formErrors?.length > 0) {
       entity.errors = genericTableEntityErrors.formErrors;
       return true;
     }
@@ -228,7 +228,7 @@ export class GenericTableComponent<T> implements OnInit {
   }
 
   public handleBusinessErrors(entity: GenericTableEntity<T>, genericTableEntityErrors: GenericTableEntityErrors): boolean {
-    if (genericTableEntityErrors.businessErrors?.length > 0) {
+    if (genericTableEntityErrors?.businessErrors?.length > 0) {
       entity.errors = genericTableEntityErrors.businessErrors;
       return true;
     }
@@ -236,7 +236,7 @@ export class GenericTableComponent<T> implements OnInit {
   }
 
   public handleApiErrors(entity: GenericTableEntity<T>, genericTableEntityErrors: GenericTableEntityErrors): boolean {
-    if (genericTableEntityErrors.apiError) {
+    if (genericTableEntityErrors?.apiError) {
       this.openApiErrorSnackBar(genericTableEntityErrors.apiError);
       return true;
     }
