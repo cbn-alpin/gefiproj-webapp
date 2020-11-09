@@ -6,5 +6,13 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'cbnaFront';
+  /**
+   * Titre du composant.
+   */
+  title = 'GeFiProj';
+
+  /**
+   * Message affiché sous le spinner.
+   */
+  spinnerMessage = 'Veuillez patienter...';
 }

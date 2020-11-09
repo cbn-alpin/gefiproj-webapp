@@ -1,3 +1,5 @@
+@import "~src/vars";
+
 .content {
     top: 60px;
 }
@@ -28,4 +30,8 @@ footer {
 footer a {
     display: flex;
     align-items: center;
+}
+
+.spinner{
+    color: $white;
 }
