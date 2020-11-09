@@ -11,24 +11,17 @@
   "projets": [
     {
       "id": 1,
-      "code": "0123",
-      "nom": "Projet Xav",
+      "code": "abcd",
+      "nom": "Projet X",
       "responsable": "azp",
       "statut": true
     },
     {
       "id": 2,
-      "code": "4567",
+      "code": "efgh",
       "nom": "Projet Y",
       "responsable": "hanh",
       "statut": true
-    },
-    {
-      "code": 0,
-      "nom": "aaa",
-      "responsable": "",
-      "statut": false,
-      "id": 3
     }
   ],
   "login": {}

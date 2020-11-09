@@ -6,11 +6,11 @@
   .title {
     font-size: 20px;
   }
-  .number .mat-form-field, .string .mat-form-field {
-    width: 50px;
+  .number .mat-form-field, .string .mat-form-field, .selectbox .mat-form-field, .date .mat-form-field, .currency .mat-form-field {
+    width: auto;
   }
-  .selectbox .mat-form-field, .date .mat-form-field, .currency .mat-form-field {
-    width: 105px;
+  th.cdk-column-Actions {
+    min-width: 90px;
   }
   .errors {
     .mat-form-field-label {
@@ -35,7 +35,9 @@
   .mat-row:nth-child(odd){
     background-color: #D8D8D8;
   }
-
+  mat-form-field {
+    width: 100%;
+  }
   .mat-header-cell {
     background-color: #4D9F67;
     color: #FFFFFF;
