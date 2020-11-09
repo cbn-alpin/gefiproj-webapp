@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SpinnerService } from 'src/app/services/spinner.service';
 import { GenericTableCellType } from 'src/app/shared/components/generic-table/globals/generic-table-cell-types';
 import { ProjetsService } from '../../services/projets.service';
 import { Projet } from './../../models/projet';
@@ -20,7 +22,7 @@ export class HomeComponent implements OnInit {
   projets: Projet[] = [];
 
   /**
-   * Titre du tableau générique
+   * Titre du tableau générique.
    */
   readonly title = 'Projets';
 
@@ -53,10 +55,13 @@ export class HomeComponent implements OnInit {
   /**
    * Affiche les projets.
    * @param projetsSrv : permet de dialoguer avec le serveur d'API pour les entités Projet.
+   * @param snackBar : affiche une information.
+   * @param spinnerSrv : gère le spinner/sablier.
    */
   constructor(
-    private projetsSrv: ProjetsService) {
-
+    private projetsSrv: ProjetsService,
+    private snackBar: MatSnackBar,
+    private spinnerSrv: SpinnerService) {
   }
 
   /**
@@ -75,13 +80,35 @@ export class HomeComponent implements OnInit {
    */
   async loadProjects(): Promise<void> {
     try {
-      this.projets = await this.projetsSrv.get();
+      this.spinnerSrv.show();
+      this.projets = await this.projetsSrv.getAll();
       this.options = Object.assign({}, this.options, {
         dataSource: this.projets
       });
     } catch (error) {
       console.error(error);
+      this.showInformation('Impossible de charger les projets.');
       return Promise.reject(error);
+    } finally {
+      this.spinnerSrv.hide();
+    }
+  }
+
+  /**
+   * Affiche une information.
+   * @param message : message à afficher.
+   */
+  private showInformation(message: string): void {
+    try {
+      this.snackBar.open(
+        message,
+        'OK', {
+        duration: 5000,
+        horizontalPosition: 'right',
+        verticalPosition: 'top',
+      });
+    } catch (error) {
+      console.error(error);
     }
   }
 
