@@ -12,6 +12,7 @@ import {GenericTableOptions} from '../../models/generic-table-options';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {GenericTableAction} from '../../globals/generic-table-action';
 import { EntityPlaceholder } from '../../models/entity-placeholder';
+import { EntityType } from '../../models/entity-types';
 
 @Component({
   selector: 'app-generic-table[title][options]',
@@ -27,7 +28,7 @@ export class GenericTableComponent<T> implements OnInit {
   @Output() deleteEvent: EventEmitter < GenericTableEntityEvent<T> > = new EventEmitter < GenericTableEntityEvent<T> > ();
 
   public genericTableData: GenericTableEntity<T>[];
-  public dataSourceColumnsName: EntityPlaceholder[];
+  public dataSourceColumnsName: EntityType[];
   public displayedColumns: string[];
   public actionsHeaderColumns = 'Actions';
   public GenericTableEntityState = GenericTableEntityState;
@@ -45,7 +46,7 @@ export class GenericTableComponent<T> implements OnInit {
         state: GenericTableEntityState.READ
       };
     });
-    this.dataSourceColumnsName = this.options.entityPlaceHolders;
+    this.dataSourceColumnsName = this.options.entityTypes;
     this.displayedColumns = this.showActions ? this.getDisplayedColumns().concat(this.actionsHeaderColumns) : this.getDisplayedColumns();
   }
 
@@ -54,7 +55,7 @@ export class GenericTableComponent<T> implements OnInit {
   }
 
   public getDisplayedColumns(): string[] {
-    return this.options.entityPlaceHolders.map(res => res.value);
+    return this.options.entityTypes.map(res => res.code);
   }
 
   public getColumnName(value: string): string {
@@ -130,28 +131,27 @@ export class GenericTableComponent<T> implements OnInit {
   }
 
   public isString(entityName: any): boolean {
-    return this.options.entityTypes?.find((entity) => entity.name === entityName)
-      .type === GenericTableCellType.TEXT;
+    return this.options.entityTypes?.find((entity) => entity.code === entityName).type === GenericTableCellType.TEXT;
   }
 
   public isNumber(entityName: any): boolean {
-    return this.options.entityTypes?.find((entity) => entity.name === entityName).type === GenericTableCellType.NUMBER;
+    return this.options.entityTypes?.find((entity) => entity.code === entityName).type === GenericTableCellType.NUMBER;
   }
 
   public isBoolean(entityName: any): boolean {
-    return this.options.entityTypes?.find((entity) => entity.name === entityName).type === GenericTableCellType.BOOLEAN;
+    return this.options.entityTypes?.find((entity) => entity.code === entityName).type === GenericTableCellType.BOOLEAN;
   }
 
   public isDate(entityName: any): boolean {
-    return this.options.entityTypes?.find((entity) => entity.name === entityName).type === GenericTableCellType.DATE;
+    return this.options.entityTypes?.find((entity) => entity.code === entityName).type === GenericTableCellType.DATE;
   }
 
   public isCurrency(entityName: any): boolean {
-    return this.options.entityTypes?.find((entity) => entity.name === entityName).type === GenericTableCellType.CURRENCY;
+    return this.options.entityTypes?.find((entity) => entity.code === entityName).type === GenericTableCellType.CURRENCY;
   }
 
   public isSelectBox(entityName: any): boolean {
-    return this.options.entityTypes?.find((entity) => entity.name === entityName).type === GenericTableCellType.SELECTBOX;
+    return this.options.entityTypes?.find((entity) => entity.code === entityName).type === GenericTableCellType.SELECTBOX;
   }
 
   public getEntitySelectBoxOptions(entityName: string): string[] {
