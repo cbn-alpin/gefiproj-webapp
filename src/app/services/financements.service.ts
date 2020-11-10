@@ -34,6 +34,9 @@ export class FinancementsService {
    */
   public async get_by_id(projetId: string): Promise<Financement[]> {
     try {
+      if (!projetId) {
+        throw new Error('Pas d\'id projet.');
+      }
       return await (this.http.get<Financement[]>(FinancementsService.Financement_URL+'/'+projetId).toPromise());
     } catch (error) {
       console.error(error);
@@ -46,9 +49,17 @@ export class FinancementsService {
    * @param projetId : l'id du projet
    * @param financement : le financement modifié
    */
-  public async put(projetId: string, financement: Financement): Promise<Financement> {
+  public async put(financement: Financement): Promise<Financement> {
     try {
-      return await (this.http.put<Financement>(FinancementsService.Financement_URL+'/'+projetId, financement).toPromise());
+      console.log(financement.id_f)
+      if (isNaN(financement?.id_f)) {
+        throw new Error('Pas d\'id financement.');
+      }
+      return await (this.http.put<Financement>(
+        `${FinancementsService.Financement_URL}/${financement.id_f}`,
+        financement
+      )
+      .toPromise());
     } catch (error) {
       console.error(error);
       return Promise.reject(error);
@@ -61,20 +72,29 @@ export class FinancementsService {
    */
   public async post(financement: Financement): Promise<Financement> {
     try {
-      return await (this.http.post<Financement>(FinancementsService.Financement_URL, financement).toPromise());
+      const newFinancement = await (this.http.post<Financement>(
+        FinancementsService.Financement_URL, 
+        financement
+      ).toPromise());
+      // Récupération de l'identifiant
+      financement.id_f = newFinancement.id_f || 0;
+
+      return newFinancement || financement;
     } catch (error) {
-      console.error(error);
       return Promise.reject(error);
     }
   }
 
   /**
    * Delete un financement d'un projet
-   * @param financement : le financement à ajouter
+   * @param financement : le financement à supprimer
    */
   public async delete(financement: Financement): Promise<Financement> {
     try {
-      return await (this.http.delete<Financement>(FinancementsService.Financement_URL+'/'+financement.id_f).toPromise());
+      if (isNaN(financement?.id_f)) {
+        throw new Error('Pas d\'id financement.');
+      }
+      return await (this.http.delete<Financement>(`${FinancementsService.Financement_URL}/${financement.id_f}`).toPromise());
     } catch (error) {
       console.error(error);
       return Promise.reject(error);

@@ -12,6 +12,7 @@ import {
 import { GenericTableEntityEvent } from '../../models/generic-table-entity-event';
 import { GenericTableOptions } from '../../models/generic-table-options';
 import { EntityPlaceholder } from '../../models/entity-placeholder';
+import { EntityType } from '../../models/entity-types';
 
 @Component({
   selector: 'app-generic-table[title][options]',
@@ -50,7 +51,7 @@ export class GenericTableComponent<T> implements OnInit {
   @Output() deleteEvent: EventEmitter<GenericTableEntityEvent<T>> = new EventEmitter<GenericTableEntityEvent<T>>();
 
   public genericTableData: GenericTableEntity<T>[];
-  public dataSourceColumnsName: EntityPlaceholder[];
+  public dataSourceColumnsName: EntityType[];
   public displayedColumns: string[];
   public actionsHeaderColumns = 'Actions';
   public GenericTableEntityState = GenericTableEntityState;
@@ -70,17 +71,16 @@ export class GenericTableComponent<T> implements OnInit {
    */
   private initTable(): void {
     try {
-      this.genericTableData = this.options.dataSource?.map((entity) => {
-        return {
-          data: entity,
-          state: GenericTableEntityState.READ
-        };
-      });
-
-      this.dataSourceColumnsName = this.getDisplayedColumns();
-      this.displayedColumns = this.showActions
-        ? this.getDisplayedColumns().concat(this.actionsHeaderColumns)
-        : this.getDisplayedColumns();
+    this.genericTableData = this.options.dataSource?.map((entity) => {
+      return {
+        data: entity,
+        state: GenericTableEntityState.READ
+      };
+    });
+    this.dataSourceColumnsName = this.options.entityTypes;
+    this.displayedColumns = this.showActions 
+      ? this.getDisplayedColumns().concat(this.actionsHeaderColumns) 
+      : this.getDisplayedColumns();
     } catch (error) {
       console.error(error);
     }
@@ -90,7 +90,7 @@ export class GenericTableComponent<T> implements OnInit {
     return this.options.entityPlaceHolders.map(res => res.name);
   }
   public getDisplayedColumns(): string[] {
-    return this.options.entityPlaceHolders.map(res => res.value);
+    return this.options.entityTypes.map(res => res.code);
   }
 
   public getColumnName(value: string): string {
