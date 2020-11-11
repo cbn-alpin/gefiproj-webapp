@@ -1,14 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
 import { Financement } from '../models/financement';
-
-
-/**
- * URL de base des requêtes.
- */
-const BASE_URL = 'http://127.0.0.1:5000/financements';
-
 
 @Injectable({
   providedIn: 'root'
@@ -17,8 +9,7 @@ export class FinancementsService {
   /**
    * URL pour ouvrir une session via un Token.
    */
-  public static readonly Financement_URL = `${BASE_URL}`;
-
+  public static readonly Financement_URL = "/api/financements";
   
   /**
    * Gère les financements

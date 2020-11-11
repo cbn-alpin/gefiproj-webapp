@@ -8,6 +8,12 @@
       "initiales": "ja"
     }
   ],
+  "financements": [
+    {
+      "id": 1,
+      "financeur": "Financeur 1"
+    }
+  ],
   "projets": [
     {
       "id": 1,

@@ -43,10 +43,10 @@ export class HomeComponent implements OnInit {
     dataSource: [],
     defaultEntity: this.defaultEntity,
     entityTypes: [
-      { name: 'code', type: GenericTableCellType.NUMBER },
-      { name: 'nom', type: GenericTableCellType.TEXT },
-      { name: 'responsable', type: GenericTableCellType.TEXT },
-      { name: 'statut', type: GenericTableCellType.BOOLEAN }
+      { name: 'code', type: GenericTableCellType.NUMBER, code: "code"},
+      { name: 'nom', type: GenericTableCellType.TEXT, code: "nom" },
+      { name: 'responsable', type: GenericTableCellType.TEXT, code: "responsable" },
+      { name: 'statut', type: GenericTableCellType.BOOLEAN, code: "statut" }
     ],
     entityPlaceHolders: [],
     entitySelectBoxOptions: []
