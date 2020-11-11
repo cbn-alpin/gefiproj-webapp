@@ -1,15 +1,14 @@
+import { DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Financement, Statut_F } from 'src/app/models/financement';
+import { FinancementsService } from 'src/app/services/financements.service';
 import { GenericTableCellType } from 'src/app/shared/components/generic-table/globals/generic-table-cell-types';
+import { EntitySelectBoxOptions } from 'src/app/shared/components/generic-table/models/entity-select-box-options';
+import { GenericTableEntityEvent } from 'src/app/shared/components/generic-table/models/generic-table-entity-event';
 import { GenericTableInterface } from 'src/app/shared/components/generic-table/models/generic-table-interface';
 import { GenericTableOptions } from 'src/app/shared/components/generic-table/models/generic-table-options';
-import { EntitySelectBoxOptions } from 'src/app/shared/components/generic-table/models/entity-select-box-options';
-import { ActivatedRoute, Router } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { GenericTableEntityEvent } from 'src/app/shared/components/generic-table/models/generic-table-entity-event';
-import { FinancementsService } from 'src/app/services/financements.service';
-import { DatePipe } from '@angular/common';
-
 
 @Component({
   selector: 'app-projets',
@@ -98,8 +97,6 @@ export class ProjetsComponent implements OnInit, GenericTableInterface<Financeme
       ]
     }
   ];
-
-
 
   constructor(
     private financementsService: FinancementsService,
