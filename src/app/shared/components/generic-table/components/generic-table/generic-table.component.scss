@@ -79,6 +79,18 @@
     display: none;
   }
 
+  .mat-row:hover {
+    background: #83C397;
+    cursor: pointer;
+  }
+
+  input[disabled] {
+    pointer-events: none;
+  }
+
+  .mat-checkbox[disabled] {
+    cursor: pointer !important;
+  }
 }
 
 

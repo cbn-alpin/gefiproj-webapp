@@ -1,9 +1,8 @@
-
 <div>
   <span class="title">{{title}}</span>
 </div>
 
-<table mat-table [dataSource]="genericTableData" class="mat-elevation-z8">
+<table mat-table [(dataSource)]="genericTableData" class="mat-elevation-z8">
 
   <ng-container *ngFor="let columnName of dataSourceColumnsName; let index = index" [matColumnDef]="columnName.code">
     <th mat-header-cell *matHeaderCellDef> {{columnName.name}} </th>
@@ -29,7 +28,6 @@
         </mat-form-field>
       </div>
 
-
       <!-- Date -->
       <div class="date">
         <mat-form-field *ngIf="isDate(columnName.code)" [ngClass]="{errors: hasErrors(element, columnName.code)}" floatLabel="never">
@@ -52,7 +50,6 @@
                  [placeholder]="getPlaceHolder(columnName.code)">
         </mat-form-field>
       </div>
-
 
       <!-- Boolean -->
       <div class="checkbox">
@@ -111,5 +108,5 @@
   </ng-container>
 
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="onSelect(row)"></tr>
 </table>
