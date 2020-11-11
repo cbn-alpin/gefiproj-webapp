@@ -2,7 +2,7 @@
   <span class="title">{{title}}</span>
 </div>
 
-<table mat-table [(dataSource)]="genericTableData" class="mat-elevation-z8">
+<table mat-table [(dataSource)]="genericTableData" class="mat-elevation-z8" [ngClass]="{'can-select': canSelect}">
 
   <ng-container *ngFor="let columnName of dataSourceColumnsName; let index = index" [matColumnDef]="columnName.code">
     <th mat-header-cell *matHeaderCellDef> {{columnName.name}} </th>
@@ -108,5 +108,5 @@
   </ng-container>
 
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-  <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="onSelect(row)"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;" [ngClass]="{'selected': selectedEntity === row}" (click)="select(row)"></tr>
 </table>
