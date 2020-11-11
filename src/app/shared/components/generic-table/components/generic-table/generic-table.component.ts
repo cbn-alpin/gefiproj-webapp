@@ -46,6 +46,7 @@ export class GenericTableComponent<T> implements OnInit {
   }
   @Input() title: string;
   @Input() showActions = true;
+  @Input() canSelect = false;
   @Output() editEvent: EventEmitter<GenericTableEntityEvent<T>> = new EventEmitter<GenericTableEntityEvent<T>>();
   @Output() createEvent: EventEmitter<GenericTableEntityEvent<T>> = new EventEmitter<GenericTableEntityEvent<T>>();
   @Output() deleteEvent: EventEmitter<GenericTableEntityEvent<T>> = new EventEmitter<GenericTableEntityEvent<T>>();
@@ -57,6 +58,7 @@ export class GenericTableComponent<T> implements OnInit {
   public actionsHeaderColumns = 'Actions';
   public GenericTableEntityState = GenericTableEntityState;
   public historyOfEntitiesUpdating: HistoryOfEntityUpdating<T>[] = [];
+  public selectedEntity: GenericTableEntity<T>;
   private genericTableAction: GenericTableAction;
 
   constructor(
@@ -79,14 +81,14 @@ export class GenericTableComponent<T> implements OnInit {
       };
     });
     this.dataSourceColumnsName = this.options.entityTypes;
-    this.displayedColumns = this.showActions 
-      ? this.getDisplayedColumns().concat(this.actionsHeaderColumns) 
+    this.displayedColumns = this.showActions
+      ? this.getDisplayedColumns().concat(this.actionsHeaderColumns)
       : this.getDisplayedColumns();
     } catch (error) {
       console.error(error);
     }
   }
-  
+
   public getDisplayedName(): string[] {
     return this.options.entityPlaceHolders.map(res => res.name);
   }
@@ -102,6 +104,7 @@ export class GenericTableComponent<T> implements OnInit {
   }
 
   public onEdit(entity: GenericTableEntity<T>): void {
+    this.selectedEntity = entity;
     const entitySelected = JSON.parse(JSON.stringify(entity));
     const history: HistoryOfEntityUpdating<T> = {
       previous: entitySelected,
@@ -136,6 +139,7 @@ export class GenericTableComponent<T> implements OnInit {
       data: defaultEntity,
       state: GenericTableEntityState.NEW
     };
+    this.selectedEntity = newElement;
     this.genericTableData = [newElement].concat(this.genericTableData);
   }
 
@@ -305,8 +309,9 @@ export class GenericTableComponent<T> implements OnInit {
    * Lorsqu'une entité est sélectionné dans le tableau, on émet un événement avec l'entité en paramètre
    * @param entity
    */
-  public onSelect(genericTableEntity: GenericTableEntity<T>): void {
+  public select(genericTableEntity: GenericTableEntity<T>): void {
     if(genericTableEntity.state === GenericTableEntityState.READ) {
+      this.selectedEntity = genericTableEntity;
       const genericTableEntityEvent: GenericTableEntityEvent<T> = {
         entity: genericTableEntity.data
       };
