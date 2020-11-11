@@ -84,12 +84,8 @@
     cursor: pointer;
   }
 
-  input[disabled] {
-    pointer-events: none;
-  }
-
-  .mat-checkbox[disabled] {
-    cursor: pointer !important;
+  input[disabled], .mat-checkbox-disabled, .mat-select-disabled{
+    pointer-events: none !important;
   }
 }
 

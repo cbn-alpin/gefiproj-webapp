@@ -159,8 +159,4 @@ export class HomeComponent implements OnInit {
       });
     }
   }
-
-  public onSelect(event: GenericTableEntityEvent<Projet>): void {
-    console.log(event.entity);
-  }
 }

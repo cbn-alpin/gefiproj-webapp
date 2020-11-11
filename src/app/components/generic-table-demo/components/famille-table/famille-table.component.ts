@@ -70,11 +70,11 @@ export class FamilleTableComponent implements OnInit, GenericTableInterface<Fami
    * @private
    */
   private entityTypes: EntityType[] = [
-    {name: this.EntityPropertyName.ORIGINE, type: GenericTableCellType.SELECTBOX},
-    {name: this.EntityPropertyName.MEMBRES, type: GenericTableCellType.NUMBER},
-    {name: this.EntityPropertyName.EXISTANTE, type: GenericTableCellType.BOOLEAN},
-    {name: this.EntityPropertyName.DATE_CREATION, type: GenericTableCellType.DATE},
-    {name: this.EntityPropertyName.MONTANT_TRESORERIE, type: GenericTableCellType.CURRENCY}
+    {name: this.EntityPropertyName.ORIGINE, type: GenericTableCellType.SELECTBOX, code: this.EntityPropertyName.ORIGINE},
+    {name: this.EntityPropertyName.MEMBRES, type: GenericTableCellType.NUMBER, code: this.EntityPropertyName.MEMBRES},
+    {name: this.EntityPropertyName.EXISTANTE, type: GenericTableCellType.BOOLEAN, code: this.EntityPropertyName.EXISTANTE},
+    {name: this.EntityPropertyName.DATE_CREATION, type: GenericTableCellType.DATE, code: this.EntityPropertyName.DATE_CREATION},
+    {name: this.EntityPropertyName.MONTANT_TRESORERIE, type: GenericTableCellType.CURRENCY, code: this.EntityPropertyName.MONTANT_TRESORERIE}
   ];
 
   /**
@@ -294,5 +294,13 @@ export class FamilleTableComponent implements OnInit, GenericTableInterface<Fami
       formErrors,
       apiError
     };
+  }
+
+  /**
+   * Gérer la sélection d'une entité
+   * @param entity
+   */
+  public onSelect(genericTableEntityEvent: GenericTableEntityEvent<Famille>): void {
+    console.log('Entity selected: ', genericTableEntityEvent.entity);
   }
 }
