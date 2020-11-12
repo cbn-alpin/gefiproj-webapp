@@ -1,40 +1,45 @@
 {
   "users": [
     {
-      "id": 1,
-      "nom": "manu",
-      "prenom": "azp",
-      "mail": "m.a@mail.com",
-      "initiales": "ja"
-    }
-  ],
-  "financements": [
-    {
-      "id": 1,
-      "financeur": "Financeur 1"
+      "id_u": 1,
+      "nom_u": "manu",
+      "prenom_u": "azp",
+      "email_u": "m.a@mail.com",
+      "initiales_u": "ja",
+      "active_u": true,
+      "role": "consultant"
     }
   ],
   "projets": [
     {
       "id": 1,
-      "code": "0123",
-      "nom": "Projet Xav",
+      "id_p": 1,
+      "code_p": "0123",
+      "nom_p": "Projet Xav",
       "responsable": "azp",
-      "statut": true
+      "statut_p": true
     },
     {
       "id": 2,
-      "code": "4567",
-      "nom": "Projet Y",
+      "id_p": 2,
+      "code_p": "4567",
+      "nom_p": "Projet Y",
       "responsable": "hanh",
-      "statut": true
+      "statut_p": true
     },
     {
-      "code": 0,
-      "nom": "aaa",
-      "responsable": "",
-      "statut": false,
-      "id": 3
+      "code_p": "011",
+      "nom_p": "a",
+      "responsable": "b",
+      "statut_p": false,
+      "id": 3,
+      "id_p": 3
+    }
+  ],
+  "financements": [
+    {
+      "id_f": 1,
+      "financeur": "Financeur 1"
     }
   ],
   "login": {}

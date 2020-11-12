@@ -1,6 +1,7 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { JwtHelperService, JwtModule } from '@auth0/angular-jwt';
+import { Role } from 'src/app/models/role';
 import { tokenGetter } from '../../app.module';
 import { Utilisateur } from '../../models/utilisateur';
 import { AuthService } from './auth.service';
@@ -75,12 +76,13 @@ describe('AuthService', () => {
       password: ''
     };
     const user: UtilisateurToken = {
-      id: 5,
-      nom: '',
-      prenom: '',
-      mail: '',
-      initiales: '',
-      role: 0,
+      id_u: 5,
+      nom_u: '',
+      prenom_u: '',
+      email_u: '',
+      initiales_u: '',
+      role: Role.Consultant,
+      active_u: true,
       access_token: accessToken
     };
     const promiseLogin = service.login(userLogin); // Connexion
@@ -100,12 +102,13 @@ describe('AuthService', () => {
       password: ''
     };
     const user: UtilisateurToken = {
-      id: 5,
-      nom: '',
-      prenom: '',
-      mail: '',
-      initiales: '',
-      role: 0,
+      id_u: 5,
+      nom_u: '',
+      prenom_u: '',
+      email_u: '',
+      initiales_u: '',
+      role: Role.Consultant,
+      active_u: true,
       access_token: accessToken
     };
     let userInObs: Utilisateur;

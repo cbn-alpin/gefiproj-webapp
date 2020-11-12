@@ -1,5 +1,5 @@
 export interface Depense {
-  id: number;
-  date: Date;
-  montant: number;
+  id_d: number;
+  annee_d: Date;
+  montant_d: number;
 }
