@@ -70,11 +70,14 @@ export class FamilleTableComponent implements OnInit, GenericTableInterface<Fami
    * @private
    */
   private entityTypes: EntityType[] = [
-    {name: this.EntityPropertyName.ORIGINE, type: GenericTableCellType.SELECTBOX, code: this.EntityPropertyName.ORIGINE},
-    {name: this.EntityPropertyName.MEMBRES, type: GenericTableCellType.NUMBER, code: this.EntityPropertyName.MEMBRES},
-    {name: this.EntityPropertyName.EXISTANTE, type: GenericTableCellType.BOOLEAN, code: this.EntityPropertyName.EXISTANTE},
-    {name: this.EntityPropertyName.DATE_CREATION, type: GenericTableCellType.DATE, code: this.EntityPropertyName.DATE_CREATION},
-    {name: this.EntityPropertyName.MONTANT_TRESORERIE, type: GenericTableCellType.CURRENCY, code: this.EntityPropertyName.MONTANT_TRESORERIE}
+    {name: 'Origine', type: GenericTableCellType.SELECTBOX, code: this.EntityPropertyName.ORIGINE},
+    {name: 'Membres', type: GenericTableCellType.NUMBER, code: this.EntityPropertyName.MEMBRES},
+    {name: 'Existe ?', type: GenericTableCellType.BOOLEAN, code: this.EntityPropertyName.EXISTANTE},
+    {name: 'Date de création', type: GenericTableCellType.DATE, code: this.EntityPropertyName.DATE_CREATION},
+    {
+      name: 'Montant',
+      type: GenericTableCellType.CURRENCY,
+      code: this.EntityPropertyName.MONTANT_TRESORERIE}
   ];
 
   /**
@@ -209,12 +212,14 @@ export class FamilleTableComponent implements OnInit, GenericTableInterface<Fami
   /**
    * Vérifier le format du champ 'montant_tresorerie'
    * Ex: format invalide, champ requis
-   * @param montant_tresorerie
+   * @param montantTresorerie
    * @param genericTableFormErrors
    */
-  public getMontantTresorerieFormError(montant_tresorerie: number, genericTableFormErrors: GenericTableFormError[]): GenericTableFormError[] {
+  public getMontantTresorerieFormError(
+    montantTresorerie: number,
+    genericTableFormErrors: GenericTableFormError[]): GenericTableFormError[] {
     let msg = '';
-    if (!montant_tresorerie) {
+    if (!montantTresorerie) {
       msg = 'Montant requis';
     }
     if (msg !== '') {
@@ -278,7 +283,8 @@ export class FamilleTableComponent implements OnInit, GenericTableInterface<Fami
   }
 
   /**
-   * Gérer la suppression: vérifier le format de l'entité famille, appeler l'api pour la suppression, vérifier les erreurs retournées par l'api
+   * Gérer la suppression: vérifier le format de l'entité famille,
+   * appeler l'api pour la suppression, vérifier les erreurs retournées par l'api
    * @param entity
    */
   public delete(entity: Famille): GenericTableEntityErrors {

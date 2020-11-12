@@ -313,10 +313,10 @@ export class GenericTableComponent<T> implements OnInit {
 
   /**
    * Lorsqu'une entité est sélectionné dans le tableau, on émet un événement avec l'entité en paramètre
-   * @param entity
+   * @param genericTableEntity : décrit l'élément sélectionné.
    */
   public select(genericTableEntity: GenericTableEntity<T>): void {
-    if(genericTableEntity.state === GenericTableEntityState.READ) {
+    if (genericTableEntity.state === GenericTableEntityState.READ) {
       this.selectedEntity = genericTableEntity;
       const genericTableEntityEvent: GenericTableEntityEvent<T> = {
         entity: genericTableEntity.data
