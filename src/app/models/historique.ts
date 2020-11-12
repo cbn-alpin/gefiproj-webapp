@@ -1,5 +1,5 @@
-import { Projet } from 'src/app/models/projet';
-import { Utilisateur } from 'src/app/models/utilisateur';
+import { Projet } from './projet';
+import { Utilisateur } from './utilisateur';
 
 export interface Historique {
     id_h: number;
