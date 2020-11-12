@@ -1,6 +1,17 @@
 const { report } = require("process");
 const jwt = require('jsonwebtoken')
 
+const primaryKeys = { // Nom des identifiants des entités
+  "users": "id_u",
+  "projets": "id_p",
+  "financements": "id_f",
+  "financeurs": "id_financeur",
+  "recettes": "id_r",
+  "montants": "id_ma",
+  "depenses": "id_d",
+  "historiques": "id_h"
+};
+
 // Paramètres du Token
 const SECRET_KEY = '123456789'
 const expiresIn = '1h'
@@ -18,13 +29,21 @@ module.exports = (req, res, next) => { // Middleware chargé de renvoyer le Toke
 
     res.status(200).jsonp({
       "id": 1,
-      "nom": "azp",
-      "prenom": "manu",
-      "mail": "manu.azp@sncf.fr",
-      "initiales": "ma",
+      "id_u": 1,
+      "nom_u": "manu",
+      "prenom_u": "azp",
+      "email_u": "m.a@mail.com",
+      "initiales_u": "ja",
+      "active_u": true,
+      "role": 2,
       "access_token": access_token
     })
-  }
-  else
+  } else { // Gestion de l'identifiant
+    const resource = req.path.split('/')[1];
+    let id = req.body[primaryKeys[resource]] || req.body.id || null;
+    req.body.id = id;
+    req.body[primaryKeys[resource]] = id;
+
     next()
+  }
 }

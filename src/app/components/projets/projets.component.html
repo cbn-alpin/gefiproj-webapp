@@ -1,1 +1,9 @@
-<p>projets works!</p>
+<app-generic-table
+  *ngIf="financements && financements.length > 0"
+  [title]="title"
+  [options]="options"
+  [showActions]="true"
+  (editEvent)="onEdit($event)"
+  (createEvent)="onCreate($event)"
+  (deleteEvent)="onDelete($event)">
+</app-generic-table>

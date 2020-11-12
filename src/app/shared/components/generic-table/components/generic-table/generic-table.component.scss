@@ -79,6 +79,20 @@
     display: none;
   }
 
+  .can-select {
+    .mat-row:hover {
+      background: #7dcea0;
+      cursor: pointer;
+    }
+
+    input[disabled], .mat-checkbox-disabled, .mat-select-disabled{
+      pointer-events: none !important;
+    }
+
+    .selected {
+      background: #a2d9ce !important;
+    }
+  }
 }
 
 

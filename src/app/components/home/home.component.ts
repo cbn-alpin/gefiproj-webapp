@@ -30,10 +30,10 @@ export class HomeComponent implements OnInit {
    * Représente un nouveau projet et définit les colonnes à afficher.
    */
   private readonly defaultEntity = {
-    code: 0,
-    nom: '',
+    code_p: 0,
+    nom_p: '',
     responsable: '',
-    statut: false
+    statut_p: false
   } as Projet;
 
   /**
@@ -43,10 +43,10 @@ export class HomeComponent implements OnInit {
     dataSource: [],
     defaultEntity: this.defaultEntity,
     entityTypes: [
-      { name: 'code', type: GenericTableCellType.NUMBER },
-      { name: 'nom', type: GenericTableCellType.TEXT },
-      { name: 'responsable', type: GenericTableCellType.TEXT },
-      { name: 'statut', type: GenericTableCellType.BOOLEAN }
+      { code: 'code_p', type: GenericTableCellType.NUMBER, name: 'Code'},
+      { code: 'nom_p', type: GenericTableCellType.TEXT, name: 'Nom' },
+      { code: 'responsable', type: GenericTableCellType.TEXT, name: 'Responsable' },
+      { code: 'statut_p', type: GenericTableCellType.BOOLEAN, name: 'Statut' }
     ],
     entityPlaceHolders: [],
     entitySelectBoxOptions: []
