@@ -1,27 +1,42 @@
 {
   "users": [
     {
-      "id": 1,
-      "nom": "manu",
-      "prenom": "azp",
-      "mail": "m.a@mail.com",
-      "initiales": "ja"
+      "id_u": 1,
+      "nom_u": "manu",
+      "prenom_u": "azp",
+      "email_u": "m.a@mail.com",
+      "initiales_u": "ja",
+      "active_u": true,
+      "role": "consultant"
     }
   ],
   "projets": [
     {
-      "id": 1,
-      "code": "abcd",
-      "nom": "Projet X",
+      "id_p": 1,
+      "code_p": "0123",
+      "nom_p": "Projet Xav",
       "responsable": "azp",
-      "statut": true
+      "statut_p": true
     },
     {
-      "id": 2,
-      "code": "efgh",
-      "nom": "Projet Y",
+      "id_p": 2,
+      "code_p": "4567",
+      "nom_p": "Projet Y",
       "responsable": "hanh",
-      "statut": true
+      "statut_p": true
+    },
+    {
+      "id_p": 3,
+      "code_p": 0,
+      "nom_p": "aaa",
+      "responsable": "",
+      "statut_p": false
+    }
+  ],
+  "financements": [
+    {
+      "id_f": 1,
+      "financeur": "Financeur 1"
     }
   ],
   "login": {}

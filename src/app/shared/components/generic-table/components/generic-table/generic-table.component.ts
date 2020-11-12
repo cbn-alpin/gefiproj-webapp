@@ -92,8 +92,9 @@ export class GenericTableComponent<T> implements OnInit {
   public getDisplayedName(): string[] {
     return this.options.entityPlaceHolders.map(res => res.name);
   }
+
   public getDisplayedColumns(): string[] {
-    return this.options.entityTypes.map(res => res.code);
+    return this.options.entityTypes.map(res => res.name);
   }
 
   public getColumnName(value: string): string {
@@ -172,36 +173,37 @@ export class GenericTableComponent<T> implements OnInit {
 
   public isString(entityName: any): boolean {
     return this.options.entityTypes
-      ?.find((entity) => entity.name === entityName)
+      ?.find((entity) => entity.code === entityName)
       .type === GenericTableCellType.TEXT;
   }
 
   public isNumber(entityName: any): boolean {
     return this.options.entityTypes
-      ?.find((entity) => entity.name === entityName)
+      ?.find((entity) => entity.code === entityName)
       .type === GenericTableCellType.NUMBER;
   }
 
   public isBoolean(entityName: any): boolean {
     return this.options.entityTypes
-      ?.find((entity) => entity.name === entityName)
+      ?.find((entity) => entity.code === entityName)
       .type === GenericTableCellType.BOOLEAN;
   }
 
   public isDate(entityName: any): boolean {
     return this.options.entityTypes
-      ?.find((entity) => entity.name === entityName).type === GenericTableCellType.DATE;
+      ?.find((entity) => entity.code === entityName)
+      .type === GenericTableCellType.DATE;
   }
 
   public isCurrency(entityName: any): boolean {
     return this.options.entityTypes
-      ?.find((entity) => entity.name === entityName)
+      ?.find((entity) => entity.code === entityName)
       .type === GenericTableCellType.CURRENCY;
   }
 
   public isSelectBox(entityName: any): boolean {
     return this.options.entityTypes
-      ?.find((entity) => entity.name === entityName)
+      ?.find((entity) => entity.code === entityName)
       .type === GenericTableCellType.SELECTBOX;
   }
 
@@ -216,11 +218,14 @@ export class GenericTableComponent<T> implements OnInit {
   }
 
   public getErrorMessage(errors: GenericTableFormError[], name: string): string {
-    return errors?.find((error) => error.name === name)?.message;
+    return errors
+      ?.find((error) => error.name === name)
+      ?.message;
   }
 
   public hasErrors(entity: GenericTableEntity<T>, name: string): boolean {
-    return entity.errors?.find((error) => error.name === name) !== undefined
+    return entity.errors?.find((error) =>
+      error.name === name) !== undefined
       && (entity.state === GenericTableEntityState.EDIT || entity.state === GenericTableEntityState.NEW);
   }
 
@@ -294,7 +299,8 @@ export class GenericTableComponent<T> implements OnInit {
 
   public getPlaceHolder(name: string): string {
     return this.options.entityPlaceHolders
-      ?.find((entityPlaceHolder) => entityPlaceHolder.name === name)?.value || '';
+      ?.find((entityPlaceHolder) => entityPlaceHolder.name === name)
+      ?.value || '';
   }
 
   private openApiErrorSnackBar(message: string): void {

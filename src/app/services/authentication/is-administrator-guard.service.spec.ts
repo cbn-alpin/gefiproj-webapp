@@ -54,12 +54,13 @@ describe('Service: IsAdministratorGuard', () => {
 
   it('isAdministrator -> true', async () => {
     const user: Utilisateur = {
-      id: 5,
-      nom: '',
-      prenom: '',
-      mail: '',
-      initiales: '',
-      role: Role.Admin
+      id_u: 5,
+      nom_u: '',
+      prenom_u: '',
+      email_u: '',
+      initiales_u: '',
+      role: Role.Admin,
+      active_u: true
     };
     spyOnProperty(authSrv, 'userAuth', 'get').and
       .returnValue(user);
@@ -73,12 +74,13 @@ describe('Service: IsAdministratorGuard', () => {
 
   it('isAdministrator -> false car juste en consultation', async () => {
     const user: Utilisateur = {
-      id: 5,
-      nom: '',
-      prenom: '',
-      mail: '',
-      initiales: '',
-      role: Role.Consultant
+      id_u: 5,
+      nom_u: '',
+      prenom_u: '',
+      email_u: '',
+      initiales_u: '',
+      role: Role.Consultant,
+      active_u: true
     };
     spyOnProperty(authSrv, 'userAuth', 'get').and
       .returnValue(user);

@@ -1,15 +1,15 @@
 export interface Projet {
-  id: number;
-  code: number;
-  nom: string;
+  id_p: number;
+  code_p: number;
+  nom_p: string;
 
   /**
    * Initiales du responsable.
    */
-  responsable: string;
+  responsable?: string;
 
   /**
    * Indique si le projet est soldé (true ssi soldé).
    */
-  statut: boolean;
+  statut_p: boolean;
 }

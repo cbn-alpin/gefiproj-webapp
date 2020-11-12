@@ -7,12 +7,13 @@ export interface Utilisateur {
     /**
      * Identifiant technique.
      */
-    id: number;
+    id_u: number;
 
-    nom: string;
-    prenom: string;
-    mail: string;
-    initiales: string;
+    nom_u: string;
+    prenom_u: string;
+    email_u: string;
+    initiales_u: string;
+    active_u: boolean;
 
     /**
      * Rôle principal de l'utilisateur (ex : admin).

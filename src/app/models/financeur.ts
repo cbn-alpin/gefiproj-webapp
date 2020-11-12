@@ -1,5 +1,5 @@
 export interface Financeur {
-  id: number;
-  nom: string;
-  ref_arrete_attrib: string;
+  id_financeur: number;
+  nom_financeur: string;
+  ref_arret_attributif_financeur: string;
 }

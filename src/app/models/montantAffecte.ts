@@ -1,6 +1,8 @@
+import { Recette } from './recette';
+
 export interface MontantAffecte {
-  id: number;
-  code_recette: string;
-  montant: number;
-  annee: string;
+  id_ma: number;
+  recette: Recette;
+  montant_ma: number;
+  annee_ma: string;
 }

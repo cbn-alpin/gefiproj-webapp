@@ -4,7 +4,7 @@
 
 <table mat-table [(dataSource)]="genericTableData" class="mat-elevation-z8" [ngClass]="{'can-select': canSelect}">
 
-  <ng-container *ngFor="let columnName of dataSourceColumnsName; let index = index" [matColumnDef]="columnName.code">
+  <ng-container *ngFor="let columnName of dataSourceColumnsName; let index = index" [matColumnDef]="columnName.name">
     <th mat-header-cell *matHeaderCellDef> {{columnName.name}} </th>
     <td mat-cell *matCellDef="let element">
 

@@ -1,7 +1,8 @@
+import { Financement } from 'src/app/models/financement';
+
 export interface Recette {
-  id: number;
-  code: string;
-  code_financement: string;
-  montant: number;
-  annee_recette: string;
+  id_r: number;
+  financement: Financement;
+  montant_r: number;
+  annee_r: string;
 }

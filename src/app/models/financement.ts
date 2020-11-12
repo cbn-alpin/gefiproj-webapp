@@ -15,9 +15,8 @@ export interface Financement {
   numero_titre_f?: string;
   annee_titre_f?: number | string;
   imputation_f?: string;
-  difference?: number
+  difference?: number;
 }
-
 
 export enum Statut_F {
   ANTR = 'ANTR',

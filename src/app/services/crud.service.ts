@@ -72,6 +72,8 @@ export class CrudService<T> {
       if (!item) {
         throw new Error('Pas de données en paramètre.');
       }
+
+      id = id || (item as any).id; // Pour json-server
       if (isNaN(id)) {
         throw new Error('Pas d\'identifiant valide.');
       }

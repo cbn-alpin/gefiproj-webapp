@@ -57,7 +57,7 @@ export class ProjetsService {
   public async modify(projet: Projet): Promise<Projet> {
     return this.crudSrv.modify(
       projet,
-      projet?.id);
+      projet?.id_p);
   }
 
   /**
@@ -69,7 +69,11 @@ export class ProjetsService {
       const newProject = await this.crudSrv.add(projet);
 
       // Récupération de l'identifiant
-      projet.id = newProject.id || 0;
+      projet.id_p = newProject?.id_p
+        || (newProject as any)?.id // gestion de json-server
+        || projet?.id_p
+        || (projet as any)?.id // gestion de json-server
+        || 0;
       return newProject || projet;
     } catch (error) {
       console.error(error);
@@ -82,7 +86,7 @@ export class ProjetsService {
    * @param projet : projet à supprimer.
    */
   public async delete(projet: Projet): Promise<void> {
-    return this.crudSrv.delete(
-      projet?.id);
+    const id = projet?.id_p || (projet as any)?.id; // Pour json-server
+    return this.crudSrv.delete(id);
   }
 }
