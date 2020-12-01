@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import {ProjetService} from "../../services/projet.service";
+import {Recette} from "../../../../models/recette";
 
 @Component({
   selector: 'app-projet',
@@ -7,9 +9,19 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ProjetComponent implements OnInit {
 
-  constructor() { }
+  public recettes: Recette[];
+
+  constructor(
+    private projetService: ProjetService
+  ) { }
 
   ngOnInit(): void {
   }
+
+  public async getRecettesFromFinancement(idFinancement: string): Promise<Recette[]> {
+    this.recettes = await this.projetService.getRecettesFromFinancement(idFinancement);
+    return this.recettes;
+  }
+
 
 }
