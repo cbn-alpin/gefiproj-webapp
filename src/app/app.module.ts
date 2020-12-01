@@ -21,6 +21,7 @@ import {GenericTableDemoModule} from './components/generic-table-demo/generic-ta
 import {SharedModule} from './shared/shared.module';
 import {registerLocaleData} from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
+import {ProjetModule} from "./components/projet/projet.module";
 
 /**
  * Retourne le token courant.
@@ -62,7 +63,8 @@ registerLocaleData(localeFr, 'fr-FR');
     }),
     NgxSpinnerModule,
     GenericTableDemoModule,
-    SharedModule
+    SharedModule,
+    ProjetModule
   ],
   providers: [
     {
@@ -76,3 +78,4 @@ registerLocaleData(localeFr, 'fr-FR');
   ]
 })
 export class AppModule { }
+
