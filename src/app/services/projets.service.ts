@@ -14,7 +14,7 @@ export class ProjetsService {
   /**
    * Url relative de l'API.
    */
-  private readonly endPoint = '/api/projects';
+  private readonly endPoint = '/api/projets';
 
   /**
    * Effectue les appels au serveur d'API pour une entité donnée.
@@ -39,7 +39,7 @@ export class ProjetsService {
    * Retourne les projets depuis le serveur.
    */
   public async getAll(): Promise<Projet[]> {
-    return this.crudSrv.getAll(0, 'id_p');
+    return this.crudSrv.getAll();
   }
 
   /**
@@ -47,7 +47,7 @@ export class ProjetsService {
    * @param id : identifiant du projet demandé.
    */
   public async get(id: number): Promise<Projet> {
-    return this.crudSrv.get(id, 'id_p');
+    return this.crudSrv.get(id);
   }
 
   /**
@@ -66,8 +66,15 @@ export class ProjetsService {
    */
   public async add(project: Projet): Promise<Projet> {
     try {
-      return await this.crudSrv
-        .add(project, 'id_p');
+      const newProject = await this.crudSrv.add(project);
+
+      // Récupération de l'identifiant
+      project.id_p = newProject?.id_p
+        || (newProject as any)?.id // gestion de json-server
+        || project?.id_p
+        || (project as any)?.id // gestion de json-server
+        || 0;
+      return newProject || project;
     } catch (error) {
       console.error(error);
       return Promise.reject(error);

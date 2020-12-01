@@ -39,7 +39,7 @@ export class UsersService {
    * Retourne les utilisateurs depuis le serveur.
    */
   public async getAll(): Promise<Utilisateur[]> {
-    return this.crudSrv.getAll(0, 'id_u');
+    return this.crudSrv.getAll();
   }
 
   /**
@@ -47,7 +47,7 @@ export class UsersService {
    * @param id : identifiant du utilisateur demandé.
    */
   public async get(id: number): Promise<Utilisateur> {
-    return this.crudSrv.get(id, 'id_u');
+    return this.crudSrv.get(id);
   }
 
   /**
@@ -66,7 +66,15 @@ export class UsersService {
    */
   public async add(user: Utilisateur): Promise<Utilisateur> {
     try {
-      return await this.crudSrv.add(user, 'id_u');
+      const newUser = await this.crudSrv.add(user);
+
+      // Récupération de l'identifiant
+      user.id_u = newUser?.id_u
+        || (newUser as any)?.id // gestion de json-server
+        || user?.id_u
+        || (user as any)?.id // gestion de json-server
+        || 0;
+      return newUser || user;
     } catch (error) {
       console.error(error);
       return Promise.reject(error);
