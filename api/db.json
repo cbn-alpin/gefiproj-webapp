@@ -1,13 +1,24 @@
 {
   "users": [
     {
+      "id": 1,
       "id_u": 1,
-      "nom_u": "manu",
-      "prenom_u": "azp",
+      "nom_u": "Azp",
+      "prenom_u": "Manu",
       "email_u": "m.a@mail.com",
-      "initiales_u": "ja",
+      "initiales_u": "ma",
       "active_u": true,
-      "role": "consultant"
+      "role": 2
+    },
+    {
+      "id": 2,
+      "id_u": 2,
+      "nom_u": "Do",
+      "prenom_u": "Hanh",
+      "email_u": "h.d@mail.com",
+      "initiales_u": "hd",
+      "active_u": true,
+      "role": 2
     }
   ],
   "projets": [
@@ -16,7 +27,7 @@
       "id_p": 1,
       "code_p": "0123",
       "nom_p": "Projet Xav",
-      "responsable": "azp",
+      "responsable": "ma",
       "statut_p": true
     },
     {
@@ -24,13 +35,13 @@
       "id_p": 2,
       "code_p": "4567",
       "nom_p": "Projet Y",
-      "responsable": "hanh",
+      "responsable": "ma",
       "statut_p": true
     },
     {
       "code_p": "011",
       "nom_p": "a",
-      "responsable": "b",
+      "responsable": "hd",
       "statut_p": false,
       "id": 3,
       "id_p": 3
