@@ -1,1 +1,8 @@
 <p>projet works!</p>
+
+<button (click)="getRecettesFromFinancement('f1')">GET RECETTES</button>
+
+<app-projet-recettes
+  *ngIf="recettes"
+  [recettes]="recettes">
+</app-projet-recettes>

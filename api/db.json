@@ -135,5 +135,33 @@
       "annea_r": 2019
     }
   ],
+  "financements": [
+    {
+      "id_f": 1
+    },
+    {
+      "id_f": 2
+    }
+  ],
+  "recettes": [
+    {
+      "id_r": 1,
+      "id_f": 1,
+      "montant_r": 15200,
+      "annee_r": 2019
+    },
+    {
+      "id_r": 2,
+      "id_f": 2,
+      "montant_r": 124240,
+      "annee_r": 2018
+    },
+    {
+      "id_r": 3,
+      "id_f": 3,
+      "montant_r": 145212,
+      "annee_r": 2017
+    }
+  ],
   "login": {}
 }

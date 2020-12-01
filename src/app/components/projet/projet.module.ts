@@ -5,6 +5,7 @@ import { ProjetFinancementsComponent } from './components/projet-financements/pr
 import { ProjetRecettesComponent } from './components/projet-recettes/projet-recettes.component';
 import { ProjetMontantsComponent } from './components/projet-montants/projet-montants.component';
 import { ProjetDetailsComponent } from './components/projet-details/projet-details.component';
+import {SharedModule} from "../../shared/shared.module";
 
 
 
@@ -17,7 +18,8 @@ import { ProjetDetailsComponent } from './components/projet-details/projet-detai
     ProjetDetailsComponent
   ],
   imports: [
-    CommonModule
+    CommonModule,
+    SharedModule
   ]
 })
 export class ProjetModule { }
