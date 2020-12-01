@@ -30,10 +30,10 @@ module.exports = (req, res, next) => { // Middleware chargé de renvoyer le Toke
     res.status(200).jsonp({
       "id": 1,
       "id_u": 1,
-      "nom_u": "manu",
-      "prenom_u": "azp",
+      "nom_u": "Azp",
+      "prenom_u": "Manu",
       "email_u": "m.a@mail.com",
-      "initiales_u": "ja",
+      "initiales_u": "ma",
       "active_u": true,
       "role": 2,
       "access_token": access_token
