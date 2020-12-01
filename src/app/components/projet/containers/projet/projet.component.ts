@@ -20,6 +20,7 @@ export class ProjetComponent implements OnInit {
 
   public async getRecettesFromFinancement(idFinancement: string): Promise<Recette[]> {
     this.recettes = await this.projetService.getRecettesFromFinancement(idFinancement);
+    console.log("RECETTES:", this.recettes);
     return this.recettes;
   }
 
