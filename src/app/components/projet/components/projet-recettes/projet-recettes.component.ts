@@ -33,8 +33,8 @@ export class ProjetRecettesComponent implements OnInit {
    * @private
    */
   private defaultEntity: Recette = {
-    annee_recette: "2020",
-    montant: undefined
+    annee_r: "2020",
+    montant_r: undefined
   };
 
   /**
@@ -56,7 +56,7 @@ export class ProjetRecettesComponent implements OnInit {
    * @private
    */
   private entityTypes: EntityType[] = [
-    {name: this.EntityPropertyName.ANNEE_RECETTE, type: GenericTableCellType.TEXT},
+    {name: this.EntityPropertyName.ANNEE_RECETTE, type: GenericTableCellType.NUMBER},
     {name: this.EntityPropertyName.MONTANT, type: GenericTableCellType.NUMBER}
   ];
 
@@ -72,6 +72,7 @@ export class ProjetRecettesComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
+    console.log(this.recettes);
     this.options = {
       dataSource: this.recettes,
       defaultEntity: this.defaultEntity,

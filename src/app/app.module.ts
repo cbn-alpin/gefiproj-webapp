@@ -41,7 +41,6 @@ registerLocaleData(localeFr, 'fr-FR');
   declarations: [
     AppComponent,
     HomeComponent,
-    ProjetComponent,
     ProjetsComponent,
     ConnexionComponent,
     RapportsComponent,
