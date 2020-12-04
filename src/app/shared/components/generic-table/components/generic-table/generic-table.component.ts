@@ -1,12 +1,6 @@
 import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import {
-  MAT_MOMENT_DATE_ADAPTER_OPTIONS, MAT_MOMENT_DATE_FORMATS,
-  MomentDateAdapter
-} from '@angular/material-moment-adapter';
-import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatSort, SortDirection } from '@angular/material/sort';
-import { Financement, Statut_F } from 'src/app/models/financement';
+import { MatSort } from '@angular/material/sort';
 import { GenericTableAction } from '../../globals/generic-table-action';
 import { GenericTableCellType } from '../../globals/generic-table-cell-types';
 import { GenericTableEntityState } from '../../globals/generic-table-entity-states';
@@ -19,22 +13,12 @@ import {
 } from '../../models/generic-table-entity';
 import { GenericTableEntityEvent } from '../../models/generic-table-entity-event';
 import { GenericTableOptions } from '../../models/generic-table-options';
-import { SelectBoxOption } from '../../models/SelectBoxOption';
 import { SortInfo } from '../../models/sortInfo';
 
 @Component({
   selector: 'app-generic-table[title][options]',
   templateUrl: './generic-table.component.html',
-  styleUrls: ['./generic-table.component.scss'],
-  providers: [
-    {provide: MAT_DATE_LOCALE, useValue: 'fr-FR'},
-    {
-      provide: DateAdapter,
-      useClass: MomentDateAdapter,
-      deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS]
-    },
-    {provide: MAT_DATE_FORMATS, useValue: MAT_MOMENT_DATE_FORMATS},
-  ],
+  styleUrls: ['./generic-table.component.scss']
 })
 export class GenericTableComponent<T> implements OnInit, AfterViewInit {
   /**
@@ -80,20 +64,6 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
    */
   @ViewChild(MatSort) sort: MatSort;
 
-  /**
-   * Indique le titre de la colonne à trier.
-   */
-  public get sortName(): string {
-    return this._options?.sortName || '';
-  }
-
-  /**
-   * Indique le sens du trie.
-   */
-  public get sortDirection(): SortDirection {
-    return this._options?.sortDirection || 'asc';
-  }
-
   public genericTableData: GenericTableEntity<T>[];
   public dataSourceColumnsName: EntityType[];
   public displayedColumns: string[];
@@ -102,21 +72,6 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
   public historyOfEntitiesUpdating: HistoryOfEntityUpdating<T>[] = [];
   public selectedEntity: GenericTableEntity<T>;
   private genericTableAction: GenericTableAction;
-
-  /**
-   * Retourne les données de la table.
-   */
-  public get dataObservable(): T[] {
-    return this.genericTableData
-      ?.map(gd => gd.data) || [];
-  }
-
-  /**
-   * Indique que la table est vide.
-   */
-  public get isEmpty(): boolean {
-    return this.genericTableData.length === 0;
-  }
 
   constructor(
     private snackBar: MatSnackBar
@@ -137,32 +92,7 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
    * Déclenché quand tous les composants sont chargés.
    */
   ngAfterViewInit(): void {
-    try {
-      this.sort.active = this._options?.sortName || '';
-      this.sort.direction = this._options?.sortDirection || 'asc';
-      this.onSortChange();
-
-      this.initEvents();
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  /**
-   * Indique si le trie est désactivé pour la propriété indiquée.
-   * @param propertyName : nom de la propriété ciblée.
-   */
-  public isSortDisabled(propertyName: string): boolean {
-    try {
-      const sortEnabled = this._options.entityTypes
-        .find(t => t.code === propertyName)
-        ?.sortEnabled;
-
-      return !sortEnabled;
-    } catch (error) {
-      console.error(error);
-      return true;
-    }
+    this.initEvents();
   }
 
   /**
@@ -269,8 +199,6 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
       state: GenericTableEntityState.NEW
     };
     this.selectedEntity = newElement;
-
-    console.log(this.selectedEntity)
     this.genericTableData = [newElement].concat(this.genericTableData);
   }
 
@@ -307,12 +235,6 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
       .type === GenericTableCellType.TEXT;
   }
 
-  public isTextarea(entityName: any): boolean {
-    return this.options.entityTypes
-      ?.find((entity) => entity.code === entityName)
-      .type === GenericTableCellType.TEXTAREA;
-  }
-
   public isNumber(entityName: any): boolean {
     return this.options.entityTypes
       ?.find((entity) => entity.code === entityName)
@@ -343,7 +265,7 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
       .type === GenericTableCellType.SELECTBOX;
   }
 
-  public getEntitySelectBoxOptions(entityName: string): SelectBoxOption<any>[] {
+  public getEntitySelectBoxOptions(entityName: string): string[] {
     return this.options.entitySelectBoxOptions
       ?.find((entity) => entity.name === entityName)
       .values || [];
@@ -460,39 +382,4 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
       this.selectEvent.emit(genericTableEntityEvent);
     }
   }
-
-  /**
-   * Retourne la taille des lignes du tableau
-   */
-  public getResult(){
-    const nbResults = this.genericTableData.length;
-    return nbResults + (nbResults > 1 ? ' résultats' : ' résultat');
-  }
-
-  /**
-   * bloque la modification de certain champs 
-   * @param entity : l'object à modifié
-   * @param entityName : nom de l'entité de l'object
-   */
-  public disabledEditField(entity: GenericTableEntity<T>, entityName: string): Boolean{
-    const selectedEntity = entity.data;
-    // exception edition pour l'intance financement
-    if (this.instanceOfFinancement(selectedEntity)) {
-      if (selectedEntity?.statut_f === Statut_F.SOLDE && entityName !== 'statut_f') {
-        return true;
-      } else if (entityName === 'difference') {
-        return true;
-      }
-    } 
-    return false;
-  }
-
-  /**
-   * Retourne vrai si T est de l'instance financement
-   * @param object : l'objet data de l'entity
-   */
-  public instanceOfFinancement(object: any): object is Financement {
-    return true;
-  }
-
 }

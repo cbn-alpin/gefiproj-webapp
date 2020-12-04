@@ -1,42 +1,17 @@
-
 <div>
   <span *ngIf="!!title" class="title">{{title}}</span>
 </div>
-<div class="table-generic">
 
-<table mat-table [(dataSource)]="genericTableData" class="mat-elevation-z8" [ngClass]="{'can-select': canSelect}" 
-  matSort matSortDisableClear [matSortActive]="sortName" [matSortDirection]="sortDirection">
+<table mat-table [(dataSource)]="genericTableData" class="mat-elevation-z8" [ngClass]="{'can-select': canSelect}" matSort matSortDirection="asc">
 
   <ng-container *ngFor="let columnName of dataSourceColumnsName; let index = index" [matColumnDef]="columnName.name">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header [disabled]="isSortDisabled(columnName.code)"> {{columnName.name}} </th>
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnName.name}} </th>
     <td mat-cell *matCellDef="let element">
-
-      <!-- Textarea -->
-      <div class="ttextarea">
-          <mat-form-field *ngIf="isTextarea(columnName.code) && element.state === GenericTableEntityState.EDIT" 
-          [ngClass]="{errors: hasErrors(element, columnName.code)}" 
-          floatLabel="never">
-            <textarea matInput matTooltipClass="tooltip-error"
-              [disabled]="disabledEditField(element, columnName.code)"
-              [matTooltip]="getErrorMessage(element.errors, columnName.code)"
-              [(ngModel)]="element.data[columnName.code]"
-              [placeholder]="getPlaceHolder(columnName.code)"></textarea>
-          </mat-form-field>
-          <mat-form-field *ngIf="isTextarea(columnName.code) && element.state === GenericTableEntityState.READ" 
-            matTooltip="{{element.data[columnName.code]}}"
-            matTooltipClass="tooltip-textarea"
-            [ngClass]="{errors: hasErrors(element, columnName.code)}" floatLabel="never">
-            <textarea matInput [disabled]="element.state === GenericTableEntityState.READ"
-              [(ngModel)]="element.data[columnName.code]"
-              [placeholder]="getPlaceHolder(columnName.code)"
-              rows="4" cols="50" maxlength="50"></textarea>
-          </mat-form-field>
-      </div>
 
       <!-- String -->
       <div class="string">
         <mat-form-field *ngIf="isString(columnName.code)" [ngClass]="{errors: hasErrors(element, columnName.code)}" floatLabel="never">
-          <input matInput [disabled]="element.state === GenericTableEntityState.READ || disabledEditField(element, columnName.code)" matTooltipClass="tooltip-error"
+          <input matInput [disabled]="element.state === GenericTableEntityState.READ" matTooltipClass="tooltip-error"
                  [matTooltip]="getErrorMessage(element.errors, columnName.code)"
                  [(ngModel)]="element.data[columnName.code]"
                  [placeholder]="getPlaceHolder(columnName.code)">
@@ -46,7 +21,7 @@
       <!-- Number -->
       <div class="number">
         <mat-form-field *ngIf="isNumber(columnName.code)" [ngClass]="{errors: hasErrors(element, columnName.code)}" floatLabel="never">
-          <input matInput numeric [disabled]="element.state === GenericTableEntityState.READ || disabledEditField(element, columnName.code)" matTooltipClass="tooltip-error"
+          <input matInput numeric [disabled]="element.state === GenericTableEntityState.READ" matTooltipClass="tooltip-error"
                  [matTooltip]="getErrorMessage(element.errors, columnName.code)"
                  [(ngModel)]="element.data[columnName.code]"
                  [placeholder]="getPlaceHolder(columnName.code)">
@@ -56,7 +31,7 @@
       <!-- Date -->
       <div class="date">
         <mat-form-field *ngIf="isDate(columnName.code)" [ngClass]="{errors: hasErrors(element, columnName.code)}" floatLabel="never">
-          <input matInput [disabled]="element.state === GenericTableEntityState.READ || disabledEditField(element, columnName.code)" [matDatepicker]="picker1" matTooltipClass="tooltip-error"
+          <input matInput [disabled]="element.state === GenericTableEntityState.READ" [matDatepicker]="picker1" matTooltipClass="tooltip-error"
                  [matTooltip]="getErrorMessage(element.errors, columnName.code)"
                  [(ngModel)]="element.data[columnName.code]"
                  [placeholder]="getPlaceHolder(columnName.code)">
@@ -68,8 +43,7 @@
       <!-- Currency -->
       <div class="currency">
         <mat-form-field *ngIf="isCurrency(columnName.code)" [ngClass]="{errors: hasErrors(element, columnName.code)}" floatLabel="never">
-          <input matInput numeric decimals="4" [disabled]="element.state === GenericTableEntityState.READ || disabledEditField(element, columnName.code)" 
-                matTooltipClass="tooltip-error"
+          <input matInput numeric decimals="4" [disabled]="element.state === GenericTableEntityState.READ" matTooltipClass="tooltip-error"
                  [matTooltip]="getErrorMessage(element.errors, columnName.code)"
                  [ngModel]="element.state === GenericTableEntityState.READ ? ((element.data[columnName.code] | number:'1.0-0': 'fr-FR') + ' €') : element.data[columnName.code]"
                  (ngModelChange)="element.data[columnName.code]=$event"
@@ -80,16 +54,16 @@
       <!-- Boolean -->
       <div class="checkbox">
         <mat-checkbox *ngIf="isBoolean(columnName.code)" [(ngModel)]="element.data[columnName.code]"
-                      [disabled]="element.state === GenericTableEntityState.READ || disabledEditField(element, columnName.code)">
+                      [disabled]="element.state === GenericTableEntityState.READ">
         </mat-checkbox>
       </div>
 
       <!-- Select box -->
       <div class="selectbox">
         <mat-form-field *ngIf="isSelectBox(columnName.code)" [ngClass]="{errors: hasErrors(element, columnName.code)}" floatLabel="never">
-          <mat-select [(ngModel)]="element.data[columnName.code]" [disabled]="element.state === GenericTableEntityState.READ || disabledEditField(element, columnName.code)" matTooltipClass="tooltip-error"
-            [matTooltip]="getErrorMessage(element.errors, columnName.code)">
-            <mat-option *ngFor="let option of getEntitySelectBoxOptions(columnName.code)" [value]="option.id">{{option.label}}
+          <mat-select [(ngModel)]="element.data[columnName.code]" [disabled]="element.state === GenericTableEntityState.READ" matTooltipClass="tooltip-error"
+                      [matTooltip]="getErrorMessage(element.errors, columnName.code)">
+            <mat-option *ngFor="let option of getEntitySelectBoxOptions(columnName.code)" [value]="option">{{option}}
             </mat-option>
           </mat-select>
         </mat-form-field>
@@ -98,9 +72,8 @@
     </td>
   </ng-container>
 
-  <ng-container [matColumnDef]="actionsHeaderColumns" stickyEnd *ngIf="showActions">
+  <ng-container [matColumnDef]="actionsHeaderColumns" *ngIf="showActions">
     <th mat-header-cell *matHeaderCellDef class="actions">
-
       {{actionsHeaderColumns}}
       <button mat-icon-button (click)="onCreate()" [disabled]="canCreate()">
         <mat-icon>add</mat-icon>
@@ -137,7 +110,3 @@
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
   <tr mat-row *matRowDef="let row; columns: displayedColumns;" [ngClass]="{'selected': selectedEntity === row}" (click)="select(row)"></tr>
 </table>
-<p *ngIf="isEmpty">(Aucun élément à afficher)</p>
-<span class="result">{{getResult()}}</span>
-
-</div>
