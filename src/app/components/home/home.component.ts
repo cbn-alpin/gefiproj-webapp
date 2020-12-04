@@ -1,12 +1,14 @@
-import { Utilisateur } from './../../models/utilisateur';
 import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { IsAdministratorGuardService } from 'src/app/services/authentication/is-administrator-guard.service';
 import { SpinnerService } from 'src/app/services/spinner.service';
 import { UsersService } from 'src/app/services/users.service';
 import { GenericTableCellType } from 'src/app/shared/components/generic-table/globals/generic-table-cell-types';
 import { GenericTableFormError } from 'src/app/shared/components/generic-table/models/generic-table-entity';
+import { SortInfo } from 'src/app/shared/components/generic-table/models/sortInfo';
 import { ProjetsService } from '../../services/projets.service';
 import { Projet } from './../../models/projet';
+import { Utilisateur } from './../../models/utilisateur';
 import { GenericTableEntityEvent } from './../../shared/components/generic-table/models/generic-table-entity-event';
 import { GenericTableOptions } from './../../shared/components/generic-table/models/generic-table-options';
 
@@ -25,9 +27,53 @@ export class HomeComponent implements OnInit {
   readonly title = 'Projets';
 
   /**
+   * Indique s'il faut afficher les projets soldés.
+   */
+  // tslint:disable-next-line: variable-name
+  _withClosedProjects = false;
+
+  /**
+   * Indique s'il faut afficher les projets soldés.
+   */
+  public get withClosed(): boolean {
+    return this._withClosedProjects;
+  }
+
+  /**
+   * Indique s'il faut afficher les projets soldés.
+   * @param isVisible : true ssi les projets soldés doivent être affichés.
+   */
+  public set withClosed(isVisible: boolean) {
+    try {
+      this._withClosedProjects = !!isVisible;
+
+      this.refreshDataTable();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /**
    * Liste des projets.
    */
   projets: Projet[] = [];
+
+  /**
+   * Projets non soldés.
+   */
+  private get projectsNonClosed(): Projet[] {
+    return (this.projets || [])
+      .filter(p => !p.statut_p);
+  }
+
+  /**
+   * Projets visibles.
+   */
+  private get visibleProjects(): Projet[] {
+    return this._withClosedProjects
+      ? this.projets || []
+      : this.projectsNonClosed;
+  }
 
   /**
    * Responsables des projets.
@@ -65,20 +111,34 @@ export class HomeComponent implements OnInit {
       { code: this.namesMap.code, type: GenericTableCellType.NUMBER, name: 'Code'},
       { code: this.namesMap.name, type: GenericTableCellType.TEXT, name: 'Nom' },
       { code: this.namesMap.manager, type: GenericTableCellType.SELECTBOX, name: 'Responsable' },
-      { code: this.namesMap.status, type: GenericTableCellType.BOOLEAN, name: 'Statut' }
+      { code: this.namesMap.status, type: GenericTableCellType.BOOLEAN, name: 'Est soldé' }
     ],
     entityPlaceHolders: [],
     entitySelectBoxOptions: []
   };
 
   /**
+   * Indique si le tableau peut-être modifié.
+   */
+  public get showActions(): boolean {
+    return !!this.adminSrv.isAdministrator;
+  }
+
+  /**
+   * Indique le trie courant.
+   */
+  sortInfo: SortInfo;
+
+  /**
    * Affiche les projets.
+   * @param adminSrv : permet de vérifier si l'utilisateur est un administrateur.
    * @param projectsSrv : permet de dialoguer avec le serveur d'API pour les entités Projet.
    * @param usersSrv : permet de charger les utilisateurs.
    * @param snackBar : affiche une information.
    * @param spinnerSrv : gère le spinner/sablier.
    */
   constructor(
+    private adminSrv: IsAdministratorGuardService,
     private projectsSrv: ProjetsService,
     private usersSrv: UsersService,
     private snackBar: MatSnackBar,
@@ -95,7 +155,7 @@ export class HomeComponent implements OnInit {
       await Promise.all([promiseManagers, promiseProjects]); // Pour être plus efficace
 
       this.options = Object.assign({}, this.options, {
-        dataSource: this.projets,
+        dataSource: this.visibleProjects,
         entitySelectBoxOptions: [
           {
             name: this.namesMap.manager,
@@ -108,6 +168,9 @@ export class HomeComponent implements OnInit {
     }
   }
 
+  /**
+   * Charge les responsables depuis le serveur.
+   */
   async loadManagers(): Promise<Utilisateur[]> {
     try {
       this.spinnerSrv.show();
@@ -156,6 +219,21 @@ export class HomeComponent implements OnInit {
   }
 
   /**
+   * Met à jour les données d'affichage.
+   */
+  private refreshDataTable(): void {
+    try {
+      const dataSource = this.sort(this.visibleProjects);
+
+      this.options = Object.assign({}, this.options, {
+        dataSource
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /**
    * Un projet a été modifié dans le tableau.
    * @param event : encapsule le projet à modifier.
    */
@@ -169,6 +247,11 @@ export class HomeComponent implements OnInit {
       if (this.validateForGenericTable(event)) {
         await this.projectsSrv.modify(project);
         event.callBack(null);
+
+        if (!this._withClosedProjects
+          && project.statut_p) { // Cache le projet car il est soldé
+          this.refreshDataTable();
+        }
       }
     } catch (error) {
       console.error(error);
@@ -245,6 +328,11 @@ export class HomeComponent implements OnInit {
       if (this.validateForGenericTable(event)) {
         await this.projectsSrv.add(event.entity);
         event.callBack(null);
+
+        if (!this._withClosedProjects
+          && project.statut_p) { // Cache le projet car il est soldé
+          this.refreshDataTable();
+        }
       }
     } catch (error) {
       console.error(error);
@@ -268,5 +356,52 @@ export class HomeComponent implements OnInit {
         apiError: 'Impossible de supprimer le projet.'
       });
     }
+  }
+
+  /**
+   * Le trie du tableau a changé.
+   * @param sort : défini le trie à appliquer.
+   */
+  onSortChanged(sort: SortInfo): void {
+    try {
+      if (sort) {
+        this.sortInfo = sort;
+        this.refreshDataTable();
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /**
+   * Trie les projets en paramètre.
+   * @param projects : projets à trier.
+   */
+  private sort(projects: Projet[]): Projet[] {
+    const { name, direction } = this.sortInfo || {
+      name: this.namesMap.code,
+      direction: 'asc'
+    };
+    const mult = direction === 'asc' // Pour gérer le sens du trie
+      ? 1
+      : -1;
+
+    return projects.sort((p1, p2) => {
+      let item1 = p1[name];
+      let item2 = p2[name];
+
+      if (name === this.namesMap.code) { // Les codes sont des entiers
+        item1 = parseInt(item1, 10);
+        item2 = parseInt(item2, 10);
+      }
+
+      if (item1 < item2) {
+        return -1 * mult;
+      }
+      if (item1 > item2) {
+        return 1 * mult;
+      }
+      return 0;
+    });
   }
 }
