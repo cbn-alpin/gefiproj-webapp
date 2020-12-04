@@ -2,6 +2,8 @@ import { registerLocaleData } from '@angular/common';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import localeFr from '@angular/common/locales/fr';
 import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 import { JwtModule } from '@auth0/angular-jwt';
@@ -57,6 +59,8 @@ registerLocaleData(localeFr, 'fr-FR');
         disallowedRoutes: [/.*\/api\/auth\/.*/]
       }
     }),
+    FormsModule,
+    MatSlideToggleModule,
     NgxSpinnerModule,
     GenericTableDemoModule,
     SharedModule
