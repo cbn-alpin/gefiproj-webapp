@@ -10,7 +10,7 @@
       "role": "consultant"
     }
   ],
-  "projets": [
+  "projects": [
     {
       "id": 1,
       "id_p": 1,
@@ -36,10 +36,103 @@
       "id_p": 3
     }
   ],
-  "financements": [
+  "fundings": [
     {
+      "id": 1,
       "id_f": 1,
-      "financeur": "Financeur 1"
+      "projectId": 1,
+      "montant_arrete_f": 100000,
+      "date_arrete_f": "20/11/2019",
+      "date_limite_solde_f": "20/11/2020",
+      "statut_f": "ATR",
+      "date_solde_f": "20/06/2020",
+      "commentaire_admin_f": "ras",
+      "commentaire_resp_f": "ras",
+      "numero_titre_f": 5411,
+      "annee_titre_f": "15/02/2020",
+      "imputation_f": ""
+    },
+    {
+      "id": 2,
+      "id_f": 2,
+      "projectId": 1,
+      "montant_arrete_f": 250000,
+      "date_arrete_f": "20/11/2019",
+      "date_limite_solde_f": "20/11/2020",
+      "statut_f": "ATR",
+      "date_solde_f": "20/06/2020",
+      "commentaire_admin_f": "ras",
+      "commentaire_resp_f": "ras",
+      "numero_titre_f": 5411,
+      "annee_titre_f": "15/02/2020",
+      "imputation_f": ""
+    },
+    {
+      "id": 3,
+      "id_f": 3,
+      "projectId": 2,
+      "montant_arrete_f": 75000,
+      "date_arrete_f": "20/11/2019",
+      "date_limite_solde_f": "20/11/2020",
+      "statut_f": "ATR",
+      "date_solde_f": "20/06/2020",
+      "commentaire_admin_f": "ras",
+      "commentaire_resp_f": "ras",
+      "numero_titre_f": 5411,
+      "annee_titre_f": "15/02/2020",
+      "imputation_f": ""
+    },
+    {
+      "id": 4,
+      "id_f": 4,
+      "projectId": 3,
+      "montant_arrete_f": 99500,
+      "date_arrete_f": "20/11/2019",
+      "date_limite_solde_f": "20/11/2020",
+      "statut_f": "ATR",
+      "date_solde_f": "20/06/2020",
+      "commentaire_admin_f": "ras",
+      "commentaire_resp_f": "ras",
+      "numero_titre_f": 5411,
+      "annee_titre_f": "15/02/2020",
+      "imputation_f": ""
+    }
+  ],
+  "receipts": [
+    {
+      "id": 1,
+      "id_r": 1,
+      "fundingId": 1,
+      "montant_r": 40000,
+      "annea_r": 2019
+    },
+    {
+      "id": 2,
+      "id_r": 2,
+      "fundingId": 1,
+      "montant_r": 60000,
+      "annea_r": 2019
+    },
+    {
+      "id": 3,
+      "id_r": 3,
+      "fundingId": 2,
+      "montant_r": 250000,
+      "annea_r": 2019
+    },
+    {
+      "id": 4,
+      "id_r": 4,
+      "fundingId": 3,
+      "montant_r": 75000,
+      "annea_r": 2019
+    },
+    {
+      "id": 5,
+      "id_r": 5,
+      "fundingId": 4,
+      "montant_r": 99500,
+      "annea_r": 2019
     }
   ],
   "login": {}
