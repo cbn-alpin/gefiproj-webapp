@@ -1,8 +1,7 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {Recette} from "../../../models/recette";
 import {HttpClient} from "@angular/common/http";
 import {SpinnerService} from "../../../services/spinner.service";
-import {Projet} from "../../../models/projet";
 
 @Injectable({
   providedIn: 'root'
@@ -30,9 +29,11 @@ export class ProjetService {
   public async getRecettesFromFinancement(idFinancement: string): Promise<Recette[]> {
     try {
       this.spinnerSrv.show();
-      return await (this.http
-        .get<Recette[]>(this.financementEndPoint + idFinancement + '/receipts')
+      const test = await (this.http
+        .get<Recette[]>('/api/fundings/1/receipts')
         .toPromise());
+      console.log("TEST:", test);
+      return test;
     } catch (error) {
       console.error(error);
       return Promise.reject(error);
