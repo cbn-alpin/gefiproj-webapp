@@ -1,8 +1,10 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSort } from '@angular/material/sort';
 import { GenericTableAction } from '../../globals/generic-table-action';
 import { GenericTableCellType } from '../../globals/generic-table-cell-types';
 import { GenericTableEntityState } from '../../globals/generic-table-entity-states';
+import { EntityType } from '../../models/entity-types';
 import {
   GenericTableEntity,
   GenericTableEntityErrors,
@@ -11,15 +13,14 @@ import {
 } from '../../models/generic-table-entity';
 import { GenericTableEntityEvent } from '../../models/generic-table-entity-event';
 import { GenericTableOptions } from '../../models/generic-table-options';
-import { EntityPlaceholder } from '../../models/entity-placeholder';
-import { EntityType } from '../../models/entity-types';
+import { SortInfo } from '../../models/sortInfo';
 
 @Component({
   selector: 'app-generic-table[title][options]',
   templateUrl: './generic-table.component.html',
   styleUrls: ['./generic-table.component.scss']
 })
-export class GenericTableComponent<T> implements OnInit {
+export class GenericTableComponent<T> implements OnInit, AfterViewInit {
   /**
    * Défini les données à afficher et leur formatage.
    */
@@ -31,6 +32,7 @@ export class GenericTableComponent<T> implements OnInit {
   get options(): GenericTableOptions<T> {
     return this._options;
   }
+
   /**
    * Défini le paramétrage d'affichage et les données du tableau.
    */
@@ -52,6 +54,16 @@ export class GenericTableComponent<T> implements OnInit {
   @Output() deleteEvent: EventEmitter<GenericTableEntityEvent<T>> = new EventEmitter<GenericTableEntityEvent<T>>();
   @Output() selectEvent: EventEmitter<GenericTableEntityEvent<T>> = new EventEmitter<GenericTableEntityEvent<T>>();
 
+  /**
+   * Notifie le composant parent que le trie a changé.
+   */
+  @Output() sortEvent = new EventEmitter<SortInfo>();
+
+  /**
+   * Récupère le trie courant.
+   */
+  @ViewChild(MatSort) sort: MatSort;
+
   public genericTableData: GenericTableEntity<T>[];
   public dataSourceColumnsName: EntityType[];
   public displayedColumns: string[];
@@ -65,8 +77,54 @@ export class GenericTableComponent<T> implements OnInit {
     private snackBar: MatSnackBar
   ) { }
 
+  /**
+   * Initialise le composant.
+   */
   ngOnInit(): void {
-    this.initTable();
+    try {
+      this.initTable();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /**
+   * Déclenché quand tous les composants sont chargés.
+   */
+  ngAfterViewInit(): void {
+    this.initEvents();
+  }
+
+  /**
+   * Notification d'un changement sur le trie.
+   */
+  private onSortChange(): void {
+    try {
+      const name = this._options.entityTypes // Pour récupérer le nom de la propriété
+        .find(t => t.name === this.sort.active)
+        ?.code
+        || this.sort.active;
+      const sort: SortInfo = { // Information sur le trie
+        name,
+        direction: this.sort.direction
+      };
+
+      this.sortEvent.emit(sort);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /**
+   * Initialise les branchements aux évènements des composants fils.
+   */
+  private initEvents(): void {
+    try {
+      this.sort.sortChange.subscribe(() =>
+        this.onSortChange());
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   /**

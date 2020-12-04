@@ -3,13 +3,13 @@ const jwt = require('jsonwebtoken')
 
 const primaryKeys = { // Nom des identifiants des entités
   "users": "id_u",
-  "projets": "id_p",
-  "financements": "id_f",
+  "projects": "id_p",
+  "funding": "id_f",
   "financeurs": "id_financeur",
-  "recettes": "id_r",
-  "montants": "id_ma",
-  "depenses": "id_d",
-  "historiques": "id_h"
+  "receipts": "id_r",
+  "amounts": "id_ma",
+  "expenses": "id_d",
+  "history": "id_h"
 };
 
 // Paramètres du Token
