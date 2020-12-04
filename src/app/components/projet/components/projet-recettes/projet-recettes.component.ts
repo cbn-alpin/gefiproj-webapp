@@ -56,8 +56,8 @@ export class ProjetRecettesComponent implements OnInit {
    * @private
    */
   private entityTypes: EntityType[] = [
-    {name: this.EntityPropertyName.ANNEE_RECETTE, type: GenericTableCellType.NUMBER},
-    {name: this.EntityPropertyName.MONTANT, type: GenericTableCellType.NUMBER}
+    {name: 'Année recette', type: GenericTableCellType.NUMBER, code: this.EntityPropertyName.ANNEE_RECETTE},
+    {name: 'Montant', type: GenericTableCellType.CURRENCY, code: this.EntityPropertyName.MONTANT}
   ];
 
   /**

@@ -80,6 +80,7 @@ export class GenericTableComponent<T> implements OnInit {
         state: GenericTableEntityState.READ
       };
     });
+      console.log("GT", this.genericTableData);
     this.dataSourceColumnsName = this.options.entityTypes;
     this.displayedColumns = this.showActions
       ? this.getDisplayedColumns().concat(this.actionsHeaderColumns)
