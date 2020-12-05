@@ -1,9 +1,11 @@
-import { DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Financement, Statut_F } from 'src/app/models/financement';
+import { Financeur } from 'src/app/models/financeur';
 import { FinancementsService } from 'src/app/services/financements.service';
+import { FinanceurService } from 'src/app/services/financeur.service';
+import { SpinnerService } from 'src/app/services/spinner.service';
 import { GenericTableCellType } from 'src/app/shared/components/generic-table/globals/generic-table-cell-types';
 import { EntitySelectBoxOptions } from 'src/app/shared/components/generic-table/models/entity-select-box-options';
 import { GenericTableEntityEvent } from 'src/app/shared/components/generic-table/models/generic-table-entity-event';
@@ -11,11 +13,11 @@ import { GenericTableInterface } from 'src/app/shared/components/generic-table/m
 import { GenericTableOptions } from 'src/app/shared/components/generic-table/models/generic-table-options';
 
 @Component({
-  selector: 'app-projets',
-  templateUrl: './projets.component.html',
-  styleUrls: ['./projets.component.scss']
+  selector: 'app-financements',
+  templateUrl: './financements.component.html',
+  styleUrls: ['./financements.component.scss']
 })
-export class ProjetsComponent implements OnInit, GenericTableInterface<Financement>  {
+export class FinancementsComponent implements OnInit, GenericTableInterface<Financement>  {
 
   /**
    * Titre du tableau générique
@@ -32,6 +34,12 @@ export class ProjetsComponent implements OnInit, GenericTableInterface<Financeme
    * @private
    */
   public financements: Financement[];
+
+  /**
+   * Liste de financeurs
+   * @private
+   */
+  public financeurs: Financeur[];
 
   /**
    * Représente un nouveau financement et définit les colonnes à afficher.
@@ -51,6 +59,7 @@ export class ProjetsComponent implements OnInit, GenericTableInterface<Financeme
     annee_titre_f: '',
     imputation_f: '',
     difference: 0,
+    financeur: undefined
   } ;
 
   /**
@@ -63,7 +72,7 @@ export class ProjetsComponent implements OnInit, GenericTableInterface<Financeme
       {name: 'Montant Arreté', type: GenericTableCellType.CURRENCY, code: Object.keys(this.defaultEntity)[3]},
       {name: 'Date arreté ou commande', type: GenericTableCellType.DATE, code: Object.keys(this.defaultEntity)[4]},
       {name: 'Date limite de solde', type: GenericTableCellType.DATE, code: Object.keys(this.defaultEntity)[5]},
-      {name: 'Financeur', type: GenericTableCellType.SELECTBOX, code: Object.keys(this.defaultEntity)[2]},
+      {name: 'Financeur', type: GenericTableCellType.SELECTBOX, code: Object.keys(this.defaultEntity)[14]},
       {name: 'Statut', type: GenericTableCellType.SELECTBOX, code: Object.keys(this.defaultEntity)[6]},
       {name: 'Date de solde', type: GenericTableCellType.DATE, code: Object.keys(this.defaultEntity)[7]},
       {name: 'Commentaire admin', type: GenericTableCellType.TEXT, code: Object.keys(this.defaultEntity)[8]},
@@ -81,28 +90,15 @@ export class ProjetsComponent implements OnInit, GenericTableInterface<Financeme
    * Tableau des options des select box de l'entité financement
    * @private
    */
-  private entitySelectBoxOptions: EntitySelectBoxOptions[] = [
-    {
-      name: Object.keys(this.defaultEntity)[2],
-      values: [
-        {code: 1, value: 1},
-      ]
-    },
-    {
-      name: Object.keys(this.defaultEntity)[6],
-      values: [
-        {code:'ANTR', value: Statut_F.ANTR},
-        {code:'ATR', value: Statut_F.ATR},
-        {code:'SOLDE', value: Statut_F.SOLDE},
-      ]
-    }
-  ];
+  private entitySelectBoxOptions: EntitySelectBoxOptions[] = [];
 
   constructor(
     private financementsService: FinancementsService,
+    private financeurService: FinanceurService,
     private route: ActivatedRoute,
     private router: Router,
     private snackBar: MatSnackBar,
+    private spinnerSrv: SpinnerService
   ) {
     this.projectId = this.route.snapshot.params.id;
     if(!this.projectId) this.router.navigate(['home'])
@@ -110,7 +106,7 @@ export class ProjetsComponent implements OnInit, GenericTableInterface<Financeme
 
   async ngOnInit(): Promise<void> {
     try {
-      await this.loadFinancements(this.projectId);
+      await this.loadFinancements(Number(this.projectId));
     } catch (error) {
       console.error(error);
     }
@@ -119,20 +115,35 @@ export class ProjetsComponent implements OnInit, GenericTableInterface<Financeme
   /**
    * Charge les financements depuis le serveur.
    */
-  async loadFinancements(projetId: string): Promise<Financement[]> {
+  async loadFinancements(projetId: number): Promise<Financement[]> {
     try {
-      this.financements = await this.financementsService.get_by_id(projetId);
-      this.financements.forEach( res => {
-        res.difference = 0;
+      this.spinnerSrv.show();
+      this.financements = await this.financementsService.getAll(projetId);
+      this.financeurs = await this.financeurService.getAll();
+      const entitySelectBoxOptions = [
+        {
+          name: Object.keys(this.defaultEntity)[14],
+          values: [...this.financeurs]
+        },
+        {
+          name: Object.keys(this.defaultEntity)[6],
+          values: [
+            {code:'ANTR', value: Statut_F.ANTR},
+            {code:'ATR', value: Statut_F.ATR},
+            {code:'SOLDE', value: Statut_F.SOLDE},
+          ]
+        }
+      ];
+      this.options.entitySelectBoxOptions = entitySelectBoxOptions;
+      this.options = Object.assign({}, this.options, {
+        dataSource: this.financements
       });
-
-    console.log(this.financements)
-      this.options.dataSource = this.financements.reverse();
-      this.options.entitySelectBoxOptions = this.entitySelectBoxOptions;
     } catch (error) {
       console.error(error);
       this.showInformation('Impossible de charger les projets.');
       return Promise.reject(error);
+    } finally {
+      this.spinnerSrv.hide();
     }
   }
 
@@ -162,15 +173,17 @@ export class ProjetsComponent implements OnInit, GenericTableInterface<Financeme
     try {
       let financement = event.entity;
       if(financement.hasOwnProperty('difference')) delete financement.difference;
-      financement.id_p = Number(this.projectId);
-      const pipe = new DatePipe('fr-FR');
+      if(!financement.hasOwnProperty('id_p')) financement.id_p = Number(this.projectId);
 
+      /*
+      const pipe = new DatePipe('fr-FR');
       if(financement.date_arrete_f) financement.date_arrete_f = pipe.transform(new Date(financement.date_arrete_f), 'yyyy-MM-dd')
       if(financement.date_limite_solde_f) financement.date_limite_solde_f = pipe.transform(new Date(financement.date_limite_solde_f), 'yyyy-MM-dd')
       if(financement.date_solde_f) financement.date_solde_f = pipe.transform(new Date(financement.date_solde_f), 'yyyy-MM-dd')
       console.log(financement)
+      */
       await this.financementsService.put(financement);
-      //event.callBack(null);
+      event.callBack(null);
     } catch (error) {
       console.error(error);
       event?.callBack({
@@ -187,14 +200,16 @@ export class ProjetsComponent implements OnInit, GenericTableInterface<Financeme
     try {
       let financement = event.entity;
       if(financement.hasOwnProperty('difference')) delete financement.difference;
-      financement.id_p = Number(this.projectId);
+      if(!financement.hasOwnProperty('id_p')) financement.id_p = Number(this.projectId);
+      /*
       const pipe = new DatePipe('fr-FR');
       
       if(financement.date_arrete_f) financement.date_arrete_f = pipe.transform(new Date(financement.date_arrete_f), 'yyyy-MM-dd')
       if(financement.date_limite_solde_f) financement.date_limite_solde_f = pipe.transform(new Date(financement.date_limite_solde_f), 'yyyy-MM-dd')
       if(financement.date_solde_f) financement.date_solde_f = pipe.transform(new Date(financement.date_solde_f), 'yyyy-MM-dd')
+      */
       await this.financementsService.post(event.entity);
-      //event.callBack(null);
+      event.callBack(null);
     } catch (error) {
       console.error(error);
       event?.callBack({
@@ -210,7 +225,7 @@ export class ProjetsComponent implements OnInit, GenericTableInterface<Financeme
   async onDelete(event: GenericTableEntityEvent<Financement>): Promise<void> {
     try {
       await this.financementsService.delete(event.entity);
-      //event.callBack(null);
+      event.callBack(null);
     } catch (error) {
       console.error(error);
       event?.callBack({

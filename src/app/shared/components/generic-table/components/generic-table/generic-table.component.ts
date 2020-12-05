@@ -11,13 +11,27 @@ import {
 } from '../../models/generic-table-entity';
 import { GenericTableEntityEvent } from '../../models/generic-table-entity-event';
 import { GenericTableOptions } from '../../models/generic-table-options';
-import { EntityPlaceholder } from '../../models/entity-placeholder';
 import { EntityType } from '../../models/entity-types';
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
+import {
+  MAT_MOMENT_DATE_FORMATS,
+  MomentDateAdapter,
+  MAT_MOMENT_DATE_ADAPTER_OPTIONS,
+} from '@angular/material-moment-adapter';
 
 @Component({
   selector: 'app-generic-table[title][options]',
   templateUrl: './generic-table.component.html',
-  styleUrls: ['./generic-table.component.scss']
+  styleUrls: ['./generic-table.component.scss'],
+  providers: [
+    {provide: MAT_DATE_LOCALE, useValue: 'fr-FR'},
+    {
+      provide: DateAdapter,
+      useClass: MomentDateAdapter,
+      deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS]
+    },
+    {provide: MAT_DATE_FORMATS, useValue: MAT_MOMENT_DATE_FORMATS},
+  ],
 })
 export class GenericTableComponent<T> implements OnInit {
   /**

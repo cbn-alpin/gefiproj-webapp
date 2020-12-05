@@ -61,11 +61,32 @@
       <!-- Select box -->
       <div class="selectbox">
         <mat-form-field *ngIf="isSelectBox(columnName.code)" [ngClass]="{errors: hasErrors(element, columnName.code)}" floatLabel="never">
-          <mat-select [(ngModel)]="element.data[columnName.code]" [disabled]="element.state === GenericTableEntityState.READ" matTooltipClass="tooltip-error"
-                      [matTooltip]="getErrorMessage(element.errors, columnName.code)">
-            <mat-option *ngFor="let option of getEntitySelectBoxOptions(columnName.code)" [value]="option">{{option}}
-            </mat-option>
-          </mat-select>
+          <div [ngSwitch]="columnName.code">
+            <!--CASE FINANCEUR-->
+            <div *ngSwitchCase="'financeur'">
+              <mat-select [(ngModel)]="element.data[columnName.code].nom_financeur" [disabled]="element.state === GenericTableEntityState.READ" matTooltipClass="tooltip-error"
+                [matTooltip]="getErrorMessage(element.errors, columnName.code)">
+                <mat-option *ngFor="let option of getEntitySelectBoxOptions(columnName.code)" [value]="option">{{option.nom_financeur}}
+                </mat-option>
+              </mat-select>
+            </div>
+            <!--CASE FINANCEUR-->
+            <div *ngSwitchCase="'statut_f'">
+              <mat-select [(ngModel)]="element.data[columnName.code]" [disabled]="element.state === GenericTableEntityState.READ" matTooltipClass="tooltip-error"
+                [matTooltip]="getErrorMessage(element.errors, columnName.code)">
+                <mat-option *ngFor="let option of getEntitySelectBoxOptions(columnName.code)" [value]="option">{{option.value}}
+                </mat-option>
+              </mat-select>
+            </div>
+            <!--CASE DEFAULT-->
+            <div *ngSwitchDefault>
+              <mat-select [(ngModel)]="element.data[columnName.code]" [disabled]="element.state === GenericTableEntityState.READ" matTooltipClass="tooltip-error"
+                [matTooltip]="getErrorMessage(element.errors, columnName.code)">
+                <mat-option *ngFor="let option of getEntitySelectBoxOptions(columnName.code)" [value]="option">{{option}}
+                </mat-option>
+              </mat-select>
+            </div>
+          </div>
         </mat-form-field>
       </div>
 

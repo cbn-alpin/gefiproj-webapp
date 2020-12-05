@@ -1,74 +1,69 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Financement } from '../models/financement';
+import { CrudService } from './crud.service';
+import { SpinnerService } from './spinner.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FinancementsService {
   /**
-   * URL pour ouvrir une session via un Token.
+   * Url relative de l'API.
    */
-  public static readonly Financement_URL = "/api/financements";
+  public readonly endPoint = "http://127.0.0.1:5000/api/funding";
   
   /**
-   * Gère les financements
-   * @param http : permet de lancer des requêtes.
-   * 
+   * Effectue les appels au serveur d'API pour une entité donnée.
    */
-  constructor(private http: HttpClient) {
+  private readonly crudSrv: CrudService<Financement>;
+
+  /**
+   * Effectue les appels au serveur d'API pour les financements.
+   * @param http : permet d'effectuer les appels au serveur d'API.
+   * @param spinnerSrv : gère le spinner/sablier.
+   */
+  constructor(
+    http: HttpClient,
+    spinnerSrv: SpinnerService) {
+      this.crudSrv = new CrudService<Financement>(
+        http,
+        spinnerSrv,
+        this.endPoint);
   }
 
   /**
-   * Get les financements d'un projet
+   * Retourne les financements d'un projet depuis le
    * @param projetId : l'id du projet
    */
-  public async get_by_id(projetId: string): Promise<Financement[]> {
-    try {
-      if (!projetId) {
-        throw new Error('Pas d\'id projet.');
-      }
-      return await (this.http.get<Financement[]>(FinancementsService.Financement_URL+'/'+projetId).toPromise());
-    } catch (error) {
-      console.error(error);
-      return Promise.reject(error);
+  public async getAll(id: number): Promise<Financement[]> {
+    if (isNaN(id)) {
+      throw new Error('Pas d\'identifiant valide.');
     }
+    return this.crudSrv.getAll(id);
   }
 
   /**
-   * Put un financement d'un projet
-   * @param projetId : l'id du projet
+   * Transmet le financement d'un projet modifié au serveur.
    * @param financement : le financement modifié
    */
   public async put(financement: Financement): Promise<Financement> {
-    try {
-      console.log(financement.id_f)
-      if (isNaN(financement?.id_f)) {
-        throw new Error('Pas d\'id financement.');
-      }
-      return await (this.http.put<Financement>(
-        `${FinancementsService.Financement_URL}/${financement.id_f}`,
-        financement
-      )
-      .toPromise());
-    } catch (error) {
-      console.error(error);
-      return Promise.reject(error);
-    }
+    return this.crudSrv.modify(
+      financement,
+      financement?.id_f);
   }
 
   /**
-   * Post un financement d'un projet
-   * @param financement : le financement à ajouter
+   * Transmet le financement d'un projet au serveur.
+   * @param financement : le financement à créer
    */
   public async post(financement: Financement): Promise<Financement> {
     try {
-      const newFinancement = await (this.http.post<Financement>(
-        FinancementsService.Financement_URL, 
-        financement
-      ).toPromise());
+      const newFinancement = await this.crudSrv.add(financement);
       // Récupération de l'identifiant
-      financement.id_f = newFinancement.id_f || 0;
+      financement.id_p = newFinancement?.id_f
+      || financement?.id_f
+      || 0;
 
       return newFinancement || financement;
     } catch (error) {
@@ -77,18 +72,10 @@ export class FinancementsService {
   }
 
   /**
-   * Delete un financement d'un projet
+   * Demande la suppression d'un financement
    * @param financement : le financement à supprimer
    */
-  public async delete(financement: Financement): Promise<Financement> {
-    try {
-      if (isNaN(financement?.id_f)) {
-        throw new Error('Pas d\'id financement.');
-      }
-      return await (this.http.delete<Financement>(`${FinancementsService.Financement_URL}/${financement.id_f}`).toPromise());
-    } catch (error) {
-      console.error(error);
-      return Promise.reject(error);
-    }
+  public async delete(financement: Financement): Promise<void> {
+    return this.crudSrv.delete(financement.id_f);
   }
 }

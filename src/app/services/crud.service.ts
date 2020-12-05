@@ -21,12 +21,15 @@ export class CrudService<T> {
   /**
    * Retourne les entités depuis le serveur.
    */
-  public async getAll(): Promise<T[]> {
+  public async getAll(id?:number): Promise<T[]> {
     try {
       this.spinnerSrv.show();
-
+      let url = `${this.endPoint}`;
+      if (id) {
+        url = `${this.endPoint}/${id}`;
+      } 
       return await (this.http
-        .get<T[]>(this.endPoint)
+        .get<T[]>(url)
         .toPromise());
     } catch (error) {
       console.error(error);
