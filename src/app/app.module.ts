@@ -14,14 +14,13 @@ import { FinanceursComponent } from './components/financeurs/financeurs.componen
 import { GenericTableDemoModule } from './components/generic-table-demo/generic-table-demo.module';
 import { HeaderComponent } from './components/header/header.component';
 import { HomeComponent } from './components/home/home.component';
-import { ProjetComponent } from './components/projet/containers/projet/projet.component';
-import { ProjetsComponent } from './components/projets/projets.component';
+import { ProjetComponent } from './components/projet/projet.component';
+import { FinancementsComponent } from './components/financements/financements.component';
 import { RapportsComponent } from './components/rapports/rapports.component';
 import { UtilisateursComponent } from './components/utilisateurs/utilisateurs.component';
 import { AuthService } from './services/authentication/auth.service';
 import { AuthenticationHttpInterceptorService } from './services/authentication/authentication-http-interceptor.service';
-import {SharedModule} from './shared/shared.module';
-import {ProjetModule} from "./components/projet/projet.module";
+import { SharedModule } from './shared/shared.module';
 
 /**
  * Retourne le token courant.
@@ -41,7 +40,8 @@ registerLocaleData(localeFr, 'fr-FR');
   declarations: [
     AppComponent,
     HomeComponent,
-    ProjetsComponent,
+    ProjetComponent,
+    FinancementsComponent,
     ConnexionComponent,
     RapportsComponent,
     FinanceursComponent,
@@ -62,8 +62,7 @@ registerLocaleData(localeFr, 'fr-FR');
     }),
     NgxSpinnerModule,
     GenericTableDemoModule,
-    SharedModule,
-    ProjetModule
+    SharedModule
   ],
   providers: [
     {

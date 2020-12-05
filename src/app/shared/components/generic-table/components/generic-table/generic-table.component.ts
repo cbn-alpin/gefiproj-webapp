@@ -1,4 +1,4 @@
-import {Component, EventEmitter, HostListener, Inject, Input, OnInit, Output} from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { GenericTableAction } from '../../globals/generic-table-action';
 import { GenericTableCellType } from '../../globals/generic-table-cell-types';
@@ -11,14 +11,27 @@ import {
 } from '../../models/generic-table-entity';
 import { GenericTableEntityEvent } from '../../models/generic-table-entity-event';
 import { GenericTableOptions } from '../../models/generic-table-options';
-import { EntityPlaceholder } from '../../models/entity-placeholder';
 import { EntityType } from '../../models/entity-types';
-import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material/dialog";
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
+import {
+  MAT_MOMENT_DATE_FORMATS,
+  MomentDateAdapter,
+  MAT_MOMENT_DATE_ADAPTER_OPTIONS,
+} from '@angular/material-moment-adapter';
 
 @Component({
   selector: 'app-generic-table[title][options]',
   templateUrl: './generic-table.component.html',
-  styleUrls: ['./generic-table.component.scss']
+  styleUrls: ['./generic-table.component.scss'],
+  providers: [
+    {provide: MAT_DATE_LOCALE, useValue: 'fr-FR'},
+    {
+      provide: DateAdapter,
+      useClass: MomentDateAdapter,
+      deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS]
+    },
+    {provide: MAT_DATE_FORMATS, useValue: MAT_MOMENT_DATE_FORMATS},
+  ],
 })
 export class GenericTableComponent<T> implements OnInit {
   /**
@@ -48,7 +61,6 @@ export class GenericTableComponent<T> implements OnInit {
   @Input() title: string;
   @Input() showActions = true;
   @Input() canSelect = false;
-  @Input() getEntityInformationsCallBack: Function = () => "";
   @Output() editEvent: EventEmitter<GenericTableEntityEvent<T>> = new EventEmitter<GenericTableEntityEvent<T>>();
   @Output() createEvent: EventEmitter<GenericTableEntityEvent<T>> = new EventEmitter<GenericTableEntityEvent<T>>();
   @Output() deleteEvent: EventEmitter<GenericTableEntityEvent<T>> = new EventEmitter<GenericTableEntityEvent<T>>();
@@ -61,12 +73,10 @@ export class GenericTableComponent<T> implements OnInit {
   public GenericTableEntityState = GenericTableEntityState;
   public historyOfEntitiesUpdating: HistoryOfEntityUpdating<T>[] = [];
   public selectedEntity: GenericTableEntity<T>;
-  public canSelectSelectedEntity: boolean = true;
   private genericTableAction: GenericTableAction;
 
   constructor(
-    private snackBar: MatSnackBar,
-    public dialog: MatDialog
+    private snackBar: MatSnackBar
   ) { }
 
   ngOnInit(): void {
@@ -108,8 +118,7 @@ export class GenericTableComponent<T> implements OnInit {
     return columnName;
   }
 
-  public onEdit(event, entity: GenericTableEntity<T>): void {
-    event.stopPropagation();
+  public onEdit(entity: GenericTableEntity<T>): void {
     this.selectedEntity = entity;
     const entitySelected = JSON.parse(JSON.stringify(entity));
     const history: HistoryOfEntityUpdating<T> = {
@@ -120,31 +129,26 @@ export class GenericTableComponent<T> implements OnInit {
     entity.state = GenericTableEntityState.EDIT;
   }
 
-  public edit(event, entity: GenericTableEntity<T>): void {
-    event.stopPropagation();
+  public edit(entity: GenericTableEntity<T>): void {
     this.genericTableAction = GenericTableAction.EDIT;
     const genericTableEntityEvent: GenericTableEntityEvent<T> = {
       entity: entity.data,
-      updatedGenericTable: this.genericTableData.map((row) => row.data),
+      updatedGenericTable: this.genericTableData.map((data) => data.data),
       callBack: (genericTableEntityErrors?: GenericTableEntityErrors) => this.handleErrors(entity, genericTableEntityErrors)
     };
     this.editEvent.emit(genericTableEntityEvent);
   }
 
-  /**
-   * Lorsqu'on annule l'édition d'une ligne il faut retrouver l'ancienne valeur de la ligne, mettre à jour l'historique et nettoyer les erreurs.
-   * @
-   */
-  public cancelEditing(event, entity: GenericTableEntity<T>): void {
-        event.stopPropagation();
-        const previousValue = this.historyOfEntitiesUpdating?.find((history) => history.next === entity).previous;
-        entity.data = previousValue.data;
-        entity.state = GenericTableEntityState.READ;
-        this.historyOfEntitiesUpdating = this.historyOfEntitiesUpdating?.filter((history) => history.next !== entity);
-        this.cleanErrors(entity);
+  public cancelEditing(entity: GenericTableEntity<T>): void {
+    const previousValue = this.historyOfEntitiesUpdating?.find((history) => history.next === entity).previous;
+    entity.data = previousValue.data;
+    entity.state = GenericTableEntityState.READ;
+    this.historyOfEntitiesUpdating = this.historyOfEntitiesUpdating?.filter((history) => history.next !== entity);
+    this.cleanErrors(entity);
   }
 
   public onCreate(): void {
+    this.genericTableAction = GenericTableAction.NEW;
     const defaultEntity = JSON.parse(JSON.stringify(this.options.defaultEntity));
     const newElement: GenericTableEntity<T> = {
       data: defaultEntity,
@@ -154,19 +158,16 @@ export class GenericTableComponent<T> implements OnInit {
     this.genericTableData = [newElement].concat(this.genericTableData);
   }
 
-  public create(event, entity: GenericTableEntity<T>): void {
-    event.stopPropagation();
-    this.genericTableAction = GenericTableAction.NEW;
+  public create(entity: GenericTableEntity<T>): void {
     const genericTableEntityEvent: GenericTableEntityEvent<T> = {
       entity: entity.data,
-      updatedGenericTable: this.genericTableData.map((row) => row.data),
+      updatedGenericTable: this.genericTableData.map((data) => data.data),
       callBack: (genericTableEntityErrors?: GenericTableEntityErrors) => this.handleErrors(entity, genericTableEntityErrors)
     };
     this.createEvent.emit(genericTableEntityEvent);
   }
 
-  public cancelCreation(event, entity: GenericTableEntity<T>): void {
-    event.stopPropagation();
+  public cancelCreation(entity: GenericTableEntity<T>): void {
     this.genericTableData = this.genericTableData?.filter((data) => entity.data !== data.data);
   }
 
@@ -178,7 +179,7 @@ export class GenericTableComponent<T> implements OnInit {
     this.genericTableAction = GenericTableAction.DELETE;
     const genericTableEntityEvent: GenericTableEntityEvent<T> = {
       entity: entity.data,
-      updatedGenericTable: this.genericTableData.map((row) => row.data),
+      updatedGenericTable: this.genericTableData.map((data) => data.data),
       callBack: (genericTableEntityErrors?: GenericTableEntityErrors) => this.handleErrors(entity, genericTableEntityErrors)
     };
     this.deleteEvent.emit(genericTableEntityEvent);
@@ -237,7 +238,8 @@ export class GenericTableComponent<T> implements OnInit {
   }
 
   public hasErrors(entity: GenericTableEntity<T>, name: string): boolean {
-    return entity.errors?.find((error) => error.name === name) !== undefined
+    return entity.errors?.find((error) =>
+      error.name === name) !== undefined
       && (entity.state === GenericTableEntityState.EDIT || entity.state === GenericTableEntityState.NEW);
   }
 
@@ -272,7 +274,6 @@ export class GenericTableComponent<T> implements OnInit {
   public handleErrors(entity: GenericTableEntity<T>, genericTableEntityErrors: GenericTableEntityErrors): void {
     const hasFormErrors = this.handleFormErrors(entity, genericTableEntityErrors);
     if (!hasFormErrors) {
-      this.cleanErrors(entity);
       const hasBusinessErrors = this.handleBusinessErrors(entity, genericTableEntityErrors);
       if (!hasBusinessErrors) {
         const hasApiErrors = this.handleApiErrors(entity, genericTableEntityErrors);
@@ -337,51 +338,4 @@ export class GenericTableComponent<T> implements OnInit {
       this.selectEvent.emit(genericTableEntityEvent);
     }
   }
-
-  public openDeletionConfirmationDialog(event, entity: GenericTableEntity<T>): void {
-    event.stopPropagation();
-    const dialogRef = this.dialog.open(DialogDeletionConfirmation, {
-      width: '300px',
-      data: {
-        event,
-        entity,
-        entityInformations: this.getEntityInformationsCallBack(entity.data)
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.delete(result.entity);
-      }
-    });
-  }
-
-}
-
-@Component({
-  selector: 'deletion-confirmation-dialog',
-  templateUrl: '../deletion-confirmation-dialog/deletion-confirmation-dialog.html',
-  styleUrls: ['../deletion-confirmation-dialog/deletion-confirmation-dialog.scss']
-
-})
-export class DialogDeletionConfirmation<T> {
-
-  constructor(
-    public dialogRef: MatDialogRef<DialogDeletionConfirmation<T>>,
-    @Inject(MAT_DIALOG_DATA) public data: DeletionConfirmationDialogData<T>) {}
-
-  public validation(): void {
-    this.dialogRef.close(this.data);
-  }
-
-  public cancellation(): void {
-    this.dialogRef.close(undefined);
-  }
-
-}
-
-interface DeletionConfirmationDialogData<T> {
-  event: any;
-  entity: GenericTableEntity<T>;
-  entityInformations: string;
 }
