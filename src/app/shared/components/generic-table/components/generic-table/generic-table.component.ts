@@ -155,6 +155,8 @@ export class GenericTableComponent<T> implements OnInit {
       state: GenericTableEntityState.NEW
     };
     this.selectedEntity = newElement;
+
+    console.log(this.selectedEntity)
     this.genericTableData = [newElement].concat(this.genericTableData);
   }
 
@@ -222,9 +224,18 @@ export class GenericTableComponent<T> implements OnInit {
   }
 
   public getEntitySelectBoxOptions(entityName: string): string[] {
-    return this.options.entitySelectBoxOptions
+    const values = this.options.entitySelectBoxOptions
       ?.find((entity) => entity.name === entityName)
       .values || [];
+    return values.map(res => {
+      if (entityName === 'financeur') {
+        return res.nom_financeur;
+      } else if (entityName === 'statut_f') {
+        return res.value;
+      } else {
+        return res;
+      }
+    });
   }
 
   public getDateValue(dateString: string): Date {
