@@ -110,7 +110,8 @@ export class CrudService<T> {
 
       const newItem = await (this.http.post<T>(
       this.endPoint,
-        JSON.stringify(item), {
+        //JSON.stringify(item), {
+        item, {
         headers: new HttpHeaders(AuthService.headers)
       })
         .toPromise());

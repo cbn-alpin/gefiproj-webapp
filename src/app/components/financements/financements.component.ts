@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -85,12 +86,15 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
     entityPlaceHolders: [],
     entitySelectBoxOptions: []
   };
-  
+
   /**
-   * Tableau des options des select box de l'entité financement
-   * @private
+   * Liste de statut
    */
-  private entitySelectBoxOptions: EntitySelectBoxOptions[] = [];
+  private statuts_financement = [
+    {code:'ANTR', value: Statut_F.ANTR},
+    {code:'ATR', value: Statut_F.ATR},
+    {code:'SOLDE', value: Statut_F.SOLDE},
+  ]
 
   constructor(
     private financementsService: FinancementsService,
@@ -127,11 +131,7 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
         },
         {
           name: Object.keys(this.defaultEntity)[6],
-          values: [
-            {code:'ANTR', value: Statut_F.ANTR},
-            {code:'ATR', value: Statut_F.ATR},
-            {code:'SOLDE', value: Statut_F.SOLDE},
-          ]
+          values: [...this.statuts_financement]
         }
       ];
       this.options.entitySelectBoxOptions = entitySelectBoxOptions;
@@ -174,14 +174,19 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
       let financement = event.entity;
       if(financement.hasOwnProperty('difference')) delete financement.difference;
       if(!financement.hasOwnProperty('id_p')) financement.id_p = Number(this.projectId);
+      // recuperer l'id financeur
+      const financeur = this.financeurs.find(res => res.nom_financeur === financement.financeur);
+      financement.id_financeur = financeur.id_financeur;
+      delete financement.financeur;
+      // recuperer la valuer statut
+      const statut_f = this.statuts_financement.find(res => res.value === financement.statut_f);
+      financement.statut_f = statut_f.value;
 
-      /*
       const pipe = new DatePipe('fr-FR');
       if(financement.date_arrete_f) financement.date_arrete_f = pipe.transform(new Date(financement.date_arrete_f), 'yyyy-MM-dd')
       if(financement.date_limite_solde_f) financement.date_limite_solde_f = pipe.transform(new Date(financement.date_limite_solde_f), 'yyyy-MM-dd')
       if(financement.date_solde_f) financement.date_solde_f = pipe.transform(new Date(financement.date_solde_f), 'yyyy-MM-dd')
-      console.log(financement)
-      */
+
       await this.financementsService.put(financement);
       event.callBack(null);
     } catch (error) {
@@ -189,6 +194,8 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
       event?.callBack({
         apiError: 'Impossible de modifier le financement.'
       });
+    } finally {
+      await this.loadFinancements(Number(this.projectId));
     }
   }
   
@@ -201,13 +208,15 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
       let financement = event.entity;
       if(financement.hasOwnProperty('difference')) delete financement.difference;
       if(!financement.hasOwnProperty('id_p')) financement.id_p = Number(this.projectId);
-      /*
+      const financeur = this.financeurs.find(res => res.nom_financeur === financement.financeur);
+      financement.id_financeur = financeur.id_financeur;
+      delete financement.financeur;
+
       const pipe = new DatePipe('fr-FR');
-      
       if(financement.date_arrete_f) financement.date_arrete_f = pipe.transform(new Date(financement.date_arrete_f), 'yyyy-MM-dd')
       if(financement.date_limite_solde_f) financement.date_limite_solde_f = pipe.transform(new Date(financement.date_limite_solde_f), 'yyyy-MM-dd')
       if(financement.date_solde_f) financement.date_solde_f = pipe.transform(new Date(financement.date_solde_f), 'yyyy-MM-dd')
-      */
+      
       await this.financementsService.post(event.entity);
       event.callBack(null);
     } catch (error) {
@@ -215,6 +224,8 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
       event?.callBack({
         apiError: 'Impossible de créer le financements.'
       });
+    } finally {
+      await this.loadFinancements(Number(this.projectId));
     }
   }
 
