@@ -84,11 +84,11 @@ export class HomeComponent implements OnInit {
    * Mapping pour les noms des attributs d'un projet.
    */
   private readonly namesMap = {
-    id: 'id_p',
-    code: 'code_p',
-    name: 'nom_p',
-    manager: 'responsable',
-    status: 'statut_p'
+    id: { code: 'id_p', name: 'Identifiant' },
+    code: { code: 'code_p', name: 'Code' },
+    name: { code: 'nom_p', name: 'Nom' },
+    manager: { code: 'responsable', name: 'Responsable' },
+    status: { code: 'statut_p', name: 'Est soldé' }
   };
 
   /**
@@ -108,13 +108,15 @@ export class HomeComponent implements OnInit {
     dataSource: [],
     defaultEntity: this.defaultEntity,
     entityTypes: [
-      { code: this.namesMap.code, type: GenericTableCellType.NUMBER, name: 'Code'},
-      { code: this.namesMap.name, type: GenericTableCellType.TEXT, name: 'Nom' },
-      { code: this.namesMap.manager, type: GenericTableCellType.SELECTBOX, name: 'Responsable' },
-      { code: this.namesMap.status, type: GenericTableCellType.BOOLEAN, name: 'Est soldé' }
+      { code: this.namesMap.code.code, type: GenericTableCellType.NUMBER, name: this.namesMap.code.name, sortEnabled: true },
+      { code: this.namesMap.name.code, type: GenericTableCellType.TEXT, name: this.namesMap.name.name, sortEnabled: true },
+      { code: this.namesMap.manager.code, type: GenericTableCellType.SELECTBOX, name: this.namesMap.manager.name, sortEnabled: true },
+      { code: this.namesMap.status.code, type: GenericTableCellType.BOOLEAN, name: this.namesMap.status.name, sortEnabled: true }
     ],
     entityPlaceHolders: [],
-    entitySelectBoxOptions: []
+    entitySelectBoxOptions: [],
+    sortName: this.namesMap.code.name,
+    sortDirection: 'asc'
   };
 
   /**
@@ -153,15 +155,17 @@ export class HomeComponent implements OnInit {
       const promiseManagers = this.loadManagers();
       const promiseProjects =  this.loadProjects();
       await Promise.all([promiseManagers, promiseProjects]); // Pour être plus efficace
+      const dataSource = this.sort(this.visibleProjects);
+      const entitySelectBoxOptions = [
+        {
+          name: this.namesMap.manager.code,
+          values: this.managers?.map(u => u.initiales_u) || []
+        }
+      ];
 
       this.options = Object.assign({}, this.options, {
-        dataSource: this.visibleProjects,
-        entitySelectBoxOptions: [
-          {
-            name: this.namesMap.manager,
-            values: this.managers?.map(u => u.initiales_u) || []
-          }
-        ]
+        dataSource,
+        entitySelectBoxOptions
       });
     } catch (error) {
       console.error(error);
@@ -246,18 +250,28 @@ export class HomeComponent implements OnInit {
 
       if (this.validateForGenericTable(event)) {
         await this.projectsSrv.modify(project);
-        event.callBack(null);
+        event.callBack(null); // Valide la modification dans le composant DataTable fils
 
-        if (!this._withClosedProjects
-          && project.statut_p) { // Cache le projet car il est soldé
-          this.refreshDataTable();
-        }
+        this.updateProject(project);
+        this.refreshDataTable(); // Pour le trie et pour cacher le projet le cas échéant
       }
     } catch (error) {
       console.error(error);
       event?.callBack({
         apiError: 'Impossible de modifier le projet.'
       });
+    }
+  }
+
+  /**
+   * Met à jour un projet dans le repo interne.
+   * @param project : version modifiée.
+   */
+  private updateProject(project: Projet): void {
+    const index = this.projets.findIndex(p => p.id_p === project.id_p);
+
+    if (index >= 0) {
+      this.projets[index] = project;
     }
   }
 
@@ -276,7 +290,7 @@ export class HomeComponent implements OnInit {
 
       if (project.code_p <= 0) {
         const error = {
-          name: this.namesMap.code,
+          name: this.namesMap.code.code,
           message: 'Le code projet doit être une valeur comprise entre 1 et 9999.'
         };
         formErrors.push(error);
@@ -284,7 +298,7 @@ export class HomeComponent implements OnInit {
 
       if (!project.nom_p) {
         const error = {
-          name: this.namesMap.name,
+          name: this.namesMap.name.code,
           message: 'Le nom du projet doit être indiqué.'
         };
         formErrors.push(error);
@@ -292,7 +306,7 @@ export class HomeComponent implements OnInit {
 
       if (!project.responsable) {
         const error = {
-          name: this.namesMap.manager,
+          name: this.namesMap.manager.code,
           message: 'Un responsable projet doit être défini.'
         };
         formErrors.push(error);
@@ -320,19 +334,17 @@ export class HomeComponent implements OnInit {
    */
   async onCreate(event: GenericTableEntityEvent<Projet>): Promise<void> {
     try {
-      const project = event?.entity;
+      let project = event?.entity;
       if (!project) {
         throw new Error('Le projet n\'existe pas');
       }
 
       if (this.validateForGenericTable(event)) {
-        await this.projectsSrv.add(event.entity);
-        event.callBack(null);
+        project = await this.projectsSrv.add(event.entity);
+        event.callBack(null); // Valide la modification dans le composant DataTable fils
 
-        if (!this._withClosedProjects
-          && project.statut_p) { // Cache le projet car il est soldé
-          this.refreshDataTable();
-        }
+        this.addProject(project);
+        this.refreshDataTable(); // Pour le trie et pour cacher le projet le cas échéant
       }
     } catch (error) {
       console.error(error);
@@ -343,18 +355,44 @@ export class HomeComponent implements OnInit {
   }
 
   /**
+   * Ajoute un projet au repo interne.
+   * @param project : projet à ajouter.
+   */
+  private addProject(project: Projet): void {
+    this.projets.push(project);
+  }
+
+  /**
    * Un projet a été supprimé du tableau.
    * @param event : encapsule le projet à modifier.
    */
   async onDelete(event: GenericTableEntityEvent<Projet>): Promise<void> {
     try {
+      const project = event?.entity;
+      if (!project) {
+        throw new Error('Le projet n\'existe pas');
+      }
+
       await this.projectsSrv.delete(event.entity);
-      event.callBack(null);
+      event.callBack(null); // Valide la modification dans le composant DataTable fils
+      this.deleteProject(project);
     } catch (error) {
       console.error(error);
       event?.callBack({
         apiError: 'Impossible de supprimer le projet.'
       });
+    }
+  }
+
+  /**
+   * Supprime un projet dans le repo interne.
+   * @param project : projet à supprimer.
+   */
+  private deleteProject(project: Projet): void {
+    const index = this.projets.findIndex(p => p.id_p === project.id_p);
+
+    if (index >= 0) {
+      this.projets.splice(index, 1);
     }
   }
 
@@ -379,7 +417,7 @@ export class HomeComponent implements OnInit {
    */
   private sort(projects: Projet[]): Projet[] {
     const { name, direction } = this.sortInfo || {
-      name: this.namesMap.code,
+      name: this.namesMap.code.code,
       direction: 'asc'
     };
     const mult = direction === 'asc' // Pour gérer le sens du trie
@@ -390,9 +428,12 @@ export class HomeComponent implements OnInit {
       let item1 = p1[name];
       let item2 = p2[name];
 
-      if (name === this.namesMap.code) { // Les codes sont des entiers
+      if (name === this.namesMap.code.code) { // Les codes sont des entiers
         item1 = parseInt(item1, 10);
         item2 = parseInt(item2, 10);
+      } else if (typeof item1 === 'string'){ // Pour du texte
+        item1 = item1.toUpperCase();
+        item2 = item2.toUpperCase();
       }
 
       if (item1 < item2) {
