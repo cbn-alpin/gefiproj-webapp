@@ -21,7 +21,7 @@ function createToken(payload) { // Création du Token JWT (cf. https://www.techi
 }
 
 module.exports = (req, res, next) => { // Middleware chargé de renvoyer le Token en cas d'appel à /login (cf. https://github.com/typicode/json-server#add-middlewares)
-  res.header('X-Debug', 'True')
+  res.header('X-Debug', 'True'); // Identifie le mode Debug
 
   if (req.originalUrl === '/login' && req.method === 'POST') { // Renvoie un Token valide
     const { email, password } = req.body
@@ -44,6 +44,6 @@ module.exports = (req, res, next) => { // Middleware chargé de renvoyer le Toke
     req.body.id = id;
     req.body[primaryKeys[resource]] = id;
 
-    next()
+    next();
   }
 }

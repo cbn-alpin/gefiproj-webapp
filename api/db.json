@@ -21,89 +21,60 @@
       "role": 2
     }
   ],
-  "projets": [
+  "projects": [
     {
-      "id": 1,
-      "id_p": 1,
-      "code_p": "0111",
-      "nom_p": "Projet Xav",
-      "responsable": "ma",
-      "statut_p": true
-    },
-    {
-      "id": 2,
-      "id_p": 2,
-      "code_p": "05",
-      "nom_p": "Projet Y",
-      "responsable": "ma",
-      "statut_p": true
-    },
-    {
-      "code_p": "01",
+      "code_p": "0001",
       "nom_p": "a",
       "responsable": "ma",
       "statut_p": true,
       "id": 4,
-      "id_p": 4
+      "id_p": 4,
+      "undefined": 4
     },
     {
-      "code_p": "03",
+      "code_p": "0003",
       "nom_p": "aa",
       "responsable": "ma",
       "statut_p": true,
       "id": 6,
-      "id_p": 6
+      "id_p": 6,
+      "undefined": 6
     },
     {
-      "code_p": "02",
+      "code_p": "0002",
       "nom_p": "z",
       "responsable": "hd",
       "statut_p": true,
       "id": 7,
-      "id_p": 7
+      "id_p": 7,
+      "undefined": 7
     },
     {
-      "code_p": "04",
-      "nom_p": "zzz",
-      "responsable": "hd",
-      "statut_p": true,
+      "code_p": "0010",
+      "nom_p": "maz",
+      "responsable": "ma",
+      "statut_p": false,
       "id": 8,
       "id_p": 8
     },
     {
-      "code_p": "06",
-      "nom_p": "rzerzer",
+      "code_p": "0011",
+      "nom_p": "ma",
       "responsable": "hd",
-      "statut_p": true,
+      "statut_p": false,
       "id": 9,
       "id_p": 9
     },
     {
-      "code_p": "07",
-      "nom_p": "fsf",
-      "responsable": "hd",
-      "statut_p": true,
+      "code_p": "0022",
+      "nom_p": "Maa",
+      "responsable": "ma",
+      "statut_p": false,
       "id": 10,
-      "id_p": 10
-    },
-    {
-      "code_p": "08",
-      "nom_p": "fghfghg",
-      "responsable": "hd",
-      "statut_p": true,
-      "id": 11,
-      "id_p": 11
-    },
-    {
-      "code_p": "07",
-      "nom_p": "hfh",
-      "responsable": "hd",
-      "statut_p": true,
-      "id": 12,
-      "id_p": 12
+      "id_p": null
     }
   ],
-  "financements": [
+  "funding": [
     {
       "id_f": 1,
       "financeur": "Financeur 1"
