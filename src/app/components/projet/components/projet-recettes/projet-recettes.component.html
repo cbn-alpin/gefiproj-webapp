@@ -1,9 +1,11 @@
-<p>projet-recettes works!</p>
-
 <app-generic-table
   *ngIf="options"
   [title]="title"
   [options]="options"
   [canSelect]="true"
-  [showActions]="true">
+  [showActions]="true"
+  [getEntityInformationsCallBack]="getEntityInformationsCallBack"
+  (editEvent)="onEdit($event)"
+  (createEvent)="onCreate($event)"
+  (deleteEvent)="onDelete($event)">
 </app-generic-table>

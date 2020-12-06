@@ -14,7 +14,7 @@ export class ProjetsService {
   /**
    * Url relative de l'API.
    */
-  private readonly endPoint = '/api/projets';
+  private readonly endPoint = '/api/projects';
 
   /**
    * Effectue les appels au serveur d'API pour une entité donnée.

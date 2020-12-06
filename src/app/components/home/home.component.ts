@@ -6,6 +6,7 @@ import { ProjetsService } from '../../services/projets.service';
 import { Projet } from './../../models/projet';
 import { GenericTableEntityEvent } from './../../shared/components/generic-table/models/generic-table-entity-event';
 import { GenericTableOptions } from './../../shared/components/generic-table/models/generic-table-options';
+import {Router} from "@angular/router";
 
 /**
  * Affiche les projets.
@@ -61,7 +62,9 @@ export class HomeComponent implements OnInit {
   constructor(
     private projetsSrv: ProjetsService,
     private snackBar: MatSnackBar,
-    private spinnerSrv: SpinnerService) {
+    private spinnerSrv: SpinnerService,
+    private router: Router
+    ) {
   }
 
   /**
@@ -158,5 +161,9 @@ export class HomeComponent implements OnInit {
         apiError: 'Impossible de supprimer le projet.'
       });
     }
+  }
+
+  public onSelect(event: GenericTableEntityEvent<Projet>): void {
+    this.router.navigate(['/projet/' + event.entity.id_p])
   }
 }

@@ -7,7 +7,7 @@ const primaryKeys = { // Nom des identifiants des entités
   "fundings": "id_f",
   "financeurs": "id_financeur",
   "receipts": "id_r",
-  "montants": "id_ma",
+  "amounts": "id_ma",
   "depenses": "id_d",
   "historiques": "id_h"
 };
