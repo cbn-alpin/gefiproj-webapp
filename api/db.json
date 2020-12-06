@@ -42,7 +42,7 @@
       "id_f": 1,
       "projectId": 1,
       "montant_arrete_f": 100000,
-      "date_arrete_f": "20/11/2019",
+      "date_arrete_f": "20/11/2021",
       "date_limite_solde_f": "20/11/2020",
       "statut_f": "ATR",
       "date_solde_f": "20/06/2020",
@@ -57,10 +57,10 @@
       "id_f": 2,
       "projectId": 1,
       "montant_arrete_f": 250000,
-      "date_arrete_f": "20/11/2019",
+      "date_arrete_f": "20/11/2015",
       "date_limite_solde_f": "20/11/2020",
       "statut_f": "ATR",
-      "date_solde_f": "20/06/2020",
+      "date_solde_f": "20/06/2015",
       "commentaire_admin_f": "ras",
       "commentaire_resp_f": "ras",
       "numero_titre_f": 5411,
@@ -72,7 +72,7 @@
       "id_f": 3,
       "projectId": 2,
       "montant_arrete_f": 75000,
-      "date_arrete_f": "20/11/2019",
+      "date_arrete_f": "20/11/2020",
       "date_limite_solde_f": "20/11/2020",
       "statut_f": "ATR",
       "date_solde_f": "20/06/2020",
@@ -86,11 +86,11 @@
       "id": 4,
       "id_f": 4,
       "projectId": 3,
-      "montant_arrete_f": 99500,
+      "montant_arrete_f": 350000,
       "date_arrete_f": "20/11/2019",
       "date_limite_solde_f": "20/11/2020",
       "statut_f": "ATR",
-      "date_solde_f": "20/06/2020",
+      "date_solde_f": "20/06/2018",
       "commentaire_admin_f": "ras",
       "commentaire_resp_f": "ras",
       "numero_titre_f": 5411,
@@ -103,64 +103,99 @@
       "id": 1,
       "id_r": 1,
       "fundingId": 1,
-      "montant_r": 40000,
-      "annea_r": 2019
-    },
-    {
-      "id": 2,
-      "id_r": 2,
-      "fundingId": 1,
-      "montant_r": 60000,
-      "annea_r": 2019
+      "id_f": 1,
+      "montant_r": 70000,
+      "annee_r": 2018
     },
     {
       "id": 3,
       "id_r": 3,
       "fundingId": 2,
+      "id_f": 2,
       "montant_r": 250000,
-      "annea_r": 2019
+      "annee_r": 2014
     },
     {
       "id": 4,
       "id_r": 4,
       "fundingId": 3,
+      "id_f": 3,
       "montant_r": 75000,
-      "annea_r": 2019
+      "annee_r": 2019
     },
     {
       "id": 5,
       "id_r": 5,
       "fundingId": 4,
-      "montant_r": 99500,
-      "annea_r": 2019
-    }
-  ],
-  "financements": [
-    {
-      "id_f": 1
-    },
-    {
-      "id_f": 2
-    }
-  ],
-  "recettes": [
-    {
-      "id_r": 1,
-      "id_f": 1,
-      "montant_r": 15200,
-      "annee_r": 2019
-    },
-    {
-      "id_r": 2,
-      "id_f": 2,
-      "montant_r": 124240,
-      "annee_r": 2018
-    },
-    {
-      "id_r": 3,
-      "id_f": 3,
-      "montant_r": 145212,
+      "id_f": 4,
+      "montant_r": 300000,
       "annee_r": 2017
+    },
+    {
+      "id": 6,
+      "id_r": 6,
+      "fundingId": 4,
+      "id_f": 4,
+      "montant_r": 50000,
+      "annee_r": 2016
+    },
+    {
+      "annee_r": 2017,
+      "montant_r": 22000,
+      "fundingId": 1,
+      "id_f": 1,
+      "id_r": 8,
+      "id": 8
+    },
+    {
+      "annee_r": 2016,
+      "montant_r": 6000,
+      "fundingId": 1,
+      "id_f": 1,
+      "id": 9,
+      "id_r": null
+    }
+  ],
+  "amounts": [
+    {
+      "id": 1,
+      "id_ma": 1,
+      "receiptId": 1,
+      "id_r": 1,
+      "montant_ma": 80000,
+      "annee_ma": 2017
+    },
+    {
+      "id": 3,
+      "id_ma": 3,
+      "receiptId": 3,
+      "id_r": 3,
+      "montant_ma": 250000,
+      "annee_ma": 2013
+    },
+    {
+      "id": 4,
+      "id_ma": 4,
+      "receiptId": 4,
+      "id_r": 4,
+      "montant_ma": 75000,
+      "annee_ma": 2018
+    },
+    {
+      "id": 5,
+      "id_ma": 5,
+      "receiptId": 5,
+      "id_r": 5,
+      "montant_ma": 30000,
+      "annee_ma": 2016
+    },
+    {
+      "id": 6,
+      "id_ma": 6,
+      "receiptId": 6,
+      "id_r": 6,
+      "montant_ma": 50000,
+      "annee_ma": 2015
     }
   ],
   "login": {}

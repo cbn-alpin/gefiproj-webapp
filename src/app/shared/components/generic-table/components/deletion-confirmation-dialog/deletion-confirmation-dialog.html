@@ -1,0 +1,16 @@
+<div class="container">
+  <h2 mat-dialog-title class="header">Demande de confirmation</h2>
+  <div mat-dialog-content class="content">
+    <div class="message-confirmation">
+      Etes-vous certain de vouloir supprimer cette ligne ?
+    </div>
+    <div class="informations" *ngIf="data.entityInformations.length !== 0">
+      {{data.entityInformations}}
+    </div>
+  </div>
+  <div mat-dialog-actions class="actions">
+    <button mat-button (click)="cancellation()">Non</button>
+    <button mat-button (click)="validation()">Oui</button>
+  </div>
+</div>
+

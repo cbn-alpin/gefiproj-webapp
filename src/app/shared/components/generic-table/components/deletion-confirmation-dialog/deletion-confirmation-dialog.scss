@@ -1,0 +1,18 @@
+
+.container {
+  text-align: center;
+
+  .actions {
+    justify-content: space-between;
+    padding: 10px 50px;
+  }
+
+  .informations {
+    margin-top: 10px;
+    background: #16a085;
+    color: white;
+    padding: 5px;
+    font-weight: bold;
+  }
+
+}

@@ -1,8 +1,14 @@
 <p>projet works!</p>
 
-<button (click)="getRecettesFromFinancement('1')">GET RECETTES</button>
+<div *ngIf="financements">
+  <h3>Mes financements</h3>
+  <div *ngFor="let financement of financements">
+    <a (click)="getRecettesFromFinancemennt(financement)">{{financement.id_f}}</a>
+  </div>
+</div>
 
 <app-projet-recettes
   *ngIf="recettes"
-  [recettes]="recettes">
+  [recettes]="recettes"
+  [financement]="selectedFinancement">
 </app-projet-recettes>
