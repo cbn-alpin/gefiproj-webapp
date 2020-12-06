@@ -36,7 +36,7 @@
       "code_p": "05",
       "nom_p": "Projet Y",
       "responsable": "ma",
-      "statut_p": false
+      "statut_p": true
     },
     {
       "code_p": "01",
@@ -50,7 +50,7 @@
       "code_p": "03",
       "nom_p": "aa",
       "responsable": "ma",
-      "statut_p": false,
+      "statut_p": true,
       "id": 6,
       "id_p": 6
     },
@@ -66,7 +66,7 @@
       "code_p": "04",
       "nom_p": "zzz",
       "responsable": "hd",
-      "statut_p": false,
+      "statut_p": true,
       "id": 8,
       "id_p": 8
     },
@@ -90,15 +90,15 @@
       "code_p": "08",
       "nom_p": "fghfghg",
       "responsable": "hd",
-      "statut_p": false,
+      "statut_p": true,
       "id": 11,
-      "id_p": null
+      "id_p": 11
     },
     {
       "code_p": "07",
       "nom_p": "hfh",
       "responsable": "hd",
-      "statut_p": false,
+      "statut_p": true,
       "id": 12,
       "id_p": 12
     }

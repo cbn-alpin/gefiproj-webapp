@@ -111,3 +111,4 @@
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
   <tr mat-row *matRowDef="let row; columns: displayedColumns;" [ngClass]="{'selected': selectedEntity === row}" (click)="select(row)"></tr>
 </table>
+<p *ngIf="isEmpty">(Aucun élément à afficher)</p>
