@@ -6,7 +6,7 @@
       "nom_u": "Azp",
       "prenom_u": "Manu",
       "email_u": "m.a@mail.com",
-      "initiales_u": "ja",
+      "initiales_u": "ma",
       "active_u": true,
       "role": 2
     },
@@ -21,33 +21,44 @@
       "role": 2
     }
   ],
-  "projets": [
+  "projects": [
     {
-      "id": 1,
-      "id_p": 1,
-      "code_p": "0123",
-      "nom_p": "Projet Xav",
-      "responsable": "azp",
-      "statut_p": true
-    },
-    {
-      "id": 2,
-      "id_p": 2,
-      "code_p": "4567",
-      "nom_p": "Projet Y",
-      "responsable": "hanh",
-      "statut_p": true
-    },
-    {
-      "code_p": "011",
+      "code_p": "0001",
       "nom_p": "a",
-      "responsable": "b",
+      "responsable": "ma",
+      "statut_p": true,
+      "id": 4,
+      "id_p": 4,
+      "undefined": 4
+    },
+    {
+      "code_p": "0003",
+      "nom_p": "aa",
+      "responsable": "ma",
+      "statut_p": true,
+      "id": 6,
+      "id_p": 6,
+      "undefined": 6
+    },
+    {
+      "code_p": "0002",
+      "nom_p": "z",
+      "responsable": "hd",
+      "statut_p": true,
+      "id": 7,
+      "id_p": 7,
+      "undefined": 7
+    },
+    {
+      "code_p": "0010",
+      "nom_p": "manuel.azpeitia@sncf.fr",
+      "responsable": "ma",
       "statut_p": false,
-      "id": 3,
-      "id_p": 3
+      "id": 8,
+      "undefined": null
     }
   ],
-  "financements": [
+  "funding": [
     {
       "id_f": 1,
       "financeur": "Financeur 1"

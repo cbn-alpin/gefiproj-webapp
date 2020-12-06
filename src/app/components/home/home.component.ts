@@ -95,7 +95,7 @@ export class HomeComponent implements OnInit {
    * Représente un nouveau projet et définit les colonnes à afficher.
    */
   private readonly defaultEntity = {
-    code_p: 0,
+    code_p: '0000' as any as number,
     nom_p: '',
     responsable: '',
     statut_p: false
@@ -288,29 +288,9 @@ export class HomeComponent implements OnInit {
       const project = gtEvent?.entity;
       const formErrors: GenericTableFormError[] = [];
 
-      if (project.code_p <= 0) {
-        const error = {
-          name: this.namesMap.code.code,
-          message: 'Le code projet doit être une valeur comprise entre 1 et 9999.'
-        };
-        formErrors.push(error);
-      }
-
-      if (!project.nom_p) {
-        const error = {
-          name: this.namesMap.name.code,
-          message: 'Le nom du projet doit être indiqué.'
-        };
-        formErrors.push(error);
-      }
-
-      if (!project.responsable) {
-        const error = {
-          name: this.namesMap.manager.code,
-          message: 'Un responsable projet doit être défini.'
-        };
-        formErrors.push(error);
-      }
+      this.verifProjectCode(project, formErrors);
+      this.verifProjectName(project, formErrors);
+      this.verifProjectManager(project, formErrors);
 
       if (formErrors.length > 0) {
         gtEvent.callBack({
@@ -325,6 +305,89 @@ export class HomeComponent implements OnInit {
     } catch (error) {
       console.error(error);
       return true; // Problème inattendu : le serveur vérifiera les données
+    }
+  }
+
+  /**
+   * Vérifie la validité du responsable sur le projet.
+   * @param project : projet à vérifier.
+   * @param formErrors : liste des erreurs de validation.
+   */
+  private verifProjectManager(project: Projet, formErrors: GenericTableFormError[]): void {
+    if (!project.responsable) {
+      const error = {
+        name: this.namesMap.manager.code,
+        message: 'Un responsable projet doit être défini.'
+      };
+
+      formErrors.push(error);
+    }
+  }
+
+  /**
+   * Vérifie la validité du nom sur le projet.
+   * @param project : projet à vérifier.
+   * @param formErrors : liste des erreurs de validation.
+   */
+  private verifProjectName(project: Projet, formErrors: GenericTableFormError[]): void {
+    if (!project.nom_p) {
+      const error = {
+        name: this.namesMap.name.code,
+        message: 'Le nom du projet doit être indiqué.'
+      };
+
+      formErrors.push(error);
+    }
+
+    const similarProject = this.projets.find(p =>
+      p.id_p !== project.id_p
+      && p.nom_p.toUpperCase() === project.nom_p.toUpperCase());
+
+    if (similarProject) {
+      const error = {
+        name: this.namesMap.name.code,
+        message: 'Le nom du projet doit être unique.'
+      };
+
+      formErrors.push(error);
+    }
+  }
+
+  /**
+   * Vérifie la validité du code sur le projet.
+   * @param project : projet à vérifier.
+   * @param formErrors : liste des erreurs de validation.
+   */
+  private verifProjectCode(project: Projet, formErrors: GenericTableFormError[]): void {
+    if (('' + project.code_p).length !== 4) {
+      const error = {
+        name: this.namesMap.code.code,
+        message: 'Le code projet doit comprendre 4 chiffres.'
+      };
+
+      formErrors.push(error);
+    }
+
+    if (project.code_p <= 0) {
+      const error = {
+        name: this.namesMap.code.code,
+        message: 'Le code projet doit être une valeur comprise entre 1 et 9999.'
+      };
+
+      formErrors.push(error);
+    }
+
+    const similarProject = this.projets.find(p =>
+      p.id_p !== project.id_p
+      && p.code_p === project.code_p);
+
+    if (similarProject) {
+      const error = {
+        name: this.namesMap.code.code,
+        message: 'Le code du projet doit être unique.'
+      };
+
+      formErrors.push(error);
     }
   }
 

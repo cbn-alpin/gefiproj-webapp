@@ -23,238 +23,61 @@
   ],
   "projects": [
     {
-      "id": 1,
-      "id_p": 1,
-      "code_p": "0111",
-      "nom_p": "Projet Xav",
-      "responsable": "ma",
-      "statut_p": true
-    },
-    {
-      "id": 2,
-      "id_p": 2,
-      "code_p": "05",
-      "nom_p": "Projet Y",
-      "responsable": "ma",
-      "statut_p": true
-    },
-    {
-      "code_p": "01",
+      "code_p": "0001",
       "nom_p": "a",
       "responsable": "ma",
       "statut_p": true,
       "id": 4,
-      "id_p": 4
+      "id_p": 4,
+      "undefined": 4
     },
     {
-      "code_p": "03",
+      "code_p": "0003",
       "nom_p": "aa",
       "responsable": "ma",
       "statut_p": true,
       "id": 6,
-      "id_p": 6
+      "id_p": 6,
+      "undefined": 6
     },
     {
-      "code_p": "02",
+      "code_p": "0002",
       "nom_p": "z",
       "responsable": "hd",
       "statut_p": true,
       "id": 7,
-      "id_p": 7
+      "id_p": 7,
+      "undefined": 7
     },
     {
-      "code_p": "04",
-      "nom_p": "zzz",
-      "responsable": "hd",
-      "statut_p": true,
+      "code_p": "0010",
+      "nom_p": "maz",
+      "responsable": "ma",
+      "statut_p": false,
       "id": 8,
       "id_p": 8
     },
     {
-      "code_p": "06",
-      "nom_p": "rzerzer",
+      "code_p": "0011",
+      "nom_p": "ma",
       "responsable": "hd",
-      "statut_p": true,
+      "statut_p": false,
       "id": 9,
       "id_p": 9
     },
     {
-      "code_p": "07",
-      "nom_p": "fsf",
-      "responsable": "hd",
-      "statut_p": true,
+      "code_p": "0022",
+      "nom_p": "Maa",
+      "responsable": "ma",
+      "statut_p": false,
       "id": 10,
-      "id_p": 10
-    },
-    {
-      "code_p": "08",
-      "nom_p": "fghfghg",
-      "responsable": "hd",
-      "statut_p": true,
-      "id": 11,
-      "id_p": 11
-    },
-    {
-      "code_p": "07",
-      "nom_p": "hfh",
-      "responsable": "hd",
-      "statut_p": true,
-      "id": 12,
-      "id_p": 12
+      "id_p": null
     }
   ],
-  "fundings": [
+  "funding": [
     {
-      "id": 1,
       "id_f": 1,
-      "projectId": 1,
-      "montant_arrete_f": 100000,
-      "date_arrete_f": "20/11/2021",
-      "date_limite_solde_f": "20/11/2020",
-      "statut_f": "ATR",
-      "date_solde_f": "20/06/2020",
-      "commentaire_admin_f": "ras",
-      "commentaire_resp_f": "ras",
-      "numero_titre_f": 5411,
-      "annee_titre_f": "15/02/2020",
-      "imputation_f": ""
-    },
-    {
-      "id": 2,
-      "id_f": 2,
-      "projectId": 1,
-      "montant_arrete_f": 250000,
-      "date_arrete_f": "20/11/2015",
-      "date_limite_solde_f": "20/11/2020",
-      "statut_f": "ATR",
-      "date_solde_f": "20/06/2015",
-      "commentaire_admin_f": "ras",
-      "commentaire_resp_f": "ras",
-      "numero_titre_f": 5411,
-      "annee_titre_f": "15/02/2020",
-      "imputation_f": ""
-    },
-    {
-      "id": 3,
-      "id_f": 3,
-      "projectId": 2,
-      "montant_arrete_f": 75000,
-      "date_arrete_f": "20/11/2020",
-      "date_limite_solde_f": "20/11/2020",
-      "statut_f": "ATR",
-      "date_solde_f": "20/06/2020",
-      "commentaire_admin_f": "ras",
-      "commentaire_resp_f": "ras",
-      "numero_titre_f": 5411,
-      "annee_titre_f": "15/02/2020",
-      "imputation_f": ""
-    },
-    {
-      "id": 4,
-      "id_f": 4,
-      "projectId": 3,
-      "montant_arrete_f": 350000,
-      "date_arrete_f": "20/11/2019",
-      "date_limite_solde_f": "20/11/2020",
-      "statut_f": "ATR",
-      "date_solde_f": "20/06/2018",
-      "commentaire_admin_f": "ras",
-      "commentaire_resp_f": "ras",
-      "numero_titre_f": 5411,
-      "annee_titre_f": "15/02/2020",
-      "imputation_f": ""
-    }
-  ],
-  "receipts": [
-    {
-      "id": 1,
-      "id_r": 1,
-      "fundingId": 1,
-      "id_f": 1,
-      "montant_r": 70000,
-      "annee_r": 2018
-    },
-    {
-      "id": 3,
-      "id_r": 3,
-      "fundingId": 2,
-      "id_f": 2,
-      "montant_r": 250000,
-      "annee_r": 2014
-    },
-    {
-      "id": 4,
-      "id_r": 4,
-      "fundingId": 3,
-      "id_f": 3,
-      "montant_r": 75000,
-      "annee_r": 2019
-    },
-    {
-      "id": 5,
-      "id_r": 5,
-      "fundingId": 4,
-      "id_f": 4,
-      "montant_r": 300000,
-      "annee_r": 2017
-    },
-    {
-      "annee_r": 2017,
-      "montant_r": 22000,
-      "fundingId": 1,
-      "id_f": 1,
-      "id_r": 8,
-      "id": 8
-    },
-    {
-      "annee_r": 2016,
-      "montant_r": 6000,
-      "fundingId": 1,
-      "id_f": 1,
-      "id": 9,
-      "id_r": null
-    },
-    {
-      "annee_r": 2016,
-      "montant_r": 25000,
-      "fundingId": 4,
-      "id_f": 4,
-      "id": 10,
-      "id_r": null
-    }
-  ],
-  "amounts": [
-    {
-      "id": 1,
-      "id_ma": 1,
-      "receiptId": 1,
-      "id_r": 1,
-      "montant_ma": 80000,
-      "annee_ma": 2017
-    },
-    {
-      "id": 3,
-      "id_ma": 3,
-      "receiptId": 3,
-      "id_r": 3,
-      "montant_ma": 250000,
-      "annee_ma": 2013
-    },
-    {
-      "id": 4,
-      "id_ma": 4,
-      "receiptId": 4,
-      "id_r": 4,
-      "montant_ma": 75000,
-      "annee_ma": 2018
-    },
-    {
-      "id": 5,
-      "id_ma": 5,
-      "receiptId": 5,
-      "id_r": 5,
-      "montant_ma": 30000,
-      "annee_ma": 2016
+      "financeur": "Financeur 1"
     }
   ],
   "login": {}

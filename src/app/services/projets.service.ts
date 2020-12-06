@@ -39,7 +39,7 @@ export class ProjetsService {
    * Retourne les projets depuis le serveur.
    */
   public async getAll(): Promise<Projet[]> {
-    return this.crudSrv.getAll();
+    return this.crudSrv.getAll('id_p');
   }
 
   /**
@@ -47,7 +47,7 @@ export class ProjetsService {
    * @param id : identifiant du projet demandé.
    */
   public async get(id: number): Promise<Projet> {
-    return this.crudSrv.get(id);
+    return this.crudSrv.get(id, 'id_p');
   }
 
   /**
@@ -66,15 +66,8 @@ export class ProjetsService {
    */
   public async add(project: Projet): Promise<Projet> {
     try {
-      const newProject = await this.crudSrv.add(project);
-
-      // Récupération de l'identifiant
-      (newProject || {id_p: 0}).id_p = project.id_p = newProject?.id_p
-        || (newProject as any)?.id // gestion de json-server
-        || project?.id_p
-        || (project as any)?.id // gestion de json-server
-        || 0;
-      return newProject || project;
+      return await this.crudSrv
+        .add(project, 'id_p');
     } catch (error) {
       console.error(error);
       return Promise.reject(error);
