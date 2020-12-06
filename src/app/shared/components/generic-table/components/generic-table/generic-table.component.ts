@@ -18,6 +18,7 @@ import {
   MomentDateAdapter,
   MAT_MOMENT_DATE_ADAPTER_OPTIONS,
 } from '@angular/material-moment-adapter';
+import { Financement, Statut_F } from 'src/app/models/financement';
 
 @Component({
   selector: 'app-generic-table[title][options]',
@@ -356,8 +357,38 @@ export class GenericTableComponent<T> implements OnInit {
     }
   }
 
+  /**
+   * Retourne la taille des lignes du tableau
+   */
   public getResult(){
     const nbResults = this.genericTableData.length;
     return nbResults + (nbResults > 1 ? ' résultats' : ' résultat');
   }
+
+  /**
+   * bloque la modification de certain champs 
+   * @param entity : l'object à modifié
+   * @param entityName : nom de l'entité de l'object
+   */
+  public disabledEditField(entity: GenericTableEntity<T>, entityName: string): Boolean{
+    const selectedEntity = entity.data;
+    // exception edition pour l'intance financement
+    if (this.instanceOfFinancement(selectedEntity)) {
+      if (selectedEntity?.statut_f === Statut_F.SOLDE && entityName !== 'statut_f') {
+        return true;
+      } else if (entityName === 'difference') {
+        return true;
+      }
+    } 
+    return false;
+  }
+
+  /**
+   * Retourne vrai si T est de l'instance financement
+   * @param object : l'objet data de l'entity
+   */
+  public instanceOfFinancement(object: any): object is Financement {
+    return true;
+  }
+
 }
