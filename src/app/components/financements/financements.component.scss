@@ -1,6 +1,7 @@
-// test pour voir tout le tableau scrollable
 .financement {
     display: block;
-    width: 90vw;
-    overflow-x: scroll;
+    //height: 400px;
+    max-width: 1000px;
+    overflow: auto;
+    margin-top: 10px;
 }

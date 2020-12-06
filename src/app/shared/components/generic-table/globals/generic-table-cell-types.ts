@@ -4,5 +4,6 @@ export enum GenericTableCellType {
   DATE = 'date',
   CURRENCY = 'currency',
   BOOLEAN = 'boolean',
-  SELECTBOX = 'selectbox'
+  SELECTBOX = 'selectbox',
+  TEXTAREA = 'textarea'
 }

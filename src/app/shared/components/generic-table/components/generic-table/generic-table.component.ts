@@ -193,6 +193,12 @@ export class GenericTableComponent<T> implements OnInit {
       .type === GenericTableCellType.TEXT;
   }
 
+  public isTextarea(entityName: any): boolean {
+    return this.options.entityTypes
+      ?.find((entity) => entity.code === entityName)
+      .type === GenericTableCellType.TEXTAREA;
+  }
+
   public isNumber(entityName: any): boolean {
     return this.options.entityTypes
       ?.find((entity) => entity.code === entityName)
@@ -348,5 +354,10 @@ export class GenericTableComponent<T> implements OnInit {
       };
       this.selectEvent.emit(genericTableEntityEvent);
     }
+  }
+
+  public getResult(){
+    const nbResults = this.genericTableData.length;
+    return nbResults + (nbResults > 1 ? ' résultats' : ' résultat');
   }
 }
