@@ -64,7 +64,14 @@
   }
   .mat-form-field-infix {
     //border-top: 0.5em solid transparent;
-    //width: 150px;
+    width: 150px;
+  }
+  .ttextarea .mat-form-field-infix {
+    //border-top: 0.5em solid transparent;
+    width: 200px;
+  }
+  textarea.mat-input-element {
+    height: 15px;
   }
   .mat-cell, .mat-header-cell{
     padding: 5px 10px !important;
@@ -73,7 +80,7 @@
     border-right: 1px solid #f5f5f5;
   }
   .mat-form-field-flex {
-    //padding: 0 5px !important;
+    padding: 0 5px !important;
   }
   .mat-form-field-appearance-legacy .mat-form-field-underline {
     background-image: none !important;
@@ -114,8 +121,4 @@
 
 .mat-table-sticky:last-child {
   border-left: 0.5px solid #e0e0e0;
-}
-
-.tooltip-textarea {
-  background: $white;
 }
