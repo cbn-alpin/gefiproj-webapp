@@ -21,16 +21,14 @@ export class CrudService<T> {
 
   /**
    * Retourne les entités depuis le serveur.
-   * @param id : identifiant relié à l'entité demandée.
    * @param idName : nom de l'identifiant.
    */
-  public async getAll(id?: number, idName?: string): Promise<T[]> {
+  public async getAll(idName?: string): Promise<T[]> {
     try {
       this.spinnerSrv.show();
 
-      const url = id ? `${this.endPoint}/${id}` : this.endPoint;
       const items = await (ajax
-        .getJSON<T[]>(url)
+        .getJSON<T[]>(this.endPoint)
         .toPromise());
 
       // TODO à supprimer après suppression de json server !
