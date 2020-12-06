@@ -13,21 +13,20 @@
 
       <!-- Textarea -->
       <div class="textarea">
-        <div *ngIf="isTextarea(columnName.code) && element.state === GenericTableEntityState.EDIT">
-          <mat-form-field [ngClass]="{errors: hasErrors(element, columnName.code)}" floatLabel="never">
-            <textarea matInput matTooltipClass="tooltip-error"
-                   [matTooltip]="getErrorMessage(element.errors, columnName.code)"
-                   [(ngModel)]="element.data[columnName.code]"
-                   [placeholder]="getPlaceHolder(columnName.code)"></textarea>
+          <mat-form-field *ngIf="isTextarea(columnName.code)" [ngClass]="{errors: hasErrors(element, columnName.code)}" floatLabel="never">
+            <textarea matInput *ngIf="element.state === GenericTableEntityState.EDIT" matTooltipClass="tooltip-error"
+              [matTooltip]="getErrorMessage(element.errors, columnName.code)"
+              [(ngModel)]="element.data[columnName.code]"
+              [placeholder]="getPlaceHolder(columnName.code)"></textarea>
+            <div *ngIf="element.state === GenericTableEntityState.READ" matTooltip="{{element.data[columnName.code]}}"
+            matTooltipClass="tooltip-textarea">
+
+            <textarea matInput [disabled]="element.state === GenericTableEntityState.READ"
+              [(ngModel)]="element.data[columnName.code]"
+              [placeholder]="getPlaceHolder(columnName.code)"
+              rows="4" cols="50" maxlength="50"></textarea>
+            </div>
           </mat-form-field>
-        </div>
-        <div *ngIf="isTextarea(columnName.code) && element.state === GenericTableEntityState.READ">
-          <button mat-icon-button
-          matTooltip="{{element.data[columnName.code]}}"
-          matTooltipClass="tooltip-textarea">
-            <mat-icon>find_in_page</mat-icon>
-          </button>
-        </div>
       </div>
 
       <!-- String -->
