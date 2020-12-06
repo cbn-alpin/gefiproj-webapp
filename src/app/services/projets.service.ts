@@ -69,7 +69,7 @@ export class ProjetsService {
       const newProject = await this.crudSrv.add(project);
 
       // Récupération de l'identifiant
-      project.id_p = newProject?.id_p
+      (newProject || {id_p: 0}).id_p = project.id_p = newProject?.id_p
         || (newProject as any)?.id // gestion de json-server
         || project?.id_p
         || (project as any)?.id // gestion de json-server

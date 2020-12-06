@@ -69,7 +69,7 @@ export class UsersService {
       const newUser = await this.crudSrv.add(user);
 
       // Récupération de l'identifiant
-      user.id_u = newUser?.id_u
+      (newUser || {id_u: 0}).id_u = user.id_u = newUser?.id_u
         || (newUser as any)?.id // gestion de json-server
         || user?.id_u
         || (user as any)?.id // gestion de json-server

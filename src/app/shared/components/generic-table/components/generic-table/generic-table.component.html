@@ -5,10 +5,11 @@
 </div>
 <div class="table-generic">
 
-<table mat-table [(dataSource)]="genericTableData" class="mat-elevation-z8" [ngClass]="{'can-select': canSelect}" matSort matSortDirection="asc">
+<table mat-table [(dataSource)]="genericTableData" class="mat-elevation-z8" [ngClass]="{'can-select': canSelect}" 
+  matSort matSortDisableClear [matSortActive]="sortName" [matSortDirection]="sortDirection">
 
   <ng-container *ngFor="let columnName of dataSourceColumnsName; let index = index" [matColumnDef]="columnName.name">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnName.name}} </th>
+    <th mat-header-cell *matHeaderCellDef mat-sort-header [disabled]="isSortDisabled(columnName.code)"> {{columnName.name}} </th>
     <td mat-cell *matCellDef="let element">
 
       <!-- Textarea -->
