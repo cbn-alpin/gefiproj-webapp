@@ -112,6 +112,13 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
       ?.map(gd => gd.data) || [];
   }
 
+  /**
+   * Indique que la table est vide.
+   */
+  public get isEmpty(): boolean {
+    return this.genericTableData.length === 0;
+  }
+
   constructor(
     private snackBar: MatSnackBar
   ) { }
