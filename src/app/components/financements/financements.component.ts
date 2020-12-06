@@ -8,7 +8,6 @@ import { FinancementsService } from 'src/app/services/financements.service';
 import { FinanceurService } from 'src/app/services/financeur.service';
 import { SpinnerService } from 'src/app/services/spinner.service';
 import { GenericTableCellType } from 'src/app/shared/components/generic-table/globals/generic-table-cell-types';
-import { EntitySelectBoxOptions } from 'src/app/shared/components/generic-table/models/entity-select-box-options';
 import { GenericTableEntityEvent } from 'src/app/shared/components/generic-table/models/generic-table-entity-event';
 import { GenericTableInterface } from 'src/app/shared/components/generic-table/models/generic-table-interface';
 import { GenericTableOptions } from 'src/app/shared/components/generic-table/models/generic-table-options';
@@ -54,11 +53,11 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
     date_limite_solde_f: undefined,
     statut_f: Statut_F.ANTR,
     date_solde_f: undefined,
-    commentaire_admin_f: '',
-    commentaire_resp_f: '',
-    numero_titre_f: '',
-    annee_titre_f: '',
-    imputation_f: '',
+    commentaire_admin_f: undefined,
+    commentaire_resp_f: undefined,
+    numero_titre_f: undefined,
+    annee_titre_f: undefined,
+    imputation_f: undefined,
     difference: 0,
     financeur: undefined
   } ;
@@ -76,8 +75,8 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
       {name: 'Financeur', type: GenericTableCellType.SELECTBOX, code: Object.keys(this.defaultEntity)[14]},
       {name: 'Statut', type: GenericTableCellType.SELECTBOX, code: Object.keys(this.defaultEntity)[6]},
       {name: 'Date de solde', type: GenericTableCellType.DATE, code: Object.keys(this.defaultEntity)[7]},
-      {name: 'Commentaire admin', type: GenericTableCellType.TEXT, code: Object.keys(this.defaultEntity)[8]},
-      {name: 'Commentaire responsable', type: GenericTableCellType.TEXT, code: Object.keys(this.defaultEntity)[9]},
+      {name: 'Commentaire admin', type: GenericTableCellType.TEXTAREA, code: Object.keys(this.defaultEntity)[8]},
+      {name: 'Commentaire responsable', type: GenericTableCellType.TEXTAREA, code: Object.keys(this.defaultEntity)[9]},
       {name: 'Numéro titre', type: GenericTableCellType.TEXT, code: Object.keys(this.defaultEntity)[10]},
       {name: 'Année titre', type: GenericTableCellType.TEXT, code: Object.keys(this.defaultEntity)[11]},
       {name: 'Imputation', type: GenericTableCellType.TEXT, code: Object.keys(this.defaultEntity)[12]},
@@ -140,7 +139,7 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
       });
     } catch (error) {
       console.error(error);
-      this.showInformation('Impossible de charger les projets.');
+      this.showInformation('Impossible de charger les financements : ' + error);
       return Promise.reject(error);
     } finally {
       this.spinnerSrv.hide();
@@ -188,14 +187,11 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
       if(financement.date_solde_f) financement.date_solde_f = pipe.transform(new Date(financement.date_solde_f), 'yyyy-MM-dd')
 
       await this.financementsService.put(financement);
+      await this.loadFinancements(Number(this.projectId));
       event.callBack(null);
     } catch (error) {
       console.error(error);
-      event?.callBack({
-        apiError: 'Impossible de modifier le financement.'
-      });
-    } finally {
-      await this.loadFinancements(Number(this.projectId));
+      this.showInformation('Impossible de charger les financements : ' + error);
     }
   }
   
@@ -218,14 +214,11 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
       if(financement.date_solde_f) financement.date_solde_f = pipe.transform(new Date(financement.date_solde_f), 'yyyy-MM-dd')
       
       await this.financementsService.post(event.entity);
+      await this.loadFinancements(Number(this.projectId));
       event.callBack(null);
     } catch (error) {
       console.error(error);
-      event?.callBack({
-        apiError: 'Impossible de créer le financements.'
-      });
-    } finally {
-      await this.loadFinancements(Number(this.projectId));
+      this.showInformation('Impossible de créer un financement : ' + error);
     }
   }
 
