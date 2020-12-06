@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatSort } from '@angular/material/sort';
+import { MatSort, SortDirection } from '@angular/material/sort';
 import { GenericTableAction } from '../../globals/generic-table-action';
 import { GenericTableCellType } from '../../globals/generic-table-cell-types';
 import { GenericTableEntityState } from '../../globals/generic-table-entity-states';
@@ -64,6 +64,20 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
    */
   @ViewChild(MatSort) sort: MatSort;
 
+  /**
+   * Indique le titre de la colonne à trier.
+   */
+  public get sortName(): string {
+    return this._options?.sortName || '';
+  }
+
+  /**
+   * Indique le sens du trie.
+   */
+  public get sortDirection(): SortDirection {
+    return this._options?.sortDirection || 'asc';
+  }
+
   public genericTableData: GenericTableEntity<T>[];
   public dataSourceColumnsName: EntityType[];
   public displayedColumns: string[];
@@ -72,6 +86,14 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
   public historyOfEntitiesUpdating: HistoryOfEntityUpdating<T>[] = [];
   public selectedEntity: GenericTableEntity<T>;
   private genericTableAction: GenericTableAction;
+
+  /**
+   * Retourne les données de la table.
+   */
+  public get dataObservable(): T[] {
+    return this.genericTableData
+      ?.map(gd => gd.data) || [];
+  }
 
   constructor(
     private snackBar: MatSnackBar
@@ -92,7 +114,32 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
    * Déclenché quand tous les composants sont chargés.
    */
   ngAfterViewInit(): void {
-    this.initEvents();
+    try {
+      this.sort.active = this._options?.sortName || '';
+      this.sort.direction = this._options?.sortDirection || 'asc';
+      this.onSortChange();
+
+      this.initEvents();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /**
+   * Indique si le trie est désactivé pour la propriété indiquée.
+   * @param propertyName : nom de la propriété ciblée.
+   */
+  public isSortDisabled(propertyName: string): boolean {
+    try {
+      const sortEnabled = this._options.entityTypes
+        .find(t => t.code === propertyName)
+        ?.sortEnabled;
+
+      return !sortEnabled;
+    } catch (error) {
+      console.error(error);
+      return true;
+    }
   }
 
   /**
