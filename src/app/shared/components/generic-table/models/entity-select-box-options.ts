@@ -1,4 +1,6 @@
-export interface EntitySelectBoxOptions {
+import { SelectBoxOption } from './SelectBoxOption';
+
+export interface EntitySelectBoxOptions<T> {
   name: string;
-  values: any[];
+  values: SelectBoxOption<T>[];
 }

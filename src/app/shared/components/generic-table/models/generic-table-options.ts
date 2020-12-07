@@ -22,7 +22,7 @@ export interface GenericTableOptions<T> {
   /**
    * Tableau des options pour chaque select box de l'entité T.
    */
-  entitySelectBoxOptions?: EntitySelectBoxOptions[];
+  entitySelectBoxOptions?: EntitySelectBoxOptions<any>[];
 
   /**
    * Tableau des placeholders de l'entité T.
