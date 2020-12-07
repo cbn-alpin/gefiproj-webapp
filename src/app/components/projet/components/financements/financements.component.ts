@@ -1,16 +1,16 @@
-import { DatePipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Financement, Statut_F } from 'src/app/models/financement';
-import { Financeur } from 'src/app/models/financeur';
-import { FinancementsService } from 'src/app/services/financements.service';
-import { FinanceurService } from 'src/app/services/financeur.service';
-import { SpinnerService } from 'src/app/services/spinner.service';
-import { GenericTableCellType } from 'src/app/shared/components/generic-table/globals/generic-table-cell-types';
-import { GenericTableEntityEvent } from 'src/app/shared/components/generic-table/models/generic-table-entity-event';
-import { GenericTableInterface } from 'src/app/shared/components/generic-table/models/generic-table-interface';
-import { GenericTableOptions } from 'src/app/shared/components/generic-table/models/generic-table-options';
+import {DatePipe} from '@angular/common';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {ActivatedRoute, Router} from '@angular/router';
+import {Financement, Statut_F} from 'src/app/models/financement';
+import {Financeur} from 'src/app/models/financeur';
+import {FinancementsService} from 'src/app/services/financements.service';
+import {FinanceurService} from 'src/app/services/financeur.service';
+import {SpinnerService} from 'src/app/services/spinner.service';
+import {GenericTableCellType} from 'src/app/shared/components/generic-table/globals/generic-table-cell-types';
+import {GenericTableEntityEvent} from 'src/app/shared/components/generic-table/models/generic-table-entity-event';
+import {GenericTableInterface} from 'src/app/shared/components/generic-table/models/generic-table-interface';
+import {GenericTableOptions} from 'src/app/shared/components/generic-table/models/generic-table-options';
 
 @Component({
   selector: 'app-financements',
@@ -20,14 +20,19 @@ import { GenericTableOptions } from 'src/app/shared/components/generic-table/mod
 export class FinancementsComponent implements OnInit, GenericTableInterface<Financement>  {
 
   /**
+   * id projet
+   */
+  @Input() projectId: number;
+
+  /**
+   *
+   */
+  @Output() selectEvent: EventEmitter<Financement> = new EventEmitter<Financement>();
+
+  /**
    * Titre du tableau générique
    */
   readonly title = 'Financements';
-
-  /**
-   * id projet
-   */
-  public projectId: string;
 
   /**
    * Données source du tableau générique
@@ -103,8 +108,8 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
     private snackBar: MatSnackBar,
     private spinnerSrv: SpinnerService
   ) {
-    this.projectId = this.route.snapshot.params.id;
-    if(!this.projectId) this.router.navigate(['home'])
+    // this.projectId = this.route.snapshot.params.id;
+    // if(!this.projectId) this.router.navigate(['home'])
   }
 
   async ngOnInit(): Promise<void> {
@@ -194,7 +199,7 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
       this.showInformation('Impossible de charger les financements : ' + error);
     }
   }
-  
+
   /**
   * Un financements a été créé et initialisé dans le tableau.
   * @param event : encapsule le financements à modifier.
@@ -212,7 +217,7 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
       if(financement.date_arrete_f) financement.date_arrete_f = pipe.transform(new Date(financement.date_arrete_f), 'yyyy-MM-dd')
       if(financement.date_limite_solde_f) financement.date_limite_solde_f = pipe.transform(new Date(financement.date_limite_solde_f), 'yyyy-MM-dd')
       if(financement.date_solde_f) financement.date_solde_f = pipe.transform(new Date(financement.date_solde_f), 'yyyy-MM-dd')
-      
+
       await this.financementsService.post(event.entity);
       await this.loadFinancements(Number(this.projectId));
       event.callBack(null);
@@ -236,5 +241,13 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
         apiError: 'Impossible de supprimer le financements.'
       });
     }
+  }
+
+  /**
+   * Émission du financement séléctionné au parent
+   * @param event
+   */
+  public onSelect(event: GenericTableEntityEvent<Financement>): void {
+    this.selectEvent.emit(event.entity);
   }
 }

@@ -14,8 +14,7 @@ import { FinanceursComponent } from './components/financeurs/financeurs.componen
 import { GenericTableDemoModule } from './components/generic-table-demo/generic-table-demo.module';
 import { HeaderComponent } from './components/header/header.component';
 import { HomeComponent } from './components/home/home.component';
-import { ProjetComponent } from './components/projet/projet.component';
-import { FinancementsComponent } from './components/financements/financements.component';
+import { FinancementsComponent } from './components/projet/components/financements/financements.component';
 import { RapportsComponent } from './components/rapports/rapports.component';
 import { UtilisateursComponent } from './components/utilisateurs/utilisateurs.component';
 import { AuthService } from './services/authentication/auth.service';
@@ -41,8 +40,6 @@ registerLocaleData(localeFr, 'fr-FR');
   declarations: [
     AppComponent,
     HomeComponent,
-    ProjetComponent,
-    FinancementsComponent,
     ConnexionComponent,
     RapportsComponent,
     FinanceursComponent,
