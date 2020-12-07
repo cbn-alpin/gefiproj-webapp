@@ -1,3 +1,4 @@
+import { MatSortModule } from '@angular/material/sort';
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {GenericTableComponent} from './components/generic-table/generic-table.component';
@@ -21,6 +22,7 @@ import {MatIconModule} from '@angular/material/icon';
   imports: [
     CommonModule,
     MatTableModule,
+    MatSortModule,
     MatButtonModule,
     MatInputModule,
     FormsModule,

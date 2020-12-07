@@ -3,13 +3,13 @@ const jwt = require('jsonwebtoken')
 
 const primaryKeys = { // Nom des identifiants des entités
   "users": "id_u",
-  "projets": "id_p",
-  "financements": "id_f",
+  "projects": "id_p",
+  "funding": "id_f",
   "financeurs": "id_financeur",
-  "recettes": "id_r",
-  "montants": "id_ma",
-  "depenses": "id_d",
-  "historiques": "id_h"
+  "receipts": "id_r",
+  "amounts": "id_ma",
+  "expenses": "id_d",
+  "history": "id_h"
 };
 
 // Paramètres du Token
@@ -21,7 +21,7 @@ function createToken(payload) { // Création du Token JWT (cf. https://www.techi
 }
 
 module.exports = (req, res, next) => { // Middleware chargé de renvoyer le Token en cas d'appel à /login (cf. https://github.com/typicode/json-server#add-middlewares)
-  res.header('X-Debug', 'True')
+  res.header('X-Debug', 'True'); // Identifie le mode Debug
 
   if (req.originalUrl === '/login' && req.method === 'POST') { // Renvoie un Token valide
     const { email, password } = req.body
@@ -30,10 +30,10 @@ module.exports = (req, res, next) => { // Middleware chargé de renvoyer le Toke
     res.status(200).jsonp({
       "id": 1,
       "id_u": 1,
-      "nom_u": "manu",
-      "prenom_u": "azp",
+      "nom_u": "Azp",
+      "prenom_u": "Manu",
       "email_u": "m.a@mail.com",
-      "initiales_u": "ja",
+      "initiales_u": "ma",
       "active_u": true,
       "role": 2,
       "access_token": access_token
@@ -44,6 +44,6 @@ module.exports = (req, res, next) => { // Middleware chargé de renvoyer le Toke
     req.body.id = id;
     req.body[primaryKeys[resource]] = id;
 
-    next()
+    next();
   }
 }

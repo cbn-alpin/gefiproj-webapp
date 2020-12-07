@@ -76,7 +76,7 @@
   .mat-cell, .mat-header-cell{
     padding: 5px 10px !important;
   }
-  .mat-cell:nth-last-child(2), .mat-header-cell:nth-last-child(2){
+  .mat-cell.actions, .mat-header-cell.actions{
     border-right: 1px solid #f5f5f5;
   }
   .mat-form-field-flex {

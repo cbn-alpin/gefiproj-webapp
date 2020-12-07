@@ -14,7 +14,7 @@ export class ProjetsService {
   /**
    * Url relative de l'API.
    */
-  private readonly endPoint = '/api/projets';
+  private readonly endPoint = '/api/projects';
 
   /**
    * Effectue les appels au serveur d'API pour une entité donnée.
@@ -39,7 +39,7 @@ export class ProjetsService {
    * Retourne les projets depuis le serveur.
    */
   public async getAll(): Promise<Projet[]> {
-    return this.crudSrv.getAll();
+    return this.crudSrv.getAll(0, 'id_p');
   }
 
   /**
@@ -47,34 +47,27 @@ export class ProjetsService {
    * @param id : identifiant du projet demandé.
    */
   public async get(id: number): Promise<Projet> {
-    return this.crudSrv.get(id);
+    return this.crudSrv.get(id, 'id_p');
   }
 
   /**
    * Transmet le projet modifié au serveur.
-   * @param projet : projet modifié.
+   * @param project : projet modifié.
    */
-  public async modify(projet: Projet): Promise<Projet> {
+  public async modify(project: Projet): Promise<Projet> {
     return this.crudSrv.modify(
-      projet,
-      projet?.id_p);
+      project,
+      project?.id_p);
   }
 
   /**
    * Transmet le nouveau projet au serveur.
-   * @param projet : projet à créer.
+   * @param project : projet à créer.
    */
-  public async add(projet: Projet): Promise<Projet> {
+  public async add(project: Projet): Promise<Projet> {
     try {
-      const newProject = await this.crudSrv.add(projet);
-
-      // Récupération de l'identifiant
-      projet.id_p = newProject?.id_p
-        || (newProject as any)?.id // gestion de json-server
-        || projet?.id_p
-        || (projet as any)?.id // gestion de json-server
-        || 0;
-      return newProject || projet;
+      return await this.crudSrv
+        .add(project, 'id_p');
     } catch (error) {
       console.error(error);
       return Promise.reject(error);
@@ -83,10 +76,10 @@ export class ProjetsService {
 
   /**
    * Demande la suppression du projet au serveur.
-   * @param projet : projet à supprimer.
+   * @param project : projet à supprimer.
    */
-  public async delete(projet: Projet): Promise<void> {
-    const id = projet?.id_p || (projet as any)?.id; // Pour json-server
+  public async delete(project: Projet): Promise<void> {
+    const id = project?.id_p || (project as any)?.id; // Pour json-server
     return this.crudSrv.delete(id);
   }
 }
