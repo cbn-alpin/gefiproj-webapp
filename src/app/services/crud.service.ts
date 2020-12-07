@@ -27,7 +27,7 @@ export class CrudService<T> {
   public async getAll(id?: number, idName?: string): Promise<T[]> {
     try {
       this.spinnerSrv.show();
-      
+
       const url = id ? `${this.endPoint}/${id}` : this.endPoint;
       const items = await (ajax
         .getJSON<T[]>(url)

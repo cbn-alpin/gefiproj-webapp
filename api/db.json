@@ -97,6 +97,25 @@
       "initiales_u": "hd",
       "id": 9,
       "id_p": null
+    },
+    {
+      "code_p": "0009",
+      "nom_p": "ee",
+      "id_r": 2,
+      "statut_p": true,
+      "responsable": {
+        "id": 2,
+        "id_u": 2,
+        "nom_u": "Do",
+        "prenom_u": "Hanh",
+        "email_u": "h.d@mail.com",
+        "initiales_u": "hd",
+        "active_u": true,
+        "role": 2
+      },
+      "initiales_u": "hd",
+      "id": 10,
+      "id_p": 10
     }
   ],
   "funding": [

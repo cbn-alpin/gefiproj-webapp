@@ -11,8 +11,8 @@ export class FinancementsService {
   /**
    * Url relative de l'API.
    */
-  public readonly endPoint = "http://127.0.0.1:5000/api/funding";
-  
+  public readonly endPoint = 'http://127.0.0.1:5000/api/funding';
+
   /**
    * Effectue les appels au serveur d'API pour une entité donnée.
    */
@@ -40,7 +40,7 @@ export class FinancementsService {
     if (isNaN(id)) {
       throw new Error('Pas d\'identifiant valide.');
     }
-    return this.crudSrv.getAll(id);
+    return this.crudSrv.getAll(id); // todo : Hanh, à voir avec Manu !!!!
   }
 
   /**
@@ -59,13 +59,7 @@ export class FinancementsService {
    */
   public async post(financement: Financement): Promise<Financement> {
     try {
-      const newFinancement = await this.crudSrv.add(financement);
-      // Récupération de l'identifiant
-      financement.id_p = newFinancement?.id_f
-      || financement?.id_f
-      || 0;
-
-      return newFinancement || financement;
+      return await this.crudSrv.add(financement, 'id_f');
     } catch (error) {
       return Promise.reject(error);
     }

@@ -39,7 +39,7 @@ export class ProjetsService {
    * Retourne les projets depuis le serveur.
    */
   public async getAll(): Promise<Projet[]> {
-    return this.crudSrv.getAll('id_p');
+    return this.crudSrv.getAll(0, 'id_p');
   }
 
   /**
