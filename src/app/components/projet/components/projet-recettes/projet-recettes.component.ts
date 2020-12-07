@@ -4,15 +4,11 @@ import {GenericTableOptions} from "../../../../shared/components/generic-table/m
 import {EntityType} from "../../../../shared/components/generic-table/models/entity-types";
 import {GenericTableCellType} from "../../../../shared/components/generic-table/globals/generic-table-cell-types";
 import {EntityPlaceholder} from "../../../../shared/components/generic-table/models/entity-placeholder";
-import {
-  GenericTableEntity,
-  GenericTableFormError
-} from "../../../../shared/components/generic-table/models/generic-table-entity";
+import {GenericTableFormError} from "../../../../shared/components/generic-table/models/generic-table-entity";
 import {GenericTableEntityEvent} from "../../../../shared/components/generic-table/models/generic-table-entity-event";
 import {ProjetService} from "../../services/projet.service";
-import {Financement} from "../../../../models/financement";
+import {Financement, Statut_F} from "../../../../models/financement";
 import {isNotNullOrUndefined} from "codelyzer/util/isNotNullOrUndefined";
-import {Projet} from "../../../../models/projet";
 
 @Component({
   selector: 'app-projet-recettes',
@@ -32,6 +28,11 @@ export class ProjetRecettesComponent implements OnInit, OnChanges {
   @Input() public recettes: Recette[];
 
   /**
+   * Le projet lié aux recettes est soldé ou non soldé
+   */
+  @Input() public projectIsBalanced: boolean;
+
+  /**
    * Titre du tableau
    */
   public title = 'Recettes';
@@ -46,6 +47,8 @@ export class ProjetRecettesComponent implements OnInit, OnChanges {
    * @param entity
    */
   public getEntityInformationsCallBack: Function;
+
+  public Statut_F = Statut_F;
 
   /**
    * Entité par défaut utilisé lors de la création d'une nouvelle recette
@@ -247,4 +250,5 @@ export class ProjetRecettesComponent implements OnInit, OnChanges {
   public getEntityInformations(recette?: Recette): string {
     return recette ? "Recette: [année = " + recette.annee_r + ", montant = " + recette.montant_r + "]" : "";
   }
+
 }
