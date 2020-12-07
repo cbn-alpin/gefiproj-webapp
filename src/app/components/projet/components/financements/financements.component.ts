@@ -25,7 +25,7 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
   @Input() projectId: number;
 
   /**
-   *
+   * Financement sélectionné event
    */
   @Output() selectEvent: EventEmitter<Financement> = new EventEmitter<Financement>();
 
