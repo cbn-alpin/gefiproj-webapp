@@ -81,19 +81,19 @@ export class ProjetsComponent implements OnInit, GenericTableInterface<Financeme
    * Tableau des options des select box de l'entité financement
    * @private
    */
-  private entitySelectBoxOptions: EntitySelectBoxOptions[] = [
+  private entitySelectBoxOptions: EntitySelectBoxOptions<string>[] = [
     {
       name: Object.keys(this.defaultEntity)[2],
       values: [
-        {code: 1, value: 1},
+        { id: '1', label: '1' },
       ]
     },
     {
       name: Object.keys(this.defaultEntity)[6],
       values: [
-        {code:'ANTR', value: Statut_F.ANTR},
-        {code:'ATR', value: Statut_F.ATR},
-        {code:'SOLDE', value: Statut_F.SOLDE},
+        { id: Statut_F.ANTR, label: Statut_F.ANTR },
+        { id: Statut_F.ATR, label: Statut_F.ATR },
+        { id: Statut_F.SOLDE, label: Statut_F.SOLDE },
       ]
     }
   ];

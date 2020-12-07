@@ -84,13 +84,13 @@ export class FamilleTableComponent implements OnInit, GenericTableInterface<Fami
    * Tablau des options des select box de l'entité famille
    * @private
    */
-  private entitySelectBoxOptions: EntitySelectBoxOptions[] = [
+  private entitySelectBoxOptions: EntitySelectBoxOptions<string>[] = [
     {
       name: this.EntityPropertyName.ORIGINE,
       values: [
-        FamilleOrigine.AMERICAINE,
-        FamilleOrigine.EUROPE,
-        FamilleOrigine.ASIE
+        { id: FamilleOrigine.AMERICAINE, label: FamilleOrigine.AMERICAINE },
+        { id: FamilleOrigine.EUROPE, label: FamilleOrigine.EUROPE },
+        { id: FamilleOrigine.ASIE, label: FamilleOrigine.ASIE }
       ]
     }
   ];
