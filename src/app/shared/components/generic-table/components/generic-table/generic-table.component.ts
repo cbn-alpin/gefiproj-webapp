@@ -1,6 +1,12 @@
 import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import {
+  MAT_MOMENT_DATE_ADAPTER_OPTIONS, MAT_MOMENT_DATE_FORMATS,
+  MomentDateAdapter
+} from '@angular/material-moment-adapter';
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort, SortDirection } from '@angular/material/sort';
+import { Financement, Statut_F } from 'src/app/models/financement';
 import { GenericTableAction } from '../../globals/generic-table-action';
 import { GenericTableCellType } from '../../globals/generic-table-cell-types';
 import { GenericTableEntityState } from '../../globals/generic-table-entity-states';
@@ -15,14 +21,6 @@ import { GenericTableEntityEvent } from '../../models/generic-table-entity-event
 import { GenericTableOptions } from '../../models/generic-table-options';
 import { SelectBoxOption } from '../../models/SelectBoxOption';
 import { SortInfo } from '../../models/sortInfo';
-import { EntityType } from '../../models/entity-types';
-import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
-import {
-  MAT_MOMENT_DATE_FORMATS,
-  MomentDateAdapter,
-  MAT_MOMENT_DATE_ADAPTER_OPTIONS,
-} from '@angular/material-moment-adapter';
-import { Financement, Statut_F } from 'src/app/models/financement';
 
 @Component({
   selector: 'app-generic-table[title][options]',
@@ -349,15 +347,6 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
     return this.options.entitySelectBoxOptions
       ?.find((entity) => entity.name === entityName)
       .values || [];
-    return values.map(res => {
-      if (entityName === 'financeur') {
-        return res.nom_financeur;
-      } else if (entityName === 'statut_f') {
-        return res.value;
-      } else {
-        return res;
-      }
-    });
   }
 
   public getDateValue(dateString: string): Date {

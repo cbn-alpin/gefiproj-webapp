@@ -1,3 +1,4 @@
+import { SelectBoxOption } from './../../shared/components/generic-table/models/SelectBoxOption';
 import { DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -44,7 +45,7 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
   /**
    * Représente un nouveau financement et définit les colonnes à afficher.
    */
-  private readonly defaultEntity: Financement= {
+  private readonly defaultEntity: Financement = {
     id_f: undefined,
     id_p: undefined,
     id_financeur: undefined,
@@ -89,11 +90,11 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
   /**
    * Liste de statut
    */
-  private statuts_financement = [
-    {code:'ANTR', value: Statut_F.ANTR},
-    {code:'ATR', value: Statut_F.ATR},
-    {code:'SOLDE', value: Statut_F.SOLDE},
-  ]
+  private statuts_financement: SelectBoxOption<any>[] = [
+    {id: Statut_F.ANTR, label: Statut_F.ANTR},
+    {id: Statut_F.ATR, label: Statut_F.ATR},
+    {id: Statut_F.SOLDE, label: Statut_F.SOLDE},
+  ];
 
   constructor(
     private financementsService: FinancementsService,
@@ -104,7 +105,7 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
     private spinnerSrv: SpinnerService
   ) {
     this.projectId = this.route.snapshot.params.id;
-    if(!this.projectId) this.router.navigate(['home'])
+    if (!this.projectId) { this.router.navigate(['home']) }
   }
 
   async ngOnInit(): Promise<void> {
@@ -121,16 +122,16 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
   async loadFinancements(projetId: number): Promise<Financement[]> {
     try {
       this.spinnerSrv.show();
-      this.financements = await this.financementsService.getAll(projetId);
-      this.financeurs = await this.financeurService.getAll();
+      this.financements = (await this.financementsService.getAll(projetId)) || [];
+      this.financeurs = (await this.financeurService.getAll()) || [];
       const entitySelectBoxOptions = [
         {
           name: Object.keys(this.defaultEntity)[14],
-          values: [...this.financeurs]
+          values: this.financeurs.map(f => ({ id: f.id_financeur, label: f.nom_financeur, item: f }))
         },
         {
           name: Object.keys(this.defaultEntity)[6],
-          values: [...this.statuts_financement]
+          values: this.statuts_financement
         }
       ];
       this.options.entitySelectBoxOptions = entitySelectBoxOptions;
@@ -170,21 +171,21 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
    */
   async onEdit(event: GenericTableEntityEvent<Financement>): Promise<void> {
     try {
-      let financement = event.entity;
-      if(financement.hasOwnProperty('difference')) delete financement.difference;
-      if(!financement.hasOwnProperty('id_p')) financement.id_p = Number(this.projectId);
+      const financement = event.entity;
+      if (financement.hasOwnProperty('difference')) { delete financement.difference; }
+      if (!financement.hasOwnProperty('id_p')) { financement.id_p = Number(this.projectId); }
       // recuperer l'id financeur
       const financeur = this.financeurs.find(res => res.nom_financeur === financement.financeur);
       financement.id_financeur = financeur.id_financeur;
       delete financement.financeur;
       // recuperer la valuer statut
-      const statut_f = this.statuts_financement.find(res => res.value === financement.statut_f);
-      financement.statut_f = statut_f.value;
+      const statut_f = this.statuts_financement.find(res => res.label === financement.statut_f);
+      financement.statut_f = statut_f.label as Statut_F;
 
       const pipe = new DatePipe('fr-FR');
-      if(financement.date_arrete_f) financement.date_arrete_f = pipe.transform(new Date(financement.date_arrete_f), 'yyyy-MM-dd')
-      if(financement.date_limite_solde_f) financement.date_limite_solde_f = pipe.transform(new Date(financement.date_limite_solde_f), 'yyyy-MM-dd')
-      if(financement.date_solde_f) financement.date_solde_f = pipe.transform(new Date(financement.date_solde_f), 'yyyy-MM-dd')
+      if (financement.date_arrete_f) { financement.date_arrete_f = pipe.transform(new Date(financement.date_arrete_f), 'yyyy-MM-dd') }
+      if (financement.date_limite_solde_f) { financement.date_limite_solde_f = pipe.transform(new Date(financement.date_limite_solde_f), 'yyyy-MM-dd') }
+      if (financement.date_solde_f) { financement.date_solde_f = pipe.transform(new Date(financement.date_solde_f), 'yyyy-MM-dd') }
 
       await this.financementsService.put(financement);
       await this.loadFinancements(Number(this.projectId));
@@ -194,25 +195,25 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
       this.showInformation('Impossible de charger les financements : ' + error);
     }
   }
-  
+
   /**
-  * Un financements a été créé et initialisé dans le tableau.
-  * @param event : encapsule le financements à modifier.
-  */
+   * Un financements a été créé et initialisé dans le tableau.
+   * @param event : encapsule le financements à modifier.
+   */
   async onCreate(event: GenericTableEntityEvent<Financement>): Promise<void> {
     try {
-      let financement = event.entity;
-      if(financement.hasOwnProperty('difference')) delete financement.difference;
-      if(!financement.hasOwnProperty('id_p')) financement.id_p = Number(this.projectId);
+      const financement = event.entity;
+      if (financement.hasOwnProperty('difference')) { delete financement.difference; }
+      if (!financement.hasOwnProperty('id_p')) { financement.id_p = Number(this.projectId); }
       const financeur = this.financeurs.find(res => res.nom_financeur === financement.financeur);
       financement.id_financeur = financeur.id_financeur;
       delete financement.financeur;
 
       const pipe = new DatePipe('fr-FR');
-      if(financement.date_arrete_f) financement.date_arrete_f = pipe.transform(new Date(financement.date_arrete_f), 'yyyy-MM-dd')
-      if(financement.date_limite_solde_f) financement.date_limite_solde_f = pipe.transform(new Date(financement.date_limite_solde_f), 'yyyy-MM-dd')
-      if(financement.date_solde_f) financement.date_solde_f = pipe.transform(new Date(financement.date_solde_f), 'yyyy-MM-dd')
-      
+      if (financement.date_arrete_f) { financement.date_arrete_f = pipe.transform(new Date(financement.date_arrete_f), 'yyyy-MM-dd') }
+      if (financement.date_limite_solde_f) { financement.date_limite_solde_f = pipe.transform(new Date(financement.date_limite_solde_f), 'yyyy-MM-dd') }
+      if (financement.date_solde_f) { financement.date_solde_f = pipe.transform(new Date(financement.date_solde_f), 'yyyy-MM-dd') }
+
       await this.financementsService.post(event.entity);
       await this.loadFinancements(Number(this.projectId));
       event.callBack(null);

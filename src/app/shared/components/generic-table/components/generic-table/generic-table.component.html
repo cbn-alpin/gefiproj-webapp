@@ -1,7 +1,6 @@
 
 <div>
   <span *ngIf="!!title" class="title">{{title}}</span>
-  <span class="result">{{getResult()}}</span>
 </div>
 <div class="table-generic">
 
@@ -136,5 +135,6 @@
   <tr mat-row *matRowDef="let row; columns: displayedColumns;" [ngClass]="{'selected': selectedEntity === row}" (click)="select(row)"></tr>
 </table>
 <p *ngIf="isEmpty">(Aucun élément à afficher)</p>
+<span class="result">{{getResult()}}</span>
 
 </div>
