@@ -1,4 +1,4 @@
-import {Component, EventEmitter, HostListener, Inject, Input, OnInit, Output} from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { GenericTableAction } from '../../globals/generic-table-action';
 import { GenericTableCellType } from '../../globals/generic-table-cell-types';
@@ -11,14 +11,29 @@ import {
 } from '../../models/generic-table-entity';
 import { GenericTableEntityEvent } from '../../models/generic-table-entity-event';
 import { GenericTableOptions } from '../../models/generic-table-options';
-import { EntityPlaceholder } from '../../models/entity-placeholder';
 import { EntityType } from '../../models/entity-types';
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
+import {
+  MAT_MOMENT_DATE_FORMATS,
+  MomentDateAdapter,
+  MAT_MOMENT_DATE_ADAPTER_OPTIONS,
+} from '@angular/material-moment-adapter';
+import { Financement, Statut_F } from 'src/app/models/financement';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material/dialog";
 
 @Component({
   selector: 'app-generic-table[title][options]',
   templateUrl: './generic-table.component.html',
-  styleUrls: ['./generic-table.component.scss']
+  styleUrls: ['./generic-table.component.scss'],
+  providers: [
+    {provide: MAT_DATE_LOCALE, useValue: 'fr-FR'},
+    {
+      provide: DateAdapter,
+      useClass: MomentDateAdapter,
+      deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS]
+    },
+    {provide: MAT_DATE_FORMATS, useValue: MAT_MOMENT_DATE_FORMATS},
+  ],
 })
 export class GenericTableComponent<T> implements OnInit {
   /**
@@ -145,12 +160,15 @@ export class GenericTableComponent<T> implements OnInit {
   }
 
   public onCreate(): void {
+    this.genericTableAction = GenericTableAction.NEW;
     const defaultEntity = JSON.parse(JSON.stringify(this.options.defaultEntity));
     const newElement: GenericTableEntity<T> = {
       data: defaultEntity,
       state: GenericTableEntityState.NEW
     };
     this.selectedEntity = newElement;
+
+    console.log(this.selectedEntity)
     this.genericTableData = [newElement].concat(this.genericTableData);
   }
 
@@ -178,7 +196,7 @@ export class GenericTableComponent<T> implements OnInit {
     this.genericTableAction = GenericTableAction.DELETE;
     const genericTableEntityEvent: GenericTableEntityEvent<T> = {
       entity: entity.data,
-      updatedGenericTable: this.genericTableData.map((row) => row.data),
+      updatedGenericTable: this.genericTableData.map((data) => data.data),
       callBack: (genericTableEntityErrors?: GenericTableEntityErrors) => this.handleErrors(entity, genericTableEntityErrors)
     };
     this.deleteEvent.emit(genericTableEntityEvent);
@@ -188,6 +206,12 @@ export class GenericTableComponent<T> implements OnInit {
     return this.options.entityTypes
       ?.find((entity) => entity.code === entityName)
       .type === GenericTableCellType.TEXT;
+  }
+
+  public isTextarea(entityName: any): boolean {
+    return this.options.entityTypes
+      ?.find((entity) => entity.code === entityName)
+      .type === GenericTableCellType.TEXTAREA;
   }
 
   public isNumber(entityName: any): boolean {
@@ -221,9 +245,18 @@ export class GenericTableComponent<T> implements OnInit {
   }
 
   public getEntitySelectBoxOptions(entityName: string): string[] {
-    return this.options.entitySelectBoxOptions
+    const values = this.options.entitySelectBoxOptions
       ?.find((entity) => entity.name === entityName)
       .values || [];
+    return values.map(res => {
+      if (entityName === 'financeur') {
+        return res.nom_financeur;
+      } else if (entityName === 'statut_f') {
+        return res.value;
+      } else {
+        return res;
+      }
+    });
   }
 
   public getDateValue(dateString: string): Date {
@@ -337,6 +370,41 @@ export class GenericTableComponent<T> implements OnInit {
       this.selectEvent.emit(genericTableEntityEvent);
     }
   }
+
+  /**
+   * Retourne la taille des lignes du tableau
+   */
+  public getResult(){
+    const nbResults = this.genericTableData.length;
+    return nbResults + (nbResults > 1 ? ' résultats' : ' résultat');
+  }
+
+  /**
+   * bloque la modification de certain champs
+   * @param entity : l'object à modifié
+   * @param entityName : nom de l'entité de l'object
+   */
+  public disabledEditField(entity: GenericTableEntity<T>, entityName: string): Boolean{
+    const selectedEntity = entity.data;
+    // exception edition pour l'intance financement
+    if (this.instanceOfFinancement(selectedEntity)) {
+      if (selectedEntity?.statut_f === Statut_F.SOLDE && entityName !== 'statut_f') {
+        return true;
+      } else if (entityName === 'difference') {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Retourne vrai si T est de l'instance financement
+   * @param object : l'objet data de l'entity
+   */
+  public instanceOfFinancement(object: any): object is Financement {
+    return true;
+  }
+
 
   public openDeletionConfirmationDialog(event, entity: GenericTableEntity<T>): void {
     event.stopPropagation();
