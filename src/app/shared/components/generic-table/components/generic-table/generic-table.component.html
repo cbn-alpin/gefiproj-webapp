@@ -64,7 +64,7 @@
         <mat-form-field *ngIf="isSelectBox(columnName.code)" [ngClass]="{errors: hasErrors(element, columnName.code)}" floatLabel="never">
           <mat-select [(ngModel)]="element.data[columnName.code]" [disabled]="element.state === GenericTableEntityState.READ" matTooltipClass="tooltip-error"
                       [matTooltip]="getErrorMessage(element.errors, columnName.code)">
-            <mat-option *ngFor="let option of getEntitySelectBoxOptions(columnName.code)" [value]="option">{{option}}
+            <mat-option *ngFor="let option of getEntitySelectBoxOptions(columnName.code)" [value]="option.id">{{option.label}}
             </mat-option>
           </mat-select>
         </mat-form-field>

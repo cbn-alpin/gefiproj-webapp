@@ -13,6 +13,7 @@ import {
 } from '../../models/generic-table-entity';
 import { GenericTableEntityEvent } from '../../models/generic-table-entity-event';
 import { GenericTableOptions } from '../../models/generic-table-options';
+import { SelectBoxOption } from '../../models/SelectBoxOption';
 import { SortInfo } from '../../models/sortInfo';
 
 @Component({
@@ -319,7 +320,7 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
       .type === GenericTableCellType.SELECTBOX;
   }
 
-  public getEntitySelectBoxOptions(entityName: string): string[] {
+  public getEntitySelectBoxOptions(entityName: string): SelectBoxOption<any>[] {
     return this.options.entitySelectBoxOptions
       ?.find((entity) => entity.name === entityName)
       .values || [];

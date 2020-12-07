@@ -4,7 +4,9 @@ import { IsAdministratorGuardService } from 'src/app/services/authentication/is-
 import { SpinnerService } from 'src/app/services/spinner.service';
 import { UsersService } from 'src/app/services/users.service';
 import { GenericTableCellType } from 'src/app/shared/components/generic-table/globals/generic-table-cell-types';
+import { EntitySelectBoxOptions } from 'src/app/shared/components/generic-table/models/entity-select-box-options';
 import { GenericTableFormError } from 'src/app/shared/components/generic-table/models/generic-table-entity';
+import { SelectBoxOption } from 'src/app/shared/components/generic-table/models/SelectBoxOption';
 import { SortInfo } from 'src/app/shared/components/generic-table/models/sortInfo';
 import { ProjetsService } from '../../services/projets.service';
 import { Projet } from './../../models/projet';
@@ -88,6 +90,8 @@ export class HomeComponent implements OnInit {
     code: { code: 'code_p', name: 'Code' },
     name: { code: 'nom_p', name: 'Nom' },
     manager: { code: 'responsable', name: 'Responsable' },
+    managerId: { code: 'id_r', name: 'Id responsable' },
+    managerLabel: { code: 'initiales_u', name: 'Responsable' },
     status: { code: 'statut_p', name: 'Est soldé' }
   };
 
@@ -97,7 +101,7 @@ export class HomeComponent implements OnInit {
   private readonly defaultEntity = {
     code_p: '0000' as any as number,
     nom_p: '',
-    responsable: '',
+    id_r: 0,
     statut_p: false
   } as Projet;
 
@@ -108,10 +112,14 @@ export class HomeComponent implements OnInit {
     dataSource: [],
     defaultEntity: this.defaultEntity,
     entityTypes: [
-      { code: this.namesMap.code.code, type: GenericTableCellType.NUMBER, name: this.namesMap.code.name, sortEnabled: true },
-      { code: this.namesMap.name.code, type: GenericTableCellType.TEXT, name: this.namesMap.name.name, sortEnabled: true },
-      { code: this.namesMap.manager.code, type: GenericTableCellType.SELECTBOX, name: this.namesMap.manager.name, sortEnabled: true },
-      { code: this.namesMap.status.code, type: GenericTableCellType.BOOLEAN, name: this.namesMap.status.name, sortEnabled: true }
+      { code: this.namesMap.code.code,
+        type: GenericTableCellType.NUMBER, name: this.namesMap.code.name, sortEnabled: true },
+      { code: this.namesMap.name.code,
+        type: GenericTableCellType.TEXT, name: this.namesMap.name.name, sortEnabled: true },
+      { code: this.namesMap.managerId.code,
+        type: GenericTableCellType.SELECTBOX, name: this.namesMap.manager.name, sortEnabled: true },
+      { code: this.namesMap.status.code,
+        type: GenericTableCellType.BOOLEAN, name: this.namesMap.status.name, sortEnabled: true }
     ],
     entityPlaceHolders: [],
     entitySelectBoxOptions: [],
@@ -152,24 +160,52 @@ export class HomeComponent implements OnInit {
    */
   async ngOnInit(): Promise<void> {
     try {
-      const promiseManagers = this.loadManagers();
-      const promiseProjects =  this.loadProjects();
-      await Promise.all([promiseManagers, promiseProjects]); // Pour être plus efficace
-      const dataSource = this.sort(this.visibleProjects);
-      const entitySelectBoxOptions = [
-        {
-          name: this.namesMap.manager.code,
-          values: this.managers?.map(u => u.initiales_u) || []
-        }
-      ];
-
-      this.options = Object.assign({}, this.options, {
-        dataSource,
-        entitySelectBoxOptions
-      });
+      await this.loadData();
+      this.initDtOptions();
     } catch (error) {
       console.error(error);
     }
+  }
+
+  /**
+   * Initialise les options de la table générique.
+   */
+  private initDtOptions(): void {
+    const dataSource = this.sort(this.visibleProjects);
+    const userSelectBoxOption: EntitySelectBoxOptions<Utilisateur> = {
+      name: this.namesMap.managerId.code,
+      values: this.managers?.map<SelectBoxOption<Utilisateur>>(u => this.transformToSbOption(u)
+      ) || []
+    };
+    const entitySelectBoxOptions = [
+      userSelectBoxOption
+    ];
+
+    this.options = Object.assign({}, this.options, {
+      dataSource,
+      entitySelectBoxOptions
+    });
+  }
+
+  /**
+   * Charge les données : projets et responsables.
+   */
+  private async loadData(): Promise<void> {
+    const promiseManagers = this.loadManagers();
+    const promiseProjects = this.loadProjects();
+    await Promise.all([promiseManagers, promiseProjects]); // Pour être plus efficace : les requêtes sont lancées en parallèle
+  }
+
+  /**
+   * Transforme l'utilisateur en option utilisable dans la table générique.
+   * @param user : utilisateur à encapsulée.
+   */
+  private transformToSbOption(user: Utilisateur): SelectBoxOption<Utilisateur> {
+    return {
+      id: user?.id_u || 0,
+      label: user?.initiales_u || '',
+      item: user || null
+    };
   }
 
   /**
@@ -194,7 +230,12 @@ export class HomeComponent implements OnInit {
   async loadProjects(): Promise<void> {
     try {
       this.spinnerSrv.show();
-      this.projets = await this.projectsSrv.getAll();
+      this.projets = (await this.projectsSrv.getAll()) || [];
+      this.projets.forEach(p => {
+        p.id_r = p.id_r || p.responsable?.id_u || 0;
+        p.responsable = p.responsable || this.managers.find(m => m.id_u === p.id_r) || null;
+        p[this.namesMap.managerLabel.code] = p.responsable?.initiales_u || ''; // Pour le trie
+      });
     } catch (error) {
       console.error(error);
       this.showInformation('Impossible de charger les projets.');
@@ -247,6 +288,8 @@ export class HomeComponent implements OnInit {
       if (!project) {
         throw new Error('Le projet n\'existe pas');
       }
+
+      this.injectManager(project);
 
       if (this.validateForGenericTable(event)) {
         await this.projectsSrv.modify(project);
@@ -316,7 +359,7 @@ export class HomeComponent implements OnInit {
   private verifProjectManager(project: Projet, formErrors: GenericTableFormError[]): void {
     if (!project.responsable) {
       const error = {
-        name: this.namesMap.manager.code,
+        name: this.namesMap.managerId.code,
         message: 'Un responsable projet doit être défini.'
       };
 
@@ -402,6 +445,8 @@ export class HomeComponent implements OnInit {
         throw new Error('Le projet n\'existe pas');
       }
 
+      this.injectManager(project);
+
       if (this.validateForGenericTable(event)) {
         project = await this.projectsSrv.add(event.entity);
         event.callBack(null); // Valide la modification dans le composant DataTable fils
@@ -414,6 +459,22 @@ export class HomeComponent implements OnInit {
       event?.callBack({
         apiError: 'Impossible de créer le projet.'
       });
+    }
+  }
+
+  /**
+   * Détermine le responsable à partir de son identifiant.
+   * @param project : projet concerné.
+   */
+  private injectManager(project: Projet): void {
+    try {
+      if (project.id_r > 0) {
+        project.responsable = this.managers
+          .find(m => m.id_u === project.id_r) || null;
+        project[this.namesMap.managerLabel.code] = project.responsable?.initiales_u || ''; // Pour le trie
+      }
+    } catch (error) {
+      console.error(error);
     }
   }
 
@@ -479,13 +540,18 @@ export class HomeComponent implements OnInit {
    * @param projects : projets à trier.
    */
   private sort(projects: Projet[]): Projet[] {
-    const { name, direction } = this.sortInfo || {
+    // tslint:disable-next-line: prefer-const
+    let { name, direction } = this.sortInfo || {
       name: this.namesMap.code.code,
       direction: 'asc'
     };
     const mult = direction === 'asc' // Pour gérer le sens du trie
       ? 1
       : -1;
+
+    if (name === this.namesMap.managerId.code) { // Pour trier sur les initiales du responsable
+      name = this.namesMap.managerLabel.code;
+    }
 
     return projects.sort((p1, p2) => {
       let item1 = p1[name];
