@@ -13,6 +13,7 @@ import {
 } from '../../models/generic-table-entity';
 import { GenericTableEntityEvent } from '../../models/generic-table-entity-event';
 import { GenericTableOptions } from '../../models/generic-table-options';
+import { SelectBoxOption } from '../../models/SelectBoxOption';
 import { SortInfo } from '../../models/sortInfo';
 import { EntityType } from '../../models/entity-types';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
@@ -344,8 +345,8 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
       .type === GenericTableCellType.SELECTBOX;
   }
 
-  public getEntitySelectBoxOptions(entityName: string): string[] {
-    const values = this.options.entitySelectBoxOptions
+  public getEntitySelectBoxOptions(entityName: string): SelectBoxOption<any>[] {
+    return this.options.entitySelectBoxOptions
       ?.find((entity) => entity.name === entityName)
       .values || [];
     return values.map(res => {
