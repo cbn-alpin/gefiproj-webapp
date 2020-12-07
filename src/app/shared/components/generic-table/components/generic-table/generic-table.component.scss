@@ -32,16 +32,16 @@
     .mat-form-field-label {
       /*change color of label*/
       color: red !important;
-     }
+    }
 
-     .mat-form-field-underline {
+    .mat-form-field-underline {
       /*change color of underline*/
       background-color: red !important;
     }
 
     .mat-form-field-ripple {
-     /*change color of underline when focused*/
-     background-color: red !important;;
+      /*change color of underline when focused*/
+      background-color: red !important;;
     }
   }
   .mat-row:nth-child(even){
@@ -98,7 +98,7 @@
     }
   }
 
-   // Hide date picker icon
+  // Hide date picker icon
   .mat-form-field-suffix .mat-button-disabled {
     display: none;
   }
@@ -121,4 +121,16 @@
 
 .mat-table-sticky:last-child {
   border-left: 0.5px solid #e0e0e0;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
 }

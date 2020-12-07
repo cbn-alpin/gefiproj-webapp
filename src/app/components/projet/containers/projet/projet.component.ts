@@ -12,7 +12,7 @@ import {ProjetNavigationState} from "../../../../models/projet";
   templateUrl: './projet.component.html',
   styleUrls: ['./projet.component.scss']
 })
-export class ProjetComponent implements OnInit, OnDestroy {
+export class ProjetComponent implements OnInit {
   /**
    * State de la navigation, contient l'attribut projectIsBalanced
    */
@@ -33,9 +33,7 @@ export class ProjetComponent implements OnInit, OnDestroy {
    */
   public selectedFinancement: Financement;
 
-  public subscription: Subscription;
-
-  public projectIsBalanced: boolean;
+  public idProject: number;
 
 
   constructor(
@@ -44,17 +42,10 @@ export class ProjetComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    const idProjet =  Number(this.route.snapshot.paramMap.get('id'));
+    this.idProject =  Number(this.route.snapshot.paramMap.get('id'));
     this.state$ = this.route.paramMap
       .pipe(map(() => window.history.state));
-    this.subscription = this.state$.subscribe((state) => {
-      this.projectIsBalanced = state.projectIsBalanced;
-    })
-    this.getFinancementsFromProjet(idProjet);
-  }
-
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
+    this.getFinancementsFromProjet(this.idProject);
   }
 
   public async getFinancementsFromProjet(idProjet: number) {
@@ -62,8 +53,12 @@ export class ProjetComponent implements OnInit, OnDestroy {
   }
 
   public async getRecettesFromFinancemennt(financement: Financement) {
-    this.selectedFinancement = financement;
     this.recettes = await this.projetService.getAllRecettesFromFinancement(financement);
+  }
+
+  public onSelectFinancement(financement: Financement): void {
+    this.selectedFinancement = financement;
+    this.getRecettesFromFinancemennt(financement);
   }
 
 

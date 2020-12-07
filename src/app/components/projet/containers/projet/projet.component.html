@@ -1,15 +1,16 @@
-<p>projet works!</p>
-
-<div *ngIf="financements">
-  <h3>Mes financements</h3>
-  <div *ngFor="let financement of financements">
-    <a (click)="getRecettesFromFinancemennt(financement)">{{financement.id_f}}</a>
-  </div>
+<div class="financements">
+  <app-financements
+    [projectId]="idProject"
+    (selectEvent)="onSelectFinancement($event)"
+  ></app-financements>
 </div>
 
-<app-projet-recettes
-  *ngIf="recettes"
-  [recettes]="recettes"
-  [financement]="selectedFinancement"
-  [projectIsBalanced]="projectIsBalanced">
-</app-projet-recettes>
+<div class="recettes">
+  <app-projet-recettes
+    class="recettes"
+    *ngIf="recettes"
+    [recettes]="recettes"
+    [financement]="selectedFinancement"
+  ></app-projet-recettes>
+</div>
+

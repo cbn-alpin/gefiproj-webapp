@@ -1,11 +1,14 @@
-<app-generic-table
-  *ngIf="options"
-  [title]="title"
-  [options]="options"
-  [canSelect]="true"
-  [showActions]="!(projectIsBalanced || financement.statut_f === Statut_F.SOLDE)"
-  [getEntityInformationsCallBack]="getEntityInformationsCallBack"
-  (editEvent)="onEdit($event)"
-  (createEvent)="onCreate($event)"
-  (deleteEvent)="onDelete($event)">
-</app-generic-table>
+<div class="recettes">
+  <app-generic-table
+    *ngIf="options"
+    [title]="title"
+    [options]="options"
+    [canSelect]="true"
+    [showActions]="true"
+    [getEntityInformationsCallBack]="getEntityInformationsCallBack"
+    (editEvent)="onEdit($event)"
+    (createEvent)="onCreate($event)"
+    (deleteEvent)="onDelete($event)">
+  </app-generic-table>
+</div>
+

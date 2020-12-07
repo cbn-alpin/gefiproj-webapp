@@ -28,11 +28,6 @@ export class ProjetRecettesComponent implements OnInit, OnChanges {
   @Input() public recettes: Recette[];
 
   /**
-   * Le projet lié aux recettes est soldé ou non soldé
-   */
-  @Input() public projectIsBalanced: boolean;
-
-  /**
    * Titre du tableau
    */
   public title = 'Recettes';
