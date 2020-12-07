@@ -13,20 +13,23 @@
 
       <!-- Textarea -->
       <div class="ttextarea">
-          <mat-form-field *ngIf="isTextarea(columnName.code)" [ngClass]="{errors: hasErrors(element, columnName.code)}" floatLabel="never">
-            <textarea matInput *ngIf="element.state === GenericTableEntityState.EDIT" matTooltipClass="tooltip-error"
+          <mat-form-field *ngIf="isTextarea(columnName.code) && element.state === GenericTableEntityState.EDIT" 
+          [ngClass]="{errors: hasErrors(element, columnName.code)}" 
+          floatLabel="never">
+            <textarea matInput matTooltipClass="tooltip-error"
               [disabled]="disabledEditField(element, columnName.code)"
               [matTooltip]="getErrorMessage(element.errors, columnName.code)"
               [(ngModel)]="element.data[columnName.code]"
               [placeholder]="getPlaceHolder(columnName.code)"></textarea>
-            <div *ngIf="element.state === GenericTableEntityState.READ" 
+          </mat-form-field>
+          <mat-form-field *ngIf="isTextarea(columnName.code) && element.state === GenericTableEntityState.READ" 
             matTooltip="{{element.data[columnName.code]}}"
-            matTooltipClass="tooltip-textarea">
-              <textarea matInput [disabled]="element.state === GenericTableEntityState.READ"
-                [(ngModel)]="element.data[columnName.code]"
-                [placeholder]="getPlaceHolder(columnName.code)"
-                rows="4" cols="50" maxlength="50"></textarea>
-            </div>
+            matTooltipClass="tooltip-textarea"
+            [ngClass]="{errors: hasErrors(element, columnName.code)}" floatLabel="never">
+            <textarea matInput [disabled]="element.state === GenericTableEntityState.READ"
+              [(ngModel)]="element.data[columnName.code]"
+              [placeholder]="getPlaceHolder(columnName.code)"
+              rows="4" cols="50" maxlength="50"></textarea>
           </mat-form-field>
       </div>
 
