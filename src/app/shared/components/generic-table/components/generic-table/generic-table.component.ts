@@ -300,7 +300,6 @@ export class GenericTableComponent<T> implements OnInit {
   }
 
   public handleActionNew(entity: GenericTableEntity<T>): void {
-    console.log("e:",entity);
     entity.errors = [];
     entity.state = GenericTableEntityState.READ;
     this.historyOfEntitiesUpdating = this.historyOfEntitiesUpdating?.filter((history) => history.next !== entity);

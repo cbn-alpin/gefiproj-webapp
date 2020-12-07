@@ -132,14 +132,6 @@
       "annee_r": 2017
     },
     {
-      "id": 6,
-      "id_r": 6,
-      "fundingId": 4,
-      "id_f": 4,
-      "montant_r": 50000,
-      "annee_r": 2016
-    },
-    {
       "annee_r": 2017,
       "montant_r": 22000,
       "fundingId": 1,
@@ -153,6 +145,14 @@
       "fundingId": 1,
       "id_f": 1,
       "id": 9,
+      "id_r": null
+    },
+    {
+      "annee_r": 2016,
+      "montant_r": 25000,
+      "fundingId": 4,
+      "id_f": 4,
+      "id": 10,
       "id_r": null
     }
   ],
@@ -188,14 +188,6 @@
       "id_r": 5,
       "montant_ma": 30000,
       "annee_ma": 2016
-    },
-    {
-      "id": 6,
-      "id_ma": 6,
-      "receiptId": 6,
-      "id_r": 6,
-      "montant_ma": 50000,
-      "annee_ma": 2015
     }
   ],
   "login": {}

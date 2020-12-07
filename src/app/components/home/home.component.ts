@@ -163,7 +163,11 @@ export class HomeComponent implements OnInit {
     }
   }
 
+  /**
+   * Naviguer vers les détails du projet sélectionné
+   * @param event
+   */
   public onSelect(event: GenericTableEntityEvent<Projet>): void {
-    this.router.navigate(['/projet/' + event.entity.id_p])
+    this.router.navigate(['/projet/' + event.entity.id_p], { state: { projectIsBalanced: event.entity.statut_p } });
   }
 }

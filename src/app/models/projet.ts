@@ -13,3 +13,7 @@ export interface Projet {
    */
   statut_p: boolean;
 }
+
+export interface ProjetNavigationState {
+  projectIsBalanced: boolean;
+}

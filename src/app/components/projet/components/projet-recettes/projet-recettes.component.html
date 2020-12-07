@@ -3,7 +3,7 @@
   [title]="title"
   [options]="options"
   [canSelect]="true"
-  [showActions]="true"
+  [showActions]="!(projectIsBalanced || financement.statut_f === Statut_F.SOLDE)"
   [getEntityInformationsCallBack]="getEntityInformationsCallBack"
   (editEvent)="onEdit($event)"
   (createEvent)="onCreate($event)"

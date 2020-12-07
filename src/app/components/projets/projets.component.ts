@@ -76,7 +76,7 @@ export class ProjetsComponent implements OnInit, GenericTableInterface<Financeme
     entityPlaceHolders: [],
     entitySelectBoxOptions: []
   };
-  
+
   /**
    * Tableau des options des select box de l'entité financement
    * @private
@@ -126,7 +126,6 @@ export class ProjetsComponent implements OnInit, GenericTableInterface<Financeme
         res.difference = 0;
       });
 
-    console.log(this.financements)
       this.options.dataSource = this.financements.reverse();
       this.options.entitySelectBoxOptions = this.entitySelectBoxOptions;
     } catch (error) {
@@ -178,7 +177,7 @@ export class ProjetsComponent implements OnInit, GenericTableInterface<Financeme
       });
     }
   }
-  
+
   /**
   * Un financements a été créé et initialisé dans le tableau.
   * @param event : encapsule le financements à modifier.
@@ -189,7 +188,7 @@ export class ProjetsComponent implements OnInit, GenericTableInterface<Financeme
       if(financement.hasOwnProperty('difference')) delete financement.difference;
       financement.id_p = Number(this.projectId);
       const pipe = new DatePipe('fr-FR');
-      
+
       if(financement.date_arrete_f) financement.date_arrete_f = pipe.transform(new Date(financement.date_arrete_f), 'yyyy-MM-dd')
       if(financement.date_limite_solde_f) financement.date_limite_solde_f = pipe.transform(new Date(financement.date_limite_solde_f), 'yyyy-MM-dd')
       if(financement.date_solde_f) financement.date_solde_f = pipe.transform(new Date(financement.date_solde_f), 'yyyy-MM-dd')
