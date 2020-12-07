@@ -1,6 +1,6 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {DialogDeletionConfirmation, GenericTableComponent} from './components/generic-table/generic-table.component';
+import {GenericTableComponent} from './components/generic-table/generic-table.component';
 import {MatTableModule} from '@angular/material/table';
 import {MatButtonModule} from '@angular/material/button';
 import {MatInputModule} from '@angular/material/input';
@@ -13,12 +13,11 @@ import { DirectivesModule } from '../../directives/directives.module';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatIconModule} from '@angular/material/icon';
-import {MatDialogModule} from "@angular/material/dialog";
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @NgModule({
   declarations: [
-    GenericTableComponent,
-    DialogDeletionConfirmation
+    GenericTableComponent
   ],
   imports: [
     CommonModule,
@@ -35,7 +34,7 @@ import {MatDialogModule} from "@angular/material/dialog";
     MatTooltipModule,
     MatSnackBarModule,
     MatIconModule,
-    MatDialogModule
+    MatFormFieldModule  
   ],
   exports: [
     GenericTableComponent

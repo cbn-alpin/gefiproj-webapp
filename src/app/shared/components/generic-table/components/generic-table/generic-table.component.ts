@@ -156,8 +156,6 @@ export class GenericTableComponent<T> implements OnInit {
       state: GenericTableEntityState.NEW
     };
     this.selectedEntity = newElement;
-
-    console.log(this.selectedEntity)
     this.genericTableData = [newElement].concat(this.genericTableData);
   }
 
