@@ -11,12 +11,12 @@
   float: right;
   color: $grey;
   font-size: small;
+  margin-top: 10px;
 }
 
 :host::ng-deep {
   table {
     width: 100%;
-    margin-top: 10px;
     border: 0.5px solid #e0e0e0;
   }
   .title {

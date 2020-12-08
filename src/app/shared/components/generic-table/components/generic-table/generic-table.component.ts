@@ -474,15 +474,18 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
    */
   public disabledEditField(entity: GenericTableEntity<T>, entityName: string): Boolean{
     const selectedEntity = entity.data;
-    // exception edition pour l'intance financement
+    let disabled = false;
+    // exception edition pour l'instance financement
     if (this.instanceOfFinancement(selectedEntity)) {
-      if (selectedEntity?.statut_f === Statut_F.SOLDE && entityName !== 'statut_f') {
-        return true;
+      if (selectedEntity?.solde && entityName !== 'statut_f') {
+        disabled = true;
       } else if (entityName === 'difference') {
-        return true;
+        disabled = true;
+      } else {
+        disabled = false;
       }
     } 
-    return false;
+    return disabled;
   }
 
   /**
