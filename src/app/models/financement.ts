@@ -4,7 +4,7 @@ export interface Financement {
   id_f?: number;
   id_p: number;
   id_financeur?: number;
-  financeur?: String;
+  financeur?: Financeur;
   montant_arrete_f: number;
   date_arrete_f?: Date | string;
   date_limite_solde_f?: Date | string;
@@ -16,6 +16,7 @@ export interface Financement {
   annee_titre_f?: number | string;
   imputation_f?: string;
   difference?: number;
+  solde?: boolean;
 }
 
 export enum Statut_F {

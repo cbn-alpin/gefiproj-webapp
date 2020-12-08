@@ -1,6 +1,12 @@
 import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import {
+  MAT_MOMENT_DATE_ADAPTER_OPTIONS, MAT_MOMENT_DATE_FORMATS,
+  MomentDateAdapter
+} from '@angular/material-moment-adapter';
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort, SortDirection } from '@angular/material/sort';
+import { Financement, Statut_F } from 'src/app/models/financement';
 import { GenericTableAction } from '../../globals/generic-table-action';
 import { GenericTableCellType } from '../../globals/generic-table-cell-types';
 import { GenericTableEntityState } from '../../globals/generic-table-entity-states';
@@ -19,7 +25,16 @@ import { SortInfo } from '../../models/sortInfo';
 @Component({
   selector: 'app-generic-table[title][options]',
   templateUrl: './generic-table.component.html',
-  styleUrls: ['./generic-table.component.scss']
+  styleUrls: ['./generic-table.component.scss'],
+  providers: [
+    {provide: MAT_DATE_LOCALE, useValue: 'fr-FR'},
+    {
+      provide: DateAdapter,
+      useClass: MomentDateAdapter,
+      deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS]
+    },
+    {provide: MAT_DATE_FORMATS, useValue: MAT_MOMENT_DATE_FORMATS},
+  ],
 })
 export class GenericTableComponent<T> implements OnInit, AfterViewInit {
   /**
@@ -290,6 +305,12 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
       .type === GenericTableCellType.TEXT;
   }
 
+  public isTextarea(entityName: any): boolean {
+    return this.options.entityTypes
+      ?.find((entity) => entity.code === entityName)
+      .type === GenericTableCellType.TEXTAREA;
+  }
+
   public isNumber(entityName: any): boolean {
     return this.options.entityTypes
       ?.find((entity) => entity.code === entityName)
@@ -437,4 +458,42 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
       this.selectEvent.emit(genericTableEntityEvent);
     }
   }
+
+  /**
+   * Retourne la taille des lignes du tableau
+   */
+  public getResult(){
+    const nbResults = this.genericTableData.length;
+    return nbResults + (nbResults > 1 ? ' résultats' : ' résultat');
+  }
+
+  /**
+   * bloque la modification de certain champs 
+   * @param entity : l'object à modifié
+   * @param entityName : nom de l'entité de l'object
+   */
+  public disabledEditField(entity: GenericTableEntity<T>, entityName: string): Boolean{
+    const selectedEntity = entity.data;
+    let disabled = false;
+    // exception edition pour l'instance financement
+    if (this.instanceOfFinancement(selectedEntity)) {
+      if (selectedEntity?.solde && entityName !== 'statut_f') {
+        disabled = true;
+      } else if (entityName === 'difference') {
+        disabled = true;
+      } else {
+        disabled = false;
+      }
+    } 
+    return disabled;
+  }
+
+  /**
+   * Retourne vrai si T est de l'instance financement
+   * @param object : l'objet data de l'entity
+   */
+  public instanceOfFinancement(object: any): object is Financement {
+    return true;
+  }
+
 }

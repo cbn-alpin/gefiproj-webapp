@@ -1,7 +1,23 @@
+@import "~src/style/variables";
+
+.table-generic {
+  display: block;
+  //height: 400px;
+  max-width: 90vw;
+  overflow: auto;
+  margin-top: 10px;
+}
+.result {
+  float: right;
+  color: $grey;
+  font-size: small;
+  margin-top: 10px;
+}
+
 :host::ng-deep {
   table {
     width: 100%;
-    margin-top: 5px;
+    border: 0.5px solid #e0e0e0;
   }
   .title {
     font-size: 20px;
@@ -29,31 +45,39 @@
     }
   }
   .mat-row:nth-child(even){
-    background-color: #FFFFFF;
+    background-color: $white;
   }
 
   .mat-row:nth-child(odd){
-    background-color: #D8D8D8;
+    background-color: #f5f5f5;
   }
   mat-form-field {
     width: 100%;
   }
   .mat-header-cell {
-    background-color: #4D9F67;
-    color: #FFFFFF;
+    background-color: $dark-color;
+    color: $white;
     max-width: 105px;
   }
   .mat-checkbox-checked.mat-accent .mat-checkbox-background, .mat-checkbox-indeterminate.mat-accent .mat-checkbox-background, .mat-accent .mat-pseudo-checkbox-checked, .mat-accent .mat-pseudo-checkbox-indeterminate, .mat-pseudo-checkbox-checked, .mat-pseudo-checkbox-indeterminate {
-    background-color: #4D9F67;
+    background-color: $dark-color;
   }
-  .example-form-field .mat-form-field-infix {
-    border-top: 0.5em solid transparent;
+  .mat-form-field-infix {
+    //border-top: 0.5em solid transparent;
+    width: 150px;
+  }
+  .ttextarea .mat-form-field-infix {
+    //border-top: 0.5em solid transparent;
+    width: 200px;
+  }
+  textarea.mat-input-element {
+    height: 15px;
   }
   .mat-cell, .mat-header-cell{
     padding: 5px 10px !important;
   }
   .mat-cell.actions, .mat-header-cell.actions{
-    border-left: 1px solid #979797;
+    border-right: 1px solid #f5f5f5;
   }
   .mat-form-field-flex {
     padding: 0 5px !important;
@@ -95,4 +119,6 @@
   }
 }
 
-
+.mat-table-sticky:last-child {
+  border-left: 0.5px solid #e0e0e0;
+}
