@@ -1,5 +1,7 @@
 <div>
-    <app-generic-table [title]="title" [(options)]="options" [showActions]="true" (editEvent)="onEdit($event)"
-        (createEvent)="onCreate($event)" (deleteEvent)="onDelete($event)">
+    <h1>{{title}}</h1>
+    <mat-slide-toggle [(ngModel)]="withClosed">Soldés</mat-slide-toggle>
+    <app-generic-table [title]="" [(options)]="options" [showActions]="showActions" (editEvent)="onEdit($event)"
+        (createEvent)="onCreate($event)" (deleteEvent)="onDelete($event)" (sortEvent)="onSortChanged($event)">
     </app-generic-table>
 </div>

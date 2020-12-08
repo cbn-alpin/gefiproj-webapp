@@ -1,8 +1,16 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import {
+  MAT_MOMENT_DATE_ADAPTER_OPTIONS, MAT_MOMENT_DATE_FORMATS,
+  MomentDateAdapter
+} from '@angular/material-moment-adapter';
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSort, SortDirection } from '@angular/material/sort';
+import { Financement, Statut_F } from 'src/app/models/financement';
 import { GenericTableAction } from '../../globals/generic-table-action';
 import { GenericTableCellType } from '../../globals/generic-table-cell-types';
 import { GenericTableEntityState } from '../../globals/generic-table-entity-states';
+import { EntityType } from '../../models/entity-types';
 import {
   GenericTableEntity,
   GenericTableEntityErrors,
@@ -11,14 +19,8 @@ import {
 } from '../../models/generic-table-entity';
 import { GenericTableEntityEvent } from '../../models/generic-table-entity-event';
 import { GenericTableOptions } from '../../models/generic-table-options';
-import { EntityType } from '../../models/entity-types';
-import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
-import {
-  MAT_MOMENT_DATE_FORMATS,
-  MomentDateAdapter,
-  MAT_MOMENT_DATE_ADAPTER_OPTIONS,
-} from '@angular/material-moment-adapter';
-import { Financement, Statut_F } from 'src/app/models/financement';
+import { SelectBoxOption } from '../../models/SelectBoxOption';
+import { SortInfo } from '../../models/sortInfo';
 
 @Component({
   selector: 'app-generic-table[title][options]',
@@ -34,7 +36,7 @@ import { Financement, Statut_F } from 'src/app/models/financement';
     {provide: MAT_DATE_FORMATS, useValue: MAT_MOMENT_DATE_FORMATS},
   ],
 })
-export class GenericTableComponent<T> implements OnInit {
+export class GenericTableComponent<T> implements OnInit, AfterViewInit {
   /**
    * Défini les données à afficher et leur formatage.
    */
@@ -46,6 +48,7 @@ export class GenericTableComponent<T> implements OnInit {
   get options(): GenericTableOptions<T> {
     return this._options;
   }
+
   /**
    * Défini le paramétrage d'affichage et les données du tableau.
    */
@@ -67,6 +70,30 @@ export class GenericTableComponent<T> implements OnInit {
   @Output() deleteEvent: EventEmitter<GenericTableEntityEvent<T>> = new EventEmitter<GenericTableEntityEvent<T>>();
   @Output() selectEvent: EventEmitter<GenericTableEntityEvent<T>> = new EventEmitter<GenericTableEntityEvent<T>>();
 
+  /**
+   * Notifie le composant parent que le trie a changé.
+   */
+  @Output() sortEvent = new EventEmitter<SortInfo>();
+
+  /**
+   * Récupère le trie courant.
+   */
+  @ViewChild(MatSort) sort: MatSort;
+
+  /**
+   * Indique le titre de la colonne à trier.
+   */
+  public get sortName(): string {
+    return this._options?.sortName || '';
+  }
+
+  /**
+   * Indique le sens du trie.
+   */
+  public get sortDirection(): SortDirection {
+    return this._options?.sortDirection || 'asc';
+  }
+
   public genericTableData: GenericTableEntity<T>[];
   public dataSourceColumnsName: EntityType[];
   public displayedColumns: string[];
@@ -76,12 +103,98 @@ export class GenericTableComponent<T> implements OnInit {
   public selectedEntity: GenericTableEntity<T>;
   private genericTableAction: GenericTableAction;
 
+  /**
+   * Retourne les données de la table.
+   */
+  public get dataObservable(): T[] {
+    return this.genericTableData
+      ?.map(gd => gd.data) || [];
+  }
+
+  /**
+   * Indique que la table est vide.
+   */
+  public get isEmpty(): boolean {
+    return this.genericTableData.length === 0;
+  }
+
   constructor(
     private snackBar: MatSnackBar
   ) { }
 
+  /**
+   * Initialise le composant.
+   */
   ngOnInit(): void {
-    this.initTable();
+    try {
+      this.initTable();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /**
+   * Déclenché quand tous les composants sont chargés.
+   */
+  ngAfterViewInit(): void {
+    try {
+      this.sort.active = this._options?.sortName || '';
+      this.sort.direction = this._options?.sortDirection || 'asc';
+      this.onSortChange();
+
+      this.initEvents();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /**
+   * Indique si le trie est désactivé pour la propriété indiquée.
+   * @param propertyName : nom de la propriété ciblée.
+   */
+  public isSortDisabled(propertyName: string): boolean {
+    try {
+      const sortEnabled = this._options.entityTypes
+        .find(t => t.code === propertyName)
+        ?.sortEnabled;
+
+      return !sortEnabled;
+    } catch (error) {
+      console.error(error);
+      return true;
+    }
+  }
+
+  /**
+   * Notification d'un changement sur le trie.
+   */
+  private onSortChange(): void {
+    try {
+      const name = this._options.entityTypes // Pour récupérer le nom de la propriété
+        .find(t => t.name === this.sort.active)
+        ?.code
+        || this.sort.active;
+      const sort: SortInfo = { // Information sur le trie
+        name,
+        direction: this.sort.direction
+      };
+
+      this.sortEvent.emit(sort);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /**
+   * Initialise les branchements aux évènements des composants fils.
+   */
+  private initEvents(): void {
+    try {
+      this.sort.sortChange.subscribe(() =>
+        this.onSortChange());
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   /**
@@ -228,19 +341,10 @@ export class GenericTableComponent<T> implements OnInit {
       .type === GenericTableCellType.SELECTBOX;
   }
 
-  public getEntitySelectBoxOptions(entityName: string): string[] {
-    const values = this.options.entitySelectBoxOptions
+  public getEntitySelectBoxOptions(entityName: string): SelectBoxOption<any>[] {
+    return this.options.entitySelectBoxOptions
       ?.find((entity) => entity.name === entityName)
       .values || [];
-    return values.map(res => {
-      if (entityName === 'financeur') {
-        return res.nom_financeur;
-      } else if (entityName === 'statut_f') {
-        return res.value;
-      } else {
-        return res;
-      }
-    });
   }
 
   public getDateValue(dateString: string): Date {
