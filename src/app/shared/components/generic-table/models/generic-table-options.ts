@@ -38,4 +38,9 @@ export interface GenericTableOptions<T> {
    * Sens du trie.
    */
   sortDirection?: SortDirection;
+
+  /**
+   * Indique un lien de navigation. Il faut définir un callback retournant une URL.
+   */
+  navigationUrlFt?: (item: T) => string;
 }

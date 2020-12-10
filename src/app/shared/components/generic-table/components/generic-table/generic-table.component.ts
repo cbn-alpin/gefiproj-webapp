@@ -6,7 +6,8 @@ import {
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort, SortDirection } from '@angular/material/sort';
-import { Financement } from 'src/app/models/financement';
+import { Router } from '@angular/router';
+import { Financement, Statut_F } from 'src/app/models/financement';
 import { GenericTableAction } from '../../globals/generic-table-action';
 import { GenericTableCellType } from '../../globals/generic-table-cell-types';
 import { GenericTableEntityState } from '../../globals/generic-table-entity-states';
@@ -62,6 +63,12 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
       console.error(error);
     }
   }
+
+  /**
+   * Indique si les éléments affichés sont en lecture seule (=pas de modification possible si à 'true').
+   */
+  @Input() isReadOnly = false;
+
   @Input() title: string;
   @Input() showActions = true;
   @Input() canSelect = false;
@@ -118,7 +125,15 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
     return this.genericTableData.length === 0;
   }
 
+  /**
+   * Indique si une navigation est prévue.
+   */
+  public get withNagivation(): boolean {
+    return !!this._options?.navigationUrlFt;
+  }
+
   constructor(
+    private router: Router,
     private snackBar: MatSnackBar
   ) { }
 
@@ -269,6 +284,8 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
       state: GenericTableEntityState.NEW
     };
     this.selectedEntity = newElement;
+
+    console.log(this.selectedEntity)
     this.genericTableData = [newElement].concat(this.genericTableData);
   }
 
@@ -474,18 +491,15 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
    */
   public disabledEditField(entity: GenericTableEntity<T>, entityName: string): Boolean{
     const selectedEntity = entity.data;
-    let disabled = false;
-    // exception edition pour l'instance financement
+    // exception edition pour l'intance financement
     if (this.instanceOfFinancement(selectedEntity)) {
-      if (selectedEntity?.solde && entityName !== 'statut_f') {
-        disabled = true;
+      if (selectedEntity?.statut_f === Statut_F.SOLDE && entityName !== 'statut_f') {
+        return true;
       } else if (entityName === 'difference') {
-        disabled = true;
-      } else {
-        disabled = false;
+        return true;
       }
     } 
-    return disabled;
+    return false;
   }
 
   /**
@@ -496,4 +510,31 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
     return true;
   }
 
+  /**
+   * Lance une navigation vers l'URL indiquée.
+   * @param entity : encapsule l'élément métier à l'origine de la navigation.
+   */
+  public onNavigate(entity: GenericTableEntity<T>): void {
+    try {
+      const item = entity?.data;
+      const ft = this._options?.navigationUrlFt;
+
+      if (item && ft) {
+        const url = ft(item);
+
+        if (url) {
+          this.router.navigate([
+            url
+          ]);
+          return;
+        }
+      }
+
+      throw new Error(
+        'Navigation impossible car les éléments de navigation sont inutilisables');
+    } catch (error) {
+      console.error(error);
+      this.openApiErrorSnackBar('Navigation impossible');
+    }
+  }
 }
