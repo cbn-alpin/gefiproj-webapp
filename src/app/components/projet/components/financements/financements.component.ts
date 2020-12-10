@@ -7,7 +7,6 @@ import { Financement, Statut_F } from 'src/app/models/financement';
 import { Financeur } from 'src/app/models/financeur';
 import { FinancementsService } from 'src/app/services/financements.service';
 import { FinanceurService } from 'src/app/services/financeur.service';
-import { SpinnerService } from 'src/app/services/spinner.service';
 import { GenericTableCellType } from 'src/app/shared/components/generic-table/globals/generic-table-cell-types';
 import { GenericTableEntityEvent } from 'src/app/shared/components/generic-table/models/generic-table-entity-event';
 import { GenericTableInterface } from 'src/app/shared/components/generic-table/models/generic-table-interface';
@@ -16,6 +15,8 @@ import { IsAdministratorGuardService } from 'src/app/services/authentication/is-
 import { UsersService } from 'src/app/services/users.service';
 import { EntitySelectBoxOptions } from 'src/app/shared/components/generic-table/models/entity-select-box-options';
 import { GenericTableFormError } from 'src/app/shared/components/generic-table/models/generic-table-entity';
+import { GenericDialogComponent, IMessage } from 'src/app/shared/components/generic-dialog/generic-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-financements',
@@ -141,7 +142,6 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
    * @param route 
    * @param router 
    * @param snackBar 
-   * @param spinnerSrv 
    */
   constructor(
     private adminSrv: IsAdministratorGuardService,
@@ -150,7 +150,7 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
     private route: ActivatedRoute,
     private router: Router,
     private snackBar: MatSnackBar,
-    private spinnerSrv: SpinnerService
+    public dialog: MatDialog
   ) {
     this.projectId = this.route.snapshot.params.id;
     if (!this.projectId) { this.router.navigate(['home']) }
@@ -183,14 +183,11 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
    */
   async loadFinancements(projetId: number): Promise<Financement[]> {
     try {
-      this.spinnerSrv.show();
       this.financements = (await this.financementsService.getAll(projetId)) || [];
     } catch (error) {
       console.error(error);
       this.showInformation('Impossible de charger les financements : ' + error);
       return Promise.reject(error);
-    } finally {
-      this.spinnerSrv.hide();
     }
   }
 
@@ -199,14 +196,11 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
    */
   async loadFinanceurs(): Promise<Financeur[]> {
     try {
-      this.spinnerSrv.show();
       this.financeurs = (await this.financeurService.getAll()) || [];
     } catch (error) {
       console.error(error);
       this.showInformation('Impossible de charger les financeurs : ' + error);
       return Promise.reject(error);
-    } finally {
-      this.spinnerSrv.hide();
     }
   }
 
@@ -281,7 +275,7 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
 
       if (this.validateForGenericTable(event)) {
         await this.financementsService.put(financement);
-        //this.refreshDataTable();
+        await this.refreshDataTable();
         event.callBack(null); // Valide la modification dans le composant DataTable fils
       }
     } catch (error) {
@@ -397,6 +391,12 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
     }
   }
 
+
+  /**
+   * Supprimer un financement avec confirmation avec un popup
+   * @param entity 
+   */
+ 
   /**
    * Un financements a été supprimé du tableau.
    * @param event : encapsule le financements à modifier.
@@ -407,8 +407,27 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
       if (!financement) {
         throw new Error('Le financement n\'existe pas');
       }
-      await this.financementsService.delete(financement);
-      event.callBack(null);
+
+      const dialogRef = this.dialog.open(GenericDialogComponent, {
+        data: <IMessage>{
+          header: 'Suppression du financement',
+          content: 'Voulez-vous supprimer cet financement de montant ' + financement.montant_arrete_f + ' provenant du financeur ' + financement.financeur.nom_financeur + '?',
+          type: 'warning',
+          action: {
+            name: 'Confirmer',
+          }
+        }
+      }); 
+
+      dialogRef.afterClosed().subscribe(
+        async result => {
+          if (result) {
+            await this.financementsService.delete(financement);
+            event.callBack(null);
+          }
+        }
+      )
+
     } catch (error) {
       console.error(error);
       event?.callBack({

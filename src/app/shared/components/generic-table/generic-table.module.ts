@@ -15,6 +15,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatIconModule} from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import {MatDialogModule} from '@angular/material/dialog';
 
 @NgModule({
   declarations: [
@@ -36,7 +37,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatTooltipModule,
     MatSnackBarModule,
     MatIconModule,
-    MatFormFieldModule  
+    MatFormFieldModule,
+    MatDialogModule
   ],
   exports: [
     GenericTableComponent

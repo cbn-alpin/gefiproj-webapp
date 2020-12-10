@@ -6,7 +6,7 @@ import {
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort, SortDirection } from '@angular/material/sort';
-import { Financement, Statut_F } from 'src/app/models/financement';
+import { Financement } from 'src/app/models/financement';
 import { GenericTableAction } from '../../globals/generic-table-action';
 import { GenericTableCellType } from '../../globals/generic-table-cell-types';
 import { GenericTableEntityState } from '../../globals/generic-table-entity-states';
