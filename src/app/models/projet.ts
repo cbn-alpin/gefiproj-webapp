@@ -12,7 +12,7 @@ export interface Projet {
   /**
    * Identifiant du responsable.
    */
-  id_r?: number;
+  id_u?: number;
 
   /**
    * Indique si le projet est soldé (true ssi soldé).

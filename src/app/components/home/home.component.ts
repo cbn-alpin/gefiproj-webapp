@@ -90,7 +90,7 @@ export class HomeComponent implements OnInit {
     code: { code: 'code_p', name: 'Code' },
     name: { code: 'nom_p', name: 'Nom' },
     manager: { code: 'responsable', name: 'Responsable' },
-    managerId: { code: 'id_r', name: 'Id responsable' },
+    managerId: { code: 'id_u', name: 'Id responsable' },
     managerLabel: { code: 'initiales_u', name: 'Responsable' },
     status: { code: 'statut_p', name: 'Est soldé' }
   };
@@ -101,7 +101,7 @@ export class HomeComponent implements OnInit {
   private readonly defaultEntity = {
     code_p: '0000' as any as number,
     nom_p: '',
-    id_r: 0,
+    id_u: 0,
     statut_p: false
   } as Projet;
 
@@ -124,13 +124,21 @@ export class HomeComponent implements OnInit {
     entityPlaceHolders: [],
     entitySelectBoxOptions: [],
     sortName: this.namesMap.code.name,
-    sortDirection: 'asc'
+    sortDirection: 'asc',
+    navigationUrlFt: project => `projet/${project?.id_p || 0}`
   };
 
   /**
-   * Indique si le tableau peut-être modifié.
+   * Indique si le tableau est en lecture seule.
    */
-  public get showActions(): boolean {
+  public get isReadOnly(): boolean {
+    return !this.isAdministrator;
+  }
+
+  /**
+   * Indique si l'utilisateur est un administrateur.
+   */
+  public get isAdministrator(): boolean {
     return !!this.adminSrv.isAdministrator;
   }
 
@@ -232,8 +240,8 @@ export class HomeComponent implements OnInit {
       this.spinnerSrv.show();
       this.projets = (await this.projectsSrv.getAll()) || [];
       this.projets.forEach(p => {
-        p.id_r = p.id_r || p.responsable?.id_u || 0;
-        p.responsable = p.responsable || this.managers.find(m => m.id_u === p.id_r) || null;
+        p.id_u = p.id_u || p.responsable?.id_u || 0;
+        p.responsable = p.responsable || this.managers.find(m => m.id_u === p.id_u) || null;
         p[this.namesMap.managerLabel.code] = p.responsable?.initiales_u || ''; // Pour le trie
       });
     } catch (error) {
@@ -468,9 +476,9 @@ export class HomeComponent implements OnInit {
    */
   private injectManager(project: Projet): void {
     try {
-      if (project.id_r > 0) {
+      if (project.id_u > 0) {
         project.responsable = this.managers
-          .find(m => m.id_u === project.id_r) || null;
+          .find(m => m.id_u === project.id_u) || null;
         project[this.namesMap.managerLabel.code] = project.responsable?.initiales_u || ''; // Pour le trie
       }
     } catch (error) {
@@ -497,6 +505,7 @@ export class HomeComponent implements OnInit {
         throw new Error('Le projet n\'existe pas');
       }
 
+      // const isEmpty = await this.fundingsSrv
       await this.projectsSrv.delete(event.entity);
       event.callBack(null); // Valide la modification dans le composant DataTable fils
       this.deleteProject(project);

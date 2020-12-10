@@ -6,6 +6,7 @@ import {
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSort, SortDirection } from '@angular/material/sort';
+import { Router } from '@angular/router';
 import { Financement, Statut_F } from 'src/app/models/financement';
 import { GenericTableAction } from '../../globals/generic-table-action';
 import { GenericTableCellType } from '../../globals/generic-table-cell-types';
@@ -62,6 +63,12 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
       console.error(error);
     }
   }
+
+  /**
+   * Indique si les éléments affichés sont en lecture seule (=pas de modification possible si à 'true').
+   */
+  @Input() isReadOnly = false;
+
   @Input() title: string;
   @Input() showActions = true;
   @Input() canSelect = false;
@@ -118,7 +125,15 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
     return this.genericTableData.length === 0;
   }
 
+  /**
+   * Indique si une navigation est prévue.
+   */
+  public get withNagivation(): boolean {
+    return !!this._options?.navigationUrlFt;
+  }
+
   constructor(
+    private router: Router,
     private snackBar: MatSnackBar
   ) { }
 
@@ -495,4 +510,31 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
     return true;
   }
 
+  /**
+   * Lance une navigation vers l'URL indiquée.
+   * @param entity : encapsule l'élément métier à l'origine de la navigation.
+   */
+  public onNavigate(entity: GenericTableEntity<T>): void {
+    try {
+      const item = entity?.data;
+      const ft = this._options?.navigationUrlFt;
+
+      if (item && ft) {
+        const url = ft(item);
+
+        if (url) {
+          this.router.navigate([
+            url
+          ]);
+          return;
+        }
+      }
+
+      throw new Error(
+        'Navigation impossible car les éléments de navigation sont inutilisables');
+    } catch (error) {
+      console.error(error);
+      this.openApiErrorSnackBar('Navigation impossible');
+    }
+  }
 }
