@@ -222,7 +222,8 @@ export class HomeComponent implements OnInit {
   async loadManagers(): Promise<Utilisateur[]> {
     try {
       this.spinnerSrv.show();
-      this.managers =  await this.usersSrv.getAll();
+      this.managers =  (await this.usersSrv.getAll()) // RG : tous les utilisateurs actifs peuvent être responsable projets
+        .filter(m => m.active_u);
     } catch (error) {
       console.error(error);
       this.showInformation('Impossible de charger les responsables de projet.');
@@ -390,6 +391,15 @@ export class HomeComponent implements OnInit {
       formErrors.push(error);
     }
 
+    if (project.nom_p.length < 3) {
+      const error = {
+        name: this.namesMap.name.code,
+        message: 'Le nom du projet doit avoir au moins 3 caractères.'
+      };
+
+      formErrors.push(error);
+    }
+
     const similarProject = this.projets.find(p =>
       p.id_p !== project.id_p
       && p.nom_p.toUpperCase() === project.nom_p.toUpperCase());
@@ -505,10 +515,29 @@ export class HomeComponent implements OnInit {
         throw new Error('Le projet n\'existe pas');
       }
 
-      // const isEmpty = await this.fundingsSrv
-      await this.projectsSrv.delete(event.entity);
-      event.callBack(null); // Valide la modification dans le composant DataTable fils
-      this.deleteProject(project);
+      // Vérification des RG
+      const fundings = (await this.projectsSrv.getFundings(project)) || [];
+      const isEmpty = fundings.length === 0;
+
+      if (!isEmpty) { // RG : Ne pas supprimer un projet avec des financements
+        event?.callBack({
+          apiError: 'Impossible de supprimer le projet car il possède des financements.'
+        });
+        return;
+      }
+
+      // Etes-vous sûr ?
+      const okToDelete = confirm(`Vous vous apprêtez à supprimer le projet \'${project.nom_p} (${project.code_p})\'. Etes-vous certain de vouloir le supprimer ?`);
+
+      if (okToDelete) { // Suppression
+        await this.projectsSrv.delete(project);
+        event.callBack(null); // Valide la modification dans le composant DataTable fils
+        this.deleteProject(project);
+      } else { // Annulation
+        event?.callBack({
+          apiError: 'La suppression est annulée.'
+        });
+      }
     } catch (error) {
       console.error(error);
       event?.callBack({

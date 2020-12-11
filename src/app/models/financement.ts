@@ -4,7 +4,7 @@ export interface Financement {
   id_f?: number;
   id_p: number;
   id_financeur?: number;
-  financeur?: String;
+  financeur?: string;
   montant_arrete_f: number;
   date_arrete_f?: Date | string;
   date_limite_solde_f?: Date | string;
