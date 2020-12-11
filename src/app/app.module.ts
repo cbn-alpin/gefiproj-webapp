@@ -6,17 +6,17 @@ import { FormsModule } from '@angular/forms';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
-import { JwtModule } from '@auth0/angular-jwt';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ConnexionComponent } from './components/connexion/connexion.component';
 import { DepensesComponent } from './components/depenses/depenses.component';
+import { FinancementsComponent } from './components/financements/financements.component';
 import { FinanceursComponent } from './components/financeurs/financeurs.component';
 import { GenericTableDemoModule } from './components/generic-table-demo/generic-table-demo.module';
 import { HeaderComponent } from './components/header/header.component';
 import { HomeComponent } from './components/home/home.component';
-import { FinancementsComponent } from './components/projet/components/financements/financements.component';
+import { ProjetComponent } from './components/projet/projet.component';
 import { RapportsComponent } from './components/rapports/rapports.component';
 import { UtilisateursComponent } from './components/utilisateurs/utilisateurs.component';
 import { AuthService } from './services/authentication/auth.service';
@@ -41,6 +41,8 @@ registerLocaleData(localeFr, 'fr-FR');
   declarations: [
     AppComponent,
     HomeComponent,
+    ProjetComponent,
+    FinancementsComponent,
     ConnexionComponent,
     RapportsComponent,
     FinanceursComponent,
@@ -53,12 +55,6 @@ registerLocaleData(localeFr, 'fr-FR');
     HttpClientModule,
     AppRoutingModule,
     RouterModule,
-    JwtModule.forRoot({
-      config: {
-        tokenGetter,
-        disallowedRoutes: [/.*\/api\/auth\/.*/]
-      }
-    }),
     FormsModule,
     MatSlideToggleModule,
     NgxSpinnerModule,

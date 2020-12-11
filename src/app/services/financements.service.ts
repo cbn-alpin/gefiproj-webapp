@@ -1,7 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Financement } from '../models/financement';
+import { Projet } from '../models/projet';
 import { CrudService } from './crud.service';
+import { ProjetsService } from './projets.service';
 import { SpinnerService } from './spinner.service';
 
 @Injectable({
@@ -25,7 +27,8 @@ export class FinancementsService {
    */
   constructor(
     http: HttpClient,
-    spinnerSrv: SpinnerService) {
+    spinnerSrv: SpinnerService,
+    private projectSrv: ProjetsService) {
       this.crudSrv = new CrudService<Financement>(
         http,
         spinnerSrv,
@@ -33,14 +36,23 @@ export class FinancementsService {
   }
 
   /**
-   * Retourne les financements d'un projet depuis le
-   * @param projetId : l'id du projet
+   * Retourne les financements depuis le un projet en paramètre.
+   * @param projetId : l'id du projet.
    */
-  public async getAll(id: number): Promise<Financement[]> {
-    if (isNaN(id)) {
-      throw new Error('Pas d\'identifiant valide.');
+  public async getAll(projetId: number): Promise<Financement[]> {
+    try {
+      if (isNaN(projetId)) {
+        throw new Error('Pas d\'identifiant valide.');
+      }
+
+      const project = {} as Projet;
+      project.id_p = projetId;
+
+      return this.projectSrv.getFundings(project);
+    } catch (error) {
+      console.error(error);
+      return Promise.reject(error);
     }
-    return this.crudSrv.getAll(id); // todo : Hanh, à voir avec Manu !!!!
   }
 
   /**

@@ -41,12 +41,12 @@ export class SpinnerService {
   /** Cache le spinner si possible. */
   hide(): void {
     try {
-      if (this.iterationOfShow < 1) {
-        return;
+      if (this.iterationOfShow-- <= 1) {
+        this.spinnerSrv.hide(this.name);
       }
 
-      if (this.iterationOfShow-- === 1) {
-        this.spinnerSrv.hide(this.name);
+      if (this.iterationOfShow < 0) { // Fixe un problème sur un double appel
+        this.iterationOfShow = 0;
       }
     } catch (error) {
       console.error(error);

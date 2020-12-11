@@ -1,3 +1,4 @@
+import { Financement } from 'src/app/models/financement';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Projet } from 'src/app/models/projet';
@@ -27,8 +28,8 @@ export class ProjetsService {
    * @param spinnerSrv : gère le spinner/sablier.
    */
   constructor(
-    http: HttpClient,
-    spinnerSrv: SpinnerService) {
+    private http: HttpClient,
+    private spinnerSrv: SpinnerService) {
       this.crudSrv = new CrudService<Projet>(
         http,
         spinnerSrv,
@@ -55,9 +56,16 @@ export class ProjetsService {
    * @param project : projet modifié.
    */
   public async modify(project: Projet): Promise<Projet> {
-    return this.crudSrv.modify(
-      project,
-      project?.id_p);
+    try {
+      this.cleanProject(project);
+
+      return this.crudSrv.modify(
+        project,
+        project?.id_p);
+    } catch (error) {
+      console.error(error);
+      return Promise.reject(error);
+    }
   }
 
   /**
@@ -66,11 +74,26 @@ export class ProjetsService {
    */
   public async add(project: Projet): Promise<Projet> {
     try {
+      this.cleanProject(project);
+
       return await this.crudSrv
         .add(project, 'id_p');
     } catch (error) {
       console.error(error);
       return Promise.reject(error);
+    }
+  }
+
+  /**
+   * Supprime les propriétés non attendues par le serveur.
+   * @param project : projet à nettoyer.
+   */
+  private cleanProject(project: Projet): void {
+    try {
+      delete project.responsable;
+      delete (project as any).initiales_u;
+    } catch (error) {
+      console.error(error);
     }
   }
 
@@ -81,5 +104,24 @@ export class ProjetsService {
   public async delete(project: Projet): Promise<void> {
     const id = project?.id_p || (project as any)?.id; // Pour json-server
     return this.crudSrv.delete(id);
+  }
+
+  /**
+   * Retourne les financements du projet indiqué.
+   * @param project : projet ciblé.
+   */
+  public async getFundings(project: Projet): Promise<Financement[]> {
+    try {
+      const id = project.id_p;
+      const fundingsSrv = new CrudService<Financement>(
+        this.http,
+        this.spinnerSrv,
+        `api/funding/${id}`); // `${this.endPoint}/${id}/fundings`);
+
+      return fundingsSrv.getAll('id_f');
+    } catch (error) {
+      console.error(error);
+      return Promise.reject(error);
+    }
   }
 }
