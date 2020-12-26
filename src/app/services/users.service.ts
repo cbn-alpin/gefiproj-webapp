@@ -39,7 +39,7 @@ export class UsersService {
    * Retourne les utilisateurs depuis le serveur.
    */
   public async getAll(): Promise<Utilisateur[]> {
-    return this.crudSrv.getAll(0, 'id_u');
+    return this.crudSrv.getAll('id_u');
   }
 
   /**

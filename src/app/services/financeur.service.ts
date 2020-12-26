@@ -34,6 +34,6 @@ export class FinanceurService {
    * Retourne les financeurs depuis le serveur.
    */
   public async getAll(): Promise<Financeur[]> {
-    return this.crudSrv.getAll(0, 'id_financeur');
+    return this.crudSrv.getAll('id_financeur');
   }
 }

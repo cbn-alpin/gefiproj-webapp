@@ -135,13 +135,27 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
   pipe: DatePipe;
 
   /**
+   * Indique si le tableau est en lecture seule.
+   */
+  public get isReadOnly(): boolean {
+    return !this.isAdministrator;
+  }
+
+  /**
+   * Indique si l'utilisateur est un administrateur.
+   */
+  public get isAdministrator(): boolean {
+    return !!this.adminSrv.isAdministrator;
+  }
+
+  /**
    * 
-   * @param adminSrv 
-   * @param financementsService 
-   * @param financeurService 
+   * @param adminSrv : permet de vérifier si l'utilisateur est un administrateur.
+   * @param financementsService : permet de dialoguer avec le serveur d'API pour les entités Financement.
+   * @param financeurService : permet de dialoguer avec le serveur d'API pour les entités Financeur.
    * @param route 
    * @param router 
-   * @param snackBar 
+   * @param snackBar : affiche une information.
    */
   constructor(
     private adminSrv: IsAdministratorGuardService,

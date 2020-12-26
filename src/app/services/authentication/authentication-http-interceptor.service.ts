@@ -32,13 +32,8 @@ export class AuthenticationHttpInterceptorService implements HttpInterceptor {
    */
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     try {
-      const stream = next.handle(req);
-
-      //////////////////
-      // todo
-      // Pris en charge par JwtModule (à vérifier !!)
-      // stream = this.addToken(req, stream, next);
-      //////////////////
+      let stream = next.handle(req);
+      stream = this.addToken(req, stream, next);
       return this.pipeCatchErrorAuth(stream);
     } catch (error) {
       console.error(error);
@@ -96,14 +91,13 @@ export class AuthenticationHttpInterceptorService implements HttpInterceptor {
    */
   private catchErrorAuth(err: any): Observable<never> {
     try {
-      if (err.status === 401) { // Fermeture de session
+      if (err?.status === 401) { // Fermeture de session
         this.authSrv.logout();
         this.navSrv.goToLogin();
       }
 
       // Relance l'erreur
-      const error = err?.error?.message || err?.statusText;
-      return throwError(error);
+      return throwError(err || null);
     } catch (error) {
       console.error(error);
       return throwError(error);

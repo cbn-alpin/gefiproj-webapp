@@ -16,6 +16,7 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatIconModule} from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import {MatDialogModule} from '@angular/material/dialog';
+import { GenericDialogComponent } from '../generic-dialog/generic-dialog.component';
 
 @NgModule({
   declarations: [
@@ -44,7 +45,8 @@ import {MatDialogModule} from '@angular/material/dialog';
     GenericTableComponent
   ],
   providers: [
-    MatDatepickerModule
+    MatDatepickerModule,
+    GenericDialogComponent
   ]
 })
 export class GenericTableModule { }

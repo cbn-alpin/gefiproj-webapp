@@ -35,15 +35,16 @@
         "active_u": true,
         "role": 2
       },
-      "statut_p": true,
+      "statut_p": false,
       "id": 4,
       "id_p": 4,
-      "undefined": 4,
-      "id_r": 1
+      "id_u": 1,
+      "initiales_u": "ma"
     },
     {
-      "code_p": "0002",
-      "nom_p": "z",
+      "code_p": "0008",
+      "nom_p": "e",
+      "statut_p": true,
       "responsable": {
         "id": 1,
         "id_u": 1,
@@ -54,36 +55,16 @@
         "active_u": true,
         "role": 2
       },
-      "statut_p": false,
-      "id": 7,
-      "id_p": 7,
-      "undefined": 7,
-      "id_r": 1
-    },
-    {
-      "code_p": "0003",
-      "nom_p": "e",
-      "id_r": 2,
-      "statut_p": false,
-      "responsable": {
-        "id": 2,
-        "id_u": 2,
-        "nom_u": "Do",
-        "prenom_u": "Hanh",
-        "email_u": "h.d@mail.com",
-        "initiales_u": "hd",
-        "active_u": true,
-        "role": 2
-      },
-      "initiales_u": "hd",
+      "initiales_u": "ma",
       "id": 8,
-      "id_p": null
+      "id_p": 8,
+      "id_u": 1
     },
     {
       "code_p": "0004",
       "nom_p": "v",
-      "id_r": 2,
-      "statut_p": true,
+      "id_u": 2,
+      "statut_p": false,
       "responsable": {
         "id": 2,
         "id_u": 2,
@@ -96,12 +77,12 @@
       },
       "initiales_u": "hd",
       "id": 9,
-      "id_p": null
+      "id_p": 9
     },
     {
       "code_p": "0009",
       "nom_p": "ee",
-      "id_r": 2,
+      "id_u": 2,
       "statut_p": true,
       "responsable": {
         "id": 2,
