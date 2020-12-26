@@ -186,7 +186,7 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
       this.financements = (await this.financementsService.getAll(projetId)) || [];
     } catch (error) {
       console.error(error);
-      this.showInformation('Impossible de charger les financements : ' + error);
+      this.showInformation('Impossible de charger les financements : ' + error.error);
       return Promise.reject(error);
     }
   }
@@ -279,8 +279,12 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
         event.callBack(null); // Valide la modification dans le composant DataTable fils
       }
     } catch (error) {
-      console.error(error);
-      this.showInformation('Impossible de modifier les financements : ' + error);
+      console.log('er', error)
+      console.error(error.error.errors);
+      for( const err of error.error.errors){
+        console.log(err)
+        this.showInformation('Impossible de modifier les financements : ' + err.message);
+      }
     }
   }
 
@@ -383,10 +387,9 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
 
     } catch (error) {
       console.error(error);
-      this.showInformation('Impossible de créer un financement : ' + error);
-      event?.callBack({
-        apiError: 'Impossible de créer le financement.'
-      });
+      for( const err of error.error.errors){
+        this.showInformation('Impossible de créer le financement : ' + err.message);
+      }
     }
   }
 
@@ -422,6 +425,7 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
         async result => {
           if (result) {
             await this.financementsService.delete(financement);
+            this.showInformation('Le financement de montant ' + financement.montant_arrete_f + '€, a été supprimé du projet.');
             await this.refreshDataTable();
             event.callBack(null);
           }
@@ -430,6 +434,7 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
 
     } catch (error) {
       console.error(error);
+      this.showInformation('Impossible de supprimer le financement : ' + error.message);
       event?.callBack({
         apiError: 'Impossible de supprimer le financements.'
       });
