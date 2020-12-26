@@ -1,10 +1,9 @@
-<h2 mat-dialog-title [innerHTML]="message.header"></h2>
-<!--<h2 mat-dialog-title [ngClass]="{'color-warn-header': message.type === 'warning'}" [innerHTML]="message.header"></h2>-->
+<!--<h2 mat-dialog-title [innerHTML]="message.header"></h2>-->
+<h2 mat-dialog-title [ngClass]="{'color-warn-header': message.type === 'warning'}" [innerHTML]="message.header"></h2>
 <div mat-dialog-content>
     <p [innerHTML]="message.content"></p>
 </div>
 <div mat-dialog-actions class="button-to-right">
-    <button mat-button (click)="onConfirmClick()">{{ message.action.name }}</button>
-    <!--<button mat-button [color]="getConfirmColor()" (click)="onConfirmClick()">{{ message.action.name }}</button>-->
-    <button mat-button (click)="onCancelClick()">Annuler</button>
+    <button mat-raised-button [color]="getConfirmColor()" (click)="onConfirmClick()">{{ message.action.name }}</button>
+    <button mat-raised-button (click)="onCancelClick()">Annuler</button>
 </div>
