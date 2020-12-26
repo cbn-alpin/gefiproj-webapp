@@ -377,9 +377,8 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
 
       if (this.validateForGenericTable(event)) {
         await this.financementsService.post(financement);
+        await this.refreshDataTable();
         event.callBack(null); // Valide la modification dans le composant DataTable fils
-
-        await this.loadFinancements(Number(this.projectId));
       }
 
     } catch (error) {
@@ -423,6 +422,7 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
         async result => {
           if (result) {
             await this.financementsService.delete(financement);
+            await this.refreshDataTable();
             event.callBack(null);
           }
         }
