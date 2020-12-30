@@ -1,6 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
 @import "~src/style/variables.scss";
 
+body {
+    margin: 0;
+}
+
 h1,
 h2,
 h3,
@@ -15,7 +19,7 @@ p {
 }
 
 .spacer {
-    flex: 1;
+    flex: 1 1 auto;
 }
 
 a {
@@ -36,108 +40,3 @@ a:hover, a:visited, a:focus, a:active {
 .tooltip-textarea {
     font-size: 12px;
 }
-
-app-home{
-    width:100%;
-}
-/*
-.card svg.material-icons path {
-    fill: #888;
-    }
-
-    .card-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 16px;
-    }
-
-    .card {
-    border-radius: 4px;
-    border: 1px solid #eee;
-    background-color: #fafafa;
-    height: 40px;
-    width: 200px;
-    margin: 0 8px 16px;
-    padding: 16px;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    transition: all 0.2s ease-in-out;
-    line-height: 24px;
-    }
-
-    .card-container .card:not(:last-child) {
-    margin-right: 0;
-    }
-
-    .card.card-small {
-    height: 16px;
-    width: 168px;
-    }
-
-    .card-container .card:not(.highlight-card) {
-    cursor: pointer;
-    }
-
-    .card-container .card:not(.highlight-card):hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 17px rgba(0, 0, 0, 0.35);
-    }
-
-    .card-container .card:not(.highlight-card):hover .material-icons path {
-    fill: rgb(105, 103, 103);
-    }
-
-    .card.highlight-card {
-    background-color: #1976d2;
-    color: white;
-    font-weight: 600;
-    border: none;
-    width: auto;
-    min-width: 30%;
-    position: relative;
-    }
-
-    .card.card.highlight-card span {
-    margin-left: 60px;
-    }
-
-@media screen and (max-width: 767px) {
-
-    .card-container > *:not(.circle-link) ,
-    .terminal {
-        width: 100%;
-    }
-
-    .card:not(.highlight-card) {
-        height: 16px;
-        margin: 8px 0;
-    }
-
-    .card.highlight-card span {
-        margin-left: 72px;
-    }
-}
-
-.circle-link {
-height: 40px;
-width: 40px;
-border-radius: 40px;
-margin: 8px;
-background-color: white;
-border: 1px solid #eeeeee;
-display: flex;
-justify-content: center;
-align-items: center;
-cursor: pointer;
-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-transition: 1s ease-out;
-}
-
-.circle-link:hover {
-transform: translateY(-0.25rem);
-box-shadow: 0px 3px 15px rgba(0, 0, 0, 0.2);
-}
-*/

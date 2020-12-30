@@ -22,6 +22,13 @@ import { UtilisateursComponent } from './components/utilisateurs/utilisateurs.co
 import { AuthService } from './services/authentication/auth.service';
 import { AuthenticationHttpInterceptorService } from './services/authentication/authentication-http-interceptor.service';
 import { SharedModule } from './shared/shared.module';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatSidenavModule } from "@angular/material/sidenav";
+import { MatListModule } from "@angular/material/list";
+import { MatMenuModule } from '@angular/material/menu';
+import { FlexLayoutModule } from "@angular/flex-layout";
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 /**
  * Retourne le token courant.
@@ -59,7 +66,14 @@ registerLocaleData(localeFr, 'fr-FR');
     MatSlideToggleModule,
     NgxSpinnerModule,
     GenericTableDemoModule,
-    SharedModule
+    SharedModule,
+    MatToolbarModule,
+    MatSidenavModule,
+    MatListModule, 
+    MatMenuModule,
+    FlexLayoutModule,
+    MatButtonModule,
+    MatIconModule,
   ],
   providers: [
     {
