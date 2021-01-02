@@ -1,4 +1,4 @@
 <br><br>
-<app-generic-table [title]="title" [(options)]="options" [showActions]="true" [isReadOnly]="isReadOnly" (editEvent)="onEdit($event)"
+<app-generic-table [title]="title" [(options)]="options" [showActions]="isAdministrator" [isReadOnly]="isReadOnly" (editEvent)="onEdit($event)"
                    (createEvent)="onCreate($event)" (deleteEvent)="onDelete($event)">
 </app-generic-table>
