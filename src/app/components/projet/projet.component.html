@@ -1,1 +1,17 @@
+<div class="project-details">
+  <span class="bold ">Projet</span>
+  <div class="project-status">
+    <mat-checkbox
+      [checked]=projet.statut_p
+      (click)="$event.preventDefault()"> <!-- disabled if not administrator  -->
+      Soldé
+    </mat-checkbox>
+  </div>
+  <span class="project-name"> Nom </span> : {{projet.nom_p}}
+  <br><br>
+  Code : {{projet.code_p}} Responsable : {{projet.responsable.initiales_u }}
+</div>
+
+
 <app-financements></app-financements>
+<app-montants-affectes></app-montants-affectes>
