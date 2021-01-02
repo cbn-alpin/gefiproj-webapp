@@ -1,5 +1,6 @@
 <div class="project-details">
   <span class="bold ">Projet</span>
+
   <div class="project-status">
     <mat-checkbox
       [checked]=projet.statut_p
@@ -7,9 +8,12 @@
       Soldé
     </mat-checkbox>
   </div>
-  <span class="project-name"> Nom </span> : {{projet.nom_p}}
+  <br>
+  <br>
+  <span class="project-name"> Nom : {{projet.nom_p}}</span>
   <br><br>
-  Code : {{projet.code_p}} Responsable : {{projet.responsable.initiales_u }}
+  <span class="project-code"> Code : {{projet.code_p}} </span>
+  <span class="project-responsable"> Responsable : {{projet.responsable.initiales_u }} </span>
 </div>
 
 
