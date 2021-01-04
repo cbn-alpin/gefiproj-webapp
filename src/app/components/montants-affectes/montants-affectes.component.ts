@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {MontantAffecte} from '../../models/montantAffecte';
 import {Recette} from '../../models/recette';
 import {GenericTableOptions} from '../../shared/components/generic-table/models/generic-table-options';
@@ -12,13 +12,14 @@ import { MatDialog } from '@angular/material/dialog';
 import {GenericTableEntityEvent} from '../../shared/components/generic-table/models/generic-table-entity-event';
 import {GenericTableFormError} from '../../shared/components/generic-table/models/generic-table-entity';
 import {GenericDialogComponent, IMessage} from '../../shared/components/generic-dialog/generic-dialog.component';
+import {Financement} from "../../models/financement";
 
 @Component({
   selector: 'app-montants-affectes',
   templateUrl: './montants-affectes.component.html',
   styleUrls: ['./montants-affectes.component.scss']
 })
-export class MontantsAffectesComponent implements OnInit {
+export class MontantsAffectesComponent implements OnChanges {
 
   /**
    * Titre du tableau générique
@@ -28,13 +29,13 @@ export class MontantsAffectesComponent implements OnInit {
   /**
    * id recette
    */
-  public receiptId: string;
+  @Input() public receiptId: number;
 
   /**
    * Données source du tableau générique
    * @private
    */
-  public montantsAffectes: MontantAffecte[];
+  @Input() public montantsAffectes: MontantAffecte[];
 
   /**
    * Représente un nouveau montant affecté et définit les colonnes à afficher.
@@ -111,19 +112,20 @@ export class MontantsAffectesComponent implements OnInit {
     private snackBar: MatSnackBar,
     public dialog: MatDialog,
   ) {
-    this.receiptId = '';
     //if (!this.projectId) { this.router.navigate(['home']) }
   }
   /**
    * Initialise le composant.
    */
-  async ngOnInit(): Promise<void> {
-    try {
-      this.pipe = new DatePipe('fr-FR');
-      await this.loadMontantsAffectes(Number(this.receiptId));
-      this.initDtOptions();
-    } catch (error) {
-      console.error(error);
+  async ngOnChanges(changes:SimpleChanges): Promise<void> {
+    if (changes.montantsAffectes && changes.montantsAffectes.currentValue) {
+      try {
+        this.pipe = new DatePipe('fr-FR');
+        //await this.loadMontantsAffectes(Number(this.receiptId));
+        this.initDtOptions();
+      } catch (error) {
+        console.error(error);
+      }
     }
   }
 
@@ -132,7 +134,6 @@ export class MontantsAffectesComponent implements OnInit {
    */
   async loadMontantsAffectes(receiptId: number): Promise<MontantAffecte[]> {
     try {
-      receiptId = 3;
       this.montantsAffectes = (await this.montantsAffectesService.getAll(receiptId)) || [];
     } catch (error) {
       console.error(error);

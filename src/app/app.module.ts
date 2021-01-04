@@ -59,7 +59,7 @@ registerLocaleData(localeFr, 'fr-FR');
     HeaderComponent,
     FinancementsComponent,
     RecettesComponent,
-    ProjetComponent
+    ProjetComponent,
     MontantsAffectesComponent
   ],
   imports: [

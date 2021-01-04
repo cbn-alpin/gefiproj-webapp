@@ -35,5 +35,20 @@
 
 
 .recettes {
-
+  width: 45%;
 }
+
+.montants-affectes {
+  width: 45%;
+}
+
+.block {
+  margin-bottom: 15px;
+
+  .space-between-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+}
+
