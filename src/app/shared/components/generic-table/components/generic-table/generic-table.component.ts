@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, Inject, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {
   MAT_MOMENT_DATE_ADAPTER_OPTIONS, MAT_MOMENT_DATE_FORMATS,
   MomentDateAdapter
@@ -137,7 +137,7 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
 
   constructor(
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
     public dialog: MatDialog
   ) { }
 
@@ -513,7 +513,7 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
       } else {
         disabled = false;
       }
-    } 
+    }
     return disabled;
   }
 

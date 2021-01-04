@@ -1,9 +1,9 @@
 import {Injectable} from '@angular/core';
-import {Recette} from "../../../models/recette";
+import {Recette} from "../models/recette";
+import {CrudService} from "./crud.service";
 import {HttpClient} from "@angular/common/http";
-import {SpinnerService} from "../../../services/spinner.service";
-import {Financement} from "../../../models/financement";
-import {CrudService} from "../../../services/crud.service";
+import {SpinnerService} from "./spinner.service";
+import {Financement} from "../models/financement";
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +28,7 @@ export class ProjetService {
   private readonly recettesCrudService: CrudService<Recette>;
 
   /**
-   * Effectue les appels au serveur d'API pour un projet.
+   * Effectue les appels au serveur d'API pour un projet2.
    * @param http : permet d'effectuer les appels au serveur d'API.
    * @param spinnerSrv : gère le spinner/sablier.
    */
@@ -41,7 +41,7 @@ export class ProjetService {
       this.recettesEndPoint);
   }
   /**
-   * Retourne la liste des financements associées au projet ayant pour id idProjet
+   * Retourne la liste des financements2 associées au projet2 ayant pour id idProjet
    * @param idProjet
    */
   public getAllFinancementsFromProjet(idProjet: number): Promise<Financement[]> {
@@ -56,7 +56,7 @@ export class ProjetService {
       return res;
     } catch (error) {
       console.error(error);
-      return Promise.reject("Impossible de charger les financements");
+      return Promise.reject("Impossible de charger les financements2");
     }
   }
 

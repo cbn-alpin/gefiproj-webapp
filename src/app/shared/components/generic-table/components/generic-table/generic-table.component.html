@@ -3,7 +3,7 @@
 </div>
 <div class="table-generic mat-elevation-z8">
 
-  <table mat-table [(dataSource)]="genericTableData" [ngClass]="{'can-select': canSelect}" 
+  <table mat-table [(dataSource)]="genericTableData" [ngClass]="{'can-select': canSelect}"
     matSort matSortDisableClear [matSortActive]="sortName" [matSortDirection]="sortDirection">
 
     <ng-container *ngFor="let columnName of dataSourceColumnsName; let index = index" [matColumnDef]="columnName.name">
@@ -13,8 +13,8 @@
       <!-- Textarea -->
       <div class="ttextarea">
         <div *ngIf="isTextarea(columnName.code)">
-          <mat-form-field *ngIf="element.state === GenericTableEntityState.EDIT; else overlay" 
-          [ngClass]="{errors: hasErrors(element, columnName.code)}" 
+          <mat-form-field *ngIf="element.state === GenericTableEntityState.EDIT; else overlay"
+          [ngClass]="{errors: hasErrors(element, columnName.code)}"
           floatLabel="never">
             <textarea matInput matTooltipClass="tooltip-error"
               [disabled]="disabledEditField(element, columnName.code)"
@@ -38,7 +38,7 @@
         <!-- String -->
         <div class="string">
           <mat-form-field *ngIf="isString(columnName.code)" [ngClass]="{errors: hasErrors(element, columnName.code)}" floatLabel="never">
-            <input matInput [disabled]="element.state === GenericTableEntityState.READ || disabledEditField(element, columnName.code)" 
+            <input matInput [disabled]="element.state === GenericTableEntityState.READ || disabledEditField(element, columnName.code)"
               matTooltipClass="tooltip-error"
               [matTooltip]="getErrorMessage(element.errors, columnName.code)"
               [(ngModel)]="element.data[columnName.code]"
@@ -49,7 +49,7 @@
         <!-- Number -->
         <div class="number">
           <mat-form-field *ngIf="isNumber(columnName.code)" [ngClass]="{errors: hasErrors(element, columnName.code)}" floatLabel="never">
-            <input matInput numeric [disabled]="element.state === GenericTableEntityState.READ || disabledEditField(element, columnName.code)" 
+            <input matInput numeric [disabled]="element.state === GenericTableEntityState.READ || disabledEditField(element, columnName.code)"
               matTooltipClass="tooltip-error"
               [matTooltip]="getErrorMessage(element.errors, columnName.code)"
               [(ngModel)]="element.data[columnName.code]"
@@ -60,7 +60,7 @@
         <!-- Date -->
         <div class="date">
           <mat-form-field *ngIf="isDate(columnName.code)" [ngClass]="{errors: hasErrors(element, columnName.code)}" floatLabel="never">
-            <input matInput [disabled]="element.state === GenericTableEntityState.READ || disabledEditField(element, columnName.code)" 
+            <input matInput [disabled]="element.state === GenericTableEntityState.READ || disabledEditField(element, columnName.code)"
               [matDatepicker]="picker1" matTooltipClass="tooltip-error"
               [matTooltip]="getErrorMessage(element.errors, columnName.code)"
               [(ngModel)]="element.data[columnName.code]"
@@ -73,8 +73,8 @@
         <!-- Currency -->
         <div class="currency">
           <mat-form-field *ngIf="isCurrency(columnName.code)" [ngClass]="{errors: hasErrors(element, columnName.code)}" floatLabel="never">
-            <input matInput numeric decimals="4" 
-              [disabled]="element.state === GenericTableEntityState.READ || disabledEditField(element, columnName.code)" 
+            <input matInput numeric decimals="4"
+              [disabled]="element.state === GenericTableEntityState.READ || disabledEditField(element, columnName.code)"
               matTooltipClass="tooltip-error" [matTooltip]="getErrorMessage(element.errors, columnName.code)"
               [ngModel]="element.state === GenericTableEntityState.READ ? ((element.data[columnName.code] | number:'1.0-0': 'fr-FR') + ' €') : element.data[columnName.code]"
               (ngModelChange)="element.data[columnName.code]=$event"
@@ -92,8 +92,8 @@
         <!-- Select box -->
         <div class="selectbox">
           <mat-form-field *ngIf="isSelectBox(columnName.code)" [ngClass]="{errors: hasErrors(element, columnName.code)}" floatLabel="never">
-            <mat-select [(ngModel)]="element.data[columnName.code]" 
-              [disabled]="element.state === GenericTableEntityState.READ || disabledEditField(element, columnName.code)" 
+            <mat-select [(ngModel)]="element.data[columnName.code]"
+              [disabled]="element.state === GenericTableEntityState.READ || disabledEditField(element, columnName.code)"
               matTooltipClass="tooltip-error" [matTooltip]="getErrorMessage(element.errors, columnName.code)">
               <mat-option *ngFor="let option of getEntitySelectBoxOptions(columnName.code)" [value]="option.id">
                 {{option.label}}
@@ -119,7 +119,7 @@
             <button *ngIf="withNagivation" mat-icon-button (click)="onNavigate(element)">
               <mat-icon>open_in_browser</mat-icon>
             </button>
-            <button *ngIf="!isReadOnly" mat-icon-button (click)="onEdit(element)">
+            <button *ngIf="!isReadOnly" mat-icon-button (click)="onEdit($event, element)">
               <mat-icon>edit</mat-icon>
             </button>
             <button *ngIf="!isReadOnly" mat-icon-button (click)="delete(element)">
@@ -127,18 +127,18 @@
             </button>
           </span>
           <span *ngIf="!isReadOnly && element.state === GenericTableEntityState.EDIT">
-            <button mat-icon-button (click)="edit(element)">
+            <button mat-icon-button (click)="edit($event, element)">
               <mat-icon>done</mat-icon>
             </button>
-            <button mat-icon-button (click)="cancelEditing(element)">
+            <button mat-icon-button (click)="cancelEditing($event, element)">
               <mat-icon>clear</mat-icon>
             </button>
           </span>
           <span *ngIf="!isReadOnly && element.state === GenericTableEntityState.NEW">
-            <button mat-icon-button (click)="create(element)">
+            <button mat-icon-button (click)="create($event, element)">
               <mat-icon>done</mat-icon>
             </button>
-            <button mat-icon-button (click)="cancelCreation(element)">
+            <button mat-icon-button (click)="cancelCreation($event, element)">
               <mat-icon>clear</mat-icon>
             </button>
           </span>

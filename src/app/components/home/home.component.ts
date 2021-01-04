@@ -84,7 +84,7 @@ export class HomeComponent implements OnInit {
   managers: Utilisateur[];
 
   /**
-   * Mapping pour les noms des attributs d'un projet.
+   * Mapping pour les noms des attributs d'un projet2.
    */
   private readonly namesMap = {
     id: { code: 'id_p', name: 'Identifiant' },
@@ -97,7 +97,7 @@ export class HomeComponent implements OnInit {
   };
 
   /**
-   * Représente un nouveau projet et définit les colonnes à afficher.
+   * Représente un nouveau projet2 et définit les colonnes à afficher.
    */
   private readonly defaultEntity = {
     code_p: '0000' as any as number,
@@ -229,7 +229,7 @@ export class HomeComponent implements OnInit {
         .filter(m => m.active_u);
     } catch (error) {
       console.error(error);
-      this.showInformation('Impossible de charger les responsables de projet.');
+      this.showInformation('Impossible de charger les responsables de projet2.');
       return Promise.reject(error);
     } finally {
       this.spinnerSrv.hide();
@@ -291,14 +291,14 @@ export class HomeComponent implements OnInit {
   }
 
   /**
-   * Un projet a été modifié dans le tableau.
-   * @param event : encapsule le projet à modifier.
+   * Un projet2 a été modifié dans le tableau.
+   * @param event : encapsule le projet2 à modifier.
    */
   async onEdit(event: GenericTableEntityEvent<Projet>): Promise<void> {
     try {
       const project = event?.entity;
       if (!project) {
-        throw new Error('Le projet n\'existe pas');
+        throw new Error('Le projet2 n\'existe pas');
       }
 
       this.injectManager(project);
@@ -308,18 +308,18 @@ export class HomeComponent implements OnInit {
         event.callBack(null); // Valide la modification dans le composant DataTable fils
 
         this.updateProject(project);
-        this.refreshDataTable(); // Pour le trie et pour cacher le projet le cas échéant
+        this.refreshDataTable(); // Pour le trie et pour cacher le projet2 le cas échéant
       }
     } catch (error) {
       console.error(error);
       event?.callBack({
-        apiError: 'Impossible de modifier le projet.'
+        apiError: 'Impossible de modifier le projet2.'
       });
     }
   }
 
   /**
-   * Met à jour un projet dans le repo interne.
+   * Met à jour un projet2 dans le repo interne.
    * @param project : version modifiée.
    */
   private updateProject(project: Projet): void {
@@ -331,8 +331,8 @@ export class HomeComponent implements OnInit {
   }
 
   /**
-   * Vérifie la validité du projet en paramètre. Si le projet est invalide, le tableau générique en est notifié.
-   * @param gtEvent : encapsule un nouveau projet ou un projet modifié.
+   * Vérifie la validité du projet2 en paramètre. Si le projet2 est invalide, le tableau générique en est notifié.
+   * @param gtEvent : encapsule un nouveau projet2 ou un projet2 modifié.
    */
   private validateForGenericTable(gtEvent: GenericTableEntityEvent<Projet>): boolean {
     if (!gtEvent) {
@@ -364,15 +364,15 @@ export class HomeComponent implements OnInit {
   }
 
   /**
-   * Vérifie la validité du responsable sur le projet.
-   * @param project : projet à vérifier.
+   * Vérifie la validité du responsable sur le projet2.
+   * @param project : projet2 à vérifier.
    * @param formErrors : liste des erreurs de validation.
    */
   private verifProjectManager(project: Projet, formErrors: GenericTableFormError[]): void {
     if (!project.responsable) {
       const error = {
         name: this.namesMap.managerId.code,
-        message: 'Un responsable projet doit être défini.'
+        message: 'Un responsable projet2 doit être défini.'
       };
 
       formErrors.push(error);
@@ -380,15 +380,15 @@ export class HomeComponent implements OnInit {
   }
 
   /**
-   * Vérifie la validité du nom sur le projet.
-   * @param project : projet à vérifier.
+   * Vérifie la validité du nom sur le projet2.
+   * @param project : projet2 à vérifier.
    * @param formErrors : liste des erreurs de validation.
    */
   private verifProjectName(project: Projet, formErrors: GenericTableFormError[]): void {
     if (!project.nom_p) {
       const error = {
         name: this.namesMap.name.code,
-        message: 'Le nom du projet doit être indiqué.'
+        message: 'Le nom du projet2 doit être indiqué.'
       };
 
       formErrors.push(error);
@@ -397,7 +397,7 @@ export class HomeComponent implements OnInit {
     if (project.nom_p.length < 3) {
       const error = {
         name: this.namesMap.name.code,
-        message: 'Le nom du projet doit avoir au moins 3 caractères.'
+        message: 'Le nom du projet2 doit avoir au moins 3 caractères.'
       };
 
       formErrors.push(error);
@@ -410,7 +410,7 @@ export class HomeComponent implements OnInit {
     if (similarProject) {
       const error = {
         name: this.namesMap.name.code,
-        message: 'Le nom du projet doit être unique.'
+        message: 'Le nom du projet2 doit être unique.'
       };
 
       formErrors.push(error);
@@ -418,15 +418,15 @@ export class HomeComponent implements OnInit {
   }
 
   /**
-   * Vérifie la validité du code sur le projet.
-   * @param project : projet à vérifier.
+   * Vérifie la validité du code sur le projet2.
+   * @param project : projet2 à vérifier.
    * @param formErrors : liste des erreurs de validation.
    */
   private verifProjectCode(project: Projet, formErrors: GenericTableFormError[]): void {
     if (('' + project.code_p).length !== 4) {
       const error = {
         name: this.namesMap.code.code,
-        message: 'Le code projet doit comprendre 4 chiffres.'
+        message: 'Le code projet2 doit comprendre 4 chiffres.'
       };
 
       formErrors.push(error);
@@ -435,7 +435,7 @@ export class HomeComponent implements OnInit {
     if (project.code_p <= 0) {
       const error = {
         name: this.namesMap.code.code,
-        message: 'Le code projet doit être une valeur comprise entre 1 et 9999.'
+        message: 'Le code projet2 doit être une valeur comprise entre 1 et 9999.'
       };
 
       formErrors.push(error);
@@ -448,7 +448,7 @@ export class HomeComponent implements OnInit {
     if (similarProject) {
       const error = {
         name: this.namesMap.code.code,
-        message: 'Le code du projet doit être unique.'
+        message: 'Le code du projet2 doit être unique.'
       };
 
       formErrors.push(error);
@@ -456,14 +456,14 @@ export class HomeComponent implements OnInit {
   }
 
   /**
-   * Un projet a été créé et initialisé dans le tableau.
-   * @param event : encapsule le projet à ajouter.
+   * Un projet2 a été créé et initialisé dans le tableau.
+   * @param event : encapsule le projet2 à ajouter.
    */
   async onCreate(event: GenericTableEntityEvent<Projet>): Promise<void> {
     try {
       let project = event?.entity;
       if (!project) {
-        throw new Error('Le projet n\'existe pas');
+        throw new Error('Le projet2 n\'existe pas');
       }
 
       this.injectManager(project);
@@ -473,12 +473,12 @@ export class HomeComponent implements OnInit {
         event.callBack(null); // Valide la modification dans le composant DataTable fils
 
         this.addProject(project);
-        this.refreshDataTable(); // Pour le trie et pour cacher le projet le cas échéant
+        this.refreshDataTable(); // Pour le trie et pour cacher le projet2 le cas échéant
       }
     } catch (error) {
       console.error(error);
       event?.callBack({
-        apiError: 'Impossible de créer le projet.'
+        apiError: 'Impossible de créer le projet2.'
       });
     }
   }
@@ -500,31 +500,31 @@ export class HomeComponent implements OnInit {
   }
 
   /**
-   * Ajoute un projet au repo interne.
-   * @param project : projet à ajouter.
+   * Ajoute un projet2 au repo interne.
+   * @param project : projet2 à ajouter.
    */
   private addProject(project: Projet): void {
     this.projets.push(project);
   }
 
   /**
-   * Un projet a été supprimé du tableau.
-   * @param event : encapsule le projet à modifier.
+   * Un projet2 a été supprimé du tableau.
+   * @param event : encapsule le projet2 à modifier.
    */
   async onDelete(event: GenericTableEntityEvent<Projet>): Promise<void> {
     try {
       const project = event?.entity;
       if (!project) {
-        throw new Error('Le projet n\'existe pas');
+        throw new Error('Le projet2 n\'existe pas');
       }
 
       // Vérification des RG
       const fundings = (await this.projectsSrv.getFundings(project)) || [];
       const isEmpty = fundings.length === 0;
 
-      if (!isEmpty) { // RG : Ne pas supprimer un projet avec des financements
+      if (!isEmpty) { // RG : Ne pas supprimer un projet2 avec des financements2
         event?.callBack({
-          apiError: 'Impossible de supprimer le projet car il possède des financements.'
+          apiError: 'Impossible de supprimer le projet2 car il possède des financements2.'
         });
         return;
       }
@@ -544,14 +544,14 @@ export class HomeComponent implements OnInit {
     } catch (error) {
       console.error(error);
       event?.callBack({
-        apiError: 'Impossible de supprimer le projet.'
+        apiError: 'Impossible de supprimer le projet2.'
       });
     }
   }
 
   /**
-   * Supprime un projet dans le repo interne.
-   * @param project : projet à supprimer.
+   * Supprime un projet2 dans le repo interne.
+   * @param project : projet2 à supprimer.
    */
   private deleteProject(project: Projet): void {
     const index = this.projets.findIndex(p => p.id_p === project.id_p);

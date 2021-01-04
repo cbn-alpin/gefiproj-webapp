@@ -1,16 +1,14 @@
 <div class="financements">
   <app-financements
-    [projectId]="idProject"
-    (selectEvent)="onSelectFinancement($event)"
+    (select)="onSelectFinancement($event)"
   ></app-financements>
 </div>
 
 <div class="recettes">
-  <app-projet-recettes
+  <app-recettes
     class="recettes"
     *ngIf="recettes"
     [recettes]="recettes"
     [financement]="selectedFinancement"
-  ></app-projet-recettes>
+  ></app-recettes>
 </div>
-

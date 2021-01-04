@@ -15,6 +15,7 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
 import {MatIconModule} from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import {MatDialogModule} from "@angular/material/dialog";
+import {MatSortModule} from "@angular/material/sort";
 
 @NgModule({
   declarations: [
@@ -37,10 +38,12 @@ import {MatDialogModule} from "@angular/material/dialog";
     MatSnackBarModule,
     MatIconModule,
     MatFormFieldModule,
-    MatDialogModule
+    MatDialogModule,
+    MatSortModule
   ],
   exports: [
-    GenericTableComponent
+    GenericTableComponent,
+    DialogDeletionConfirmation
   ],
   providers: [
     MatDatepickerModule
