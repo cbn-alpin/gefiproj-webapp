@@ -1,1 +1,14 @@
-<app-financements></app-financements>
+<div class="financements">
+  <app-financements
+    (select)="onSelectFinancement($event)"
+  ></app-financements>
+</div>
+
+<div class="recettes">
+  <app-recettes
+    class="recettes"
+    *ngIf="recettes"
+    [recettes]="recettes"
+    [financement]="selectedFinancement"
+  ></app-recettes>
+</div>

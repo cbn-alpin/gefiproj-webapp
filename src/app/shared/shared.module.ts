@@ -16,11 +16,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialogModule } from '@angular/material/dialog';
 import { GenericDialogComponent } from './components/generic-dialog/generic-dialog.component';
-import { GenericTableComponent } from './components/generic-table/components/generic-table/generic-table.component';
+import {GenericTableModule} from "./components/generic-table/generic-table.module";
+import {GenericTableComponent} from "./components/generic-table/components/generic-table/generic-table.component";
 
 @NgModule({
   declarations: [
-    GenericTableComponent,
     GenericDialogComponent
   ],
   imports: [
@@ -40,12 +40,13 @@ import { GenericTableComponent } from './components/generic-table/components/gen
     MatSnackBarModule,
     MatIconModule,
     MatFormFieldModule,
-    MatDialogModule
+    MatDialogModule,
+    GenericTableModule
   ],
   exports: [
-    GenericTableComponent,
     DirectivesModule,
-    GenericDialogComponent
+    GenericDialogComponent,
+    GenericTableComponent
   ],
   providers: [
     MatDatepickerModule,

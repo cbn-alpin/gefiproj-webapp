@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, Inject, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {
   MAT_MOMENT_DATE_ADAPTER_OPTIONS, MAT_MOMENT_DATE_FORMATS,
   MomentDateAdapter
@@ -20,6 +20,7 @@ import {
 } from '../../models/generic-table-entity';
 import { GenericTableEntityEvent } from '../../models/generic-table-entity-event';
 import { GenericTableOptions } from '../../models/generic-table-options';
+import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from "@angular/material/dialog";
 import { SelectBoxOption } from '../../models/SelectBoxOption';
 import { SortInfo } from '../../models/sortInfo';
 
@@ -72,6 +73,7 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
   @Input() title: string;
   @Input() showActions = true;
   @Input() canSelect = false;
+  @Input() getEntityInformationsCallBack: Function = () => "";
   @Output() editEvent: EventEmitter<GenericTableEntityEvent<T>> = new EventEmitter<GenericTableEntityEvent<T>>();
   @Output() createEvent: EventEmitter<GenericTableEntityEvent<T>> = new EventEmitter<GenericTableEntityEvent<T>>();
   @Output() deleteEvent: EventEmitter<GenericTableEntityEvent<T>> = new EventEmitter<GenericTableEntityEvent<T>>();
@@ -108,6 +110,7 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
   public GenericTableEntityState = GenericTableEntityState;
   public historyOfEntitiesUpdating: HistoryOfEntityUpdating<T>[] = [];
   public selectedEntity: GenericTableEntity<T>;
+  public canSelectSelectedEntity: boolean = true;
   private genericTableAction: GenericTableAction;
 
   /**
@@ -134,7 +137,8 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
 
   constructor(
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    public dialog: MatDialog
   ) { }
 
   /**
@@ -247,7 +251,8 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
     return columnName;
   }
 
-  public onEdit(entity: GenericTableEntity<T>): void {
+  public onEdit(event, entity: GenericTableEntity<T>): void {
+    event.stopPropagation();
     this.selectedEntity = entity;
     const entitySelected = JSON.parse(JSON.stringify(entity));
     const history: HistoryOfEntityUpdating<T> = {
@@ -258,22 +263,28 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
     entity.state = GenericTableEntityState.EDIT;
   }
 
-  public edit(entity: GenericTableEntity<T>): void {
+  public edit(event, entity: GenericTableEntity<T>): void {
+    event.stopPropagation();
     this.genericTableAction = GenericTableAction.EDIT;
     const genericTableEntityEvent: GenericTableEntityEvent<T> = {
       entity: entity.data,
-      updatedGenericTable: this.genericTableData.map((data) => data.data),
+      updatedGenericTable: this.genericTableData.map((row) => row.data),
       callBack: (genericTableEntityErrors?: GenericTableEntityErrors) => this.handleErrors(entity, genericTableEntityErrors)
     };
     this.editEvent.emit(genericTableEntityEvent);
   }
 
-  public cancelEditing(entity: GenericTableEntity<T>): void {
-    const previousValue = this.historyOfEntitiesUpdating?.find((history) => history.next === entity).previous;
-    entity.data = previousValue.data;
-    entity.state = GenericTableEntityState.READ;
-    this.historyOfEntitiesUpdating = this.historyOfEntitiesUpdating?.filter((history) => history.next !== entity);
-    this.cleanErrors(entity);
+  /**
+   * Lorsqu'on annule l'édition d'une ligne il faut retrouver l'ancienne valeur de la ligne, mettre à jour l'historique et nettoyer les erreurs.
+   * @
+   */
+  public cancelEditing(event, entity: GenericTableEntity<T>): void {
+        event.stopPropagation();
+        const previousValue = this.historyOfEntitiesUpdating?.find((history) => history.next === entity).previous;
+        entity.data = previousValue.data;
+        entity.state = GenericTableEntityState.READ;
+        this.historyOfEntitiesUpdating = this.historyOfEntitiesUpdating?.filter((history) => history.next !== entity);
+        this.cleanErrors(entity);
   }
 
   public onCreate(): void {
@@ -284,21 +295,22 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
       state: GenericTableEntityState.NEW
     };
     this.selectedEntity = newElement;
-
-    console.log(this.selectedEntity)
     this.genericTableData = [newElement].concat(this.genericTableData);
   }
 
-  public create(entity: GenericTableEntity<T>): void {
+  public create(event, entity: GenericTableEntity<T>): void {
+    event.stopPropagation();
+    this.genericTableAction = GenericTableAction.NEW;
     const genericTableEntityEvent: GenericTableEntityEvent<T> = {
       entity: entity.data,
-      updatedGenericTable: this.genericTableData.map((data) => data.data),
+      updatedGenericTable: this.genericTableData.map((row) => row.data),
       callBack: (genericTableEntityErrors?: GenericTableEntityErrors) => this.handleErrors(entity, genericTableEntityErrors)
     };
     this.createEvent.emit(genericTableEntityEvent);
   }
 
-  public cancelCreation(entity: GenericTableEntity<T>): void {
+  public cancelCreation(event, entity: GenericTableEntity<T>): void {
+    event.stopPropagation();
     this.genericTableData = this.genericTableData?.filter((data) => entity.data !== data.data);
   }
 
@@ -375,8 +387,7 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
   }
 
   public hasErrors(entity: GenericTableEntity<T>, name: string): boolean {
-    return entity.errors?.find((error) =>
-      error.name === name) !== undefined
+    return entity.errors?.find((error) => error.name === name) !== undefined
       && (entity.state === GenericTableEntityState.EDIT || entity.state === GenericTableEntityState.NEW);
   }
 
@@ -411,6 +422,7 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
   public handleErrors(entity: GenericTableEntity<T>, genericTableEntityErrors: GenericTableEntityErrors): void {
     const hasFormErrors = this.handleFormErrors(entity, genericTableEntityErrors);
     if (!hasFormErrors) {
+      this.cleanErrors(entity);
       const hasBusinessErrors = this.handleBusinessErrors(entity, genericTableEntityErrors);
       if (!hasBusinessErrors) {
         const hasApiErrors = this.handleApiErrors(entity, genericTableEntityErrors);
@@ -485,21 +497,24 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
   }
 
   /**
-   * bloque la modification de certain champs 
+   * bloque la modification de certain champs
    * @param entity : l'object à modifié
    * @param entityName : nom de l'entité de l'object
    */
   public disabledEditField(entity: GenericTableEntity<T>, entityName: string): Boolean{
     const selectedEntity = entity.data;
-    // exception edition pour l'intance financement
+    let disabled = false;
+    // exception edition pour l'instance financement
     if (this.instanceOfFinancement(selectedEntity)) {
-      if (selectedEntity?.statut_f === Statut_F.SOLDE && entityName !== 'statut_f') {
-        return true;
+      if (selectedEntity?.solde && entityName !== 'statut_f') {
+        disabled = true;
       } else if (entityName === 'difference') {
-        return true;
+        disabled = true;
+      } else {
+        disabled = false;
       }
-    } 
-    return false;
+    }
+    return disabled;
   }
 
   /**
@@ -508,6 +523,25 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
    */
   public instanceOfFinancement(object: any): object is Financement {
     return true;
+  }
+
+
+  public openDeletionConfirmationDialog(event, entity: GenericTableEntity<T>): void {
+    event.stopPropagation();
+    const dialogRef = this.dialog.open(DialogDeletionConfirmation, {
+      width: '300px',
+      data: {
+        event,
+        entity,
+        entityInformations: this.getEntityInformationsCallBack(entity.data)
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.delete(result.entity);
+      }
+    });
   }
 
   /**
@@ -537,4 +571,32 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
       this.openApiErrorSnackBar('Navigation impossible');
     }
   }
+}
+
+@Component({
+  selector: 'deletion-confirmation-dialog',
+  templateUrl: '../deletion-confirmation-dialog/deletion-confirmation-dialog.html',
+  styleUrls: ['../deletion-confirmation-dialog/deletion-confirmation-dialog.scss']
+
+})
+export class DialogDeletionConfirmation<T> {
+
+  constructor(
+    public dialogRef: MatDialogRef<DialogDeletionConfirmation<T>>,
+    @Inject(MAT_DIALOG_DATA) public data: DeletionConfirmationDialogData<T>) {}
+
+  public validation(): void {
+    this.dialogRef.close(this.data);
+  }
+
+  public cancellation(): void {
+    this.dialogRef.close(undefined);
+  }
+
+}
+
+interface DeletionConfirmationDialogData<T> {
+  event: any;
+  entity: GenericTableEntity<T>;
+  entityInformations: string;
 }

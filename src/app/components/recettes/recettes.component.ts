@@ -1,21 +1,21 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {Recette} from "../../../../models/recette";
-import {GenericTableOptions} from "../../../../shared/components/generic-table/models/generic-table-options";
-import {EntityType} from "../../../../shared/components/generic-table/models/entity-types";
-import {GenericTableCellType} from "../../../../shared/components/generic-table/globals/generic-table-cell-types";
-import {EntityPlaceholder} from "../../../../shared/components/generic-table/models/entity-placeholder";
-import {GenericTableFormError} from "../../../../shared/components/generic-table/models/generic-table-entity";
-import {GenericTableEntityEvent} from "../../../../shared/components/generic-table/models/generic-table-entity-event";
-import {ProjetService} from "../../services/projet.service";
-import {Financement, Statut_F} from "../../../../models/financement";
 import {isNotNullOrUndefined} from "codelyzer/util/isNotNullOrUndefined";
+import {Financement, Statut_F} from "../../models/financement";
+import {Recette} from "../../models/recette";
+import {GenericTableOptions} from "../../shared/components/generic-table/models/generic-table-options";
+import {GenericTableEntityEvent} from "../../shared/components/generic-table/models/generic-table-entity-event";
+import {EntityType} from "../../shared/components/generic-table/models/entity-types";
+import {GenericTableCellType} from "../../shared/components/generic-table/globals/generic-table-cell-types";
+import {EntityPlaceholder} from "../../shared/components/generic-table/models/entity-placeholder";
+import {GenericTableFormError} from "../../shared/components/generic-table/models/generic-table-entity";
+import {ProjetService} from "../../services/projet.service";
 
 @Component({
-  selector: 'app-projet-recettes',
-  templateUrl: './projet-recettes.component.html',
-  styleUrls: ['./projet-recettes.component.scss']
+  selector: 'app-recettes',
+  templateUrl: './recettes.component.html',
+  styleUrls: ['./recettes.component.scss']
 })
-export class ProjetRecettesComponent implements OnInit, OnChanges {
+export class RecettesComponent implements OnInit, OnChanges {
 
   /**
    * Financement sélectionné
@@ -83,7 +83,7 @@ export class ProjetRecettesComponent implements OnInit, OnChanges {
   ];
 
   constructor(
-   private projetService: ProjetService
+    private projetService: ProjetService
   ) { }
 
   ngOnInit(): void {
@@ -120,16 +120,16 @@ export class ProjetRecettesComponent implements OnInit, OnChanges {
     if (formErrors) {
       event.callBack({formErrors});
     } else {
-        try {
-          const newRecette = await this.projetService.addRecetteToFinancement(event.entity, this.financement, this.recettes);
-          this.recettes = this.recettes.concat(newRecette);
-          event.callBack(null);
-        } catch (error) {
-          console.error(error);
-          event?.callBack({
-            apiError: error
-          });
-        }
+      try {
+        const newRecette = await this.projetService.addRecetteToFinancement(event.entity, this.financement, this.recettes);
+        this.recettes = this.recettes.concat(newRecette);
+        event.callBack(null);
+      } catch (error) {
+        console.error(error);
+        event?.callBack({
+          apiError: error
+        });
+      }
     }
   }
 

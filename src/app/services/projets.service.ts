@@ -44,16 +44,16 @@ export class ProjetsService {
   }
 
   /**
-   * Retourne le projet demandé depuis le serveur.
-   * @param id : identifiant du projet demandé.
+   * Retourne le projet2 demandé depuis le serveur.
+   * @param id : identifiant du projet2 demandé.
    */
   public async get(id: number): Promise<Projet> {
     return this.crudSrv.get(id, 'id_p');
   }
 
   /**
-   * Transmet le projet modifié au serveur.
-   * @param project : projet modifié.
+   * Transmet le projet2 modifié au serveur.
+   * @param project : projet2 modifié.
    */
   public async modify(project: Projet): Promise<Projet> {
     try {
@@ -69,8 +69,8 @@ export class ProjetsService {
   }
 
   /**
-   * Transmet le nouveau projet au serveur.
-   * @param project : projet à créer.
+   * Transmet le nouveau projet2 au serveur.
+   * @param project : projet2 à créer.
    */
   public async add(project: Projet): Promise<Projet> {
     try {
@@ -98,8 +98,8 @@ export class ProjetsService {
   }
 
   /**
-   * Demande la suppression du projet au serveur.
-   * @param project : projet à supprimer.
+   * Demande la suppression du projet2 au serveur.
+   * @param project : projet2 à supprimer.
    */
   public async delete(project: Projet): Promise<void> {
     const id = project?.id_p || (project as any)?.id; // Pour json-server
@@ -107,8 +107,8 @@ export class ProjetsService {
   }
 
   /**
-   * Retourne les financements du projet indiqué.
-   * @param project : projet ciblé.
+   * Retourne les financements2 du projet2 indiqué.
+   * @param project : projet2 ciblé.
    */
   public async getFundings(project: Projet): Promise<Financement[]> {
     try {
