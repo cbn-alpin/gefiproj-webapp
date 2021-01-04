@@ -1,42 +1,105 @@
 {
   "users": [
     {
+      "id": 1,
       "id_u": 1,
-      "nom_u": "manu",
-      "prenom_u": "azp",
+      "nom_u": "Azp",
+      "prenom_u": "Manu",
       "email_u": "m.a@mail.com",
-      "initiales_u": "ja",
+      "initiales_u": "ma",
       "active_u": true,
-      "role": "consultant"
+      "role": 2
+    },
+    {
+      "id": 2,
+      "id_u": 2,
+      "nom_u": "Do",
+      "prenom_u": "Hanh",
+      "email_u": "h.d@mail.com",
+      "initiales_u": "hd",
+      "active_u": true,
+      "role": 2
     }
   ],
   "projects": [
     {
-      "id": 1,
-      "id_p": 1,
-      "code_p": "0123",
-      "nom_p": "Projet Xav",
-      "responsable": "azp",
-      "statut_p": true
-    },
-    {
-      "id": 2,
-      "id_p": 2,
-      "code_p": "4567",
-      "nom_p": "Projet Y",
-      "responsable": "hanh",
-      "statut_p": true
-    },
-    {
-      "code_p": "011",
+      "code_p": "0001",
       "nom_p": "a",
-      "responsable": "b",
+      "responsable": {
+        "id": 1,
+        "id_u": 1,
+        "nom_u": "Azp",
+        "prenom_u": "Manu",
+        "email_u": "m.a@mail.com",
+        "initiales_u": "ma",
+        "active_u": true,
+        "role": 2
+      },
       "statut_p": false,
-      "id": 3,
-      "id_p": 3
+      "id": 4,
+      "id_p": 4,
+      "id_u": 1,
+      "initiales_u": "ma"
+    },
+    {
+      "code_p": "0008",
+      "nom_p": "e",
+      "statut_p": true,
+      "responsable": {
+        "id": 1,
+        "id_u": 1,
+        "nom_u": "Azp",
+        "prenom_u": "Manu",
+        "email_u": "m.a@mail.com",
+        "initiales_u": "ma",
+        "active_u": true,
+        "role": 2
+      },
+      "initiales_u": "ma",
+      "id": 8,
+      "id_p": 8,
+      "id_u": 1
+    },
+    {
+      "code_p": "0004",
+      "nom_p": "v",
+      "id_u": 2,
+      "statut_p": false,
+      "responsable": {
+        "id": 2,
+        "id_u": 2,
+        "nom_u": "Do",
+        "prenom_u": "Hanh",
+        "email_u": "h.d@mail.com",
+        "initiales_u": "hd",
+        "active_u": true,
+        "role": 2
+      },
+      "initiales_u": "hd",
+      "id": 9,
+      "id_p": 9
+    },
+    {
+      "code_p": "0009",
+      "nom_p": "ee",
+      "id_u": 2,
+      "statut_p": true,
+      "responsable": {
+        "id": 2,
+        "id_u": 2,
+        "nom_u": "Do",
+        "prenom_u": "Hanh",
+        "email_u": "h.d@mail.com",
+        "initiales_u": "hd",
+        "active_u": true,
+        "role": 2
+      },
+      "initiales_u": "hd",
+      "id": 10,
+      "id_p": 10
     }
   ],
-  "fundings": [
+  "funding": [
     {
       "id": 1,
       "id_f": 1,

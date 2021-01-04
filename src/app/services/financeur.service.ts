@@ -11,7 +11,7 @@ export class FinanceurService {
   /**
    * Url relative de l'API.
    */
-  private readonly endPoint = 'http://127.0.0.1:5000/api/funder';
+  private readonly endPoint = '/api/funder';
 
   /**
    * Effectue les appels au serveur d'API pour une entité donnée.
@@ -29,12 +29,11 @@ export class FinanceurService {
     ) {
       this.crudSrv = new CrudService<Financeur>(http, spinnerSrv, this.endPoint);
   }
-        
+
   /**
    * Retourne les financeurs depuis le serveur.
    */
   public async getAll(): Promise<Financeur[]> {
-    return this.crudSrv.getAll();
+    return this.crudSrv.getAll('id_financeur');
   }
-
 }

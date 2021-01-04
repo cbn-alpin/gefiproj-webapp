@@ -17,8 +17,8 @@ export class ConnexionComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     try { // todo pour avoir une connexion pendant le développement !!
       const sampleUser: UserLogin = {
-        login: 'nom test',
-        password: 'pass test'
+        login: 'testimaill@mail.ml',
+        password: 'admin'
       };
 
       console.log(await this.auth.login(sampleUser));

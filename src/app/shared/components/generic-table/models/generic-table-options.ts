@@ -1,3 +1,4 @@
+import { SortDirection } from '@angular/material/sort';
 import { EntitySelectBoxOptions } from './entity-select-box-options';
 import { EntityType } from './entity-types';
 import { EntityPlaceholder } from './entity-placeholder';
@@ -21,10 +22,25 @@ export interface GenericTableOptions<T> {
   /**
    * Tableau des options pour chaque select box de l'entité T.
    */
-  entitySelectBoxOptions?: EntitySelectBoxOptions[];
+  entitySelectBoxOptions?: EntitySelectBoxOptions<any>[];
 
   /**
    * Tableau des placeholders de l'entité T.
    */
   entityPlaceHolders?: EntityPlaceholder[];
+
+  /**
+   * Titre de la colonne à trier.
+   */
+  sortName?: string;
+
+  /**
+   * Sens du trie.
+   */
+  sortDirection?: SortDirection;
+
+  /**
+   * Indique un lien de navigation. Il faut définir un callback retournant une URL.
+   */
+  navigationUrlFt?: (item: T) => string;
 }

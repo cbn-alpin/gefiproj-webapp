@@ -11,13 +11,14 @@
   float: right;
   color: $grey;
   font-size: small;
+  margin-top: 10px;
 }
 
 :host::ng-deep {
   table {
     width: 100%;
-    margin-top: 10px;
     border: 0.5px solid #e0e0e0;
+    border-bottom: none;
   }
   .title {
     font-size: 20px;
@@ -76,7 +77,7 @@
   .mat-cell, .mat-header-cell{
     padding: 5px 10px !important;
   }
-  .mat-cell:nth-last-child(2), .mat-header-cell:nth-last-child(2){
+  .mat-cell.actions, .mat-header-cell.actions{
     border-right: 1px solid #f5f5f5;
   }
   .mat-form-field-flex {

@@ -42,6 +42,11 @@ export class AuthService {
   public static readonly tokenKey = 'token';
 
   /**
+   * Permet de valider le Token.
+   */
+  private jwtSrv: JwtHelperService;
+
+  /**
    * Publie les différentes sessions de l'utilisateur.
    */
   private readonly userSubject = new BehaviorSubject<Utilisateur>(null);
@@ -75,10 +80,11 @@ export class AuthService {
   /**
    * Gère l'authentification de l'utilisateur avec le serveur.
    * @param http : permet de lancer des requêtes.
-   * @param jwtSrv : gère le Token.
    */
-  constructor(private http: HttpClient, private jwtSrv: JwtHelperService) {
+  constructor(
+    private http: HttpClient) {
     try {
+      this.jwtSrv = new JwtHelperService();
       this.next(null);
     } catch (error) {
       console.error(error);

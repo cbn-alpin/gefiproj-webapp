@@ -20,18 +20,24 @@ export class CrudService<T> {
 
   /**
    * Retourne les entités depuis le serveur.
-   * @param id : identifiant relié à l'entité demandée.
+   * @param idName : nom de l'identifiant.
    */
-  public async getAll(id?: number): Promise<T[]> {
+  public async getAll(idName?: string): Promise<T[]> {
     try {
       this.spinnerSrv.show();
-      let url = `${this.endPoint}`;
-      if (id) {
-        url = `${this.endPoint}/${id}`;
-      } 
-      return await (this.http
-        .get<T[]>(url)
-        .toPromise());
+
+      const observable = this.http.get<T[]>(
+        this.endPoint,
+        { observe: 'response' });
+      const response = await observable.toPromise();
+      const items = response?.body || [];
+
+      // TODO à supprimer après suppression de json server !
+      if (!idName) {
+        return items;
+      }
+
+      return this.addIdNamedForItems(items || [], idName);
     } catch (error) {
       console.error(error);
       return Promise.reject(error);
@@ -41,10 +47,45 @@ export class CrudService<T> {
   }
 
   /**
+   * Injecte l'identifiant attendu par les entités métier.
+   * @param items : éléments où faire l'injection de l'identifiant.
+   * @param key : nom de la propriété identifiant.
+   */
+  private addIdNamedForItems(items: T[], key: string): T[] {
+    try {
+      return (items || [])
+        .map(item =>
+          this.addIdNamed(item, key));
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /**
+   * Injecte l'identifiant attendu par l'entité métier.
+   * @param item : élément où faire l'injection de l'identifiant.
+   * @param key : nom de la propriété identifiant.
+   */
+  private addIdNamed(item: T, key: string): T { // TODO à supprimer après suppression de json server !
+    try {
+      if (item) {
+        item[key] = item[key]
+          || (item as any).id
+          || 0;
+      }
+    } catch (error) {
+      console.error(error);
+    }
+
+    return item;
+  }
+
+  /**
    * Retourne l'entité demandée depuis le serveur.
    * @param id : identifiant de l'entité demandée.
+   * @param idName : nom de l'identifiant.
    */
-  public async get(id: number): Promise<T> {
+  public async get(id: number, idName?: string): Promise<T> {
     try {
       this.spinnerSrv.show();
 
@@ -53,9 +94,15 @@ export class CrudService<T> {
       }
 
       const url = `${this.endPoint}/${id}`;
-      return await (this.http
-        .get<T>(url)
-        .toPromise());
+      const observable = this.http.get<T>(
+        url,
+        { observe: 'response' });
+      const response = await observable.toPromise();
+      const item = response?.body || null;
+
+      return idName // TODO à supprimer après suppression de json server !
+        ? this.addIdNamed(item, idName)
+        : item;
     } catch (error) {
       console.error(error);
       return Promise.reject(error);
@@ -83,12 +130,14 @@ export class CrudService<T> {
       }
 
       const url = `${this.endPoint}/${id}`;
-      return await (this.http.put<T>(
+      const observable = this.http.put<T>(
         url,
         item, {
-        headers: new HttpHeaders(AuthService.headers)
-      })
-        .toPromise());
+        headers: new HttpHeaders(AuthService.headers),
+        observe: 'response'
+      });
+      const response = await observable.toPromise();
+      return response?.body || null;
     } catch (error) {
       console.error(error);
       return Promise.reject(error);
@@ -100,8 +149,9 @@ export class CrudService<T> {
   /**
    * Transmet la nouvelle entité au serveur.
    * @param item : entité à créer.
+   * @param idName : nom de l'identifiant.
    */
-  public async add(item: T): Promise<T> {
+  public async add(item: T, idName?: string): Promise<T> {
     try {
       this.spinnerSrv.show();
 
@@ -109,15 +159,23 @@ export class CrudService<T> {
         throw new Error('Pas de données en paramètre.');
       }
 
-      const newItem = await (this.http.post<T>(
-      this.endPoint,
-        //JSON.stringify(item), {
-        item, {
-        headers: new HttpHeaders(AuthService.headers)
-      })
-        .toPromise());
+      const observable = this.http.post<T>(
+        this.endPoint,
+          item, {
+          headers: new HttpHeaders(AuthService.headers),
+          observe: 'response'
+        });
+      const response = await observable.toPromise();
+      const newItem = response?.body || item;
 
-      return newItem || item;
+      // TODO à supprimer après suppression de json server !
+      if (!idName) {
+        return newItem;
+      }
+
+      return idName
+        ? this.addIdNamed(newItem, idName)
+        : item;
     } catch (error) {
       console.error(error);
       return Promise.reject(error);
@@ -139,9 +197,10 @@ export class CrudService<T> {
       }
 
       const url = `${this.endPoint}/${id}`;
-      await (this.http
-        .delete<T>(url)
-        .toPromise());
+      const observable = this.http.delete<T>(
+        url,
+        { observe: 'response' });
+      await observable.toPromise();
     } catch (error) {
       console.error(error);
       return Promise.reject(error);

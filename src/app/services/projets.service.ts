@@ -1,3 +1,4 @@
+import { Financement } from 'src/app/models/financement';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Projet } from 'src/app/models/projet';
@@ -27,8 +28,8 @@ export class ProjetsService {
    * @param spinnerSrv : gère le spinner/sablier.
    */
   constructor(
-    http: HttpClient,
-    spinnerSrv: SpinnerService) {
+    private http: HttpClient,
+    private spinnerSrv: SpinnerService) {
       this.crudSrv = new CrudService<Projet>(
         http,
         spinnerSrv,
@@ -39,7 +40,7 @@ export class ProjetsService {
    * Retourne les projets depuis le serveur.
    */
   public async getAll(): Promise<Projet[]> {
-    return this.crudSrv.getAll();
+    return this.crudSrv.getAll('id_p');
   }
 
   /**
@@ -47,34 +48,20 @@ export class ProjetsService {
    * @param id : identifiant du projet demandé.
    */
   public async get(id: number): Promise<Projet> {
-    return this.crudSrv.get(id);
+    return this.crudSrv.get(id, 'id_p');
   }
 
   /**
    * Transmet le projet modifié au serveur.
-   * @param projet : projet modifié.
+   * @param project : projet modifié.
    */
-  public async modify(projet: Projet): Promise<Projet> {
-    return this.crudSrv.modify(
-      projet,
-      projet?.id_p);
-  }
-
-  /**
-   * Transmet le nouveau projet au serveur.
-   * @param projet : projet à créer.
-   */
-  public async add(projet: Projet): Promise<Projet> {
+  public async modify(project: Projet): Promise<Projet> {
     try {
-      const newProject = await this.crudSrv.add(projet);
+      this.cleanProject(project);
 
-      // Récupération de l'identifiant
-      projet.id_p = newProject?.id_p
-        || (newProject as any)?.id // gestion de json-server
-        || projet?.id_p
-        || (projet as any)?.id // gestion de json-server
-        || 0;
-      return newProject || projet;
+      return this.crudSrv.modify(
+        project,
+        project?.id_p);
     } catch (error) {
       console.error(error);
       return Promise.reject(error);
@@ -82,11 +69,59 @@ export class ProjetsService {
   }
 
   /**
-   * Demande la suppression du projet au serveur.
-   * @param projet : projet à supprimer.
+   * Transmet le nouveau projet au serveur.
+   * @param project : projet à créer.
    */
-  public async delete(projet: Projet): Promise<void> {
-    const id = projet?.id_p || (projet as any)?.id; // Pour json-server
+  public async add(project: Projet): Promise<Projet> {
+    try {
+      this.cleanProject(project);
+
+      return await this.crudSrv
+        .add(project, 'id_p');
+    } catch (error) {
+      console.error(error);
+      return Promise.reject(error);
+    }
+  }
+
+  /**
+   * Supprime les propriétés non attendues par le serveur.
+   * @param project : projet à nettoyer.
+   */
+  private cleanProject(project: Projet): void {
+    try {
+      delete project.responsable;
+      delete (project as any).initiales_u;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /**
+   * Demande la suppression du projet au serveur.
+   * @param project : projet à supprimer.
+   */
+  public async delete(project: Projet): Promise<void> {
+    const id = project?.id_p || (project as any)?.id; // Pour json-server
     return this.crudSrv.delete(id);
+  }
+
+  /**
+   * Retourne les financements du projet indiqué.
+   * @param project : projet ciblé.
+   */
+  public async getFundings(project: Projet): Promise<Financement[]> {
+    try {
+      const id = project.id_p;
+      const fundingsSrv = new CrudService<Financement>(
+        this.http,
+        this.spinnerSrv,
+        `http://127.0.0.1:5000/api/projects/${id}/fundings`); // `${this.endPoint}/${id}/fundings`);
+
+      return fundingsSrv.getAll('id_f');
+    } catch (error) {
+      console.error(error);
+      return Promise.reject(error);
+    }
   }
 }

@@ -1,17 +1,17 @@
-import {Component, OnInit} from '@angular/core';
-import {GenericTableInterface} from '../../../../shared/components/generic-table/models/generic-table-interface';
-import {Famille} from '../../models/famille';
-import {GenericTableOptions} from '../../../../shared/components/generic-table/models/generic-table-options';
-import {EntityType} from '../../../../shared/components/generic-table/models/entity-types';
-import {GenericTableCellType} from '../../../../shared/components/generic-table/globals/generic-table-cell-types';
-import {EntitySelectBoxOptions} from '../../../../shared/components/generic-table/models/entity-select-box-options';
-import {EntityPlaceholder} from '../../../../shared/components/generic-table/models/entity-placeholder';
-import {familleMock} from '../../mocks/famille-mock';
-import {FamilleOrigine} from '../../globals/famille-origine';
-import {GenericTableEntityEvent} from '../../../../shared/components/generic-table/models/generic-table-entity-event';
-import {GenericTableEntityErrors, GenericTableFormError} from '../../../../shared/components/generic-table/models/generic-table-entity';
-import {GenericTableDemoService} from '../../services/generic-table-demo.service';
-import {FamilleResponseDummy} from '../../models/famille-response-dummy';
+import { Component, OnInit } from '@angular/core';
+import { GenericTableCellType } from '../../../../shared/components/generic-table/globals/generic-table-cell-types';
+import { EntityPlaceholder } from '../../../../shared/components/generic-table/models/entity-placeholder';
+import { EntitySelectBoxOptions } from '../../../../shared/components/generic-table/models/entity-select-box-options';
+import { EntityType } from '../../../../shared/components/generic-table/models/entity-types';
+import { GenericTableEntityErrors, GenericTableFormError } from '../../../../shared/components/generic-table/models/generic-table-entity';
+import { GenericTableEntityEvent } from '../../../../shared/components/generic-table/models/generic-table-entity-event';
+import { GenericTableInterface } from '../../../../shared/components/generic-table/models/generic-table-interface';
+import { GenericTableOptions } from '../../../../shared/components/generic-table/models/generic-table-options';
+import { FamilleOrigine } from '../../globals/famille-origine';
+import { familleMock } from '../../mocks/famille-mock';
+import { Famille } from '../../models/famille';
+import { FamilleResponseDummy } from '../../models/famille-response-dummy';
+import { GenericTableDemoService } from '../../services/generic-table-demo.service';
 
 @Component({
   selector: 'app-famille-table',
@@ -84,13 +84,13 @@ export class FamilleTableComponent implements OnInit, GenericTableInterface<Fami
    * Tablau des options des select box de l'entité famille
    * @private
    */
-  private entitySelectBoxOptions: EntitySelectBoxOptions[] = [
+  private entitySelectBoxOptions: EntitySelectBoxOptions<string>[] = [
     {
       name: this.EntityPropertyName.ORIGINE,
       values: [
-        FamilleOrigine.AMERICAINE,
-        FamilleOrigine.EUROPE,
-        FamilleOrigine.ASIE
+        { id: FamilleOrigine.AMERICAINE, label: FamilleOrigine.AMERICAINE },
+        { id: FamilleOrigine.EUROPE, label: FamilleOrigine.EUROPE },
+        { id: FamilleOrigine.ASIE, label: FamilleOrigine.ASIE }
       ]
     }
   ];
