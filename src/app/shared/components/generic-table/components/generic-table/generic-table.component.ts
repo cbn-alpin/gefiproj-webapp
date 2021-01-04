@@ -1,4 +1,14 @@
-import {AfterViewInit, Component, EventEmitter, Inject, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  EventEmitter,
+  Inject,
+  Input,
+  OnChanges,
+  OnInit,
+  Output, SimpleChanges,
+  ViewChild
+} from '@angular/core';
 import {
   MAT_MOMENT_DATE_ADAPTER_OPTIONS, MAT_MOMENT_DATE_FORMATS,
   MomentDateAdapter
@@ -220,6 +230,7 @@ export class GenericTableComponent<T> implements OnInit, AfterViewInit {
    * Initialise le tableau.
    */
   private initTable(): void {
+    this.selectedEntity = undefined;
     try {
     this.genericTableData = this.options.dataSource?.map((entity) => {
       return {

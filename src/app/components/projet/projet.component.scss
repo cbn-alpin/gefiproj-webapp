@@ -5,6 +5,9 @@
   margin-top: 30px;
   font-size: 20px;
 }
+.financements {
+  margin-bottom: 25px;
+}
 
 .bold{
   font-weight: bold ;
@@ -28,5 +31,24 @@
   margin-bottom: 20px;
   height: 3px;
   background-color: #125699;
+}
+
+
+.recettes {
+  width: 45%;
+}
+
+.montants-affectes {
+  width: 45%;
+}
+
+.block {
+  margin-bottom: 15px;
+
+  .space-between-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
 }
 

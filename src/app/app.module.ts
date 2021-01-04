@@ -11,17 +11,25 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ConnexionComponent } from './components/connexion/connexion.component';
 import { DepensesComponent } from './components/depenses/depenses.component';
-import { FinancementsComponent } from './components/financements/financements.component';
 import { FinanceursComponent } from './components/financeurs/financeurs.component';
 import { GenericTableDemoModule } from './components/generic-table-demo/generic-table-demo.module';
 import { HeaderComponent } from './components/header/header.component';
 import { HomeComponent } from './components/home/home.component';
-import { ProjetComponent } from './components/projet/projet.component';
 import { RapportsComponent } from './components/rapports/rapports.component';
 import { UtilisateursComponent } from './components/utilisateurs/utilisateurs.component';
 import { AuthService } from './services/authentication/auth.service';
 import { AuthenticationHttpInterceptorService } from './services/authentication/authentication-http-interceptor.service';
 import { SharedModule } from './shared/shared.module';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatSidenavModule } from "@angular/material/sidenav";
+import { MatListModule } from "@angular/material/list";
+import { MatMenuModule } from '@angular/material/menu';
+import { FlexLayoutModule } from "@angular/flex-layout";
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import {FinancementsComponent} from "./components/financements/financements.component";
+import { RecettesComponent } from './components/recettes/recettes.component';
+import { ProjetComponent } from './components/projet/projet.component';
 import { MontantsAffectesComponent } from './components/montants-affectes/montants-affectes.component';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 
@@ -43,14 +51,15 @@ registerLocaleData(localeFr, 'fr-FR');
   declarations: [
     AppComponent,
     HomeComponent,
-    ProjetComponent,
-    FinancementsComponent,
     ConnexionComponent,
     RapportsComponent,
     FinanceursComponent,
     DepensesComponent,
     UtilisateursComponent,
     HeaderComponent,
+    FinancementsComponent,
+    RecettesComponent,
+    ProjetComponent,
     MontantsAffectesComponent
   ],
   imports: [
@@ -63,6 +72,13 @@ registerLocaleData(localeFr, 'fr-FR');
     NgxSpinnerModule,
     GenericTableDemoModule,
     SharedModule,
+    MatToolbarModule,
+    MatSidenavModule,
+    MatListModule,
+    MatMenuModule,
+    FlexLayoutModule,
+    MatButtonModule,
+    MatIconModule,
     MatCheckboxModule
   ],
   providers: [

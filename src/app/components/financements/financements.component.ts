@@ -1,6 +1,6 @@
 import {SelectBoxOption} from './../../shared/components/generic-table/models/SelectBoxOption';
 import {DatePipe} from '@angular/common';
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Financement, Statut_F} from 'src/app/models/financement';
@@ -22,7 +22,12 @@ import {MatDialog} from '@angular/material/dialog';
   templateUrl: './financements.component.html',
   styleUrls: ['./financements.component.scss']
 })
-export class FinancementsComponent implements OnInit, GenericTableInterface<Financement>  {
+export class FinancementsComponent implements OnChanges, GenericTableInterface<Financement>  {
+  /**
+   * Données source du tableau générique
+   * @private
+   */
+  @Input() public financements: Financement[];
   @Output() public select: EventEmitter<Financement> = new EventEmitter<Financement>();
 
   /**
@@ -35,11 +40,7 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
    */
   public projectId: string;
 
-  /**
-   * Données source du tableau générique
-   * @private
-   */
-  public financements: Financement[];
+
 
   /**
    * Liste de financeurs
@@ -173,13 +174,15 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
   /**
    * Initialise le composant.
    */
-  async ngOnInit(): Promise<void> {
-    try {
-      this.pipe = new DatePipe('fr-FR');
-      await this.loadData(Number(this.projectId));
-      this.initDtOptions();
-    } catch (error) {
-      console.error(error);
+  async ngOnChanges(changes:SimpleChanges): Promise<void> {
+    if (changes.financements && changes.financements.currentValue) {
+      try {
+        this.pipe = new DatePipe('fr-FR');
+        await this.loadData(Number(this.projectId));
+        this.initDtOptions();
+      } catch (error) {
+        console.error(error);
+      }
     }
   }
 
@@ -187,23 +190,23 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
    * Initialise les options de la table générique.
    */
   private async loadData(projetId: number): Promise<void> {
-    const promiseFinancements = this.loadFinancements(projetId);
+    // const promiseFinancements = this.loadFinancements(projetId);
     const promiseFinanceurs = this.loadFinanceurs();
-    await Promise.all([promiseFinancements, promiseFinanceurs]); // Pour être plus efficace : les requêtes sont lancées en parallèle
+    await Promise.all([promiseFinanceurs]); // Pour être plus efficace : les requêtes sont lancées en parallèle
   }
 
   /**
    * Charge les financements2 depuis le serveur.
    */
-  async loadFinancements(projetId: number): Promise<Financement[]> {
-    try {
-      this.financements = (await this.financementsService.getAll(projetId)) || [];
-    } catch (error) {
-      console.error(error);
-      this.showInformation('Impossible de charger les financements2 : ' + error.error);
-      return Promise.reject(error);
-    }
-  }
+  // async loadFinancements(projetId: number): Promise<Financement[]> {
+  //   try {
+  //     this.financements = (await this.financementsService.getAll(projetId)) || [];
+  //   } catch (error) {
+  //     console.error(error);
+  //     this.showInformation('Impossible de charger les financements2 : ' + error.error);
+  //     return Promise.reject(error);
+  //   }
+  // }
 
   /**
    * Charge les financeurs depuis le serveur.
@@ -264,7 +267,7 @@ export class FinancementsComponent implements OnInit, GenericTableInterface<Fina
    */
   private async refreshDataTable() {
     try {
-      await this.loadFinancements(Number(this.projectId));
+     // await this.loadFinancements(Number(this.projectId));
       const dataSource = this.financements
 
       this.options = Object.assign({}, this.options, {
