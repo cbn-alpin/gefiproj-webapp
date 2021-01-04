@@ -1,8 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { RouterTestingModule } from '@angular/router/testing';
+import { GenericTableDemoModule } from '../../generic-table-demo.module';
 import { GenericTableDemoComponent } from './generic-table-demo.component';
-import {GenericTableDemoModule} from '../../generic-table-demo.module';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 describe('GenericTableDemoComponent', () => {
   let component: GenericTableDemoComponent;
@@ -10,9 +9,11 @@ describe('GenericTableDemoComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ GenericTableDemoModule ]
+      imports: [
+        RouterTestingModule,
+        GenericTableDemoModule]
     })
-    .compileComponents();
+      .compileComponents();
   });
 
   beforeEach(() => {
