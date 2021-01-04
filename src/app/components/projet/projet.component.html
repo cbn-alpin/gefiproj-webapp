@@ -15,4 +15,19 @@
 <hr class="project-line">
 
 <app-financements></app-financements>
-<app-montants-affectes></app-montants-affectes>
+<app-montants-affectes></app-montants-affectes> -->
+
+<div class="financements">
+  <app-financements
+    (select)="onSelectFinancement($event)"
+  ></app-financements>
+</div>
+
+<div class="recettes">
+  <app-recettes
+    class="recettes"
+    *ngIf="recettes"
+    [recettes]="recettes"
+    [financement]="selectedFinancement"
+  ></app-recettes>
+</div>

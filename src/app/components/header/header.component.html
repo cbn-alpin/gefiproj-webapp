@@ -1,17 +1,31 @@
 <!-- Toolbar -->
-<div class="toolbar" role="banner">
+<mat-toolbar>
     <!--LOGO-->
     <a href="/home">
         <img width="150" alt="Logo" src="/assets/logo.png"/>
     </a>
-    <!--ROOT-->
-    <a routerLink="/home" routerLinkActive="active"><span>Accueil</span></a>
-    <a routerLink="/financeurs" routerLinkActive="active"><span>Financeur</span></a>
-    <a routerLink="/depenses" routerLinkActive="active"><span>Dépense</span></a>
-    <a routerLink="/rapports" routerLinkActive="active"><span>Rapport</span></a>
-    <a routerLink="/utilisateurs" routerLinkActive="active"><span>Utilisateur</span></a>
-    <a routerLink="/projet/1" routerLinkActive="active"><span>Projet 1 (dév)</span></a>
-    <a routerLink="/tabledemo" routerLinkActive="active"><span>Démo table (dév)</span></a>
+    <!--MENU LT-->
+    <div *ngFor="let item of menuItems; let index = index;" fxShow="true" fxHide.lt-md>
+        <a *ngIf="index !== menuItems.length-1" [routerLink]="item.link" routerLinkActive="active">
+
+            <span>{{ item.label }}</span>
+        </a>
+    </div>
     <div class="spacer"></div>
-    <a routerLink="/connexion" routerLinkActive="active"><span>Connexion</span></a>
-</div>
+    <a fxShow="true" fxHide.lt-md [routerLink]="menuItems[menuItems.length-1].link" routerLinkActive="active">
+
+        <span>{{ menuItems[menuItems.length-1].label }}</span>
+    </a>
+    <button mat-icon-button [matMenuTriggerFor]="dropMenu" fxShow="true" fxHide.gt-sm>
+        <mat-icon>menu</mat-icon>
+    </button>
+    <!--DROP MENU-->
+    <mat-menu #dropMenu="matMenu">
+        <ng-container *ngFor="let item of menuItems; let index = index;">
+            <button [routerLink]="item.link" routerLinkActive="active" mat-menu-item>
+                <mat-icon *ngIf="index === menuItems.length-1" class="mr">{{ item.icon }}</mat-icon>
+                {{item.label}}
+            </button>
+        </ng-container>
+    </mat-menu>
+</mat-toolbar>

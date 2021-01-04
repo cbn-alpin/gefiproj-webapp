@@ -5,7 +5,7 @@ export interface Projet {
   nom_p: string;
 
   /**
-   * Responsable du projet.
+   * Responsable du projet2.
    */
   responsable?: Utilisateur;
 
@@ -15,7 +15,11 @@ export interface Projet {
   id_u?: number;
 
   /**
-   * Indique si le projet est soldé (true ssi soldé).
+   * Indique si le projet2 est soldé (true ssi soldé).
    */
   statut_p: boolean;
+}
+
+export interface ProjetNavigationState {
+  projectIsBalanced: boolean;
 }

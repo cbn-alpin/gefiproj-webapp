@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import {Financement} from "../../models/financement";
+import {ProjetService} from "../../services/projet.service";
+import {Recette} from "../../models/recette";
 import {IsAdministratorGuardService} from '../../services/authentication/is-administrator-guard.service';
 import {FinancementsService} from '../../services/financements.service';
 import {FinanceurService} from '../../services/financeur.service';
@@ -16,7 +19,12 @@ import {Utilisateur} from '../../models/utilisateur';
   styleUrls: ['./projet.component.scss']
 })
 export class ProjetComponent implements OnInit {
+  public recettes: Recette[];
+  public selectedFinancement: Financement;
 
+  constructor(
+    private readonly _projetService: ProjetService
+  ) { }
   /**
    * id projet
    */
@@ -56,6 +64,15 @@ export class ProjetComponent implements OnInit {
   ) {
     this.projectId = this.route.snapshot.params.id;
     if (!this.projectId) { this.router.navigate(['home']) }
+  }
+
+  public async getRecettesFromFinancemennt(financement: Financement): Promise<void> {
+    this.recettes = await this._projetService.getAllRecettesFromFinancement(financement);
+  }
+
+  public onSelectFinancement(financement: Financement): void {
+    this.selectedFinancement = financement;
+    this.getRecettesFromFinancemennt(financement);
   }
 
   async ngOnInit(): Promise<void> {
