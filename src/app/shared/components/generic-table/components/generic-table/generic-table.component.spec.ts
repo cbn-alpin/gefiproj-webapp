@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {GenericTableComponent} from './generic-table.component';
 import {SharedModule} from '../../../../shared.module';
 import {mockGenericTable} from '../../mock/mockGenericTable';
+import { RouterTestingModule } from '@angular/router/testing';
 
 
 describe('GenericTableComponent', () => {
@@ -10,7 +11,10 @@ describe('GenericTableComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SharedModule]
+      imports: [
+        SharedModule,
+        RouterTestingModule
+      ]
     })
     .compileComponents();
   });
