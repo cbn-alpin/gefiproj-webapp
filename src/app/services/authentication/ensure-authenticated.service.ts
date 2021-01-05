@@ -27,7 +27,7 @@ export class EnsureAuthenticatedService {
     try {
       ////////////////////////////////////////////
       //todo à désactiver tant que l'API de Token n'est pas fournie !!
-      return true;
+      // return true;
       ////////////////////////////////////////////
 
       const isAuth = this.authSrv.isAuthenticated();
