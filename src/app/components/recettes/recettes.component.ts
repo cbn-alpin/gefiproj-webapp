@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {isNotNullOrUndefined} from "codelyzer/util/isNotNullOrUndefined";
 import {Financement, Statut_F} from "../../models/financement";
 import {Recette} from "../../models/recette";
@@ -26,6 +26,11 @@ export class RecettesComponent implements OnInit, OnChanges {
    * Recettes du financement sélectionné
    */
   @Input() public recettes: Recette[];
+
+  /**
+   * Recette séléctioné event
+   */
+  @Output() public select: EventEmitter<Recette> = new EventEmitter<Recette>();
 
   /**
    * Titre du tableau
@@ -244,6 +249,14 @@ export class RecettesComponent implements OnInit, OnChanges {
    */
   public getEntityInformations(recette?: Recette): string {
     return recette ? "Recette: [année = " + recette.annee_r + ", montant = " + recette.montant_r + "]" : "";
+  }
+
+  /**
+   * Gére la sélection d'une entité
+   * @param entity
+   */
+  public onSelect(genericTableEntityEvent: GenericTableEntityEvent<Recette>): void {
+    this.select.emit(genericTableEntityEvent.entity);
   }
 
 }

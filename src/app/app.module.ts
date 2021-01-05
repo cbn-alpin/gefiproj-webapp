@@ -30,6 +30,8 @@ import { MatIconModule } from '@angular/material/icon';
 import {FinancementsComponent} from "./components/financements/financements.component";
 import { RecettesComponent } from './components/recettes/recettes.component';
 import { ProjetComponent } from './components/projet/projet.component';
+import { MontantsAffectesComponent } from './components/montants-affectes/montants-affectes.component';
+import {MatCheckboxModule} from '@angular/material/checkbox';
 
 /**
  * Retourne le token courant.
@@ -57,7 +59,8 @@ registerLocaleData(localeFr, 'fr-FR');
     HeaderComponent,
     FinancementsComponent,
     RecettesComponent,
-    ProjetComponent
+    ProjetComponent,
+    MontantsAffectesComponent
   ],
   imports: [
     BrowserModule,
@@ -76,6 +79,7 @@ registerLocaleData(localeFr, 'fr-FR');
     FlexLayoutModule,
     MatButtonModule,
     MatIconModule,
+    MatCheckboxModule
   ],
   providers: [
     {
