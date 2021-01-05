@@ -2,7 +2,7 @@ import { registerLocaleData } from '@angular/common';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import localeFr from '@angular/common/locales/fr';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
@@ -32,6 +32,8 @@ import { RecettesComponent } from './components/recettes/recettes.component';
 import { ProjetComponent } from './components/projet/projet.component';
 import { MontantsAffectesComponent } from './components/montants-affectes/montants-affectes.component';
 import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatInputModule} from "@angular/material/input";
 
 /**
  * Retourne le token courant.
@@ -79,7 +81,10 @@ registerLocaleData(localeFr, 'fr-FR');
     FlexLayoutModule,
     MatButtonModule,
     MatIconModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatFormFieldModule,
+    ReactiveFormsModule,
+    MatInputModule
   ],
   providers: [
     {

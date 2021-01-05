@@ -1,1 +1,33 @@
-<p>connexion works!</p>
+<div class="container">
+  <div class="header">
+    <img src="/assets/logo.png" alt="">
+  </div>
+  <div class="body">
+    <form class="example-form">
+      <!--Email-->
+      <mat-form-field class="example-full-width child">
+        <mat-label>Email</mat-label>
+        <input type="email" matInput [formControl]="emailFormControl" [errorStateMatcher]="emailMatcher"
+               placeholder="Ex. pat@example.com">
+        <mat-error *ngIf="emailFormControl.hasError('email') && !emailFormControl.hasError('required')">
+          Entrer une adresse mail valide
+        </mat-error>
+        <mat-error *ngIf="emailFormControl.hasError('required')">
+          Email est <strong>requis</strong>
+        </mat-error>
+      </mat-form-field>
+      <!--Mot de passe-->
+      <mat-form-field class="example-full-width child">
+        <mat-label>Mot de passe</mat-label>
+        <input type="password" matInput [formControl]="pwdFormControl" [errorStateMatcher]="pwdMatcher"
+               placeholder="Ex. pwd">
+        <mat-error *ngIf="pwdFormControl.hasError('required')">
+          Mot de passe <strong>requis</strong>
+        </mat-error>
+      </mat-form-field>
+      <div class="action">
+        <button mat-flat-button (click)="onLogin()">Se connecter</button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,4 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {AuthService} from "../../services/authentication/auth.service";
+import {Observable, Subscription} from "rxjs";
+import {Utilisateur} from "../../models/utilisateur";
 
 export interface MenuItem {
   label: string;
@@ -11,9 +14,11 @@ export interface MenuItem {
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
+  public user$: Observable<Utilisateur>;
+  public user: Utilisateur;
 
-  menuItems: MenuItem[] = [
+  public readonly menuItems: MenuItem[] = [
     {
       label: 'Accueil',
       link: '/home',
@@ -38,17 +43,28 @@ export class HeaderComponent implements OnInit {
     {
       label: 'Démo table (dév)',
       link: '/tabledemo'
-    },
-    {
-      label: 'Connexion',
-      link: '/connexion',
-      icon: 'account_circle'
-    },
+    }
   ];
 
-  constructor() { }
+  private subscription: Subscription;
 
-  ngOnInit(): void {
+  constructor(
+    private readonly auth: AuthService
+  ) { }
+
+  public ngOnInit(): void {
+    this.user$ = this.auth.userObservable;
+    this.subscription = this.user$.subscribe((user) => {
+      this.user = user;
+    })
+  }
+
+  public ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
+
+  public logout(): void {
+    this.auth.logout();
   }
 
 }

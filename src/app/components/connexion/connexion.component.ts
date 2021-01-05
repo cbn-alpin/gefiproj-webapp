@@ -1,7 +1,9 @@
-import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
-import { AuthService } from 'src/app/services/authentication/auth.service';
-import { UserLogin } from 'src/app/services/authentication/user-login';
+import {Component, OnInit} from '@angular/core';
+import {AuthService} from 'src/app/services/authentication/auth.service';
+import {UserLogin} from 'src/app/services/authentication/user-login';
+import {ErrorStateMatcher} from "@angular/material/core";
+import {FormControl, FormGroupDirective, NgForm, Validators} from "@angular/forms";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Component({
   selector: 'app-connexion',
@@ -9,21 +11,58 @@ import { UserLogin } from 'src/app/services/authentication/user-login';
   styleUrls: ['./connexion.component.scss']
 })
 export class ConnexionComponent implements OnInit {
-  constructor(private auth: AuthService) { }
+  public emailFormControl: FormControl;
+  public pwdFormControl: FormControl;
+  public emailMatcher: ErrorStateMatcher;
+  public pwdMatcher: ErrorStateMatcher;
+
+  constructor(
+    private readonly _snackBar: MatSnackBar,
+    private readonly auth: AuthService
+    ) { }
 
   /**
    * Initialisation du composant.
    */
   async ngOnInit(): Promise<void> {
-    try { // todo pour avoir une connexion pendant le développement !!
-      const sampleUser: UserLogin = {
-        login: 'testimaill@mail.ml',
-        password: 'admin'
-      };
+    this.emailFormControl = new FormControl('', [
+      Validators.required,
+      Validators.email,
+    ]);
+    this.pwdFormControl = new FormControl('', [
+      Validators.required
+    ]);
+    this.emailMatcher = new MyErrorStateMatcher();
+    this.pwdMatcher = new MyErrorStateMatcher();
+  }
 
-      console.log(await this.auth.login(sampleUser));
-    } catch (error) {
-      console.error(error);
+  public async onLogin(): Promise<void> {
+    if (this.emailFormControl.valid && this.pwdFormControl.valid) {
+      const sampleUser: UserLogin = {
+        login: this.emailFormControl.value,
+        password: this.pwdFormControl.value
+      }
+      try {
+        await this.auth.login(sampleUser);
+      } catch (error) {
+        this.openSnackBar("E-mail/Mot de passe non valide");
+      }
     }
+  }
+
+  private openSnackBar(message: string) {
+    this._snackBar.open(message,'Close', {
+      horizontalPosition: 'right',
+      verticalPosition: 'top',
+      duration: 4000,
+    });
+  }
+}
+
+/** Error when invalid control is dirty, touched, or submitted. */
+export class MyErrorStateMatcher implements ErrorStateMatcher {
+  isErrorState(control: FormControl | null, form: FormGroupDirective | NgForm | null): boolean {
+    const isSubmitted = form && form.submitted;
+    return !!(control && control.invalid && (control.dirty || control.touched || isSubmitted));
   }
 }

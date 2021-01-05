@@ -5,6 +5,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { Utilisateur } from '../../models/utilisateur';
 import { UserLogin as UserLogin } from './user-login';
 import { UtilisateurToken } from './utilisateurToken';
+import {Router} from "@angular/router";
 
 /**
  * URL de base des requêtes.
@@ -82,7 +83,8 @@ export class AuthService {
    * @param http : permet de lancer des requêtes.
    */
   constructor(
-    private http: HttpClient) {
+    private http: HttpClient,
+    private router: Router) {
     try {
       this.jwtSrv = new JwtHelperService();
       this.next(null);
@@ -124,13 +126,14 @@ export class AuthService {
       if (accessToken) {
         const url = AuthService.LOGOUT_URL;
 
-        await this.http
-          .post(
-            url,
-            accessToken, {
-            headers: new HttpHeaders(AuthService.headers)
-          })
-          .toPromise();
+        // TODO: api/auth/logout non géré par le back pour le moment
+        // await this.http
+        //   .post(
+        //     url,
+        //     accessToken, {
+        //     headers: new HttpHeaders(AuthService.headers)
+        //   })
+        //   .toPromise();
       }
 
       this.next(null);
@@ -159,7 +162,7 @@ export class AuthService {
   }
 
   /**
-   * Notifie de l'authentifié et enregistre le Token de connexion correspondant dans le LocalStorage.
+   * Notifie de l'authentifié, enregistre le Token de connexion correspondant dans le LocalStorage et navigue vers le home si connecté sinon vers connexion
    * @param utilisateur : utilisateur authentifié. Si null, alors supprime la session.
    */
   private next(utilisateur?: UtilisateurToken): Utilisateur {
@@ -169,6 +172,11 @@ export class AuthService {
 
       this.save(token);
       this.notify(utilisateur);
+      if (utilisateur) {
+        this.router.navigate(['/home']);
+      } else {
+        this.router.navigate(['/connexion']);
+      }
 
       return this.utilisateur = utilisateur;
     } catch (error) {
