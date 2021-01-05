@@ -126,13 +126,14 @@ export class AuthService {
       if (accessToken) {
         const url = AuthService.LOGOUT_URL;
 
-        await this.http
-          .post(
-            url,
-            accessToken, {
-            headers: new HttpHeaders(AuthService.headers)
-          })
-          .toPromise();
+        // TODO: api/auth/logout non géré par le back pour le moment
+        // await this.http
+        //   .post(
+        //     url,
+        //     accessToken, {
+        //     headers: new HttpHeaders(AuthService.headers)
+        //   })
+        //   .toPromise();
       }
 
       this.next(null);
@@ -171,8 +172,11 @@ export class AuthService {
 
       this.save(token);
       this.notify(utilisateur);
-      // Si pas connecté alors redirige vers connexion grâce à la guard
-      this.router.navigate(['/home']);
+      if (utilisateur) {
+        this.router.navigate(['/home']);
+      } else {
+        this.router.navigate(['/connexion']);
+      }
 
       return this.utilisateur = utilisateur;
     } catch (error) {
