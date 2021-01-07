@@ -1,4 +1,4 @@
-import { Role } from './role';
+import { Roles } from './roles';
 
 /**
  * Représente un utilisateur.
@@ -16,7 +16,7 @@ export interface Utilisateur {
     active_u: boolean;
 
     /**
-     * Rôle principal de l'utilisateur (ex : admin).
+     * Rôles de l'utilisateur (ex : admin).
      */
-    role: Role;
+    roles: Roles[];
 }

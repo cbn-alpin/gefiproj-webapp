@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { FamilleTableComponent } from './famille-table.component';
-import {GenericTableDemoModule} from '../../generic-table-demo.module';
+import { GenericTableDemoModule } from '../../generic-table-demo.module';
+import { RouterTestingModule } from '@angular/router/testing';
 
 describe('FamilleTableComponent', () => {
   let component: FamilleTableComponent;
@@ -9,9 +10,11 @@ describe('FamilleTableComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ GenericTableDemoModule ]
+      imports: [
+        RouterTestingModule,
+        GenericTableDemoModule]
     })
-    .compileComponents();
+      .compileComponents();
   });
 
   beforeEach(() => {

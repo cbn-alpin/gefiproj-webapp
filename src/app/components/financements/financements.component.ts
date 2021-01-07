@@ -118,7 +118,7 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
    * Indique si le tableau peut-être modifié.
    */
   public get showActions(): boolean {
-    return !!this.adminSrv.isAdministrator;
+    return !!this.adminSrv.isAdministrator();
   }
 
   /**
@@ -146,7 +146,7 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
    * Indique si l'utilisateur est un administrateur.
    */
   public get isAdministrator(): boolean {
-    return !!this.adminSrv.isAdministrator;
+    return !!this.adminSrv.isAdministrator();
   }
 
   /**

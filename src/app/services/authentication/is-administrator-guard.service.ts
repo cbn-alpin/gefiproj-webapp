@@ -1,7 +1,7 @@
 import { EnsureAuthenticatedService } from './ensure-authenticated.service';
 import { Injectable } from '@angular/core';
 import { CanActivate } from '@angular/router';
-import { Role } from 'src/app/models/role';
+import { Roles } from 'src/app/models/roles';
 import { AuthService } from './auth.service';
 
 /**
@@ -31,7 +31,8 @@ export class IsAdministratorGuardService implements CanActivate {
 
       return isAuth
         && !!userAuth
-        && userAuth.role === Role.Admin;
+        && userAuth.roles
+        && userAuth.roles.indexOf(Roles.Admin) >= 0;
     } catch (error) {
       console.error(error);
       return false;

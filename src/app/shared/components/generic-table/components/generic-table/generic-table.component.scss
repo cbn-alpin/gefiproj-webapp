@@ -56,12 +56,12 @@
     width: 100%;
   }
   .mat-header-cell {
-    background-color: $dark-color;
+    background-color: $primary;
     color: $white;
     max-width: 105px;
   }
   .mat-checkbox-checked.mat-accent .mat-checkbox-background, .mat-checkbox-indeterminate.mat-accent .mat-checkbox-background, .mat-accent .mat-pseudo-checkbox-checked, .mat-accent .mat-pseudo-checkbox-indeterminate, .mat-pseudo-checkbox-checked, .mat-pseudo-checkbox-indeterminate {
-    background-color: $dark-color;
+    background-color: $primary;
   }
   .mat-form-field-infix {
     //border-top: 0.5em solid transparent;

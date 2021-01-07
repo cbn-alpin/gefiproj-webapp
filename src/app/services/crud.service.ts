@@ -89,7 +89,7 @@ export class CrudService<T> {
     try {
       this.spinnerSrv.show();
 
-      if (isNaN(id)) {
+      if (isNaN(id) || id <= 0) {
         throw new Error('Pas d\'identifiant valide.');
       }
 
@@ -125,7 +125,7 @@ export class CrudService<T> {
       }
 
       id = id || (item as any).id; // Pour json-server
-      if (isNaN(id)) {
+      if (isNaN(id) || id <= 0) {
         throw new Error('Pas d\'identifiant valide.');
       }
 
@@ -192,7 +192,7 @@ export class CrudService<T> {
     try {
       this.spinnerSrv.show();
 
-      if (isNaN(id)) {
+      if (isNaN(id) || id <= 0) {
         throw new Error('Pas d\'indentifiant valide.');
       }
 

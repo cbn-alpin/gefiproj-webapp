@@ -1,4 +1,6 @@
+import { CommonModule } from '@angular/common';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialogModule } from '@angular/material/dialog';
 
 import { GenericDialogComponent } from './generic-dialog.component';
 
@@ -8,9 +10,13 @@ describe('GenericDialogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ GenericDialogComponent ]
+      imports: [
+        CommonModule,
+        MatDialogModule
+      ],
+      declarations: [GenericDialogComponent]
     })
-    .compileComponents();
+      .compileComponents();
   });
 
   beforeEach(() => {
