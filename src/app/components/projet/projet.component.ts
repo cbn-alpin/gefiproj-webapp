@@ -1,16 +1,16 @@
-import {Component, OnInit} from '@angular/core';
-import {Financement} from "../../models/financement";
-import {ProjetService} from "../../services/projet.service";
-import {Recette} from "../../models/recette";
-import {IsAdministratorGuardService} from '../../services/authentication/is-administrator-guard.service';
-import {ActivatedRoute, Router} from '@angular/router';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {MatDialog} from '@angular/material/dialog';
-import {ProjetsService} from '../../services/projets.service';
-import {Projet} from '../../models/projet';
-import {MontantsAffectesService} from "../../services/montants-affectes.service";
-import {MontantAffecte} from "../../models/montantAffecte";
-import {FinancementsService} from "../../services/financements.service";
+import { Component, OnInit } from '@angular/core';
+import { Financement } from "../../models/financement";
+import { ProjetService } from "../../services/projet.service";
+import { Recette } from "../../models/recette";
+import { IsAdministratorGuardService } from '../../services/authentication/is-administrator-guard.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { ProjetsService } from '../../services/projets.service';
+import { Projet } from '../../models/projet';
+import { MontantsAffectesService } from "../../services/montants-affectes.service";
+import { MontantAffecte } from "../../models/montantAffecte";
+import { FinancementsService } from "../../services/financements.service";
 
 @Component({
   selector: 'app-projet',
@@ -31,7 +31,7 @@ export class ProjetComponent implements OnInit {
   /**
    * projet
    */
-  public projet: Projet ;
+  public projet: Projet;
   /**
    * Indique si le tableau est en lecture seule.
    */
@@ -42,7 +42,7 @@ export class ProjetComponent implements OnInit {
    * Indique si l'utilisateur est un administrateur.
    */
   public get isAdministrator(): boolean {
-    return !!this.adminSrv.isAdministrator;
+    return !!this.adminSrv.isAdministrator();
   }
 
   /**
@@ -95,7 +95,7 @@ export class ProjetComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     try {
-    await this.loadData(Number(this.projectId));
+      await this.loadData(Number(this.projectId));
     } catch (error) {
       console.error(error);
     }
@@ -108,10 +108,10 @@ export class ProjetComponent implements OnInit {
     try {
       this.projet = await this._projetsService.get(projetId);
       this.financements = await this._financementsService.getAll(this.projet.id_p);
-      if (this.financements.length > 0 ) {
+      if (this.financements.length > 0) {
         this.recettes = await this._projetService.getAllRecettesFromFinancement(this.financements[0]);;
       }
-      if (this.recettes.length > 0 ) {
+      if (this.recettes.length > 0) {
         this.montantsAffectes = await this._montantsAffectesService.getAll(this.recettes[0].id_r);
       }
     } catch (error) {
@@ -130,10 +130,10 @@ export class ProjetComponent implements OnInit {
       this.snackBar.open(
         message,
         'OK', {
-          duration: 5000,
-          horizontalPosition: 'right',
-          verticalPosition: 'top',
-        });
+        duration: 5000,
+        horizontalPosition: 'right',
+        verticalPosition: 'top',
+      });
     } catch (error) {
       console.error(error);
     }

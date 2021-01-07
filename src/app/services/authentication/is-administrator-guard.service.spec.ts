@@ -6,7 +6,7 @@ import { RouterStateSnapshot } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { JwtModule } from '@auth0/angular-jwt';
 import { tokenGetter } from 'src/app/app.module';
-import { Role } from 'src/app/models/role';
+import { Roles } from 'src/app/models/roles';
 import { Utilisateur } from 'src/app/models/utilisateur';
 import { NavigationService } from '../navigation.service';
 import { AuthService } from './auth.service';
@@ -59,7 +59,7 @@ describe('Service: IsAdministratorGuard', () => {
       prenom_u: '',
       email_u: '',
       initiales_u: '',
-      role: Role.Admin,
+      roles: [Roles.Admin],
       active_u: true
     };
     spyOnProperty(authSrv, 'userAuth', 'get').and
@@ -79,7 +79,7 @@ describe('Service: IsAdministratorGuard', () => {
       prenom_u: '',
       email_u: '',
       initiales_u: '',
-      role: Role.Consultant,
+      roles: [Roles.Consultant],
       active_u: true
     };
     spyOnProperty(authSrv, 'userAuth', 'get').and

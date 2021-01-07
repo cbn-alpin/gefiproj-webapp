@@ -13,7 +13,7 @@ import { Projet } from './../../models/projet';
 import { Utilisateur } from './../../models/utilisateur';
 import { GenericTableEntityEvent } from './../../shared/components/generic-table/models/generic-table-entity-event';
 import { GenericTableOptions } from './../../shared/components/generic-table/models/generic-table-options';
-import {Router} from "@angular/router";
+import { Router } from "@angular/router";
 
 /**
  * Affiche les projets.
@@ -113,14 +113,22 @@ export class HomeComponent implements OnInit {
     dataSource: [],
     defaultEntity: this.defaultEntity,
     entityTypes: [
-      { code: this.namesMap.code.code,
-        type: GenericTableCellType.NUMBER, name: this.namesMap.code.name, sortEnabled: true },
-      { code: this.namesMap.name.code,
-        type: GenericTableCellType.TEXT, name: this.namesMap.name.name, sortEnabled: true },
-      { code: this.namesMap.managerId.code,
-        type: GenericTableCellType.SELECTBOX, name: this.namesMap.manager.name, sortEnabled: true },
-      { code: this.namesMap.status.code,
-        type: GenericTableCellType.BOOLEAN, name: this.namesMap.status.name, sortEnabled: true }
+      {
+        code: this.namesMap.code.code,
+        type: GenericTableCellType.NUMBER, name: this.namesMap.code.name, sortEnabled: true
+      },
+      {
+        code: this.namesMap.name.code,
+        type: GenericTableCellType.TEXT, name: this.namesMap.name.name, sortEnabled: true
+      },
+      {
+        code: this.namesMap.managerId.code,
+        type: GenericTableCellType.SELECTBOX, name: this.namesMap.manager.name, sortEnabled: true
+      },
+      {
+        code: this.namesMap.status.code,
+        type: GenericTableCellType.BOOLEAN, name: this.namesMap.status.name, sortEnabled: true
+      }
     ],
     entityPlaceHolders: [],
     entitySelectBoxOptions: [],
@@ -140,7 +148,7 @@ export class HomeComponent implements OnInit {
    * Indique si l'utilisateur est un administrateur.
    */
   public get isAdministrator(): boolean {
-    return !!this.adminSrv.isAdministrator;
+    return !!this.adminSrv.isAdministrator();
   }
 
   /**
@@ -163,7 +171,7 @@ export class HomeComponent implements OnInit {
     private snackBar: MatSnackBar,
     private spinnerSrv: SpinnerService,
     private router: Router
-    ) {
+  ) {
   }
 
   /**
@@ -225,7 +233,7 @@ export class HomeComponent implements OnInit {
   async loadManagers(): Promise<Utilisateur[]> {
     try {
       this.spinnerSrv.show();
-      this.managers =  (await this.usersSrv.getAll()) // RG : tous les utilisateurs actifs peuvent être responsable projets
+      this.managers = (await this.usersSrv.getAll()) // RG : tous les utilisateurs actifs peuvent être responsable projets
         .filter(m => m.active_u);
     } catch (error) {
       console.error(error);
@@ -601,7 +609,7 @@ export class HomeComponent implements OnInit {
       if (name === this.namesMap.code.code) { // Les codes sont des entiers
         item1 = parseInt(item1, 10);
         item2 = parseInt(item2, 10);
-      } else if (typeof item1 === 'string'){ // Pour du texte
+      } else if (typeof item1 === 'string') { // Pour du texte
         item1 = item1.toUpperCase();
         item2 = item2.toUpperCase();
       }
