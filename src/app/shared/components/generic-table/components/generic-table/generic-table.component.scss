@@ -56,7 +56,7 @@
     width: 100%;
   }
   .mat-header-cell {
-    background-color: $primary;
+    background-color: $dark-color;
     color: $white;
     max-width: 105px;
   }
@@ -106,7 +106,7 @@
 
   .can-select {
     .mat-row:hover {
-      background: #7dcea0;
+      background: $light-color;
       cursor: pointer;
     }
 
@@ -115,12 +115,12 @@
     }
 
     .selected {
-      background: #a2d9ce !important;
+      background: $light-color !important;
     }
   }
 
   .default-row:first-child {
-    background: #a2d9ce !important;
+    background: $light-grey !important;
   }
 }
 
