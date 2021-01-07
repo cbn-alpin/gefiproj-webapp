@@ -198,15 +198,15 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
   /**
    * Charge les financements2 depuis le serveur.
    */
-  // async loadFinancements(projetId: number): Promise<Financement[]> {
-  //   try {
-  //     this.financements = (await this.financementsService.getAll(projetId)) || [];
-  //   } catch (error) {
-  //     console.error(error);
-  //     this.showInformation('Impossible de charger les financements2 : ' + error.error);
-  //     return Promise.reject(error);
-  //   }
-  // }
+  async loadFinancements(projetId: number): Promise<Financement[]> {
+    try {
+      this.financements = (await this.financementsService.getAll(projetId)) || [];
+    } catch (error) {
+      console.error(error);
+      this.showInformation('Impossible de charger les financements : ' + error.error);
+      return Promise.reject(error);
+    }
+  }
 
   /**
    * Charge les financeurs depuis le serveur.
@@ -265,9 +265,9 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
   /**
    * Met à jour les données d'affichage.
    */
-  private async refreshDataTable() {
+   private async refreshDataTable() {
     try {
-     // await this.loadFinancements(Number(this.projectId));
+      await this.loadFinancements(Number(this.projectId));
       const dataSource = this.financements
 
       this.options = Object.assign({}, this.options, {
