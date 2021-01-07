@@ -1,7 +1,7 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { JwtHelperService, JwtModule } from '@auth0/angular-jwt';
-import { Role } from 'src/app/models/role';
+import { Roles } from 'src/app/models/roles';
 import { tokenGetter } from '../../app.module';
 import { Utilisateur } from '../../models/utilisateur';
 import { AuthService } from './auth.service';
@@ -81,7 +81,7 @@ describe('AuthService', () => {
       prenom_u: '',
       email_u: '',
       initiales_u: '',
-      role: Role.Consultant,
+      roles: [Roles.Consultant],
       active_u: true,
       access_token: accessToken
     };
@@ -107,7 +107,7 @@ describe('AuthService', () => {
       prenom_u: '',
       email_u: '',
       initiales_u: '',
-      role: Role.Consultant,
+      roles: [Roles.Consultant],
       active_u: true,
       access_token: accessToken
     };

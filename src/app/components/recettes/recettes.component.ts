@@ -9,6 +9,7 @@ import {GenericTableCellType} from "../../shared/components/generic-table/global
 import {EntityPlaceholder} from "../../shared/components/generic-table/models/entity-placeholder";
 import {GenericTableFormError} from "../../shared/components/generic-table/models/generic-table-entity";
 import {ProjetService} from "../../services/projet.service";
+import { IsAdministratorGuardService } from 'src/app/services/authentication/is-administrator-guard.service';
 
 @Component({
   selector: 'app-recettes',
@@ -41,6 +42,20 @@ export class RecettesComponent implements OnInit, OnChanges {
    * Options du tableau
    */
   public options: GenericTableOptions<Recette>;
+
+  /**
+   * Indique si le tableau est en lecture seule.
+   */
+  public get isReadOnly(): boolean {
+    return !this.isAdministrator;
+  }
+
+  /**
+   * Indique si l'utilisateur est un administrateur.
+   */
+  public get isAdministrator(): boolean {
+    return !!this.adminSrv.isAdministrator();
+  }
 
   /**
    * Obtenir les informations d'une recette
@@ -88,6 +103,7 @@ export class RecettesComponent implements OnInit, OnChanges {
   ];
 
   constructor(
+    private readonly adminSrv: IsAdministratorGuardService,
     private projetService: ProjetService
   ) { }
 

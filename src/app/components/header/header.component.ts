@@ -1,11 +1,11 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {AuthService} from "../../services/authentication/auth.service";
-import {Observable, Subscription} from "rxjs";
-import {Utilisateur} from "../../models/utilisateur";
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AuthService } from "../../services/authentication/auth.service";
+import { Observable, Subscription } from "rxjs";
+import { Utilisateur } from "../../models/utilisateur";
 
 export interface MenuItem {
   label: string;
-  link?:string;
+  link?: string;
   icon?: string;
 }
 
@@ -39,11 +39,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
     {
       label: 'Utilisateurs',
       link: '/utilisateurs'
-    },
+    }/*,
     {
       label: 'Démo table (dév)',
       link: '/tabledemo'
-    }
+    }*/
   ];
 
   private subscription: Subscription;

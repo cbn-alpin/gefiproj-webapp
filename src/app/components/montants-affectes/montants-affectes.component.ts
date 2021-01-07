@@ -74,7 +74,7 @@ export class MontantsAffectesComponent implements OnChanges {
    * Indique si le tableau peut-être modifié.
    */
   public get showActions(): boolean {
-    return !!this.adminSrv.isAdministrator;
+    return !!this.adminSrv.isAdministrator();
   }
   /**
    * Date Pipe
@@ -92,7 +92,7 @@ export class MontantsAffectesComponent implements OnChanges {
    * Indique si l'utilisateur est un administrateur.
    */
   public get isAdministrator(): boolean {
-    return !!this.adminSrv.isAdministrator;
+    return !!this.adminSrv.isAdministrator();
   }
 
   /**

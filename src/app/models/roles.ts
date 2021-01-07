@@ -1,14 +1,14 @@
 /**
  * Rôles des utilisateurs de l'application.
  */
-export enum Role {
+export enum Roles {
     /**
      * Accès en lecture et modification + reporting.
      */
-    Admin = 2,
+    Admin = 'administrateur',
 
     /**
      * Accès en lecture + reporting.
      */
-    Consultant = 1
+    Consultant = 'consultant'
 }
