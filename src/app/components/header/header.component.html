@@ -1,24 +1,32 @@
 <!-- Toolbar -->
 <mat-toolbar>
     <!--LOGO-->
-    <a href="/home">
+    <a [routerLink]="'/home'">
         <img width="150" alt="Logo" src="/assets/logo.png"/>
     </a>
     <!--MENU LT-->
     <div *ngFor="let item of menuItems; let index = index;" fxShow="true" fxHide.lt-md>
+      <div *ngIf="user">
         <a *ngIf="index !== menuItems.length" [routerLink]="item.link" routerLinkActive="active">
           <span>{{ item.label }}</span>
         </a>
+      </div>
     </div>
+
     <div class="spacer"></div>
-    <a *ngIf="!user; else connected" fxShow="true" fxHide.lt-md [routerLink]="'/connexion'" routerLinkActive="active">
+
+    <div *ngIf="!user">
+      <a fxShow="true" fxHide.lt-md [routerLink]="'/connexion'" routerLinkActive="active">
         <span>Connexion</span>
-    </a>
-    <ng-template #connected>
+      </a>
+    </div>
+
+    <div *ngIf="user">
       <a fxShow="true" fxHide.lt-md (click)="logout()">
         <span>Déconnexion</span>
       </a>
-    </ng-template>
+    </div>
+
     <button mat-icon-button [matMenuTriggerFor]="dropMenu" fxShow="true" fxHide.gt-sm>
         <mat-icon>menu</mat-icon>
     </button>
