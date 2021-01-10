@@ -1,0 +1,56 @@
+.rapports {
+
+}
+
+.container {
+  margin-bottom: 50px;
+}
+
+.box {
+  border: solid 1px;
+  padding: 25px;
+
+  .mb {
+    margin-bottom: 25px;
+  }
+}
+
+.block {
+  .group {
+    display: flex;
+
+    .child {
+      margin-right: 30px;
+    }
+  }
+}
+
+button {
+  text-transform: uppercase;
+}
+
+.space-between {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.vertical-align {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+mat-icon {
+  cursor: pointer;
+}
+
+mat-form-field {
+  width: 100px;
+}
+
+//::ng-deep {
+//  .tooltip-info {
+//    font-size: 15px !important;
+//  }
+//}

@@ -34,6 +34,7 @@ import { MontantsAffectesComponent } from './components/montants-affectes/montan
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
+import {MatTooltipModule} from "@angular/material/tooltip";
 
 /**
  * Retourne le token courant.
@@ -84,7 +85,8 @@ registerLocaleData(localeFr, 'fr-FR');
     MatCheckboxModule,
     MatFormFieldModule,
     ReactiveFormsModule,
-    MatInputModule
+    MatInputModule,
+    MatTooltipModule
   ],
   providers: [
     {
