@@ -2,7 +2,7 @@ import { registerLocaleData } from '@angular/common';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import localeFr from '@angular/common/locales/fr';
 import { NgModule } from '@angular/core';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
@@ -21,20 +21,21 @@ import { AuthService } from './services/authentication/auth.service';
 import { AuthenticationHttpInterceptorService } from './services/authentication/authentication-http-interceptor.service';
 import { SharedModule } from './shared/shared.module';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatSidenavModule } from "@angular/material/sidenav";
-import { MatListModule } from "@angular/material/list";
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
-import { FlexLayoutModule } from "@angular/flex-layout";
+import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import {FinancementsComponent} from "./components/financements/financements.component";
+import { FinancementsComponent } from './components/financements/financements.component';
 import { RecettesComponent } from './components/recettes/recettes.component';
 import { ProjetComponent } from './components/projet/projet.component';
 import { MontantsAffectesComponent } from './components/montants-affectes/montants-affectes.component';
-import {MatCheckboxModule} from '@angular/material/checkbox';
-import {MatFormFieldModule} from "@angular/material/form-field";
-import {MatInputModule} from "@angular/material/input";
-import {MatTooltipModule} from "@angular/material/tooltip";
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { SuiviFinancementsComponent } from './components/suivi-financements/suivi-financements.component';
 
 /**
  * Retourne le token courant.
@@ -49,7 +50,6 @@ export function tokenGetter(): string {
  */
 registerLocaleData(localeFr, 'fr-FR');
 
-
 @NgModule({
   declarations: [
     AppComponent,
@@ -63,7 +63,8 @@ registerLocaleData(localeFr, 'fr-FR');
     FinancementsComponent,
     RecettesComponent,
     ProjetComponent,
-    MontantsAffectesComponent
+    MontantsAffectesComponent,
+    SuiviFinancementsComponent,
   ],
   imports: [
     BrowserModule,
@@ -86,17 +87,15 @@ registerLocaleData(localeFr, 'fr-FR');
     MatFormFieldModule,
     ReactiveFormsModule,
     MatInputModule,
-    MatTooltipModule
+    MatTooltipModule,
   ],
   providers: [
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthenticationHttpInterceptorService,
-      multi: true
-    }
+      multi: true,
+    },
   ],
-  bootstrap: [
-    AppComponent
-  ]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

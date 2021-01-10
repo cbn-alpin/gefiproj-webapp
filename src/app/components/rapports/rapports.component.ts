@@ -8,6 +8,7 @@ import {
   NgForm,
   Validators,
 } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-rapports',
@@ -23,7 +24,10 @@ export class RapportsComponent implements OnInit {
 
   private readonly patternYear = '^\\d{4}$';
 
-  constructor(private readonly _fb: FormBuilder) {}
+  constructor(
+    private readonly _fb: FormBuilder,
+    private readonly _router: Router
+  ) {}
 
   ngOnInit(): void {
     this.suiviFinancementsFormGroupVersion2 = this._fb.group({
@@ -80,11 +84,18 @@ export class RapportsComponent implements OnInit {
 
   public executeSuiviFinancementsVersion1(): void {
     console.log('Suivi financements v1');
+    this._router.navigate(['/suivi-financements']);
   }
 
   public executeSuiviFinancementsVersion2(): void {
     if (this.suiviFinancementsFormGroupVersion2.valid) {
       console.log('Suivi financements v2');
+      this._router.navigate(['/suivi-financements'], {
+        queryParams: {
+          annee1: this.suiviFinancementsFormGroupVersion2.get('annee1').value,
+          annee2: this.suiviFinancementsFormGroupVersion2.get('annee2').value,
+        },
+      });
     }
   }
 
