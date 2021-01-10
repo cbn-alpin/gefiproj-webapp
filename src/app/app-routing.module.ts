@@ -8,68 +8,70 @@ import { RapportsComponent } from './components/rapports/rapports.component';
 import { UtilisateursComponent } from './components/utilisateurs/utilisateurs.component';
 import { EnsureAuthenticatedService } from './services/authentication/ensure-authenticated.service';
 import { IsAdministratorGuardService } from './services/authentication/is-administrator-guard.service';
-import {GenericTableDemoComponent} from './components/generic-table-demo/containers/generic-table-demo/generic-table-demo.component';
-import {ProjetComponent} from "./components/projet/projet.component";
+import { GenericTableDemoComponent } from './components/generic-table-demo/containers/generic-table-demo/generic-table-demo.component';
+import { ProjetComponent } from './components/projet/projet.component';
+import { SuiviFinancementsComponent } from './components/suivi-financements/suivi-financements.component';
 
 const routes: Routes = [
   {
     path: 'connexion',
-    component: ConnexionComponent
+    component: ConnexionComponent,
   },
   {
     path: 'home',
     component: HomeComponent,
-    canActivate: [EnsureAuthenticatedService]
+    canActivate: [EnsureAuthenticatedService],
   },
   {
     path: 'depenses',
     component: DepensesComponent,
-    canActivate: [EnsureAuthenticatedService]
+    canActivate: [EnsureAuthenticatedService],
   },
   {
     path: 'financeurs',
     component: FinanceursComponent,
-    canActivate: [EnsureAuthenticatedService]
+    canActivate: [EnsureAuthenticatedService],
   },
   {
     path: 'projet/:id',
     component: ProjetComponent,
-    canActivate: [EnsureAuthenticatedService]
+    canActivate: [EnsureAuthenticatedService],
   },
   {
     path: 'rapports',
     component: RapportsComponent,
-    canActivate: [EnsureAuthenticatedService]
+    canActivate: [EnsureAuthenticatedService],
   },
   {
     path: 'utilisateurs',
     component: UtilisateursComponent,
-    canActivate: [IsAdministratorGuardService]
+    canActivate: [IsAdministratorGuardService],
+  },
+  {
+    path: 'suivi-financements',
+    component: SuiviFinancementsComponent,
+    canActivate: [IsAdministratorGuardService],
   },
   // TODO: Supprimer le chemin 'tabledemo'
   {
     path: 'tabledemo',
-    component: GenericTableDemoComponent
+    component: GenericTableDemoComponent,
   },
   {
     path: '',
     redirectTo: 'home',
     pathMatch: 'full',
-    canActivate: [EnsureAuthenticatedService]
+    canActivate: [EnsureAuthenticatedService],
   },
   {
     path: '**',
     component: HomeComponent,
-    canActivate: [EnsureAuthenticatedService]
-  }
+    canActivate: [EnsureAuthenticatedService],
+  },
 ];
 
 @NgModule({
-  imports: [
-    RouterModule.forRoot(routes)
-  ],
-  exports: [
-    RouterModule
-  ]
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}
