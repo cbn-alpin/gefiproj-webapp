@@ -25,11 +25,6 @@ export class EnsureAuthenticatedService {
    */
   public canActivate(): boolean {
     try {
-      ////////////////////////////////////////////
-      //todo à désactiver tant que l'API de Token n'est pas fournie !!
-      // return true;
-      ////////////////////////////////////////////
-
       const isAuth = this.authSrv.isAuthenticated();
 
       if (!isAuth) { // Affiche page d'authentification
