@@ -1,7 +1,7 @@
 import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { from, Observable, throwError } from 'rxjs';
+import { catchError, switchMap } from 'rxjs/operators';
 import { NavigationService } from '../navigation.service';
 import { AuthService } from './auth.service';
 
@@ -14,7 +14,6 @@ import { AuthService } from './auth.service';
   providedIn: 'root'
 })
 export class AuthenticationHttpInterceptorService implements HttpInterceptor {
-
   /**
    * Injecte le Token dans les requêtes et gère les erreurs 401 sur le serveur.
    * @param authSrv : permet de récupérer le Token de connexion courant.
@@ -45,27 +44,30 @@ export class AuthenticationHttpInterceptorService implements HttpInterceptor {
 
   /**
    * Ajoute le Token aux Headers.
-   * @param req : requête lancée.
+   * @param request : requête lancée.
    * @param stream : pipe.
    * @param next : prochain gestionnaire.
    */
-  private addToken(req: HttpRequest<any>, stream: Observable<HttpEvent<any>>, next: HttpHandler): Observable<HttpEvent<any>> {
+  private addToken(request: HttpRequest<any>, stream: Observable<HttpEvent<any>>, next: HttpHandler): Observable<HttpEvent<any>> {
     try {
-      const isAuthApi = /.*\/api\/auth\/.*/.test(req.url);
+      const isAuthApi = /.*\/api\/auth\/.*/.test(request.url);
 
-      if (!isAuthApi) { // Ajout du Token aux requêtes
-        const accessToken = this.authSrv.accessToken;
-        const isAuth = accessToken
-          && this.authSrv.isAuthenticated();
+      if (!isAuthApi) { // Ajout du Token aux requêtes, si valide, sinon il est préalablement rafraichi
+        const isAuth = this.authSrv.isAuthenticated();
 
-        if (isAuth) {
-          const reqAuth = req.clone({
-            setHeaders: {
-              Authorization: `Bearer ${accessToken}`
-            }
-          });
-
-          stream = next.handle(reqAuth);
+        if (isAuth) { // Token valide => Injection du Token
+          const reqAuth = this.injectToken(request);
+          return next.handle(reqAuth);
+        } else if (this.authSrv.canRefreshToken()) { // Token invalide, mais Refresh Token valide => rafraichissement du Token
+          return from(this.authSrv.refreshTokenOrLogout())
+              .pipe(
+                switchMap(() => {
+                  return next.handle(this.injectToken(request));
+                }),
+                catchError((error: any) => {
+                  this.authSrv.logout();
+                  return throwError(error);
+              }));
         }
       }
     } catch (error) {
@@ -73,6 +75,20 @@ export class AuthenticationHttpInterceptorService implements HttpInterceptor {
     }
 
     return stream;
+  }
+
+  /**
+   * Injecte le Token dans l'en-tête.
+   * @param request : requette où effectuer l'injection.
+   */
+  private injectToken(request: HttpRequest<any>): HttpRequest<any> {
+    const accessToken = this.authSrv.accessToken;
+
+    return request.clone({
+      setHeaders: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
   }
 
   /**
