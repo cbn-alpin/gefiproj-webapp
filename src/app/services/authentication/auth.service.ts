@@ -1,10 +1,11 @@
 import { Location } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Router } from "@angular/router";
+import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Utilisateur } from '../../models/utilisateur';
+import { RefreshTokenResponse } from './refreshTokenResponse';
 import { UserLogin as UserLogin } from './user-login';
 import { UtilisateurToken } from './utilisateurToken';
 
@@ -32,6 +33,11 @@ export class AuthService {
   public static readonly LOGOUT_URL = `${BASE_URL}/logout`;
 
   /**
+   * URL pour rafraichir le Token.
+   */
+  public static readonly REFRESH_TOKEN_URL = `${BASE_URL}/refresh`;
+
+  /**
    * Header à injecter à chaque requête.
    */
   public static readonly headers = {
@@ -44,6 +50,11 @@ export class AuthService {
   public static readonly tokenKey = 'token';
 
   /**
+   * Clef de stockage du Refresh Token de connexion pour l'utilisateur.
+   */
+  public static readonly refreshTokenKey = 'refreshToken';
+
+  /**
    * Clef de stockage pour les données de l'utilisateur connecté.
    */
   public static readonly userKey = 'user';
@@ -52,6 +63,11 @@ export class AuthService {
    * Permet de valider le Token.
    */
   private jwtSrv: JwtHelperService;
+
+  /**
+   * Promise gérant un rafraichissement le Token.
+   */
+  private promiseRefreshToken: Promise<any> = null;
 
   /**
    * Publie les différentes sessions de l'utilisateur.
@@ -67,7 +83,14 @@ export class AuthService {
    * Utilisateur authentifié.
    */
   public get userAuth(): Utilisateur {
-    return this.user || null;
+    try {
+      return this.user
+        || JSON.parse(localStorage.getItem(AuthService.userKey))
+        || null;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
   }
 
   /**
@@ -82,6 +105,13 @@ export class AuthService {
    */
   public get accessToken(): string {
     return localStorage.getItem(AuthService.tokenKey) || null;
+  }
+
+  /**
+   * Retourne le Refresh Token courant depuis le stockage.
+   */
+  public get refreshTokenStr(): string {
+    return localStorage.getItem(AuthService.refreshTokenKey) || null;
   }
 
   /**
@@ -158,8 +188,70 @@ export class AuthService {
    */
   public isAuthenticated(): boolean {
     try {
-      const token = this.accessToken;
+      if (!this.userAuth) { // Utilisateur inconnu !
+        return false;
+      }
 
+      const token = this.accessToken;
+      if (!token) { // Pas de Token enregistré !
+        return false;
+      }
+
+      const isAuth = !this.jwtSrv.isTokenExpired(token);
+
+      if (isAuth) { // Token valide
+        return true;
+      } else { // Token invalide => tentative de rafraichissement via le Refresh Token
+        // Note : on n'attend pas la fin du rafraichissement
+        this.refreshTokenOrLogout().catch(() =>
+          console.log('Rafraichissement du Token impossible.') // Bouchonne l'exception
+        );
+      }
+    } catch (error) {
+      console.error(error);
+    }
+
+    return false;
+  }
+
+  /**
+   * Tente de rafraichir le Token via le Refresh Token. En cas d'échec direction la page de connexion.
+   */
+  public async refreshTokenOrLogout(): Promise<any> {
+    try {
+      const canRefreshToken = this.canRefreshToken();
+
+      if (canRefreshToken) { // Refresh Token valide => tentative de rafraichissement
+        const promiseRefreshToken = this.promiseRefreshToken;
+
+        if (!promiseRefreshToken) { // Token invalide mais Refresh Token valide => rafraichissement du Token
+          return await (this.promiseRefreshToken = this.refreshToken()
+            .catch(() =>
+              this.logout())
+            .finally(() =>
+              this.promiseRefreshToken = null));
+        } else { // Requête déjà en cours
+          return await promiseRefreshToken;
+        }
+      } else {
+        return await this.logout();
+      }
+    } catch (error) {
+      console.error(error);
+      return Promise.reject(error);
+    }
+  }
+
+  /**
+   * Indique si le Refresh Token est valide.
+   */
+  public canRefreshToken(): boolean {
+    try {
+      if (!this.userAuth) { // Utilisateur inconnu !
+        return false;
+      }
+
+      const token = this.refreshTokenStr;
       if (!token) {
         return false;
       }
@@ -172,41 +264,72 @@ export class AuthService {
   }
 
   /**
-   * Notifie de l'authentifié, enregistre le Token de connexion correspondant dans le LocalStorage et navigue vers le home (ou autre) si connecté sinon vers connexion.
+   * Tente de rafraichir le Token.
+   */
+  public async refreshToken(): Promise<RefreshTokenResponse> {
+    try {
+      if (!this.canRefreshToken()) {
+        throw new Error('Le Refresh Token n\'est pas valide');
+      }
+
+      const url = AuthService.REFRESH_TOKEN_URL;
+      const headers = Object.assign({
+        Authorization: `Bearer ${this.refreshTokenStr}`
+      }, AuthService.headers);
+
+      const access = await this.http
+        .post<RefreshTokenResponse>(
+          url,
+          null, {
+          headers: new HttpHeaders(headers)
+        })
+        .toPromise();
+
+      this.saveInStorage(this.userAuth, access.access_token, access.refresh_token || this.refreshTokenStr || null);
+    } catch (error) {
+        console.error(error);
+        return Promise.reject(error);
+    }
+  }
+
+  /**
+   * Notifie de l'authentifié, enregistre le Token de connexion correspondant dans le LocalStorage
+   * et navigue vers le home (ou autre) si connecté sinon vers connexion.
    * @param userWithToken : utilisateur authentifié. Si null, alors supprime la session et navigue jusqu'à la page de connexion.
    */
   private next(userWithToken?: UtilisateurToken): Utilisateur {
     try {
       userWithToken = userWithToken || null;
       let token: string = null;
+      let refreshToken: string = null;
 
       if (userWithToken) { // Utilisateur + token fournis en paramètre
-        token = this.extractToken(userWithToken);
+        ({ token, refreshToken } = this.extractToken(userWithToken));
       }
-      
-      this.saveAndNavigate(userWithToken, token);
+
+      this.saveAndNavigate(userWithToken, token, refreshToken);
     } catch (error) {
       console.error(error);
     }
 
-    return this.user;
+    return this.userAuth;
   }
 
   /**
    * Enregistre les informations de connexion puis navigue vers la page appropriée.
    * @param user : utilisateur connecté.
    * @param token : token de connexion.
+   * @param refreshToken : Refresh Token.
    */
-  private saveAndNavigate(user: Utilisateur, token: string) {
-    this.user = user || null;
+  private saveAndNavigate(user: Utilisateur, token: string, refreshToken?: string): void {
     const pathConnexion = '/connexion';
     const pathHome = '/home';
-    const isAuth = user 
-      && token 
-      && this.verifyToken(token);
+    const isAuth = user
+      && token
+      && (this.verifyToken(token) || this.verifyToken(refreshToken));
 
     if (isAuth) { // Enregistrement puis direction la page d'accueil (ou autre)
-      this.saveInStorage(user, token);
+      this.saveInStorage(user, token, refreshToken);
       this.notify(user);
 
       const location = this.location.path();
@@ -224,18 +347,21 @@ export class AuthService {
   /**
    * Récupère les informations de connexion via le storage et notifie le système.
    */
-  private verifyAuthFromStorage() {
+  private verifyAuthFromStorage(): void {
     try {
       let user: Utilisateur = null;
       let token: string = null;
-      ({ user, token } = this.getFromStorage());
-      
+      let refreshToken: string = null;
+
+      ({ user, token, refreshToken } = this.getFromStorage());
+
       if (user && token) {
         const userWithToken: UtilisateurToken = Object.assign({
-          access_token: token
+          access_token: token,
+          refresh_token: refreshToken
         },
           user);
-  
+
         this.next(userWithToken);
       } else { // Rien dans le storage
         this.next(null);
@@ -248,18 +374,19 @@ export class AuthService {
   /**
    * Retourne les informations de connexion depuis le storage.
    */
-  private getFromStorage(): { user: Utilisateur, token: string } {
+  private getFromStorage(): { user: Utilisateur, token: string, refreshToken: string } {
     try {
       const userStr = localStorage.getItem(AuthService.userKey);
       const user = userStr ? JSON.parse(userStr) as Utilisateur : null;
-      const token = localStorage.getItem(AuthService.tokenKey);
-      
-      return { user, token };
+      const token = localStorage.getItem(AuthService.tokenKey) || null;
+      const refreshToken = localStorage.getItem(AuthService.refreshTokenKey) || null;
+
+      return { user, token, refreshToken };
     } catch (error) {
       console.error(error);
     }
 
-    return { user: null, token: null };
+    return { user: null, token: null, refreshToken: null };
   }
 
   /**
@@ -275,14 +402,14 @@ export class AuthService {
   }
 
   /**
-   * Retourne le Token de connexion associé à l'utilisateur, ou null en cas de problème. Le Token est retiré de l'objet.
+   * Retourne le Token de connexion (et son Refresh Token) associé à l'utilisateur,
+   * ou null en cas de problème. Le Token est retiré de l'objet.
    * @param utilisateur : utilisateur authentifié.
    */
-  private extractToken(utilisateur: UtilisateurToken): string {
+  private extractToken(utilisateur: UtilisateurToken): { token: string, refreshToken: string } {
     try {
-      const token = utilisateur && utilisateur.access_token
-        ? utilisateur.access_token
-        : null;
+      const token = utilisateur?.access_token || null;
+      const refreshToken = utilisateur?.refresh_token || null;
 
       if (token) { // Retrait du Token
         delete utilisateur.access_token;
@@ -292,7 +419,7 @@ export class AuthService {
         }
       }
 
-      return token;
+      return { token, refreshToken };
     } catch (error) {
       console.error(error);
     }
@@ -300,16 +427,20 @@ export class AuthService {
 
   /**
    * Enregistre le Token dans le LocalStorage.
-   * @param user : Utilisateur connecté.
+   * @param user : Utilisateur connecté. Si null, alors supprime la session.
    * @param token : Token à enregistrer. Si null, alors supprime la session.
+   * @param refreshToken : Refresh Token à enregistrer.
    */
-  private saveInStorage(user: Utilisateur, token: string): void {
+  private saveInStorage(user: Utilisateur, token: string, refreshToken?: string): void {
     try {
-      const isAuth = this.verifyToken(token);
+      const isAuth = this.verifyToken(token)
+        || this.verifyToken(refreshToken);
 
       if (user && isAuth) {
+        this.user = user;
         localStorage.setItem(AuthService.userKey, JSON.stringify(user));
         localStorage.setItem(AuthService.tokenKey, token);
+        localStorage.setItem(AuthService.refreshTokenKey, refreshToken || '');
       } else {
         this.clearStorage();
       }
@@ -336,10 +467,12 @@ export class AuthService {
   /**
    * Vide le stockage.
    */
-  private clearStorage() {
+  private clearStorage(): void {
     try {
+      this.user = null;
       localStorage.removeItem(AuthService.userKey);
       localStorage.removeItem(AuthService.tokenKey);
+      localStorage.removeItem(AuthService.refreshTokenKey);
     } catch (error) {
       console.error(error);
     }
