@@ -188,12 +188,16 @@ export class AuthService {
    */
   public isAuthenticated(): boolean {
     try {
-      if (!this.userAuth) { // Utilisateur inconnu !
+      if (!this.userAuth
+        || !this.userAuth.active_u
+        || (this.userAuth.roles || []).length === 0) { // Utilisateur inconnu, sans rôle, ou inactif !
+        this.logout(); // Note : on n'attend pas
         return false;
       }
 
       const token = this.accessToken;
       if (!token) { // Pas de Token enregistré !
+        this.logout(); // Note : on n'attend pas
         return false;
       }
 
@@ -266,7 +270,7 @@ export class AuthService {
   /**
    * Tente de rafraichir le Token.
    */
-  public async refreshToken(): Promise<RefreshTokenResponse> {
+  private async refreshToken(): Promise<RefreshTokenResponse> {
     try {
       if (!this.canRefreshToken()) {
         throw new Error('Le Refresh Token n\'est pas valide');
