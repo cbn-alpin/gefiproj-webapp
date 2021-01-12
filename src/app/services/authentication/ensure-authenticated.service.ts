@@ -28,6 +28,8 @@ export class EnsureAuthenticatedService {
         if (this.authSrv.canRefreshToken) {
           await this.authSrv.refreshTokenOrLogout();
           isAuth = this.authSrv.isAuthenticated();
+        } else {
+          this.authSrv.logout();
         }
       }
 
