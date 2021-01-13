@@ -43,8 +43,12 @@ export class ConnexionComponent implements OnInit {
           login: this.emailFormControl.value,
           password: this.pwdFormControl.value
         };
-
         await this.authSrv.login(sampleUser);
+
+        const isAuth = this.authSrv.isAuthenticated();
+        if (!isAuth) {
+          this.openSnackBar('Ce login n\'est pas valide : utilisateur inactif ou sans rôle.');
+        }
       }
     } catch (error) {
       this.openSnackBar('E-mail/Mot de passe non valide');
