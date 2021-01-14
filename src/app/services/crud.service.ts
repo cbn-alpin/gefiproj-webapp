@@ -123,7 +123,7 @@ export class CrudService<T> {
 
       id = id || (item as any).id; // Pour json-server
       if (isNaN(id) || id <= 0) {
-        throw new Error("Pas d'identifiant valide.");
+        throw new Error('Pas d\'identifiant valide.');
       }
 
       const url = `${this.endPoint}/${id}`;
