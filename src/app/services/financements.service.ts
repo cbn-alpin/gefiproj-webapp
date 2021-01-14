@@ -21,7 +21,7 @@ export class FinancementsService {
   private readonly crudSrv: CrudService<Financement>;
 
   /**
-   * Effectue les appels au serveur d'API pour les financements2.
+   * Effectue les appels au serveur d'API pour les financements.
    * @param http : permet d'effectuer les appels au serveur d'API.
    * @param spinnerSrv : gère le spinner/sablier.
    */
@@ -36,8 +36,8 @@ export class FinancementsService {
   }
 
   /**
-   * Retourne les financements2 depuis le un projet2 en paramètre.
-   * @param projetId : l'id du projet2.
+   * Retourne les financements depuis le un projet en paramètre.
+   * @param projetId : l'id du projet.
    */
   public async getAll(projetId: number): Promise<Financement[]> {
     try {
@@ -56,7 +56,7 @@ export class FinancementsService {
   }
 
   /**
-   * Transmet le financement d'un projet2 modifié au serveur.
+   * Transmet le financement d'un projet modifié au serveur.
    * @param financement : le financement modifié
    */
   public async put(financement: Financement): Promise<Financement> {
@@ -66,7 +66,7 @@ export class FinancementsService {
   }
 
   /**
-   * Transmet le financement d'un projet2 au serveur.
+   * Transmet le financement d'un projet au serveur.
    * @param financement : le financement à créer
    */
   public async post(financement: Financement): Promise<Financement> {

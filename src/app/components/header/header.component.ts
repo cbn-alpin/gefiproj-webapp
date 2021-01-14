@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AuthService } from "../../services/authentication/auth.service";
-import { Observable, Subscription } from "rxjs";
-import { Utilisateur } from "../../models/utilisateur";
+import { Observable, Subscription } from 'rxjs';
+import { Utilisateur } from '../../models/utilisateur';
+import { AuthService } from '../../services/authentication/auth.service';
 
 export interface MenuItem {
   label: string;
@@ -56,7 +56,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.user$ = this.auth.userObservable;
     this.subscription = this.user$.subscribe((user) => {
       this.user = user;
-    })
+    });
   }
 
   public ngOnDestroy(): void {
@@ -66,5 +66,4 @@ export class HeaderComponent implements OnInit, OnDestroy {
   public logout(): void {
     this.auth.logout();
   }
-
 }
