@@ -207,9 +207,7 @@ export class AuthService {
         return true;
       } else { // Token invalide => tentative de rafraichissement via le Refresh Token
         // Note : on n'attend pas la fin du rafraichissement
-        this.refreshTokenOrLogout().catch(() =>
-          console.log('Rafraichissement du Token impossible.') // Bouchonne l'exception
-        );
+        this.refreshTokenOrLogout();
       }
     } catch (error) {
       console.error(error);

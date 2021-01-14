@@ -36,7 +36,7 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
   readonly title = 'Financements';
 
   /**
-   * id projet2
+   * id projet
    */
   public projectId: string;
 
@@ -196,7 +196,7 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
   }
 
   /**
-   * Charge les financements2 depuis le serveur.
+   * Charge les financements depuis le serveur.
    */
   async loadFinancements(projetId: number): Promise<Financement[]> {
     try {
@@ -300,7 +300,7 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
       console.error(error.error.errors);
       for( const err of error.error.errors){
         console.log(err)
-        this.showInformation('Impossible de modifier les financements2 : ' + err.message);
+        this.showInformation('Impossible de modifier les financements : ' + err.message);
       }
     }
   }
@@ -385,8 +385,8 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
   }
 
   /**
-   * Un financements2 a été créé et initialisé dans le tableau.
-   * @param event : encapsule le financements2 à modifier.
+   * Un financements a été créé et initialisé dans le tableau.
+   * @param event : encapsule le financement à modifier.
    */
   async onCreate(event: GenericTableEntityEvent<Financement>): Promise<void> {
     try {
@@ -417,8 +417,8 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
    */
 
   /**
-   * Un financements2 a été supprimé du tableau.
-   * @param event : encapsule le financements2 à modifier.
+   * Un financements a été supprimé du tableau.
+   * @param event : encapsule le financement à modifier.
    */
   async onDelete(event: GenericTableEntityEvent<Financement>): Promise<void> {
     try {
@@ -428,21 +428,21 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
       }
 
       const dialogRef = this.dialog.open(GenericDialogComponent, {
-        data: <IMessage>{
+        data: {
           header: 'Suppression du financement',
           content: 'Voulez-vous supprimer cet financement de montant ' + financement.montant_arrete_f + ' provenant du financeur ' + financement.financeur.nom_financeur + '?',
           type: 'warning',
           action: {
             name: 'Confirmer',
           }
-        }
+        } as IMessage
       });
 
       dialogRef.afterClosed().subscribe(
         async result => {
           if (result) {
             await this.financementsService.delete(financement);
-            this.showInformation('Le financement de montant ' + financement.montant_arrete_f + '€, a été supprimé du projet2.');
+            this.showInformation('Le financement de montant ' + financement.montant_arrete_f + '€, a été supprimé du projet.');
             await this.refreshDataTable();
             event.callBack(null);
           }
@@ -453,7 +453,7 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
       console.error(error);
       this.showInformation('Impossible de supprimer le financement : ' + error.message);
       event?.callBack({
-        apiError: 'Impossible de supprimer le financements2.'
+        apiError: 'Impossible de supprimer le financement.'
       });
     }
   }
