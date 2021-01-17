@@ -116,7 +116,7 @@ export class ProjetsService {
       const fundingsSrv = new CrudService<Financement>(
         this.http,
         this.spinnerSrv,
-        `api/funding/${id}`); // `${this.endPoint}/${id}/fundings`);
+        `${this.endPoint}/${id}/fundings`);
 
       return fundingsSrv.getAll('id_f');
     } catch (error) {
