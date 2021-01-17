@@ -66,7 +66,7 @@ export class ProjetService {
    */
   public getAllRecettesFromFinancement(financement: Financement): Promise<Recette[]> {
     try {
-      const endPoint = 'http://127.0.0.1:5000/api/funding/' + financement.id_f + '/receipts';
+      const endPoint = '/api/funding/' + financement.id_f + '/receipts';
       const crudSrv = new CrudService<Recette>(
         this.http,
         this.spinnerSrv,

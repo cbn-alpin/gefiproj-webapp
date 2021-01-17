@@ -13,7 +13,7 @@ export class FinancementsService {
   /**
    * Url relative de l'API.
    */
-  public readonly endPoint = 'http://127.0.0.1:5000/api/funding';
+  public readonly endPoint = '/api/funding';
 
   /**
    * Effectue les appels au serveur d'API pour une entité donnée.

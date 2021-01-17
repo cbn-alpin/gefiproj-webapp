@@ -14,7 +14,7 @@ export class MontantsAffectesService {
   /**
    * Url relative de l'API.
    */
-  public readonly endPoint = 'http://127.0.0.1:5000/api/receipt';
+  public readonly endPoint = '/api/receipt';
   /**
    * Effectue les appels au serveur d'API pour une entité donnée.
    */
@@ -65,7 +65,7 @@ export class MontantsAffectesService {
       const amountSrv = new CrudService<MontantAffecte>(
         this.http,
         this.spinnerSrv,
-        `http://127.0.0.1:5000/api/receipt/${receiptId}/amounts`); // `${this.endPoint}/${id}/fundings`);
+        `/api/receipt/${receiptId}/amounts`); // `${this.endPoint}/${id}/fundings`);
 
       // TODO méthode dans ReceiptServ
       return amountSrv.getAll('id_ma');
