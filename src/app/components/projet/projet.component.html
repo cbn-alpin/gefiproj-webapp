@@ -22,24 +22,20 @@
   ></app-financements>
 </div>
 
-<div class="block">
-  <div class="space-between-container">
-        <div class="recettes">
-          <app-recettes
-            *ngIf="recettes"
-            [recettes]="recettes"
-            [financement]="selectedFinancement"
-            (select)="onSelectRecette($event)"
-          ></app-recettes>
-        </div>
+<div class="block" fxLayout="row" fxLayoutAlign="space-between start" fxLayoutGap="30px">
+  <div class="recettes">
+    <app-recettes
+      *ngIf="recettes"
+      [recettes]="recettes"
+      [financement]="selectedFinancement"
+      (select)="onSelectRecette($event)"
+    ></app-recettes>
+  </div>
 
-        <div class="montants-affectes">
-          <app-montants-affectes
-            *ngIf="montantsAffectes"
-            [montantsAffectes]="montantsAffectes"
-          ></app-montants-affectes>
-        </div>
-    </div>
+  <div class="montants-affectes">
+    <app-montants-affectes
+      *ngIf="montantsAffectes"
+      [montantsAffectes]="montantsAffectes"
+    ></app-montants-affectes>
+  </div>
 </div>
-
-

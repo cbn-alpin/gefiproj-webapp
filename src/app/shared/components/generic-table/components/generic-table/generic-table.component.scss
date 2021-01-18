@@ -2,8 +2,7 @@
 
 .table-generic {
   display: block;
-  //height: 400px;
-  max-width: 90vw;
+  max-width: 96vw;
   overflow: auto;
   margin-top: 10px;
 }
@@ -17,7 +16,7 @@
 :host::ng-deep {
   table {
     width: 100%;
-    border: 0.5px solid #e0e0e0;
+    //border: 0.5px solid #e0e0e0;
     border-bottom: none;
   }
   .title {
@@ -26,7 +25,7 @@
   .number .mat-form-field {
     width: auto;
   }
-  .string .mat-form-field, {
+  .string .mat-form-field {
     min-width: 80px;
   }
   .selectbox .mat-form-field {
@@ -99,7 +98,7 @@
   .mat-cell, .mat-header-cell{
     padding: 5px 10px !important;
   }
-  .mat-cell.actions, .mat-header-cell.actions{
+  .mat-cell.actions {
     border-right: 1px solid #f5f5f5;
   }
   .mat-form-field-appearance-legacy .mat-form-field-underline {
@@ -157,4 +156,28 @@ input::-webkit-inner-spin-button {
 /* Firefox */
 input[type=number] {
   -moz-appearance: textfield;
+}
+
+.mat-cell.actions, .mat-header-cell.actions {
+  right: -1px !important;
+  
+}
+
+.mat-header-cell.actions {
+  span {
+    float: left;
+    line-height: 40px;
+  }
+  button {
+    float: right;
+  }
+}
+
+.mat-cell.actions {
+  button:first-child {
+    float: left;
+  }
+  button:last-child {
+    float: right;
+  }
 }
