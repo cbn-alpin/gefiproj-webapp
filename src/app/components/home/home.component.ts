@@ -100,7 +100,7 @@ export class HomeComponent implements OnInit {
    * Représente un nouveau projet et définit les colonnes à afficher.
    */
   private readonly defaultEntity = {
-    code_p: '0000' as any as number,
+    code_p: '20000' as any as number,
     nom_p: '',
     id_u: 0,
     statut_p: false
@@ -200,10 +200,12 @@ export class HomeComponent implements OnInit {
       userSelectBoxOption
     ];
 
-    this.options = Object.assign({}, this.options, {
+    const options = Object.assign({}, this.options, {
       dataSource,
       entitySelectBoxOptions
     });
+    options.defaultEntity.code_p = (new Date(Date.now()).getFullYear() % 100) * 1000;
+    this.options = options;
   }
 
   /**
@@ -252,7 +254,7 @@ export class HomeComponent implements OnInit {
       this.spinnerSrv.show();
       this.projets = (await this.projectsSrv.getAll()) || [];
       this.projets.forEach(p =>
-          this.injectManager(p));
+        this.injectManager(p));
     } catch (error) {
       console.error(error);
       this.showInformation('Impossible de charger les projets.');
@@ -429,19 +431,24 @@ export class HomeComponent implements OnInit {
    * @param formErrors : liste des erreurs de validation.
    */
   private verifProjectCode(project: Projet, formErrors: GenericTableFormError[]): void {
-    if (('' + project.code_p).length !== 4) {
+    if (('' + project.code_p).length !== 5) {
       const error = {
         name: this.namesMap.code.code,
-        message: 'Le code projet doit comprendre 4 chiffres.'
+        message: 'Le code projet doit comprendre 5 chiffres.'
       };
 
       formErrors.push(error);
     }
 
-    if (project.code_p <= 0) {
+    const date = new Date(Date.now());
+    const year = date.getFullYear() % 100;
+    const min = Math.max(20, year - 10); // Démarrage en 2020
+    const max = year + 10;
+    if (project.code_p / 1000 < min
+      || Math.floor(project.code_p / 1000) > max) {
       const error = {
         name: this.namesMap.code.code,
-        message: 'Le code projet doit être une valeur comprise entre 1 et 9999.'
+        message: `Le code projet doit être une valeur comprise entre ${min}000 et ${max}999.`
       };
 
       formErrors.push(error);
