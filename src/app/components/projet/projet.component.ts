@@ -71,11 +71,15 @@ export class ProjetComponent implements OnInit {
   }
 
   public async getRecettesFromFinancement(financement: Financement): Promise<void> {
-    this.recettes = await this._projetService.getAllRecettesFromFinancement(financement);
+    this.recettes = financement
+      ? await this._projetService.getAllRecettesFromFinancement(financement)
+      : [];
   }
 
   public async getMontantFromRecette(recette: Recette): Promise<void> {
-    this.montantsAffectes = await this._montantsAffectesService.getAll(recette.id_r);
+    this.montantsAffectes = recette
+      ? await this._montantsAffectesService.getAll(recette.id_r)
+      : [];
   }
 
   public async getFinancementFromProjet(projet: Projet): Promise<void> {
@@ -85,7 +89,10 @@ export class ProjetComponent implements OnInit {
   public async onSelectFinancement(financement: Financement): Promise<void> {
     this.selectedFinancement = financement;
     await this.getRecettesFromFinancement(financement);
-    await this.getMontantFromRecette(this.recettes[0]);
+    if (this.recettes && this.recettes.length > 0)
+      await this.getMontantFromRecette(this.recettes[0]);
+    else
+      this.montantsAffectes = [];
   }
 
   public onSelectRecette(recette: Recette): void {
