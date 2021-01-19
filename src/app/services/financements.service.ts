@@ -13,7 +13,7 @@ export class FinancementsService {
   /**
    * Url relative de l'API.
    */
-  public readonly endPoint = '/api/funding';
+  public readonly endPoint = '/api/fundings';
 
   /**
    * Effectue les appels au serveur d'API pour une entité donnée.

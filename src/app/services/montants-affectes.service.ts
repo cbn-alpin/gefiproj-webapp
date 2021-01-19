@@ -1,11 +1,9 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import {CrudService} from './crud.service';
-import {MontantAffecte} from '../models/montantAffecte';
-import {HttpClient} from '@angular/common/http';
-import {SpinnerService} from './spinner.service';
-import {Financement} from '../models/financement';
-import {Projet} from '../models/projet';
-import {Recette} from '../models/recette';
+import { MontantAffecte } from '../models/montantAffecte';
+import { Recette } from '../models/recette';
+import { CrudService } from './crud.service';
+import { SpinnerService } from './spinner.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +12,7 @@ export class MontantsAffectesService {
   /**
    * Url relative de l'API.
    */
-  public readonly endPoint = '/api/receipt';
+  public readonly endPoint = '/api/receipts';
   /**
    * Effectue les appels au serveur d'API pour une entité donnée.
    */
@@ -65,7 +63,7 @@ export class MontantsAffectesService {
       const amountSrv = new CrudService<MontantAffecte>(
         this.http,
         this.spinnerSrv,
-        `/api/receipt/${receiptId}/amounts`); // `${this.endPoint}/${id}/fundings`);
+        `${this.endPoint}/${receiptId}/amounts`);
 
       // TODO méthode dans ReceiptServ
       return amountSrv.getAll('id_ma');
