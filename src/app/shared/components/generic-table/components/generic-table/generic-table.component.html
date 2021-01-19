@@ -1,5 +1,6 @@
-<div>
+<div class="content">
   <span *ngIf="!!title" class="title">{{ title }}</span>
+  <span class="result">{{ getResult() }}</span>
 </div>
 <div class="table-generic mat-elevation-z8">
   <table
@@ -292,5 +293,6 @@
   </table>
 </div>
 
-<p *ngIf="isEmpty">(Aucun élément à afficher)</p>
-<span class="result">{{ getResult() }}</span>
+<p *ngIf="isEmpty" class="empty">
+  <img width="200" alt="NoData" src="/assets/no-data.jpg"/>
+</p>
