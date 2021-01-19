@@ -1,9 +1,11 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { MontantAffecte } from '../models/montantAffecte';
-import { Recette } from '../models/recette';
-import { CrudService } from './crud.service';
-import { SpinnerService } from './spinner.service';
+import {CrudService} from './crud.service';
+import {MontantAffecte} from '../models/montantAffecte';
+import {HttpClient} from '@angular/common/http';
+import {SpinnerService} from './spinner.service';
+import {Financement} from '../models/financement';
+import {Projet} from '../models/projet';
+import {Recette} from '../models/recette';
 
 @Injectable({
   providedIn: 'root'
@@ -63,7 +65,7 @@ export class MontantsAffectesService {
       const amountSrv = new CrudService<MontantAffecte>(
         this.http,
         this.spinnerSrv,
-        `${this.endPoint}/${receiptId}/amounts`);
+        `/api/receipts/${receiptId}/amounts`); // `${this.endPoint}/${id}/fundings`);
 
       // TODO méthode dans ReceiptServ
       return amountSrv.getAll('id_ma');
