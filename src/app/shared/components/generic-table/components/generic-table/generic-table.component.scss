@@ -169,13 +169,10 @@ input[type=number] {
 }
 
 .mat-cell.actions {
-}
-
-.empty {
-  text-align: center;    
-  margin-top: 17px;
-}
-
-.content {
-  display: contents;
+  button:first-child {
+    float: left;
+  }
+  button:last-child {
+    float: right;
+  }
 }
