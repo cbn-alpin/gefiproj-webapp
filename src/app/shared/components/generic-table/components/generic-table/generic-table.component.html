@@ -344,7 +344,7 @@
             <button
               *ngIf="!isReadOnly"
               mat-icon-button
-              (click)="delete(element)"
+              (click)="delete($event, element)"
             >
               <mat-icon>delete</mat-icon>
             </button>

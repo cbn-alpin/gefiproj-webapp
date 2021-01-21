@@ -77,6 +77,8 @@ export class GenericTableComponent<T>
 
   @Input() canSelect = false;
 
+  @Input() autoSelectFirstRow = false;
+
   @Output() editEvent: EventEmitter<
     GenericTableEntityEvent<T>
   > = new EventEmitter<GenericTableEntityEvent<T>>();
@@ -278,7 +280,8 @@ export class GenericTableComponent<T>
     );
   }
 
-  public delete(entity: GenericTableEntity<T>): void {
+  public delete(event, entity: GenericTableEntity<T>): void {
+    event.stopPropagation();
     this.genericTableAction = GenericTableAction.DELETE;
     const genericTableEntityEvent: GenericTableEntityEvent<T> = {
       entity: entity.data,
@@ -421,8 +424,15 @@ export class GenericTableComponent<T>
       this.genericTableEntitiesCopy = this.genericTableService.getDeepCopy(
         this.genericTableEntities
       );
+      this.selectFirstRow();
     } catch (error) {
       console.error(error);
+    }
+  }
+
+  private selectFirstRow(): void {
+    if (this.genericTableEntities.length > 0 && this.autoSelectFirstRow) {
+      this.selectedEntity = this.genericTableEntities[0];
     }
   }
 }
