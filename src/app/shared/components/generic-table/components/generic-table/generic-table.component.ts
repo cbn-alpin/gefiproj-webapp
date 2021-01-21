@@ -77,10 +77,6 @@ export class GenericTableComponent<T>
 
   @Input() canSelect = false;
 
-  @Input() getEntityInformationsCallBack: Function = () => '';
-
-  @Input() getcolor: Function = () => false;
-
   @Output() editEvent: EventEmitter<
     GenericTableEntityEvent<T>
   > = new EventEmitter<GenericTableEntityEvent<T>>();
@@ -158,7 +154,7 @@ export class GenericTableComponent<T>
    * Copie du tableau.
    * Utile lors de l'annulation de l'édition d'une ligne.
    */
-  public copy: GenericTableEntity<T>[];
+  public genericTableEntitiesCopy: GenericTableEntity<T>[];
 
   public actionsHeaderColumnName: string = 'Actions';
 
@@ -210,6 +206,14 @@ export class GenericTableComponent<T>
   public onEdit(event, entity: GenericTableEntity<T>): void {
     event.stopPropagation();
     this.selectedEntity = entity;
+    const cleanedGenericTableEntities = this.genericTableService.getOtherEntitiesReseted(
+      this.genericTableEntities,
+      this.genericTableEntitiesCopy,
+      entity
+    );
+    this.genericTableEntities = cleanedGenericTableEntities.filter(
+      (cleanedEntity) => cleanedEntity !== null
+    );
     entity.state = GenericTableEntityState.EDIT;
   }
 
@@ -227,24 +231,30 @@ export class GenericTableComponent<T>
 
   public cancelEditing(event, entity: GenericTableEntity<T>): void {
     event.stopPropagation();
-    const entityCopy = JSON.parse(
-      JSON.stringify(this.copy.find((dataCopy) => dataCopy.id === entity.id))
+    const entityToCopy = this.genericTableEntitiesCopy.find(
+      (dataCopy) => dataCopy.id === entity.id
     );
-    this.genericTableEntities = this.genericTableEntities.map((data) =>
-      data.id === entityCopy.id ? entityCopy : data
+    const entityCopied = this.genericTableService.getDeepCopy(entityToCopy);
+    this.genericTableEntities = this.genericTableEntities.map((entity) =>
+      entity.id === entityCopied.id ? entityCopied : entity
     );
     this.genericTableErrorService.cleanErrors(entity);
   }
 
   public onCreate(): void {
     this.genericTableAction = GenericTableAction.NEW;
-    const defaultEntity = JSON.parse(
-      JSON.stringify(this.options.defaultEntity)
+    const defaultEntityCopied = this.genericTableService.getDeepCopy(
+      this.options.defaultEntity
     );
     const newElement: GenericTableEntity<T> = {
-      data: defaultEntity,
+      data: defaultEntityCopied,
       state: GenericTableEntityState.NEW,
+      id: this.genericTableEntities.length,
     };
+    this.genericTableEntities = this.genericTableService.getOtherEntitiesReseted(
+      this.genericTableEntities,
+      this.genericTableEntitiesCopy
+    );
     this.selectedEntity = newElement;
     this.genericTableEntities = [newElement].concat(this.genericTableEntities);
   }
@@ -279,41 +289,6 @@ export class GenericTableComponent<T>
     this.deleteEvent.emit(genericTableEntityEvent);
   }
 
-  public handleAction(
-    entity: GenericTableEntity<T>,
-    genericTableEntityErrors: GenericTableEntityErrors
-  ): void {
-    const canDoAction = this.genericTableErrorService.handleErrors(
-      entity,
-      genericTableEntityErrors
-    );
-    if (canDoAction) {
-      if (this.genericTableAction === GenericTableAction.EDIT) {
-        this.handleActionEdit(entity);
-      } else if (this.genericTableAction === GenericTableAction.NEW) {
-        this.handleActionNew(entity);
-      } else if (this.genericTableAction === GenericTableAction.DELETE) {
-        this.handleActionDelete(entity);
-      }
-    }
-  }
-
-  public handleActionEdit(entity: GenericTableEntity<T>): void {
-    entity.errors = [];
-    entity.state = GenericTableEntityState.READ;
-  }
-
-  public handleActionNew(entity: GenericTableEntity<T>): void {
-    entity.errors = [];
-    entity.state = GenericTableEntityState.READ;
-  }
-
-  public handleActionDelete(entity: GenericTableEntity<T>): void {
-    this.genericTableEntities = this.genericTableEntities?.filter(
-      (data) => entity.data !== data.data
-    );
-  }
-
   /**
    * Lorsqu'une entité est sélectionné dans le tableau, on émet un événement avec l'entité en paramètre
    * @param genericTableEntity : l'élément sélectionné.
@@ -326,30 +301,6 @@ export class GenericTableComponent<T>
       };
       this.selectEvent.emit(genericTableEntityEvent);
     }
-  }
-
-  /**
-   * bloque la modification de certain champs
-   * @param entity : l'object à modifié
-   * @param entityName : nom de l'entité de l'object
-   */
-  public disabledEditField(
-    entity: GenericTableEntity<T>,
-    entityName: string
-  ): boolean {
-    const selectedEntity = entity.data;
-    let disabled = false;
-    // exception edition pour l'instance financement
-    if (this.genericTableService.instanceOfFinancement(selectedEntity)) {
-      if (selectedEntity?.solde && entityName !== 'statut_f') {
-        disabled = true;
-      } else if (entityName === 'difference') {
-        disabled = true;
-      } else {
-        disabled = false;
-      }
-    }
-    return disabled;
   }
 
   /**
@@ -377,6 +328,41 @@ export class GenericTableComponent<T>
       console.error(error);
       this.genericTableErrorService.openSnackBarError('Navigation impossible');
     }
+  }
+
+  private handleAction(
+    entity: GenericTableEntity<T>,
+    genericTableEntityErrors: GenericTableEntityErrors
+  ): void {
+    const canDoAction = this.genericTableErrorService.handleErrors(
+      entity,
+      genericTableEntityErrors
+    );
+    if (canDoAction) {
+      if (this.genericTableAction === GenericTableAction.EDIT) {
+        this.handleActionEdit(entity);
+      } else if (this.genericTableAction === GenericTableAction.NEW) {
+        this.handleActionNew(entity);
+      } else if (this.genericTableAction === GenericTableAction.DELETE) {
+        this.handleActionDelete(entity);
+      }
+    }
+  }
+
+  private handleActionEdit(entity: GenericTableEntity<T>): void {
+    entity.errors = [];
+    entity.state = GenericTableEntityState.READ;
+  }
+
+  private handleActionNew(entity: GenericTableEntity<T>): void {
+    entity.errors = [];
+    entity.state = GenericTableEntityState.READ;
+  }
+
+  private handleActionDelete(entity: GenericTableEntity<T>): void {
+    this.genericTableEntities = this.genericTableEntities?.filter(
+      (data) => entity.data !== data.data
+    );
   }
 
   /**
@@ -432,7 +418,9 @@ export class GenericTableComponent<T>
             .getDisplayedColumns(this.options)
             .concat(this.actionsHeaderColumnName)
         : this.genericTableService.getDisplayedColumns(this.options);
-      this.copy = JSON.parse(JSON.stringify(this.genericTableEntities));
+      this.genericTableEntitiesCopy = this.genericTableService.getDeepCopy(
+        this.genericTableEntities
+      );
     } catch (error) {
       console.error(error);
     }
