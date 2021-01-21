@@ -86,4 +86,65 @@ export class GenericTableService<T> {
   public getDateValue(dateString: string): Date {
     return new Date(dateString);
   }
+
+  /**
+   *
+   * @param genericTableEntities
+   * @param genericTableEntitiesCopy
+   * @param entityKeep
+   */
+  public getOtherEntitiesReseted(
+    genericTableEntities: GenericTableEntity<T>[],
+    genericTableEntitiesCopy: GenericTableEntity<T>[],
+    entityKeep?: GenericTableEntity<T>
+  ): GenericTableEntity<T>[] {
+    const entities = genericTableEntities.map((entity) => {
+      if (
+        (entityKeep &&
+          entity.id !== entityKeep.id &&
+          entity.state === GenericTableEntityState.EDIT) ||
+        (!entityKeep && entity.state === GenericTableEntityState.EDIT)
+      ) {
+        const entityToCopy = genericTableEntitiesCopy.find(
+          (entityCopy) => entityCopy.id === entity.id
+        );
+        entity = this.getDeepCopy(entityToCopy);
+      }
+
+      if (entity.state === GenericTableEntityState.NEW) {
+        entity = null;
+      }
+      return entity;
+    });
+
+    return entities;
+  }
+
+  public getDeepCopy(source: any): any {
+    return JSON.parse(JSON.stringify(source));
+  }
+
+  /**
+   * bloque la modification de certain champs
+   * @param entity : l'object à modifié
+   * @param entityName : nom de l'entité de l'object
+   */
+  public disabledEditField(
+    entity: GenericTableEntity<T>,
+    entityName: string
+  ): boolean {
+    const selectedEntity = entity.data;
+    let disabled = false;
+    // exception edition pour l'instance financement
+    if (this.instanceOfFinancement(selectedEntity)) {
+      if (selectedEntity?.solde && entityName !== 'statut_f') {
+        disabled = true;
+      } else if (entityName === 'difference') {
+        disabled = true;
+      } else {
+        disabled = false;
+      }
+    }
+    return disabled;
+  }
 }
