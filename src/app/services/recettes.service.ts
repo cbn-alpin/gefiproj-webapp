@@ -18,14 +18,16 @@ export class RecettesService {
 
   public getAll(financementId: number): Promise<Recette[]> {
     try {
-      const endPoint = `/api/funding/${financementId}/receipts`;
-      const crudSrv = new CrudService<Recette>(
-        this.http,
-        this.spinnerSrv,
-        endPoint
-      );
+      if (financementId) {
+        const endPoint = `/api/fundings/${financementId}/receipts`;
+        const crudSrv = new CrudService<Recette>(
+          this.http,
+          this.spinnerSrv,
+          endPoint
+        );
 
-      return crudSrv.getAll();
+        return crudSrv.getAll();
+      }
     } catch (error) {
       console.error(error);
 
@@ -40,7 +42,9 @@ export class RecettesService {
   ): Promise<Recette> {
     await this.checkErrors(recette, financement, recettes);
     try {
-      return await this.crudSrv.add(recette);
+      if (recette) {
+        return await this.crudSrv.add(recette);
+      }
     } catch (error) {
       console.error(error);
 
@@ -56,7 +60,9 @@ export class RecettesService {
     this.cleanRecette(recette);
     await this.checkErrors(recette, financement, recettes);
     try {
-      return await this.crudSrv.modify(recette, recette.id_r);
+      if (recette && recette.id_r) {
+        return await this.crudSrv.modify(recette, recette.id_r);
+      }
     } catch (error) {
       console.error(error);
 
@@ -66,9 +72,9 @@ export class RecettesService {
 
   public async delete(recette: Recette): Promise<void> {
     try {
-      // return await this.crudSrv.delete(recette.id_r);
-
-      return;
+      if (recette && recette.id_r) {
+        return await this.crudSrv.delete(recette.id_r);
+      }
     } catch (error) {
       console.error(error);
 
@@ -113,17 +119,9 @@ export class RecettesService {
     recettes.forEach((_recette, index) => {
       // TODO: Certains montant ont pour type: string
       if (_recette.id_r !== recette.id_r) {
-        console.log('INDEX:', index);
-        console.log('RECETTE:', +_recette.montant_r);
-        console.log('SOMME:', sum);
         sum += +_recette.montant_r;
       }
     });
-    console.log('RECETTE TO CHECK:', recette);
-    console.log('LISTE DES RECETTES:', recettes);
-    console.log('MONTANT TOTAL:', sum);
-    console.log('MONTANT TOTAL AVEC RECETTE CIBLE:', recette.montant_r + sum);
-    console.log('MONTANT FINANCEMENT', financement.montant_arrete_f);
     return +recette.montant_r + sum <= financement.montant_arrete_f;
   }
 
@@ -144,9 +142,8 @@ export class RecettesService {
 
   private cleanRecette(recette: Recette): void {
     try {
-      console.log('RECETTE BEFORE CLEAN', recette);
       delete recette.financement;
-      console.log('RECETTE AFTER CLEAN', recette);
+      delete recette.difference;
     } catch (error) {
       console.error(error);
     }

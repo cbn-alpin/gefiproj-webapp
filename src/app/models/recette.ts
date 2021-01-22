@@ -6,6 +6,5 @@ export interface Recette {
   montant_r: number;
   annee_r: number;
   id_f?: number;
-  // TODO: À SUPPRIMER QUAND JSON-SERVER NE SERA PLUS UTILISÉ
-  fundingId?: number;
+  difference?: number;
 }

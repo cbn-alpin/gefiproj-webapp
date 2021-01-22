@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   EventEmitter,
   Input,
@@ -8,7 +9,7 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { isNotNullOrUndefined } from 'codelyzer/util/isNotNullOrUndefined';
-import { Financement, Statut_F } from '../../models/financement';
+import { Financement } from '../../models/financement';
 import { Recette } from '../../models/recette';
 import { GenericTableOptions } from '../../shared/components/generic-table/models/generic-table-options';
 import { GenericTableEntityEvent } from '../../shared/components/generic-table/models/generic-table-entity-event';
@@ -16,8 +17,8 @@ import { EntityType } from '../../shared/components/generic-table/models/entity-
 import { GenericTableCellType } from '../../shared/components/generic-table/globals/generic-table-cell-types';
 import { EntityPlaceholder } from '../../shared/components/generic-table/models/entity-placeholder';
 import { GenericTableFormError } from '../../shared/components/generic-table/models/generic-table-entity';
-import { ProjetService } from '../../services/projet.service';
 import { IsAdministratorGuardService } from 'src/app/services/authentication/is-administrator-guard.service';
+import { RecettesService } from '../../services/recettes.service';
 
 @Component({
   selector: 'app-recettes',
@@ -61,11 +62,17 @@ export class RecettesComponent implements OnInit, OnChanges {
    * Indique si l'utilisateur est un administrateur.
    */
   public get isAdministrator(): boolean {
-    return !!this.adminSrv.isAdministrator();
+    return !!this.isAdministratorGuardService.isAdministrator();
   }
 
   /**
-   * Entité par défaut utilisé lors de la création d'une nouvelle recette
+   * Obtenir les informations d'une recette
+   * @param entity
+   */
+  public getEntityInformationsCallBack: Function;
+
+  /**
+   * recette par défaut utilisé lors de la création d'une nouvelle recette
    * @private
    */
   private defaultEntity: Recette = {
@@ -84,7 +91,7 @@ export class RecettesComponent implements OnInit, OnChanges {
   };
 
   /**
-   * Tableau des types de l'entité recette
+   * Tableau des types
    * @private
    */
   private entityTypes: EntityType[] = [
@@ -101,7 +108,7 @@ export class RecettesComponent implements OnInit, OnChanges {
   ];
 
   /**
-   * Tableau des placeholders de l'entité recette
+   * Tableau des placeholders
    * @private
    */
   private entityPlaceHolders: EntityPlaceholder[] = [
@@ -110,53 +117,38 @@ export class RecettesComponent implements OnInit, OnChanges {
   ];
 
   constructor(
-    private readonly adminSrv: IsAdministratorGuardService,
-    private projetService: ProjetService
+    private readonly isAdministratorGuardService: IsAdministratorGuardService,
+    private readonly recettesService: RecettesService
   ) {}
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.initGenericTableOptions();
+    this.getEntityInformationsCallBack = this.getEntityInformations.bind(this);
   }
 
-  ngOnChanges(changes: SimpleChanges) {
+  public ngOnChanges(changes: SimpleChanges): void {
     if (changes.recettes && changes.recettes.currentValue) {
       this.initGenericTableOptions();
     }
   }
 
-  /**
-   * Initialisation des options du tableau générique
-   * @private
-   */
-  private initGenericTableOptions(): void {
-    this.options = {
-      dataSource: this.recettes,
-      defaultEntity: this.defaultEntity,
-      entitySelectBoxOptions: [],
-      entityTypes: this.entityTypes,
-      entityPlaceHolders: this.entityPlaceHolders,
-    };
-  }
-
-  /**
-   * Une recette a été créé et on l'initialise dans le tableau.
-   * @param event : encapsule la recette à créer.
-   */
-  async onCreate(event: GenericTableEntityEvent<Recette>): Promise<void> {
-    const formErrors = this.handleFormErrors(event.entity);
+  public async onCreate(
+    event: GenericTableEntityEvent<Recette>
+  ): Promise<void> {
+    const recette: Recette = { ...event.entity, id_f: this.financement.id_f };
+    const formErrors = this.checkFormErrors(recette);
     if (formErrors) {
       event.callBack({ formErrors });
     } else {
       try {
-        const newRecette = await this.projetService.addRecetteToFinancement(
-          event.entity,
+        const newRecette = await this.recettesService.add(
+          recette,
           this.financement,
           this.recettes
         );
-        this.recettes = this.recettes.concat(newRecette);
         event.callBack(null);
+        this.create(newRecette);
       } catch (error) {
-        console.error(error);
         event?.callBack({
           apiError: error,
         });
@@ -164,30 +156,20 @@ export class RecettesComponent implements OnInit, OnChanges {
     }
   }
 
-  /**
-   * Une recette a été modifié dans le tableau.
-   * @param event : encapsule la recette à modifier.
-   */
-  async onEdit(event: GenericTableEntityEvent<Recette>): Promise<void> {
-    const formErrors = this.handleFormErrors(event.entity);
+  public async onEdit(event: GenericTableEntityEvent<Recette>): Promise<void> {
+    const formErrors = this.checkFormErrors(event.entity);
     if (formErrors) {
       event.callBack({ formErrors });
     } else {
       try {
-        const updatedRecette = await this.projetService.modifyRecette(
+        const updatedRecette = await this.recettesService.modify(
           event.entity,
           this.financement,
           this.recettes
         );
-        const index = this.recettes.findIndex((r) => {
-          const id = r?.id_r || (r as any)?.id; // Pour json-server
-
-          return id === updatedRecette.id_r;
-        });
-        this.recettes[index] = updatedRecette;
         event.callBack(null);
+        this.modify(updatedRecette);
       } catch (error) {
-        console.error(error);
         event?.callBack({
           apiError: error,
         });
@@ -195,23 +177,15 @@ export class RecettesComponent implements OnInit, OnChanges {
     }
   }
 
-  /**
-   * Une recette a été supprimé du tableau.
-   * @param event : encapsule lea recette à modifier.
-   */
-  async onDelete(event: GenericTableEntityEvent<Recette>): Promise<void> {
+  public async onDelete(
+    event: GenericTableEntityEvent<Recette>
+  ): Promise<void> {
+    const recette: Recette = event.entity;
     try {
-      const deletedRecette = await this.projetService.deleteRecette(
-        event.entity
-      );
-      this.recettes = this.recettes.filter((recette) => {
-        const id = recette?.id_r || (recette as any)?.id; // Pour json-server
-
-        return id !== deletedRecette.id_r;
-      });
+      await this.recettesService.delete(recette);
       event.callBack(null);
+      this.delete(recette);
     } catch (error) {
-      console.error(error);
       event?.callBack({
         apiError: error,
       });
@@ -219,17 +193,17 @@ export class RecettesComponent implements OnInit, OnChanges {
   }
 
   /**
-   * Vérifier le format de chaque champs de l'entité recette
-   * @param entity
+   * Vérifier le format de chaque champs de la recette
+   * @param recette
    */
-  public handleFormErrors(entity: Recette): GenericTableFormError[] {
+  public checkFormErrors(recette: Recette): GenericTableFormError[] {
     let genericTableFormErrors: GenericTableFormError[] = [];
     genericTableFormErrors = this.getAnneeRecetteFormError(
-      entity.annee_r,
+      recette.annee_r,
       genericTableFormErrors
     );
     genericTableFormErrors = this.getMontantFormError(
-      entity.montant_r,
+      recette.montant_r,
       genericTableFormErrors
     );
     return genericTableFormErrors.length > 0
@@ -286,12 +260,64 @@ export class RecettesComponent implements OnInit, OnChanges {
   }
 
   /**
-   * Gére la sélection d'une entité
+   * Renvoie les informations d'une recette
+   * @param entity
+   */
+  public getEntityInformations(recette?: Recette): string {
+    return recette
+      ? 'Recette: [année = ' +
+          recette.annee_r +
+          ', montant = ' +
+          recette.montant_r +
+          ']'
+      : '';
+  }
+
+  /**
+   * Gestion de la sélection d'une recette
    * @param entity
    */
   public onSelect(
     genericTableEntityEvent: GenericTableEntityEvent<Recette>
   ): void {
     this.select.emit(genericTableEntityEvent.entity);
+  }
+
+  private initGenericTableOptions(): void {
+    this.options = {
+      dataSource: this.recettes,
+      defaultEntity: this.defaultEntity,
+      entitySelectBoxOptions: [],
+      entityTypes: this.entityTypes,
+      entityPlaceHolders: this.entityPlaceHolders,
+    };
+  }
+
+  private create(recette: Recette): void {
+    this.recettes.push(recette);
+    this.updateOptionDataSource();
+    this.updateOptionDataSource();
+  }
+
+  private modify(recette: Recette): void {
+    const index = this.recettes.findIndex(
+      (recette) => recette.id_r === recette.id_r
+    );
+    this.recettes[index] = recette;
+    this.updateOptionDataSource();
+  }
+
+  private delete(recette: Recette): void {
+    this.recettes = this.recettes.filter(
+      (_recette) => _recette.id_r !== recette.id_r
+    );
+    this.updateOptionDataSource();
+  }
+
+  private updateOptionDataSource(): void {
+    this.options = {
+      ...this.options,
+      dataSource: this.recettes,
+    };
   }
 }
