@@ -253,11 +253,11 @@ export class GenericTableComponent<T>
       state: GenericTableEntityState.NEW,
       id: this.genericTableEntities.length,
     };
+    this.selectedEntity = newElement;
     this.genericTableEntities = this.genericTableService.getOtherEntitiesReseted(
       this.genericTableEntities,
       this.genericTableEntitiesCopy
     );
-    this.selectedEntity = newElement;
     this.genericTableEntities = [newElement].concat(this.genericTableEntities);
   }
 
@@ -297,7 +297,10 @@ export class GenericTableComponent<T>
    * @param genericTableEntity : l'élément sélectionné.
    */
   public select(genericTableEntity: GenericTableEntity<T>): void {
-    if (genericTableEntity.state === GenericTableEntityState.READ) {
+    if (
+      genericTableEntity.state === GenericTableEntityState.READ &&
+      this.selectedEntity.id !== genericTableEntity.id
+    ) {
       this.selectedEntity = genericTableEntity;
       const genericTableEntityEvent: GenericTableEntityEvent<T> = {
         entity: genericTableEntity.data,
@@ -328,7 +331,6 @@ export class GenericTableComponent<T>
         'Navigation impossible car les éléments de navigation sont inutilisables'
       );
     } catch (error) {
-      console.error(error);
       this.genericTableErrorService.openSnackBarError('Navigation impossible');
     }
   }

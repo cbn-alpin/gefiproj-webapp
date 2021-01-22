@@ -1,18 +1,22 @@
 <div class="project-details" *ngIf="projet">
-  <span class="bold project-name">{{projet.nom_p}}</span>
+  <span class="bold project-name">{{ projet.nom_p }}</span>
 
   <div class="project-status">
-    <mat-checkbox
-      [checked]=projet.statut_p
-      [disabled]="!isAdministrator"> <!-- disabled if not administrator  -->
+    <mat-checkbox [checked]="projet.statut_p" [disabled]="!isAdministrator">
+      <!-- disabled if not administrator  -->
       Soldé
     </mat-checkbox>
   </div>
-  <br><br>
-  <span class="project-code-content"> <span class="bold"> code : </span>{{projet.code_p}} </span>
-  <span class="project-responsable-content"> <span class="bold"> responsable : </span>{{projet.responsable.initiales_u }} </span>
+  <br /><br />
+  <span class="project-code-content">
+    <span class="bold"> code : </span>{{ projet.code_p }}
+  </span>
+  <span class="project-responsable-content">
+    <span class="bold"> responsable : </span
+    >{{ projet.responsable.initiales_u }}
+  </span>
 </div>
-<hr class="project-line">
+<hr class="project-line" />
 
 <div class="financements">
   <app-financements
@@ -22,7 +26,12 @@
   ></app-financements>
 </div>
 
-<div class="block" fxLayout="row" fxLayoutAlign="space-between start" fxLayoutGap="30px">
+<div
+  class="block"
+  fxLayout="row"
+  fxLayoutAlign="space-between start"
+  fxLayoutGap="30px"
+>
   <div class="recettes">
     <app-recettes
       *ngIf="recettes"

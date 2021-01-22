@@ -236,7 +236,7 @@
                     ' €'
                   : element.data[columnName.code]
               "
-              (ngModelChange)="element.data[columnName.code] = $event"
+              (ngModelChange)="element.data[columnName.code] = +$event"
               [placeholder]="
                 genericTableService.getPlaceHolder(options, columnName.code)
               "
@@ -324,7 +324,7 @@
         <div fxLayout="row" fxLayoutAlign="space-between center">
           <!-- Actions pour le mode lecture -->
           <span *ngIf="element.state === GenericTableEntityState.READ">
-            <!-- Naviguation vers fils -->
+            <!-- Naviguation vers un composant -->
             <button
               *ngIf="withNagivation"
               mat-icon-button
