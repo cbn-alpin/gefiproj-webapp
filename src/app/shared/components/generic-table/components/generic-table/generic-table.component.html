@@ -386,9 +386,7 @@
       mat-row
       *matRowDef="let row; columns: displayedColumns"
       [ngClass]="{
-        selected: selectedEntity === row,
-        'default-row':
-          (selectedEntity === null || selectedEntity === undefined) && canSelect
+        selected: canBeSelected(row)
       }"
       (click)="select(row)"
     ></tr>

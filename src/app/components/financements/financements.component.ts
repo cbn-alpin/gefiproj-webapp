@@ -41,6 +41,8 @@ export class FinancementsComponent
    */
   @Input() public financements: Financement[];
 
+  @Input() public selectedFinancement: Financement;
+
   @Output()
   public selectEvent: EventEmitter<Financement> = new EventEmitter<Financement>();
 

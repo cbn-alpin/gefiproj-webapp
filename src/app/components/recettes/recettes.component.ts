@@ -35,6 +35,8 @@ export class RecettesComponent implements OnInit, OnChanges {
    */
   @Input() public recettes: Recette[];
 
+  @Input() public selectedRecette: Recette;
+
   /**
    * Recette séléctioné event
    */

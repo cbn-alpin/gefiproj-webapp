@@ -6,6 +6,7 @@
   [showActions]="isAdministrator"
   [isReadOnly]="isReadOnly"
   [autoSelectFirstRow]="true"
+  [selectedEntity]="selectedRecette"
   (editEvent)="onEdit($event)"
   (createEvent)="onCreate($event)"
   (deleteEvent)="onDelete($event)"

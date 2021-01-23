@@ -23,6 +23,7 @@
     <app-financements
       *ngIf="financements"
       [financements]="financements"
+      [selectedFinancement]="selectedFinancement"
       (selectEvent)="onSelectFinancement($event)"
       (createEvent)="onCreateFinancement()"
       (editEvent)="onEditFinancement()"
@@ -41,6 +42,7 @@
         *ngIf="recettes"
         [recettes]="recettes"
         [financement]="selectedFinancement"
+        [selectedRecette]="selectedRecette"
         (selectEvent)="onSelectRecette($event)"
         (createEvent)="onCreateRecette()"
         (editEvent)="onEditRecette()"
