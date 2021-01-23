@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   EventEmitter,
   Input,
@@ -39,7 +38,20 @@ export class RecettesComponent implements OnInit, OnChanges {
   /**
    * Recette séléctioné event
    */
-  @Output() public select: EventEmitter<Recette> = new EventEmitter<Recette>();
+  @Output()
+  public selectEvent: EventEmitter<Recette> = new EventEmitter<Recette>();
+
+  @Output() public createEvent: EventEmitter<void> = new EventEmitter<void>();
+
+  @Output() public editEvent: EventEmitter<void> = new EventEmitter<void>();
+
+  @Output() public deleteEvent: EventEmitter<void> = new EventEmitter<void>();
+
+  @Output()
+  public startCreateEvent: EventEmitter<void> = new EventEmitter<void>();
+
+  @Output()
+  public endCreateEvent: EventEmitter<void> = new EventEmitter<void>();
 
   /**
    * Titre du tableau
@@ -123,7 +135,6 @@ export class RecettesComponent implements OnInit, OnChanges {
 
   public ngOnInit(): void {
     this.initGenericTableOptions();
-    this.getEntityInformationsCallBack = this.getEntityInformations.bind(this);
   }
 
   public ngOnChanges(changes: SimpleChanges): void {
@@ -135,8 +146,11 @@ export class RecettesComponent implements OnInit, OnChanges {
   public async onCreate(
     event: GenericTableEntityEvent<Recette>
   ): Promise<void> {
+    console.log('AA');
     const recette: Recette = { ...event.entity, id_f: this.financement.id_f };
+    console.log('CC');
     const formErrors = this.checkFormErrors(recette);
+    console.log('BB');
     if (formErrors) {
       event.callBack({ formErrors });
     } else {
@@ -148,6 +162,7 @@ export class RecettesComponent implements OnInit, OnChanges {
         );
         event.callBack(null);
         this.create(newRecette);
+        this.createEvent.emit();
       } catch (error) {
         event?.callBack({
           apiError: error,
@@ -157,11 +172,13 @@ export class RecettesComponent implements OnInit, OnChanges {
   }
 
   public async onEdit(event: GenericTableEntityEvent<Recette>): Promise<void> {
+    console.log('00');
     const formErrors = this.checkFormErrors(event.entity);
     if (formErrors) {
       event.callBack({ formErrors });
     } else {
       try {
+        console.log('AA');
         const updatedRecette = await this.recettesService.modify(
           event.entity,
           this.financement,
@@ -169,6 +186,7 @@ export class RecettesComponent implements OnInit, OnChanges {
         );
         event.callBack(null);
         this.modify(updatedRecette);
+        this.editEvent.emit();
       } catch (error) {
         event?.callBack({
           apiError: error,
@@ -185,6 +203,7 @@ export class RecettesComponent implements OnInit, OnChanges {
       await this.recettesService.delete(recette);
       event.callBack(null);
       this.delete(recette);
+      this.deleteEvent.emit();
     } catch (error) {
       event?.callBack({
         apiError: error,
@@ -259,18 +278,12 @@ export class RecettesComponent implements OnInit, OnChanges {
     return genericTableFormErrors;
   }
 
-  /**
-   * Renvoie les informations d'une recette
-   * @param entity
-   */
-  public getEntityInformations(recette?: Recette): string {
-    return recette
-      ? 'Recette: [année = ' +
-          recette.annee_r +
-          ', montant = ' +
-          recette.montant_r +
-          ']'
-      : '';
+  public onStartCreation(): void {
+    this.startCreateEvent.emit();
+  }
+
+  public onEndCreation(): void {
+    this.endCreateEvent.emit();
   }
 
   /**
@@ -280,7 +293,7 @@ export class RecettesComponent implements OnInit, OnChanges {
   public onSelect(
     genericTableEntityEvent: GenericTableEntityEvent<Recette>
   ): void {
-    this.select.emit(genericTableEntityEvent.entity);
+    this.selectEvent.emit(genericTableEntityEvent.entity);
   }
 
   private initGenericTableOptions(): void {
