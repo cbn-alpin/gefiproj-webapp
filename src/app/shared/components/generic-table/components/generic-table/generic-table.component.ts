@@ -343,11 +343,7 @@ export class GenericTableComponent<T>
   }
 
   public canBeSelected(entity: GenericTableEntity<T>): boolean {
-    console.log(
-      'CHECK IF CAN BE SELECTED... : ',
-      this.selectedEntity.id === entity.id
-    );
-    return this.selectedEntity.id === entity.id;
+    return this.selectedEntity && this.selectedEntity.id === entity.id;
   }
 
   private handleAction(
@@ -379,11 +375,7 @@ export class GenericTableComponent<T>
     entity.state = GenericTableEntityState.READ;
   }
 
-  private handleActionDelete(entity: GenericTableEntity<T>): void {
-    this.genericTableEntities = this.genericTableEntities?.filter(
-      (data) => entity.data !== data.data
-    );
-  }
+  private handleActionDelete(entity: GenericTableEntity<T>): void {}
 
   /**
    * Notification d'un changement sur le trie.
