@@ -1,9 +1,9 @@
 import {Injectable} from '@angular/core';
-import {Recette} from "../models/recette";
-import {CrudService} from "./crud.service";
-import {HttpClient} from "@angular/common/http";
-import {SpinnerService} from "./spinner.service";
-import {Financement} from "../models/financement";
+import {Recette} from '../models/recette';
+import {CrudService} from './crud.service';
+import {HttpClient} from '@angular/common/http';
+import {SpinnerService} from './spinner.service';
+import {Financement} from '../models/financement';
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +28,7 @@ export class ProjetService {
   private readonly recettesCrudService: CrudService<Recette>;
 
   /**
-   * Effectue les appels au serveur d'API pour un projet2.
+   * Effectue les appels au serveur d'API pour un projet.
    * @param http : permet d'effectuer les appels au serveur d'API.
    * @param spinnerSrv : gère le spinner/sablier.
    */
@@ -41,7 +41,7 @@ export class ProjetService {
       this.recettesEndPoint);
   }
   /**
-   * Retourne la liste des financements2 associées au projet2 ayant pour id idProjet
+   * Retourne la liste des financements associées au projet ayant pour id idProjet
    * @param idProjet
    */
   public getAllFinancementsFromProjet(idProjet: number): Promise<Financement[]> {
@@ -56,7 +56,7 @@ export class ProjetService {
       return res;
     } catch (error) {
       console.error(error);
-      return Promise.reject("Impossible de charger les financements2");
+      return Promise.reject('Impossible de charger les financements');
     }
   }
 
@@ -66,7 +66,7 @@ export class ProjetService {
    */
   public getAllRecettesFromFinancement(financement: Financement): Promise<Recette[]> {
     try {
-      const endPoint = "http://127.0.0.1:5000/api/funding/" + financement.id_f + "/receipts";
+      const endPoint = '/api/fundings/' + financement.id_f + '/receipts';
       const crudSrv = new CrudService<Recette>(
         this.http,
         this.spinnerSrv,
@@ -76,7 +76,7 @@ export class ProjetService {
       return res;
     } catch (error) {
       console.error(error);
-      return Promise.reject("Impossible de charger les recettes");
+      return Promise.reject('Impossible de charger les recettes');
     }
   }
 
@@ -88,9 +88,9 @@ export class ProjetService {
    */
   public async addRecetteToFinancement(recette: Recette, financement: Financement, recettes: Recette[]): Promise<Recette> {
     if (!this.newOrUpdatedRecetteNotSuperiorToMontantFinancement(recette, financement, recettes)) {
-      return Promise.reject("La somme des recettes est supérieur au montant arrêté du financement");
+      return Promise.reject('La somme des recettes est supérieur au montant arrêté du financement');
     } else if (!this.newOrUpdatedRecetteYearMustBePriorToYearFinancement(recette, financement)) {
-      return Promise.reject("L'année de la recette doit être antérieur à la date de commande ou d'arrêté du financement");
+      return Promise.reject('L\'année de la recette doit être antérieur à la date de commande ou d\'arrêté du financement');
     }
     else {
       try {
@@ -109,7 +109,7 @@ export class ProjetService {
         return newRecette || recette;
       } catch (error) {
         console.error(error);
-        return Promise.reject("Impossible de créer la recette");
+        return Promise.reject('Impossible de créer la recette');
       }
     }
   }
@@ -122,9 +122,9 @@ export class ProjetService {
    */
   public async modifyRecette(recette: Recette, financement: Financement, recettes: Recette[]): Promise<Recette> {
     if (!this.newOrUpdatedRecetteNotSuperiorToMontantFinancement(recette, financement, recettes)) {
-      return Promise.reject("La somme des recettes est supérieur au montant arrêté du financement");
+      return Promise.reject('La somme des recettes est supérieur au montant arrêté du financement');
     } else if (!this.newOrUpdatedRecetteYearMustBePriorToYearFinancement(recette, financement)) {
-      return Promise.reject("L'année de la recette doit être antérieur à la date de commande ou d'arrêté du financement");
+      return Promise.reject('L\'année de la recette doit être antérieur à la date de commande ou d\'arrêté du financement');
     }
     else {
       try {
@@ -134,7 +134,7 @@ export class ProjetService {
 
         return res;
       } catch (error) {
-        return Promise.reject("Impossible de modifier la recette");
+        return Promise.reject('Impossible de modifier la recette');
       }
     }
   }
@@ -152,7 +152,7 @@ export class ProjetService {
 
       return {...recette, id_r: id};
     } catch (error) {
-      return Promise.reject("Impossible de supprimer la recette");
+      return Promise.reject('Impossible de supprimer la recette');
     }
   }
 

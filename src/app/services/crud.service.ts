@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { AuthService } from './authentication/auth.service';
 import { SpinnerService } from './spinner.service';
 
@@ -16,19 +16,21 @@ export class CrudService<T> {
   constructor(
     private http: HttpClient,
     private spinnerSrv: SpinnerService,
-    private endPoint: string) { }
+    private endPoint: string
+  ) {}
 
   /**
    * Retourne les entités depuis le serveur.
    * @param idName : nom de l'identifiant.
    */
-  public async getAll(idName?: string): Promise<T[]> {
+  public async getAll(idName?: string, params?: HttpParams): Promise<T[]> {
     try {
       this.spinnerSrv.show();
 
-      const observable = this.http.get<T[]>(
-        this.endPoint,
-        { observe: 'response' });
+      const observable = this.http.get<T[]>(this.endPoint, {
+        observe: 'response',
+        params,
+      });
       const response = await observable.toPromise();
       const items = response?.body || [];
 
@@ -53,9 +55,7 @@ export class CrudService<T> {
    */
   private addIdNamedForItems(items: T[], key: string): T[] {
     try {
-      return (items || [])
-        .map(item =>
-          this.addIdNamed(item, key));
+      return (items || []).map((item) => this.addIdNamed(item, key));
     } catch (error) {
       console.error(error);
     }
@@ -66,12 +66,11 @@ export class CrudService<T> {
    * @param item : élément où faire l'injection de l'identifiant.
    * @param key : nom de la propriété identifiant.
    */
-  private addIdNamed(item: T, key: string): T { // TODO à supprimer après suppression de json server !
+  private addIdNamed(item: T, key: string): T {
+    // TODO à supprimer après suppression de json server !
     try {
       if (item) {
-        item[key] = item[key]
-          || (item as any).id
-          || 0;
+        item[key] = item[key] || (item as any).id || 0;
       }
     } catch (error) {
       console.error(error);
@@ -90,13 +89,11 @@ export class CrudService<T> {
       this.spinnerSrv.show();
 
       if (isNaN(id) || id <= 0) {
-        throw new Error('Pas d\'identifiant valide.');
+        throw new Error("Pas d'identifiant valide.");
       }
 
       const url = `${this.endPoint}/${id}`;
-      const observable = this.http.get<T>(
-        url,
-        { observe: 'response' });
+      const observable = this.http.get<T>(url, { observe: 'response' });
       const response = await observable.toPromise();
       const item = response?.body || null;
 
@@ -130,11 +127,9 @@ export class CrudService<T> {
       }
 
       const url = `${this.endPoint}/${id}`;
-      const observable = this.http.put<T>(
-        url,
-        item, {
+      const observable = this.http.put<T>(url, item, {
         headers: new HttpHeaders(AuthService.headers),
-        observe: 'response'
+        observe: 'response',
       });
       const response = await observable.toPromise();
       return response?.body || null;
@@ -159,12 +154,10 @@ export class CrudService<T> {
         throw new Error('Pas de données en paramètre.');
       }
 
-      const observable = this.http.post<T>(
-        this.endPoint,
-          item, {
-          headers: new HttpHeaders(AuthService.headers),
-          observe: 'response'
-        });
+      const observable = this.http.post<T>(this.endPoint, item, {
+        headers: new HttpHeaders(AuthService.headers),
+        observe: 'response',
+      });
       const response = await observable.toPromise();
       const newItem = response?.body || item;
 
@@ -173,9 +166,7 @@ export class CrudService<T> {
         return newItem;
       }
 
-      return idName
-        ? this.addIdNamed(newItem, idName)
-        : item;
+      return idName ? this.addIdNamed(newItem, idName) : item;
     } catch (error) {
       console.error(error);
       return Promise.reject(error);
@@ -193,13 +184,11 @@ export class CrudService<T> {
       this.spinnerSrv.show();
 
       if (isNaN(id) || id <= 0) {
-        throw new Error('Pas d\'indentifiant valide.');
+        throw new Error("Pas d'indentifiant valide.");
       }
 
       const url = `${this.endPoint}/${id}`;
-      const observable = this.http.delete<T>(
-        url,
-        { observe: 'response' });
+      const observable = this.http.delete<T>(url, { observe: 'response' });
       await observable.toPromise();
     } catch (error) {
       console.error(error);

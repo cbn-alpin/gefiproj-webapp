@@ -1,8 +1,8 @@
-import { EnsureAuthenticatedService } from './ensure-authenticated.service';
 import { Injectable } from '@angular/core';
 import { CanActivate } from '@angular/router';
 import { Roles } from 'src/app/models/roles';
 import { AuthService } from './auth.service';
+import { EnsureAuthenticatedService } from './ensure-authenticated.service';
 
 /**
  * Indique si l'utilisateur est authentifié en tant qu'administrateur.
@@ -27,7 +27,8 @@ export class IsAdministratorGuardService implements CanActivate {
   public isAdministrator(): boolean {
     try {
       const userAuth = this.authSrv.userAuth;
-      const isAuth = this.authSrv.isAuthenticated();
+      const isAuth = this.authSrv.isAuthenticated()
+        || this.authSrv.canRefreshToken(); // Pour éviter des effets indésirables
 
       return isAuth
         && !!userAuth

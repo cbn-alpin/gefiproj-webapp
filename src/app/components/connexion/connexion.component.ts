@@ -1,9 +1,9 @@
-import {Component, OnInit} from '@angular/core';
-import {AuthService} from 'src/app/services/authentication/auth.service';
-import {UserLogin} from 'src/app/services/authentication/user-login';
-import {ErrorStateMatcher} from "@angular/material/core";
-import {FormControl, FormGroupDirective, NgForm, Validators} from "@angular/forms";
-import {MatSnackBar} from "@angular/material/snack-bar";
+import { Component, OnInit } from '@angular/core';
+import { FormControl, FormGroupDirective, NgForm, Validators } from '@angular/forms';
+import { ErrorStateMatcher } from '@angular/material/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { AuthService } from 'src/app/services/authentication/auth.service';
+import { UserLogin } from 'src/app/services/authentication/user-login';
 
 @Component({
   selector: 'app-connexion',
@@ -17,8 +17,8 @@ export class ConnexionComponent implements OnInit {
   public pwdMatcher: ErrorStateMatcher;
 
   constructor(
-    private readonly _snackBar: MatSnackBar,
-    private readonly auth: AuthService
+    private readonly snackBar: MatSnackBar,
+    private readonly authSrv: AuthService
     ) { }
 
   /**
@@ -37,21 +37,26 @@ export class ConnexionComponent implements OnInit {
   }
 
   public async onLogin(): Promise<void> {
-    if (this.emailFormControl.valid && this.pwdFormControl.valid) {
-      const sampleUser: UserLogin = {
-        login: this.emailFormControl.value,
-        password: this.pwdFormControl.value
+    try {
+      if (this.emailFormControl.valid && this.pwdFormControl.valid) {
+        const sampleUser: UserLogin = {
+          login: this.emailFormControl.value,
+          password: this.pwdFormControl.value
+        };
+        await this.authSrv.login(sampleUser);
+
+        const isAuth = this.authSrv.isAuthenticated();
+        if (!isAuth) {
+          this.openSnackBar('Ce login n\'est pas valide : utilisateur inactif ou sans rôle.');
+        }
       }
-      try {
-        await this.auth.login(sampleUser);
-      } catch (error) {
-        this.openSnackBar("E-mail/Mot de passe non valide");
-      }
+    } catch (error) {
+      this.openSnackBar('E-mail/Mot de passe non valide');
     }
   }
 
-  private openSnackBar(message: string) {
-    this._snackBar.open(message,'Close', {
+  private openSnackBar(message: string): void {
+    this.snackBar.open(message,'Close', {
       horizontalPosition: 'right',
       verticalPosition: 'top',
       duration: 4000,

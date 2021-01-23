@@ -1,1 +1,145 @@
-<p>rapports works!</p>
+<div class="rapports">
+  <h2>Rapports</h2>
+<!--
+  Suivi des financements
+-->
+  <div class="container">
+    <div class="box">
+      <h3>Suivi des financements</h3>
+      <div class="box mb">
+        <form>
+          <div class="block">
+            <div class="group">
+              <div class="space-between">
+                <div class="group">
+                  <div class="child vertical-align">
+                    Version 1
+                  </div>
+                  <div class="child vertical-align">
+                    <mat-icon
+                      matTooltipClass="tooltip-info"
+                      matTooltip="Ce tableau présente, pour l’année en cours,  en lignes, tous les financements qui présentent les caractéristiques suivantes : [Statut « actif non totalement rattaché »] ou [statut « actif totalement rattaché »] ou [statut « soldé » et date de solde postérieure au 01/01/année n]."
+                    >info</mat-icon>
+                  </div>
+                </div>
+                <div class="child vertical-align">
+                  <button mat-flat-button color="primary" (click)="executeSuiviFinancementsVersion1()">Exécuter</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="box">
+        <form [formGroup]="suiviFinancementsFormGroupVersion2">
+          <div class="block">
+            <div class="group">
+              <div class="space-between">
+                <div class="group">
+                  <div class="child vertical-align">
+                    Version 2
+                  </div>
+                  <div class="child vertical-align">
+                    <mat-icon
+                      matTooltipClass="tooltip-info"
+                      matTooltip="Ce tableau présente, pour une période choisie par l’opérateur (entre l’année n et l’année N), les financements qui présentent les caractéristiques suivantes : 2 premiers chiffres du code projet [supérieurs ou égaux aux 2 derniers chiffres de l’année n] et [inférieurs ou égaux aux 2 derniers chiffres de l’année N]."
+                    >info</mat-icon>
+                  </div>
+                  <div class="child">
+                    <!--Année 1-->
+                    <mat-form-field>
+                      <mat-label>Année n</mat-label>
+                      <input numeric [year]="true" matInput [errorStateMatcher]="annee1Matcher"
+                             formControlName="annee1"
+                             (change)="checkPeriod()"
+                             placeholder="Ex. 2018">
+                      <mat-error *ngIf="suiviFinancementsFormGroupVersion2.get('annee1').hasError('required')">
+                        Année n est <strong>requis</strong>
+                      </mat-error>
+                      <mat-error *ngIf="suiviFinancementsFormGroupVersion2.get('annee1').hasError('pattern')">
+                        Année n doit être au format <strong>année</strong>
+                      </mat-error>
+                      <mat-error *ngIf="suiviFinancementsFormGroupVersion2.get('annee1').hasError('period')">
+                        Année n doit être plus petit que l'<strong>année N</strong>
+                      </mat-error>
+                    </mat-form-field>
+                  </div>
+                  <div class="child">
+                    <!--Année 2-->
+                    <mat-form-field>
+                      <mat-label>Année N</mat-label>
+                      <input numeric [year]="true" matInput [errorStateMatcher]="annee2Matcher"
+                             formControlName="annee2"
+                             (change)="checkPeriod()"
+                             placeholder="Ex. 2019">
+                      <mat-error *ngIf="suiviFinancementsFormGroupVersion2.get('annee2').hasError('required')">
+                        Année N est <strong>requis</strong>
+                      </mat-error>
+                      <mat-error *ngIf="suiviFinancementsFormGroupVersion2.get('annee2').hasError('pattern')">
+                        Année N doit être au format <strong>année</strong>
+                      </mat-error>
+                      <mat-error *ngIf="suiviFinancementsFormGroupVersion2.get('annee2').hasError('period')">
+                        Année N doit être plus grand que l'<strong>année n</strong>
+                      </mat-error>
+                    </mat-form-field>
+                  </div>
+                </div>
+              </div>
+              <div class="child to-right vertical-align">
+                <button mat-flat-button color="primary" (click)="executeSuiviFinancementsVersion2()">Exécuter</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+<!--
+  Suivi des bilans financiers
+-->
+  <div class="container">
+    <div class="box">
+      <h3>Suivi des bilans financiers</h3>
+      <div class="box">
+        <form [formGroup]="bilanFinancierFormGroup">
+          <div class="block">
+            <div class="group">
+              <div class="space-between">
+                <div class="child">
+                  <div class="group">
+                    <div class="child vertical-align">
+                      <mat-icon
+                        matTooltipClass="tooltip-info"
+                        matTooltip="Ce tableau présente, pour une année choisie par l’opérateur (année n), le bilan financier sur 5 années à partir de cette année."
+                      >info</mat-icon>
+                    </div>
+                    <!--Année-->
+                    <div class="child vertical-align">
+                      <mat-form-field>
+                        <mat-label>Année n</mat-label>
+                        <input numeric [year]="true" matInput [errorStateMatcher]="annee3Matcher"
+                               formControlName="annee"
+                               placeholder="Ex. 2020">
+                        <mat-error *ngIf="bilanFinancierFormGroup.get('annee').hasError('required')">
+                          Année n est <strong>requis</strong>
+                        </mat-error>
+                        <mat-error *ngIf="bilanFinancierFormGroup.get('annee').hasError('pattern')">
+                          Année n doit être au format <strong>année</strong>
+                        </mat-error>
+                      </mat-form-field>
+                    </div>
+                  </div>
+                </div>
+                <div class="child vertical-align">
+                  <button mat-flat-button color="primary" (click)="executeBilanFinancier()">Exécuter</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

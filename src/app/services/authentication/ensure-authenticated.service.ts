@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { NavigationService } from '../navigation.service';
 import { AuthService } from './auth.service';
 
 /**
@@ -13,27 +12,25 @@ export class EnsureAuthenticatedService {
   /**
    * Vérifie que l'utilisateur est authentifié.
    * @param authSrv : service de gestion de l'authentification.
-   * @param navSrv : service de navigation.
    */
   constructor(
-    private authSrv: AuthService,
-    private navSrv: NavigationService) { }
+    private authSrv: AuthService) { }
 
   /**
    * Vérifie que l'utilisateur est authentifié. Dans le cas contraire, il sera redirigé vers la page de connexion.
    * @returns indique si l'utilisateur est authentifié.
    */
-  public canActivate(): boolean {
+  public async canActivate(): Promise<boolean> {
     try {
-      ////////////////////////////////////////////
-      //todo à désactiver tant que l'API de Token n'est pas fournie !!
-      // return true;
-      ////////////////////////////////////////////
+      let isAuth = this.authSrv.isAuthenticated();
 
-      const isAuth = this.authSrv.isAuthenticated();
-
-      if (!isAuth) { // Affiche page d'authentification
-        this.navSrv.goToLogin();
+      if (!isAuth) { // Le Token n'est pas valide => vérification du Refresh Token
+        if (this.authSrv.canRefreshToken) {
+          await this.authSrv.refreshTokenOrLogout();
+          isAuth = this.authSrv.isAuthenticated();
+        } else {
+          this.authSrv.logout();
+        }
       }
 
       return isAuth;

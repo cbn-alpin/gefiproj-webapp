@@ -5,7 +5,7 @@
   max-width: 500px;
   width: 100%;
   text-align: center;
-  padding-top: 10px;
+  padding-top: 15px;
 }
 
 .example-full-width {
@@ -17,20 +17,16 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  border: 1px solid rgba(0,0,0,0.2);
+  border: 0.5px solid $blue-grey;
+  border-radius: 10px;
+  width: 450px;
 }
 
 .header {
   font-size: 30px;
-  background: $primary;
-  padding: 10px;
-  height: 60px;
-  vertical-align: middle;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-transform: uppercase;
+  background: $blue-grey;
+  text-align: center;
+  border-radius: 9px 9px 0 0;
 }
 
 .child {
@@ -39,16 +35,16 @@
 }
 
 .action {
-  padding-top: 10px;
+  padding-top: 20px;
   text-align: center;
   margin-bottom: 10px;
 
   button {
     width: 80%;
-    font-size: 22px;
+    font-size: 20px;
     text-transform: uppercase;
     padding: 10px;
     color: white;
-    background: #3D9970;
+    background: $color-success;
   }
 }

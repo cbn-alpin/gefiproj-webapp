@@ -1,6 +1,5 @@
 .project-details{
   margin-bottom: 20px;
-  margin-top: 30px;
 }
 .financements {
   margin-bottom: 25px;
@@ -23,29 +22,22 @@
 }
 
 .project-line{
-  width: 200%;
-  margin-left: -200px;
+  width: 100%;
   margin-bottom: 20px;
-  height: 3px;
+  height: 2px;
   background-color: #125699;
 }
 
-
 .recettes {
-  width: 45%;
+  width: 50%;
 }
 
 .montants-affectes {
-  width: 45%;
+  width: 50%;
 }
 
 .block {
   margin-bottom: 15px;
-
-  .space-between-container {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-  }
+  width: 100%;
 }
 

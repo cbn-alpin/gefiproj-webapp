@@ -11,7 +11,7 @@ export class FinanceurService {
   /**
    * Url relative de l'API.
    */
-  private readonly endPoint = '/api/funder';
+  private readonly endPoint = '/api/funders';
 
   /**
    * Effectue les appels au serveur d'API pour une entité donnée.
