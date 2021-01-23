@@ -79,6 +79,8 @@ export class GenericTableComponent<T>
 
   @Input() autoSelectFirstRow = false;
 
+  @Input() public selectedEntity: GenericTableEntity<T>;
+
   @Output() editEvent: EventEmitter<
     GenericTableEntityEvent<T>
   > = new EventEmitter<GenericTableEntityEvent<T>>();
@@ -137,8 +139,6 @@ export class GenericTableComponent<T>
   public displayedColumns: string[];
 
   public GenericTableEntityState = GenericTableEntityState;
-
-  public selectedEntity: GenericTableEntity<T>;
 
   public canSelectSelectedEntity: boolean = true;
 
@@ -305,9 +305,10 @@ export class GenericTableComponent<T>
   public select(genericTableEntity: GenericTableEntity<T>): void {
     if (
       genericTableEntity.state === GenericTableEntityState.READ &&
-      this.selectedEntity.id !== genericTableEntity.id
+      (!this.selectedEntity || this.selectedEntity.id !== genericTableEntity.id)
     ) {
       this.selectedEntity = genericTableEntity;
+      console.log('SELECT: ', this.selectedEntity);
       const genericTableEntityEvent: GenericTableEntityEvent<T> = {
         entity: genericTableEntity.data,
       };
@@ -339,6 +340,14 @@ export class GenericTableComponent<T>
     } catch (error) {
       this.genericTableErrorService.openSnackBarError('Navigation impossible');
     }
+  }
+
+  public canBeSelected(entity: GenericTableEntity<T>): boolean {
+    console.log(
+      'CHECK IF CAN BE SELECTED... : ',
+      this.selectedEntity.id === entity.id
+    );
+    return this.selectedEntity.id === entity.id;
   }
 
   private handleAction(
@@ -440,7 +449,6 @@ export class GenericTableComponent<T>
 
   private selectFirstRow(): void {
     if (this.genericTableEntities.length > 0 && this.autoSelectFirstRow) {
-      this.selectedEntity = this.genericTableEntities[0];
     }
   }
 }
