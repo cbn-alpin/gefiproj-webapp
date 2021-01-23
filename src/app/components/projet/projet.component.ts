@@ -65,9 +65,11 @@ export class ProjetComponent implements OnInit {
       await this.loadProjetDetailsFromProjetId(projetId);
       await this.loadFinancementsFromProjetId(projetId);
       if (this.financements && this.financements.length > 0) {
-        await this.loadRecettesFromFinancementId(this.financements[0].id_f);
+        this.selectedFinancement = this.financements[0];
+        await this.loadRecettesFromFinancementId(this.selectedFinancement.id_f);
         if (this.recettes && this.recettes.length > 0) {
-          await this.loadMontantsFromRecetteId(this.recettes[0].id_r);
+          this.selectedRecette = this.recettes[0];
+          await this.loadMontantsFromRecetteId(this.selectedRecette.id_r);
         }
       }
     } catch (error) {
@@ -82,17 +84,60 @@ export class ProjetComponent implements OnInit {
       this.selectedRecette = this.recettes[0];
       this.loadMontantsFromRecetteId(this.selectedRecette.id_r);
     } else {
-      this.setRecettesEmpty();
-      this.setMontantsAffectesEmpty();
+      this.montantsAffectes = null;
     }
   }
 
   public onSelectRecette(recette: Recette): void {
     this.selectedRecette = recette;
     this.loadMontantsFromRecetteId(recette.id_r);
-    if (!(this.montantsAffectes && this.montantsAffectes.length > 0)) {
-      this.setMontantsAffectesEmpty();
+  }
+
+  public onCreateFinancement(): void {
+    if (!this.recettes) {
+      this.recettes = [];
     }
+    if (this.financements.length === 1) {
+      this.selectedFinancement = this.financements[0];
+    }
+  }
+
+  public onEditFinancement(): void {
+    if (!this.recettes) {
+      this.recettes = [];
+    }
+  }
+
+  public onDeleteFinancement(): void {
+    if (this.recettes) {
+      this.recettes = null;
+    }
+  }
+
+  public onCreateRecette(): void {
+    if (!this.montantsAffectes) {
+      this.montantsAffectes = [];
+    }
+    if (this.recettes.length === 1) {
+      this.selectedRecette = this.recettes[0];
+    }
+  }
+
+  public onEditRecette(): void {
+    if (!this.montantsAffectes) {
+      this.montantsAffectes = [];
+    }
+  }
+
+  public onDeleteRecette(): void {
+    if (this.montantsAffectes) {
+      this.montantsAffectes = null;
+    }
+  }
+
+  public onStartCreationRecette(): void {
+    this.selectedRecette = null;
+    this.montantsAffectes = null;
   }
 
   private openSnackBar(message: string): void {
@@ -157,13 +202,5 @@ export class ProjetComponent implements OnInit {
 
       this.openSnackBar(error);
     }
-  }
-
-  private setRecettesEmpty(): void {
-    this.recettes = [];
-  }
-
-  private setMontantsAffectesEmpty(): void {
-    this.montantsAffectes = [];
   }
 }

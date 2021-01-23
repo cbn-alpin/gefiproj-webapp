@@ -58,7 +58,9 @@ export class RecettesService {
     recettes: Recette[]
   ): Promise<Recette> {
     this.cleanRecette(recette);
+    console.log('YU');
     await this.checkErrors(recette, financement, recettes);
+    console.log('HERe');
     try {
       if (recette && recette.id_r) {
         return await this.crudSrv.modify(recette, recette.id_r);

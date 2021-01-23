@@ -100,6 +100,10 @@ export class GenericTableComponent<T>
    */
   @Output() sortEvent = new EventEmitter<SortInfo>();
 
+  @Output() startCreateEvent = new EventEmitter<void>();
+
+  @Output() endCreateEvent = new EventEmitter<void>();
+
   /**
    * Récupère le trie courant.
    */
@@ -259,6 +263,7 @@ export class GenericTableComponent<T>
       this.genericTableEntitiesCopy
     );
     this.genericTableEntities = [newElement].concat(this.genericTableEntities);
+    this.startCreateEvent.emit();
   }
 
   public create(event, entity: GenericTableEntity<T>): void {
@@ -278,6 +283,7 @@ export class GenericTableComponent<T>
     this.genericTableEntities = this.genericTableEntities?.filter(
       (data) => entity.data !== data.data
     );
+    this.endCreateEvent.emit();
   }
 
   public delete(event, entity: GenericTableEntity<T>): void {
