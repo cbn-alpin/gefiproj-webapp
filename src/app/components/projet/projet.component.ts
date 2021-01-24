@@ -12,6 +12,9 @@ import { MontantsAffectesService } from "../../services/montants-affectes.servic
 import { MontantAffecte } from "../../models/montantAffecte";
 import { FinancementsService } from "../../services/financements.service";
 import {MatCheckboxChange} from '@angular/material/checkbox';
+import {Utilisateur} from '../../models/utilisateur';
+import {UsersService} from '../../services/users.service';
+import {SpinnerService} from '../../services/spinner.service';
 
 @Component({
   selector: 'app-projet',
@@ -34,11 +37,17 @@ export class ProjetComponent implements OnInit {
    */
   public projet: Projet;
   /**
+   * Responsable du projet.
+   */
+  manager: Utilisateur;
+
+  /**
    * Indique si le tableau est en lecture seule.
    */
   public get isReadOnly(): boolean {
     return !this.isAdministrator;
   }
+
   /**
    * Indique si l'utilisateur est un administrateur.
    */
@@ -64,11 +73,12 @@ export class ProjetComponent implements OnInit {
     private readonly _projetService: ProjetService,
     private readonly _montantsAffectesService: MontantsAffectesService,
     private readonly _financementsService: FinancementsService,
-
-
+    private spinnerSrv: SpinnerService,
   ) {
     this.projectId = this.route.snapshot.params.id;
-    if (!this.projectId) { this.router.navigate(['home']) }
+    if (!this.projectId) {
+      this.router.navigate(['home'])
+    }
   }
 
   public async getRecettesFromFinancement(financement: Financement): Promise<void> {
@@ -117,11 +127,13 @@ export class ProjetComponent implements OnInit {
       this.projet = await this._projetsService.get(projetId);
       this.financements = await this._financementsService.getAll(this.projet.id_p);
       if (this.financements.length > 0) {
-        this.recettes = await this._projetService.getAllRecettesFromFinancement(this.financements[0]);;
+        this.recettes = await this._projetService.getAllRecettesFromFinancement(this.financements[0]);
+        ;
       }
       if (this.recettes.length > 0) {
         this.montantsAffectes = await this._montantsAffectesService.getAll(this.recettes[0].id_r);
       }
+      this.manager = this.projet.responsable;
     } catch (error) {
       console.error(error);
       this.showInformation('Impossible de charger le projet : ' + error.error);
@@ -138,17 +150,41 @@ export class ProjetComponent implements OnInit {
       this.snackBar.open(
         message,
         'OK', {
-        duration: 5000,
-        horizontalPosition: 'right',
-        verticalPosition: 'top',
-      });
+          duration: 5000,
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+        });
     } catch (error) {
       console.error(error);
     }
   }
 
-  public updateProjectStatus(event: MatCheckboxChange): void{
-    console.log("Status " , event.checked);
+  public async updateProjectStatus(event: MatCheckboxChange): Promise<void> {
+    this.projet.statut_p = event.checked;
+    this.projet.id_u = this.projet.responsable.id_u;
+    try {
+      this.spinnerSrv.show();
+      await this._projetsService.modify(this.projet);
+      this.projet.responsable = this.manager;
+      this.spinnerSrv.hide();
+      if (this.projet.statut_p == true)
+        this.showInformation("Le projet " + this.projet.nom_p + " est soldé ! ");
+      if (this.projet.statut_p == false)
+        this.showInformation("Le projet " + this.projet.nom_p + " est non soldé ! ");
+
+    }
+
+  catch(error) {
+    console.error(error);
+    for (const err of error.error.errors) {
+      this.showInformation('Impossible de créer le montant affecté : ' + err.message);
+    }
   }
+
+
+  }
+
+
+
 
 }
