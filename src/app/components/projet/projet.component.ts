@@ -11,6 +11,7 @@ import { Projet } from '../../models/projet';
 import { MontantsAffectesService } from "../../services/montants-affectes.service";
 import { MontantAffecte } from "../../models/montantAffecte";
 import { FinancementsService } from "../../services/financements.service";
+import {MatCheckboxChange} from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-projet',
@@ -144,6 +145,10 @@ export class ProjetComponent implements OnInit {
     } catch (error) {
       console.error(error);
     }
+  }
+
+  public updateProjectStatus(event: MatCheckboxChange): void{
+    console.log("Status " , event.checked);
   }
 
 }

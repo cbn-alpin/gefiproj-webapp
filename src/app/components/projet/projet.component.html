@@ -4,7 +4,8 @@
   <div class="project-status">
     <mat-checkbox
       [checked]=projet.statut_p
-      [disabled]="!isAdministrator"> <!-- disabled if not administrator  -->
+      [disabled]="!isAdministrator"
+    (change)="updateProjectStatus($event)"> <!-- disabled if not administrator  -->
       Soldé
     </mat-checkbox>
   </div>
@@ -36,6 +37,7 @@
     <app-montants-affectes
       *ngIf="montantsAffectes"
       [montantsAffectes]="montantsAffectes"
+      [receipt]="selectedRecette"
     ></app-montants-affectes>
   </div>
 </div>
