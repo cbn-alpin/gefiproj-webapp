@@ -5,13 +5,14 @@
   [canSelect]="true"
   [showActions]="isAdministrator"
   [isReadOnly]="isReadOnly"
-  [autoSelectFirstRow]="true"
-  [selectedEntity]="selectedRecette"
+  [selectedRow]="selectedRecette"
   (editEvent)="onEdit($event)"
   (createEvent)="onCreate($event)"
   (deleteEvent)="onDelete($event)"
   (selectEvent)="onSelect($event)"
-  (startCreateEvent)="onStartCreation()"
+  (startCreateEvent)="onStartCreation($event)"
   (endCreateEvent)="onEndCreation()"
+  (startEditingEvent)="onStartEditing($event)"
+  (endEditingEvent)="onEndEditing()"
 >
 </app-generic-table>

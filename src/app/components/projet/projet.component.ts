@@ -129,15 +129,51 @@ export class ProjetComponent implements OnInit {
     }
   }
 
+  public onEndEditingRecette(): void {
+    if (!this.montantsAffectes) {
+      this.selectedRecette = null;
+    }
+  }
+
   public onDeleteRecette(): void {
     if (this.montantsAffectes) {
       this.montantsAffectes = null;
     }
   }
 
-  public onStartCreationRecette(): void {
+  public onStartCreationRecette(recette: Recette): void {
+    this.selectedRecette = recette;
+    this.montantsAffectes = null;
+  }
+
+  public onEndCreationRecette(): void {
     this.selectedRecette = null;
     this.montantsAffectes = null;
+  }
+
+  public onStartEditingRecette(recette: Recette): void {
+    if (this.selectedRecette?.id_r !== recette.id_r) {
+      this.selectedRecette = recette;
+      this.montantsAffectes = null;
+    }
+  }
+
+  public onStartCreationFinancement(financement: Financement): void {
+    this.selectedFinancement = financement;
+    this.selectedRecette = null;
+    this.recettes = null;
+    this.montantsAffectes = null;
+  }
+
+  public onEndCreationFinancement(): void {
+    this.selectedFinancement = null;
+    this.selectedRecette = null;
+    this.recettes = null;
+    this.montantsAffectes = null;
+  }
+
+  public onStartEditingFinancement(financement: Financement): void {
+    this.selectedFinancement = financement;
   }
 
   private openSnackBar(message: string): void {

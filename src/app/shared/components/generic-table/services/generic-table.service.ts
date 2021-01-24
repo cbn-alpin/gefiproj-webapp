@@ -79,7 +79,7 @@ export class GenericTableService<T> {
     return (
       options.entitySelectBoxOptions?.find(
         (entity) => entity.name === entityName
-      ).values || []
+      )?.values || []
     );
   }
 

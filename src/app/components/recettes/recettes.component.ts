@@ -50,10 +50,16 @@ export class RecettesComponent implements OnInit, OnChanges {
   @Output() public deleteEvent: EventEmitter<void> = new EventEmitter<void>();
 
   @Output()
-  public startCreateEvent: EventEmitter<void> = new EventEmitter<void>();
+  public startCreateEvent: EventEmitter<Recette> = new EventEmitter<Recette>();
 
   @Output()
   public endCreateEvent: EventEmitter<void> = new EventEmitter<void>();
+
+  @Output()
+  public startEditingEvent: EventEmitter<Recette> = new EventEmitter<Recette>();
+
+  @Output()
+  public endEditingEvent: EventEmitter<void> = new EventEmitter<void>();
 
   /**
    * Titre du tableau
@@ -78,12 +84,6 @@ export class RecettesComponent implements OnInit, OnChanges {
   public get isAdministrator(): boolean {
     return !!this.isAdministratorGuardService.isAdministrator();
   }
-
-  /**
-   * Obtenir les informations d'une recette
-   * @param entity
-   */
-  public getEntityInformationsCallBack: Function;
 
   /**
    * recette par défaut utilisé lors de la création d'une nouvelle recette
@@ -148,11 +148,8 @@ export class RecettesComponent implements OnInit, OnChanges {
   public async onCreate(
     event: GenericTableEntityEvent<Recette>
   ): Promise<void> {
-    console.log('AA');
     const recette: Recette = { ...event.entity, id_f: this.financement.id_f };
-    console.log('CC');
     const formErrors = this.checkFormErrors(recette);
-    console.log('BB');
     if (formErrors) {
       event.callBack({ formErrors });
     } else {
@@ -174,13 +171,11 @@ export class RecettesComponent implements OnInit, OnChanges {
   }
 
   public async onEdit(event: GenericTableEntityEvent<Recette>): Promise<void> {
-    console.log('00');
     const formErrors = this.checkFormErrors(event.entity);
     if (formErrors) {
       event.callBack({ formErrors });
     } else {
       try {
-        console.log('AA');
         const updatedRecette = await this.recettesService.modify(
           event.entity,
           this.financement,
@@ -280,12 +275,20 @@ export class RecettesComponent implements OnInit, OnChanges {
     return genericTableFormErrors;
   }
 
-  public onStartCreation(): void {
-    this.startCreateEvent.emit();
+  public onStartCreation(recette: Recette): void {
+    this.startCreateEvent.emit(recette);
   }
 
   public onEndCreation(): void {
     this.endCreateEvent.emit();
+  }
+
+  public onStartEditing(recette: Recette): void {
+    this.startEditingEvent.emit(recette);
+  }
+
+  public onEndEditing(): void {
+    this.endEditingEvent.emit();
   }
 
   /**

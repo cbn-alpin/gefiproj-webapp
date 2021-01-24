@@ -28,6 +28,7 @@
       (createEvent)="onCreateFinancement()"
       (editEvent)="onEditFinancement()"
       (deleteEvent)="onDeleteFinancement()"
+      (startCreateEvent)="onStartCreationFinancement()"
     ></app-financements>
   </div>
 
@@ -47,7 +48,9 @@
         (createEvent)="onCreateRecette()"
         (editEvent)="onEditRecette()"
         (deleteEvent)="onDeleteRecette()"
-        (startCreateEvent)="onStartCreationRecette()"
+        (startCreateEvent)="onStartCreationRecette($event)"
+        (startEditingEvent)="onStartEditingRecette($event)"
+        (endEditingEvent)="onEndEditingRecette()"
       ></app-recettes>
     </div>
 

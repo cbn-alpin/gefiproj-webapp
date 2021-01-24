@@ -34,7 +34,7 @@ import { MatDialog } from '@angular/material/dialog';
   styleUrls: ['./financements.component.scss'],
 })
 export class FinancementsComponent
-  implements OnChanges, GenericTableInterface<Financement> {
+  implements OnInit, OnChanges, GenericTableInterface<Financement> {
   /**
    * Données source du tableau générique
    * @private
@@ -51,6 +51,18 @@ export class FinancementsComponent
   @Output() public editEvent: EventEmitter<void> = new EventEmitter<void>();
 
   @Output() public deleteEvent: EventEmitter<void> = new EventEmitter<void>();
+
+  @Output()
+  public startCreateEvent: EventEmitter<void> = new EventEmitter<void>();
+
+  @Output()
+  public endCreateEvent: EventEmitter<void> = new EventEmitter<void>();
+
+  @Output()
+  public startEditingEvent: EventEmitter<void> = new EventEmitter<void>();
+
+  @Output()
+  public endEditingEvent: EventEmitter<void> = new EventEmitter<void>();
 
   /**
    * Titre du tableau générique
@@ -122,74 +134,7 @@ export class FinancementsComponent
   /**
    * Paramètres du tableau de financement.
    */
-  options: GenericTableOptions<Financement> = {
-    dataSource: [],
-    defaultEntity: this.defaultEntity,
-    entityTypes: [
-      {
-        name: this.namesMap.montant_arrete_f.name,
-        type: GenericTableCellType.CURRENCY,
-        code: this.namesMap.montant_arrete_f.code,
-      },
-      {
-        name: this.namesMap.date_arrete_f.name,
-        type: GenericTableCellType.DATE,
-        code: this.namesMap.date_arrete_f.code,
-      },
-      {
-        name: this.namesMap.date_limite_solde_f.name,
-        type: GenericTableCellType.DATE,
-        code: this.namesMap.date_limite_solde_f.code,
-      },
-      {
-        name: this.namesMap.financeur.name,
-        type: GenericTableCellType.SELECTBOX,
-        code: this.namesMap.financeur.code,
-      },
-      {
-        name: this.namesMap.statut_f.name,
-        type: GenericTableCellType.SELECTBOX,
-        code: this.namesMap.statut_f.code,
-      },
-      {
-        name: this.namesMap.date_solde_f.name,
-        type: GenericTableCellType.DATE,
-        code: this.namesMap.date_solde_f.code,
-      },
-      {
-        name: this.namesMap.commentaire_admin_f.name,
-        type: GenericTableCellType.TEXTAREA,
-        code: this.namesMap.commentaire_admin_f.code,
-      },
-      {
-        name: this.namesMap.commentaire_resp_f.name,
-        type: GenericTableCellType.TEXTAREA,
-        code: this.namesMap.commentaire_resp_f.code,
-      },
-      {
-        name: this.namesMap.numero_titre_f.name,
-        type: GenericTableCellType.TEXT,
-        code: this.namesMap.numero_titre_f.code,
-      },
-      {
-        name: this.namesMap.annee_titre_f.name,
-        type: GenericTableCellType.TEXT,
-        code: this.namesMap.annee_titre_f.code,
-      },
-      {
-        name: this.namesMap.imputation_f.name,
-        type: GenericTableCellType.TEXT,
-        code: this.namesMap.imputation_f.code,
-      },
-      {
-        name: this.namesMap.difference.name,
-        type: GenericTableCellType.CURRENCY,
-        code: this.namesMap.difference.code,
-      },
-    ],
-    entityPlaceHolders: [],
-    entitySelectBoxOptions: [],
-  };
+  options: GenericTableOptions<Financement>;
 
   /**
    * Indique si le tableau peut-être modifié.
@@ -248,6 +193,10 @@ export class FinancementsComponent
     if (!this.projectId) {
       this.router.navigate(['home']);
     }
+  }
+
+  public ngOnInit() {
+    this.initGenericTableOptions();
   }
 
   /**
@@ -592,5 +541,92 @@ export class FinancementsComponent
     genericTableEntityEvent: GenericTableEntityEvent<Financement>
   ): void {
     this.selectEvent.emit(genericTableEntityEvent.entity);
+  }
+
+  public onStartCreation(): void {
+    this.startCreateEvent.emit();
+  }
+
+  public onEndCreation(): void {
+    this.endCreateEvent.emit();
+  }
+
+  public onStartEditing(): void {
+    this.startEditingEvent.emit();
+  }
+
+  public onEndEditing(): void {
+    this.endEditingEvent.emit();
+  }
+
+  private initGenericTableOptions(): void {
+    this.options = {
+      dataSource: this.financements,
+      defaultEntity: this.defaultEntity,
+      entityTypes: [
+        {
+          name: this.namesMap.montant_arrete_f.name,
+          type: GenericTableCellType.CURRENCY,
+          code: this.namesMap.montant_arrete_f.code,
+        },
+        {
+          name: this.namesMap.date_arrete_f.name,
+          type: GenericTableCellType.DATE,
+          code: this.namesMap.date_arrete_f.code,
+        },
+        {
+          name: this.namesMap.date_limite_solde_f.name,
+          type: GenericTableCellType.DATE,
+          code: this.namesMap.date_limite_solde_f.code,
+        },
+        {
+          name: this.namesMap.financeur.name,
+          type: GenericTableCellType.SELECTBOX,
+          code: this.namesMap.financeur.code,
+        },
+        {
+          name: this.namesMap.statut_f.name,
+          type: GenericTableCellType.SELECTBOX,
+          code: this.namesMap.statut_f.code,
+        },
+        {
+          name: this.namesMap.date_solde_f.name,
+          type: GenericTableCellType.DATE,
+          code: this.namesMap.date_solde_f.code,
+        },
+        {
+          name: this.namesMap.commentaire_admin_f.name,
+          type: GenericTableCellType.TEXTAREA,
+          code: this.namesMap.commentaire_admin_f.code,
+        },
+        {
+          name: this.namesMap.commentaire_resp_f.name,
+          type: GenericTableCellType.TEXTAREA,
+          code: this.namesMap.commentaire_resp_f.code,
+        },
+        {
+          name: this.namesMap.numero_titre_f.name,
+          type: GenericTableCellType.TEXT,
+          code: this.namesMap.numero_titre_f.code,
+        },
+        {
+          name: this.namesMap.annee_titre_f.name,
+          type: GenericTableCellType.TEXT,
+          code: this.namesMap.annee_titre_f.code,
+        },
+        {
+          name: this.namesMap.imputation_f.name,
+          type: GenericTableCellType.TEXT,
+          code: this.namesMap.imputation_f.code,
+        },
+        {
+          name: this.namesMap.difference.name,
+          type: GenericTableCellType.CURRENCY,
+          code: this.namesMap.difference.code,
+        },
+      ],
+      entityPlaceHolders: [],
+      entitySelectBoxOptions: [],
+    };
   }
 }
