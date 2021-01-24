@@ -386,7 +386,7 @@
       mat-row
       *matRowDef="let row; columns: displayedColumns"
       [ngClass]="{
-        selected: canBeSelected(row)
+        selected: isSelected(row)
       }"
       (click)="select(row)"
     ></tr>

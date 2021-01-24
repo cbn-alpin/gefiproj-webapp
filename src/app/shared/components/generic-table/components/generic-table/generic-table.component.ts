@@ -3,9 +3,11 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnChanges,
   OnDestroy,
   OnInit,
   Output,
+  SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import {
@@ -51,7 +53,7 @@ import { GenericTableTypeService } from '../../services/generic-table-type.servi
   ],
 })
 export class GenericTableComponent<T>
-  implements OnInit, AfterViewInit, OnDestroy {
+  implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   /**
    * Défini le paramétrage d'affichage et les données du tableau.
    */
@@ -79,7 +81,7 @@ export class GenericTableComponent<T>
 
   @Input() autoSelectFirstRow = false;
 
-  @Input() public selectedEntity: GenericTableEntity<T>;
+  @Input() selectedRow: T;
 
   @Output() editEvent: EventEmitter<
     GenericTableEntityEvent<T>
@@ -102,9 +104,13 @@ export class GenericTableComponent<T>
    */
   @Output() sortEvent = new EventEmitter<SortInfo>();
 
-  @Output() startCreateEvent = new EventEmitter<void>();
+  @Output() startCreateEvent = new EventEmitter<T>();
 
   @Output() endCreateEvent = new EventEmitter<void>();
+
+  @Output() startEditingEvent = new EventEmitter<T>();
+
+  @Output() endEditingEvent = new EventEmitter<void>();
 
   /**
    * Récupère le trie courant.
@@ -164,6 +170,8 @@ export class GenericTableComponent<T>
 
   public actionsHeaderColumnName: string = 'Actions';
 
+  public selectedEntity: GenericTableEntity<T>;
+
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
 
   // tslint:disable-next-line: variable-name
@@ -189,6 +197,15 @@ export class GenericTableComponent<T>
     }
   }
 
+  public ngOnChanges(changes: SimpleChanges) {
+    if (changes.selectedRow) {
+      const entity = this.genericTableEntities?.find(
+        (entity) => entity.data === this.selectedRow
+      );
+      this.selectedEntity = entity ? entity : null;
+    }
+  }
+
   public ngOnDestroy() {
     this.destroyed$.next(true);
     this.destroyed$.complete();
@@ -211,7 +228,6 @@ export class GenericTableComponent<T>
 
   public onEdit(event, entity: GenericTableEntity<T>): void {
     event.stopPropagation();
-    this.selectedEntity = entity;
     const cleanedGenericTableEntities = this.genericTableService.getOtherEntitiesReseted(
       this.genericTableEntities,
       this.genericTableEntitiesCopy,
@@ -221,6 +237,7 @@ export class GenericTableComponent<T>
       (cleanedEntity) => cleanedEntity !== null
     );
     entity.state = GenericTableEntityState.EDIT;
+    this.startEditingEvent.emit(entity.data);
   }
 
   public edit(event, entity: GenericTableEntity<T>): void {
@@ -245,6 +262,7 @@ export class GenericTableComponent<T>
       entity.id === entityCopied.id ? entityCopied : entity
     );
     this.genericTableErrorService.cleanErrors(entity);
+    this.endEditingEvent.emit();
   }
 
   public onCreate(): void {
@@ -257,13 +275,12 @@ export class GenericTableComponent<T>
       state: GenericTableEntityState.NEW,
       id: this.genericTableEntities.length,
     };
-    this.selectedEntity = newElement;
     this.genericTableEntities = this.genericTableService.getOtherEntitiesReseted(
       this.genericTableEntities,
       this.genericTableEntitiesCopy
     );
     this.genericTableEntities = [newElement].concat(this.genericTableEntities);
-    this.startCreateEvent.emit();
+    this.startCreateEvent.emit(defaultEntityCopied);
   }
 
   public create(event, entity: GenericTableEntity<T>): void {
@@ -300,18 +317,26 @@ export class GenericTableComponent<T>
 
   /**
    * Lorsqu'une entité est sélectionné dans le tableau, on émet un événement avec l'entité en paramètre
-   * @param genericTableEntity : l'élément sélectionné.
+   * @param entity : l'élément sélectionné.
    */
-  public select(genericTableEntity: GenericTableEntity<T>): void {
+  public select(entity: GenericTableEntity<T>): void {
     if (
-      genericTableEntity.state === GenericTableEntityState.READ &&
-      (!this.selectedEntity || this.selectedEntity.id !== genericTableEntity.id)
+      entity.state === GenericTableEntityState.READ &&
+      (!this.selectedEntity || this.selectedEntity.id !== entity.id)
     ) {
-      this.selectedEntity = genericTableEntity;
-      console.log('SELECT: ', this.selectedEntity);
       const genericTableEntityEvent: GenericTableEntityEvent<T> = {
-        entity: genericTableEntity.data,
+        entity: entity.data,
       };
+      if (this.canSelect) {
+        const cleanedGenericTableEntities = this.genericTableService.getOtherEntitiesReseted(
+          this.genericTableEntities,
+          this.genericTableEntitiesCopy,
+          entity
+        );
+        this.genericTableEntities = cleanedGenericTableEntities.filter(
+          (cleanedEntity) => cleanedEntity !== null
+        );
+      }
       this.selectEvent.emit(genericTableEntityEvent);
     }
   }
@@ -342,7 +367,7 @@ export class GenericTableComponent<T>
     }
   }
 
-  public canBeSelected(entity: GenericTableEntity<T>): boolean {
+  public isSelected(entity: GenericTableEntity<T>): boolean {
     return this.selectedEntity && this.selectedEntity.id === entity.id;
   }
 
@@ -433,14 +458,8 @@ export class GenericTableComponent<T>
       this.genericTableEntitiesCopy = this.genericTableService.getDeepCopy(
         this.genericTableEntities
       );
-      this.selectFirstRow();
     } catch (error) {
       console.error(error);
-    }
-  }
-
-  private selectFirstRow(): void {
-    if (this.genericTableEntities.length > 0 && this.autoSelectFirstRow) {
     }
   }
 }

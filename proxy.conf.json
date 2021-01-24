@@ -1,13 +1,12 @@
 {
   "/api/*": {
     "target": {
-      "host": "localhost",
-      "protocol": "http:",
-      "port": 5000
+      "host": "gefiproj.cbn-alpin.fr",
+      "protocol": "https:",
+      "port": 443
     },
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true
   }
 }
-
