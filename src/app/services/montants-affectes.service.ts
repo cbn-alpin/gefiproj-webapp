@@ -1,20 +1,22 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import {CrudService} from './crud.service';
-import {MontantAffecte} from '../models/montantAffecte';
-import {HttpClient} from '@angular/common/http';
-import {SpinnerService} from './spinner.service';
-import {Financement} from '../models/financement';
-import {Projet} from '../models/projet';
-import {Recette} from '../models/recette';
+import { MontantAffecte } from '../models/montantAffecte';
+import { Recette } from '../models/recette';
+import { CrudService } from './crud.service';
+import { SpinnerService } from './spinner.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MontantsAffectesService {
   /**
+   * Url relative de l'API Recette
+   */
+  public readonly rEndPoint = '/api/receipts';
+  /**
    * Url relative de l'API.
    */
-  public readonly endPoint = '/api/receipts';
+  public readonly aEndPoint = '/api/amounts';
   /**
    * Effectue les appels au serveur d'API pour une entité donnée.
    */
@@ -33,7 +35,7 @@ export class MontantsAffectesService {
     this.crudSrv = new CrudService<MontantAffecte>(
       http,
       spinnerSrv,
-      this.endPoint);
+      this.aEndPoint);
   }
 
   /**
@@ -48,7 +50,6 @@ export class MontantsAffectesService {
 
       const recette = {} as Recette;
       recette.id_r = receiptId;
-      // TODO modifier la méthode pour récupérer depuis une recette pas un id
       return this.getAmounts(receiptId);
     } catch (error) {
       console.error(error);
@@ -65,7 +66,7 @@ export class MontantsAffectesService {
       const amountSrv = new CrudService<MontantAffecte>(
         this.http,
         this.spinnerSrv,
-        `/api/receipts/${receiptId}/amounts`); // `${this.endPoint}/${id}/fundings`);
+        `${this.rEndPoint}/${receiptId}/amounts`);
 
       // TODO méthode dans ReceiptServ
       return amountSrv.getAll('id_ma');
@@ -89,8 +90,10 @@ export class MontantsAffectesService {
    * Transmet le financement d'un projet au serveur.
    * @param financement : le financement à créer
    */
-  public async post(montant: MontantAffecte): Promise<MontantAffecte> {
+  public async post(montant: MontantAffecte, receiptId: number): Promise<MontantAffecte> {
     try {
+      montant.id_r=receiptId;
+      console.log("Recette ID" + montant.id_r);
       return this.crudSrv.add(montant, 'id_ma');
     } catch (error) {
       return Promise.reject(error);

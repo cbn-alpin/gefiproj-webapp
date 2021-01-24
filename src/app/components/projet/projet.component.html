@@ -1,63 +1,43 @@
-<ng-container *ngIf="projet && financements">
-  <div class="project-details" *ngIf="projet">
-    <span class="bold project-name">{{ projet.nom_p }}</span>
+<div class="project-details" *ngIf="projet">
+  <span class="bold project-name">{{projet.nom_p}}</span>
 
-    <div class="project-status">
-      <mat-checkbox [checked]="projet.statut_p" [disabled]="!isAdministrator">
-        <!-- disabled if not administrator  -->
-        Soldé
-      </mat-checkbox>
-    </div>
-    <br /><br />
-    <span class="project-code-content">
-      <span class="bold"> code : </span>{{ projet.code_p }}
-    </span>
-    <span class="project-responsable-content">
-      <span class="bold"> responsable : </span
-      >{{ projet.responsable.initiales_u }}
-    </span>
+  <div class="project-status">
+    <mat-checkbox
+      [checked]=projet.statut_p
+      [disabled]="!isAdministrator"
+    (change)="updateProjectStatus($event)"> <!-- disabled if not administrator  -->
+      Soldé
+    </mat-checkbox>
   </div>
-  <hr class="project-line" />
+  <br><br>
+  <span class="project-code-content"> <span class="bold"> code : </span>{{projet.code_p}} </span>
+  <span class="project-responsable-content"> <span class="bold"> responsable : </span>{{projet.responsable.initiales_u }} </span>
+</div>
+<hr class="project-line">
 
-  <div class="financements">
-    <app-financements
-      *ngIf="financements"
-      [financements]="financements"
-      [selectedFinancement]="selectedFinancement"
-      (selectEvent)="onSelectFinancement($event)"
-      (createEvent)="onCreateFinancement()"
-      (editEvent)="onEditFinancement()"
-      (deleteEvent)="onDeleteFinancement()"
-      (financementChange)="onFinancementsChange($event)"
-    ></app-financements>
+<div class="financements">
+  <app-financements
+    *ngIf="financements"
+    [financements]="financements"
+    (select)="onSelectFinancement($event)"
+  ></app-financements>
+</div>
+
+<div class="block" fxLayout="row" fxLayoutAlign="space-between start" fxLayoutGap="30px">
+  <div class="recettes">
+    <app-recettes
+      *ngIf="recettes"
+      [recettes]="recettes"
+      [financement]="selectedFinancement"
+      (select)="onSelectRecette($event)"
+    ></app-recettes>
   </div>
 
-  <div
-    class="block"
-    fxLayout="row"
-    fxLayoutAlign="space-between start"
-    fxLayoutGap="30px"
-  >
-    <div class="recettes">
-      <app-recettes
-        *ngIf="recettes"
-        [recettes]="recettes"
-        [financement]="selectedFinancement"
-        [selectedRecette]="selectedRecette"
-        (selectEvent)="onSelectRecette($event)"
-        (createEvent)="onCreateRecette($event)"
-        (editEvent)="onEditRecette()"
-        (deleteEvent)="onDeleteRecette()"
-        (selectedRecetteChangeEvent)="onSelectedRecetteChange($event)"
-        (recettesChange)="onRecettesChange($event)"
-      ></app-recettes>
-    </div>
-
-    <div class="montants-affectes">
-      <app-montants-affectes
-        *ngIf="montantsAffectes"
-        [montantsAffectes]="montantsAffectes"
-      ></app-montants-affectes>
-    </div>
+  <div class="montants-affectes">
+    <app-montants-affectes
+      *ngIf="montantsAffectes"
+      [montantsAffectes]="montantsAffectes"
+      [receipt]="selectedRecette"
+    ></app-montants-affectes>
   </div>
-</ng-container>
+</div>
