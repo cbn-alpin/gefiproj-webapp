@@ -618,10 +618,7 @@ export class HomeComponent implements OnInit {
       let item1 = p1[name];
       let item2 = p2[name];
 
-      if (name === this.namesMap.code.code) { // Les codes sont des entiers
-        item1 = parseInt(item1, 10);
-        item2 = parseInt(item2, 10);
-      } else if (typeof item1 === 'string') { // Pour du texte
+      if (typeof item1 === 'string') { // Pour du texte
         item1 = item1.toUpperCase();
         item2 = item2.toUpperCase();
       }
