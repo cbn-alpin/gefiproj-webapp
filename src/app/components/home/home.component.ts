@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
 import { IsAdministratorGuardService } from 'src/app/services/authentication/is-administrator-guard.service';
 import { SpinnerService } from 'src/app/services/spinner.service';
 import { UsersService } from 'src/app/services/users.service';
@@ -13,7 +14,6 @@ import { Projet } from './../../models/projet';
 import { Utilisateur } from './../../models/utilisateur';
 import { GenericTableEntityEvent } from './../../shared/components/generic-table/models/generic-table-entity-event';
 import { GenericTableOptions } from './../../shared/components/generic-table/models/generic-table-options';
-import { Router } from "@angular/router";
 
 /**
  * Affiche les projets.
@@ -431,6 +431,19 @@ export class HomeComponent implements OnInit {
    * @param formErrors : liste des erreurs de validation.
    */
   private verifProjectCode(project: Projet, formErrors: GenericTableFormError[]): void {
+    if (typeof project.code_p === 'string') { // Le tableau retourne une string !
+      project.code_p = parseInt(project.code_p as string, 10);
+    }
+
+    if (isNaN(project.code_p)) {
+      const error = {
+        name: this.namesMap.code.code,
+        message: 'Le code projet doit ne comprendre que des chiffres.'
+      };
+
+      formErrors.push(error);
+    }
+
     if (('' + project.code_p).length !== 5) {
       const error = {
         name: this.namesMap.code.code,
