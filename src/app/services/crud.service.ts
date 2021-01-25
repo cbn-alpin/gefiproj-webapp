@@ -1,3 +1,4 @@
+import { environment } from './../../environments/environment';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { AuthService } from './authentication/auth.service';
 import { SpinnerService } from './spinner.service';
@@ -17,7 +18,9 @@ export class CrudService<T> {
     private http: HttpClient,
     private spinnerSrv: SpinnerService,
     private endPoint: string
-  ) {}
+  ) {
+    this.endPoint = `${environment.backendServer}${this.endPoint || '/'}`;
+  }
 
   /**
    * Retourne les entités depuis le serveur.
