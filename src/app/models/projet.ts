@@ -6,7 +6,7 @@ export interface Projet {
   /**
    * Code du projet : 5 chiffres, dont les 2ers représentent une année.
    */
-  code_p: string;
+  code_p: number;
 
   /**
    * Nom du projet.
