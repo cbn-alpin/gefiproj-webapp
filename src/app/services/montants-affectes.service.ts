@@ -66,7 +66,7 @@ export class MontantsAffectesService {
         `${this.endPoint}/${receiptId}/amounts`);
 
       // TODO méthode dans ReceiptServ
-      return amountSrv.getAll('id_ma');
+      return amountSrv.getAll();
     } catch (error) {
       console.error(error);
       return Promise.reject(error);
@@ -89,7 +89,7 @@ export class MontantsAffectesService {
    */
   public async post(montant: MontantAffecte): Promise<MontantAffecte> {
     try {
-      return this.crudSrv.add(montant, 'id_ma');
+      return this.crudSrv.add(montant);
     } catch (error) {
       return Promise.reject(error);
     }

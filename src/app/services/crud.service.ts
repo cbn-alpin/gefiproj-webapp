@@ -21,9 +21,9 @@ export class CrudService<T> {
 
   /**
    * Retourne les entités depuis le serveur.
-   * @param idName : nom de l'identifiant.
+   * @param params : paramètres HTTP.
    */
-  public async getAll(idName?: string, params?: HttpParams): Promise<T[]> {
+  public async getAll(params?: HttpParams): Promise<T[]> {
     try {
       this.spinnerSrv.show();
 
@@ -34,12 +34,7 @@ export class CrudService<T> {
       const response = await observable.toPromise();
       const items = response?.body || [];
 
-      // TODO à supprimer après suppression de json server !
-      if (!idName) {
-        return items;
-      }
-
-      return this.addIdNamedForItems(items || [], idName);
+      return items || [];
     } catch (error) {
       console.error(error);
       return Promise.reject(error);
@@ -49,42 +44,10 @@ export class CrudService<T> {
   }
 
   /**
-   * Injecte l'identifiant attendu par les entités métier.
-   * @param items : éléments où faire l'injection de l'identifiant.
-   * @param key : nom de la propriété identifiant.
-   */
-  private addIdNamedForItems(items: T[], key: string): T[] {
-    try {
-      return (items || []).map((item) => this.addIdNamed(item, key));
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  /**
-   * Injecte l'identifiant attendu par l'entité métier.
-   * @param item : élément où faire l'injection de l'identifiant.
-   * @param key : nom de la propriété identifiant.
-   */
-  private addIdNamed(item: T, key: string): T {
-    // TODO à supprimer après suppression de json server !
-    try {
-      if (item) {
-        item[key] = item[key] || (item as any).id || 0;
-      }
-    } catch (error) {
-      console.error(error);
-    }
-
-    return item;
-  }
-
-  /**
    * Retourne l'entité demandée depuis le serveur.
    * @param id : identifiant de l'entité demandée.
-   * @param idName : nom de l'identifiant.
    */
-  public async get(id: number, idName?: string): Promise<T> {
+  public async get(id: number): Promise<T> {
     try {
       this.spinnerSrv.show();
 
@@ -95,11 +58,8 @@ export class CrudService<T> {
       const url = `${this.endPoint}/${id}`;
       const observable = this.http.get<T>(url, { observe: 'response' });
       const response = await observable.toPromise();
-      const item = response?.body || null;
 
-      return idName // TODO à supprimer après suppression de json server !
-        ? this.addIdNamed(item, idName)
-        : item;
+      return response?.body || null;
     } catch (error) {
       console.error(error);
       return Promise.reject(error);
@@ -121,7 +81,6 @@ export class CrudService<T> {
         throw new Error('Pas de données en paramètre.');
       }
 
-      id = id || (item as any).id; // Pour json-server
       if (isNaN(id) || id <= 0) {
         throw new Error('Pas d\'identifiant valide.');
       }
@@ -132,6 +91,7 @@ export class CrudService<T> {
         observe: 'response',
       });
       const response = await observable.toPromise();
+
       return response?.body || null;
     } catch (error) {
       console.error(error);
@@ -144,9 +104,8 @@ export class CrudService<T> {
   /**
    * Transmet la nouvelle entité au serveur.
    * @param item : entité à créer.
-   * @param idName : nom de l'identifiant.
    */
-  public async add(item: T, idName?: string): Promise<T> {
+  public async add(item: T): Promise<T> {
     try {
       this.spinnerSrv.show();
 
@@ -159,14 +118,8 @@ export class CrudService<T> {
         observe: 'response',
       });
       const response = await observable.toPromise();
-      const newItem = response?.body || item;
 
-      // TODO à supprimer après suppression de json server !
-      if (!idName) {
-        return newItem;
-      }
-
-      return idName ? this.addIdNamed(newItem, idName) : item;
+      return response?.body || item;
     } catch (error) {
       console.error(error);
       return Promise.reject(error);
