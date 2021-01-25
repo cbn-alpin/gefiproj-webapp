@@ -6,5 +6,4 @@ export interface Recette {
   montant_r: number;
   annee_r: number;
   id_f?: number;
-  difference?: number;
 }
