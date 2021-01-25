@@ -21,7 +21,7 @@ interface RecettesSuiviFinancement {
 }
 
 export interface SuiviFinancement {
-  code_p: number;
+  code_p: string;
   nom_p: string;
   nom_financeur: string;
   initiales_u: string;
