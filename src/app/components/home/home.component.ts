@@ -100,7 +100,7 @@ export class HomeComponent implements OnInit {
    * Représente un nouveau projet et définit les colonnes à afficher.
    */
   private readonly defaultEntity = {
-    code_p: '20000',
+    code_p: 20000,
     nom_p: '',
     id_u: 0,
     statut_p: false
@@ -204,7 +204,7 @@ export class HomeComponent implements OnInit {
       dataSource,
       entitySelectBoxOptions
     });
-    options.defaultEntity.code_p = ((new Date(Date.now()).getFullYear() % 100) * 1000).toString();
+    options.defaultEntity.code_p = (new Date(Date.now()).getFullYear() % 100) * 1000;
     this.options = options;
   }
 
@@ -431,7 +431,7 @@ export class HomeComponent implements OnInit {
    * @param formErrors : liste des erreurs de validation.
    */
   private verifProjectCode(project: Projet, formErrors: GenericTableFormError[]): void {
-    if (project.code_p.length !== 5) {
+    if (('' + project.code_p).length !== 5) {
       const error = {
         name: this.namesMap.code.code,
         message: 'Le code projet doit comprendre 5 chiffres.'
@@ -440,7 +440,7 @@ export class HomeComponent implements OnInit {
       formErrors.push(error);
     }
 
-    const codeVal = parseInt(project.code_p);
+    const codeVal = project.code_p || 0;
     const date = new Date(Date.now());
     const year = date.getFullYear() % 100;
     const min = Math.max(20, year - 10); // Démarrage en 2020

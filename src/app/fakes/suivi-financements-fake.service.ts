@@ -25,7 +25,7 @@ export class SuiviFinancementsFakeService extends SuiviFinancementsService {
       {
         projet: {
           id_p: 4578,
-          code_p: '2010',
+          code_p: 2010,
           nom_p: 'CD conv xc',
           responsable: {
             id_u: 1020,
@@ -71,7 +71,7 @@ export class SuiviFinancementsFakeService extends SuiviFinancementsService {
       {
         projet: {
           id_p: 4578,
-          code_p: '2010',
+          code_p: 2010,
           nom_p: 'CD conv xc',
           responsable: {
             id_u: 1020,
@@ -117,7 +117,7 @@ export class SuiviFinancementsFakeService extends SuiviFinancementsService {
       {
         projet: {
           id_p: 4578,
-          code_p: '2010',
+          code_p: 2010,
           nom_p: 'CD conv xc',
           responsable: {
             id_u: 1020,
@@ -163,7 +163,7 @@ export class SuiviFinancementsFakeService extends SuiviFinancementsService {
       {
         projet: {
           id_p: 4578,
-          code_p: '2010',
+          code_p: 2010,
           nom_p: 'CD conv xc',
           responsable: {
             id_u: 1020,
@@ -209,7 +209,7 @@ export class SuiviFinancementsFakeService extends SuiviFinancementsService {
       {
         projet: {
           id_p: 4578,
-          code_p: '2010',
+          code_p: 2010,
           nom_p: 'CD conv xc',
           responsable: {
             id_u: 1020,
@@ -267,7 +267,7 @@ export class SuiviFinancementsFakeService extends SuiviFinancementsService {
       {
         projet: {
           id_p: 4578,
-          code_p: '2010',
+          code_p: 2010,
           nom_p: 'CD conv xc',
           responsable: {
             id_u: 1020,
@@ -313,7 +313,7 @@ export class SuiviFinancementsFakeService extends SuiviFinancementsService {
       {
         projet: {
           id_p: 4578,
-          code_p: '2010',
+          code_p: 2010,
           nom_p: 'CD conv xc',
           responsable: {
             id_u: 1020,
@@ -359,7 +359,7 @@ export class SuiviFinancementsFakeService extends SuiviFinancementsService {
       {
         projet: {
           id_p: 4578,
-          code_p: '2010',
+          code_p: 2010,
           nom_p: 'CD conv xc',
           responsable: {
             id_u: 1020,
@@ -405,7 +405,7 @@ export class SuiviFinancementsFakeService extends SuiviFinancementsService {
       {
         projet: {
           id_p: 4578,
-          code_p: '2010',
+          code_p: 2010,
           nom_p: 'CD conv xc',
           responsable: {
             id_u: 1020,
@@ -451,7 +451,7 @@ export class SuiviFinancementsFakeService extends SuiviFinancementsService {
       {
         projet: {
           id_p: 4578,
-          code_p: '2010',
+          code_p: 2010,
           nom_p: 'CD conv xc',
           responsable: {
             id_u: 1020,
