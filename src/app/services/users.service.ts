@@ -1,8 +1,8 @@
-import { SpinnerService } from './spinner.service';
-import { Utilisateur } from './../models/utilisateur';
-import { Injectable } from '@angular/core';
-import { CrudService } from './crud.service';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Utilisateur } from './../models/utilisateur';
+import { CrudService } from './crud.service';
+import { SpinnerService } from './spinner.service';
 
 /**
  * Effectue les appels au serveur d'API pour les utilisateurs.
@@ -39,7 +39,7 @@ export class UsersService {
    * Retourne les utilisateurs depuis le serveur.
    */
   public async getAll(): Promise<Utilisateur[]> {
-    return this.crudSrv.getAll('id_u');
+    return this.crudSrv.getAll();
   }
 
   /**
@@ -47,7 +47,7 @@ export class UsersService {
    * @param id : identifiant du utilisateur demandé.
    */
   public async get(id: number): Promise<Utilisateur> {
-    return this.crudSrv.get(id, 'id_u');
+    return this.crudSrv.get(id);
   }
 
   /**
@@ -66,7 +66,7 @@ export class UsersService {
    */
   public async add(user: Utilisateur): Promise<Utilisateur> {
     try {
-      return await this.crudSrv.add(user, 'id_u');
+      return await this.crudSrv.add(user);
     } catch (error) {
       console.error(error);
       return Promise.reject(error);

@@ -94,16 +94,13 @@ export class ProjetService {
     }
     else {
       try {
-        recette.fundingId = financement.id_f;
-        recette.id_f = financement.id_f;
+        recette.id_f = financement.id_f || 0;
         const newRecette = await this.recettesCrudService.add(recette);
         recette.id_f = financement.id_f;
 
         // Récupération de l'identifiant
         newRecette.id_r = recette.id_r = newRecette?.id_r
-          || (newRecette as any)?.id // gestion de json-server
           || recette?.id_r
-          || (recette as any)?.id // gestion de json-server
           || 0;
 
         return newRecette || recette;
@@ -145,7 +142,7 @@ export class ProjetService {
    */
   public async deleteRecette(recette: Recette): Promise<Recette> {
     try {
-      const id = recette?.id_r || (recette as any)?.id; // Pour json-server
+      const id = recette?.id_r || 0;
       await this.recettesCrudService.delete(id);
 
       recette.id_r = id;
@@ -166,7 +163,7 @@ export class ProjetService {
   public newOrUpdatedRecetteNotSuperiorToMontantFinancement(newOrUpdatedRecette: Recette, financement: Financement, recettes: Recette[]): boolean {
     let sumMontantRecettes = 0;
     recettes.forEach((recette) => {
-      const id = recette?.id_r || (recette as any)?.id; // Pour json-server
+      const id = recette?.id_r || 0;
       if (newOrUpdatedRecette.id_r !== id) { // cas où la recette est mis à jour
         sumMontantRecettes += +recette.montant_r;
       }

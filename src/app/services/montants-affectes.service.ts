@@ -69,7 +69,7 @@ export class MontantsAffectesService {
         `${this.rEndPoint}/${receiptId}/amounts`);
 
       // TODO méthode dans ReceiptServ
-      return amountSrv.getAll('id_ma');
+      return amountSrv.getAll();
     } catch (error) {
       console.error(error);
       return Promise.reject(error);
@@ -94,7 +94,7 @@ export class MontantsAffectesService {
     try {
       montant.id_r=receiptId;
       console.log("Recette ID" + montant.id_r);
-      return this.crudSrv.add(montant, 'id_ma');
+      return this.crudSrv.add(montant);
     } catch (error) {
       return Promise.reject(error);
     }

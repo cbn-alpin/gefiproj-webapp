@@ -109,9 +109,9 @@ describe('Service: IsAdministratorGuard', () => {
     spyOn(service, 'isAdministrator').and
       .returnValue(true);
     spyOn(authGuard, 'canActivate').and
-      .returnValue(false);
+      .returnValue(Promise.resolve(false));
 
-    const isAdmin = service.canActivate();
+    const isAdmin = await service.canActivate();
 
     expect(isAdmin).toBeFalse();
   });
@@ -122,9 +122,9 @@ describe('Service: IsAdministratorGuard', () => {
     spyOn(service, 'isAdministrator').and
       .returnValue(false);
     spyOn(authGuard, 'canActivate').and
-      .returnValue(true);
+      .returnValue(Promise.resolve(true));
 
-    const isAdmin = service.canActivate();
+    const isAdmin = await service.canActivate();
 
     expect(isAdmin).toBeFalse();
   });
@@ -135,9 +135,9 @@ describe('Service: IsAdministratorGuard', () => {
     spyOn(service, 'isAdministrator').and
       .returnValue(true);
     spyOn(authGuard, 'canActivate').and
-      .returnValue(true);
+      .returnValue(Promise.resolve(true));
 
-    const isAdmin = service.canActivate();
+    const isAdmin = await service.canActivate();
 
     expect(isAdmin).toBeTrue();
   });

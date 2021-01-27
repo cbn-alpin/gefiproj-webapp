@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
 import { IsAdministratorGuardService } from 'src/app/services/authentication/is-administrator-guard.service';
 import { SpinnerService } from 'src/app/services/spinner.service';
 import { UsersService } from 'src/app/services/users.service';
@@ -13,7 +14,6 @@ import { Projet } from './../../models/projet';
 import { Utilisateur } from './../../models/utilisateur';
 import { GenericTableEntityEvent } from './../../shared/components/generic-table/models/generic-table-entity-event';
 import { GenericTableOptions } from './../../shared/components/generic-table/models/generic-table-options';
-import { Router } from "@angular/router";
 
 /**
  * Affiche les projets.
@@ -100,7 +100,7 @@ export class HomeComponent implements OnInit {
    * Représente un nouveau projet et définit les colonnes à afficher.
    */
   private readonly defaultEntity = {
-    code_p: '0000' as any as number,
+    code_p: 20000,
     nom_p: '',
     id_u: 0,
     statut_p: false
@@ -200,10 +200,12 @@ export class HomeComponent implements OnInit {
       userSelectBoxOption
     ];
 
-    this.options = Object.assign({}, this.options, {
+    const options = Object.assign({}, this.options, {
       dataSource,
       entitySelectBoxOptions
     });
+    options.defaultEntity.code_p = (new Date(Date.now()).getFullYear() % 100) * 1000;
+    this.options = options;
   }
 
   /**
@@ -252,7 +254,7 @@ export class HomeComponent implements OnInit {
       this.spinnerSrv.show();
       this.projets = (await this.projectsSrv.getAll()) || [];
       this.projets.forEach(p =>
-          this.injectManager(p));
+        this.injectManager(p));
     } catch (error) {
       console.error(error);
       this.showInformation('Impossible de charger les projets.');
@@ -429,19 +431,38 @@ export class HomeComponent implements OnInit {
    * @param formErrors : liste des erreurs de validation.
    */
   private verifProjectCode(project: Projet, formErrors: GenericTableFormError[]): void {
-    if (('' + project.code_p).length !== 4) {
+    if (typeof project.code_p === 'string') { // Le tableau retourne une string !
+      project.code_p = parseInt(project.code_p as string, 10);
+    }
+
+    if (isNaN(project.code_p)) {
       const error = {
         name: this.namesMap.code.code,
-        message: 'Le code projet doit comprendre 4 chiffres.'
+        message: 'Le code projet doit ne comprendre que des chiffres.'
       };
 
       formErrors.push(error);
     }
 
-    if (project.code_p <= 0) {
+    if (('' + project.code_p).length !== 5) {
       const error = {
         name: this.namesMap.code.code,
-        message: 'Le code projet doit être une valeur comprise entre 1 et 9999.'
+        message: 'Le code projet doit comprendre 5 chiffres.'
+      };
+
+      formErrors.push(error);
+    }
+
+    const codeVal = project.code_p || 0;
+    const date = new Date(Date.now());
+    const year = date.getFullYear() % 100;
+    const min = Math.max(20, year - 10); // Démarrage en 2020
+    const max = year + 10;
+    if (codeVal / 1000 < min
+      || Math.floor(codeVal / 1000) > max) {
+      const error = {
+        name: this.namesMap.code.code,
+        message: `Le code projet doit être une valeur comprise entre ${min}000 et ${max}999.`
       };
 
       formErrors.push(error);
@@ -610,10 +631,7 @@ export class HomeComponent implements OnInit {
       let item1 = p1[name];
       let item2 = p2[name];
 
-      if (name === this.namesMap.code.code) { // Les codes sont des entiers
-        item1 = parseInt(item1, 10);
-        item2 = parseInt(item2, 10);
-      } else if (typeof item1 === 'string') { // Pour du texte
+      if (typeof item1 === 'string') { // Pour du texte
         item1 = item1.toUpperCase();
         item2 = item2.toUpperCase();
       }
