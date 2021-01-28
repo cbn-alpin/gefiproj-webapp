@@ -174,7 +174,7 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
   /**
    * Initialise le composant.
    */
-  async ngOnChanges(changes:SimpleChanges): Promise<void> {
+  async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes.financements && changes.financements.currentValue) {
       try {
         this.pipe = new DatePipe('fr-FR');
@@ -440,7 +440,7 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
       const dialogRef = this.dialog.open(GenericDialogComponent, {
         data: {
           header: 'Suppression du financement',
-          content: 'Voulez-vous supprimer cet financement de montant ' + financement.montant_arrete_f + ' provenant du financeur ' + financement.financeur.nom_financeur + '?',
+          content: `Voulez-vous supprimer ce financement d'un montant de ${financement.montant_arrete_f} provenant du financeur ${financement.financeur.nom_financeur} ?`,
           type: 'warning',
           action: {
             name: 'Confirmer',
@@ -463,8 +463,7 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
             });
           }
         }
-      )
-
+      );
     } catch (error) {
       console.error(error.error);
       event?.callBack({
