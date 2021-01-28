@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
+import { first } from 'rxjs/operators';
 import { IsAdministratorGuardService } from 'src/app/services/authentication/is-administrator-guard.service';
 import { SpinnerService } from 'src/app/services/spinner.service';
 import { UsersService } from 'src/app/services/users.service';
+import { GenericDialogComponent, IMessage } from 'src/app/shared/components/generic-dialog/generic-dialog.component';
 import { GenericTableCellType } from 'src/app/shared/components/generic-table/globals/generic-table-cell-types';
 import { EntitySelectBoxOptions } from 'src/app/shared/components/generic-table/models/entity-select-box-options';
 import { GenericTableFormError } from 'src/app/shared/components/generic-table/models/generic-table-entity';
@@ -166,11 +168,11 @@ export class HomeComponent implements OnInit {
    */
   constructor(
     private adminSrv: IsAdministratorGuardService,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar,
     private projectsSrv: ProjetsService,
     private usersSrv: UsersService,
-    private snackBar: MatSnackBar,
-    private spinnerSrv: SpinnerService,
-    private router: Router
+    private spinnerSrv: SpinnerService
   ) {
   }
 
@@ -193,8 +195,8 @@ export class HomeComponent implements OnInit {
     const dataSource = this.sort(this.visibleProjects);
     const userSelectBoxOption: EntitySelectBoxOptions<Utilisateur> = {
       name: this.namesMap.managerId.code,
-      values: this.managers?.map<SelectBoxOption<Utilisateur>>(u => this.transformToSbOption(u)
-      ) || []
+      values: this.managers?.map<SelectBoxOption<Utilisateur>>(u =>
+        this.transformToSbOption(u)) || []
     };
     const entitySelectBoxOptions = [
       userSelectBoxOption
@@ -236,13 +238,29 @@ export class HomeComponent implements OnInit {
     try {
       this.spinnerSrv.show();
       this.managers = (await this.usersSrv.getAll()) // RG : tous les utilisateurs actifs peuvent être responsable projets
-        .filter(m => m.active_u);
+        .filter(m => m.active_u)
+        .sort((m1, m2) => this.compareManagers(m1, m2));
     } catch (error) {
       console.error(error);
       this.showInformation('Impossible de charger les responsables de projet.');
       return Promise.reject(error);
     } finally {
       this.spinnerSrv.hide();
+    }
+  }
+
+  /**
+   * Compare les utilisateurs en paramètres, via leurs initiales.
+   * @param user1 : un utilisateur.
+   * @param user2 : un utilisateur.
+   */
+  private compareManagers(user1: Utilisateur, user2: Utilisateur): number {
+    if (user1.initiales_u < user2.initiales_u ){
+      return -1;
+    } else if (user1.initiales_u > user2.initiales_u ){
+      return 1;
+    } else {
+      return 0;
     }
   }
 
@@ -317,6 +335,7 @@ export class HomeComponent implements OnInit {
 
         this.updateProject(project);
         this.refreshDataTable(); // Pour le trie et pour cacher le projet le cas échéant
+        this.showInformation(`Le projet \'${project.nom_p} (${project.code_p})\' a été modifié.`);
       }
     } catch (error) {
       console.error(error);
@@ -502,6 +521,7 @@ export class HomeComponent implements OnInit {
 
         this.addProject(project);
         this.refreshDataTable(); // Pour le trie et pour cacher le projet le cas échéant
+        this.showInformation(`Le projet \'${project.nom_p} (${project.code_p})\' a été créé.`);
       }
     } catch (error) {
       console.error(error);
@@ -563,12 +583,26 @@ export class HomeComponent implements OnInit {
       }
 
       // Etes-vous sûr ?
-      const okToDelete = confirm(`Vous vous apprêtez à supprimer le projet \'${project.nom_p} (${project.code_p})\'. Etes-vous certain de vouloir le supprimer ?`);
+      const data: IMessage = {
+        header: 'Suppression du projet',
+        content: `Vous vous apprêtez à supprimer le projet \'${project.nom_p} (${project.code_p})\'. Etes-vous certain de vouloir le supprimer ?`,
+        type: 'warning',
+        action: {
+          name: 'Confirmer',
+        }
+      };
+      const dialogRef = this.dialog.open(GenericDialogComponent, {
+        data
+      });
+      const dialogResult = await dialogRef.afterClosed()
+        .pipe(first()).toPromise();
+      const okToDelete = !!dialogResult;
 
       if (okToDelete) { // Suppression
         await this.projectsSrv.delete(project);
         event.callBack(null); // Valide la modification dans le composant DataTable fils
         this.deleteProject(project);
+        this.showInformation(`Le projet \'${project.nom_p} (${project.code_p})\' a été supprimé.`);
       } else { // Annulation
         event?.callBack({
           apiError: 'La suppression est annulée.'
