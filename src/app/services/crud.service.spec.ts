@@ -1,3 +1,4 @@
+import { environment } from './../../environments/environment';
 /* tslint:disable:no-unused-variable */
 import { HttpClient } from '@angular/common/http';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
@@ -9,7 +10,8 @@ import { SpinnerService } from './spinner.service';
 describe('Service: Crud', () => {
   let service: CrudService<Projet>;
   let httpTestingController: HttpTestingController;
-  const url = 'api/test';
+  const endpoint = '/api/test';
+  const url = `${environment.backendServer}${endpoint}`;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -23,7 +25,7 @@ describe('Service: Crud', () => {
     service = new CrudService<Projet>(
       TestBed.inject(HttpClient),
       TestBed.inject(SpinnerService),
-      url
+      endpoint
     );
   });
 

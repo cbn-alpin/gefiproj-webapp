@@ -2,6 +2,8 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from '@angular/router/testing';
+import { ConnexionComponent } from 'src/app/components/connexion/connexion.component';
+import { HomeComponent } from 'src/app/components/home/home.component';
 import { GenericTableService } from './generic-table.service';
 
 describe('GenericTableService', () => {
@@ -11,7 +13,10 @@ describe('GenericTableService', () => {
     TestBed.configureTestingModule({
       imports: [
         HttpClientTestingModule,
-        RouterTestingModule,
+        RouterTestingModule.withRoutes(
+          [{path: 'connexion', component: ConnexionComponent},
+          {path: 'home', component: HomeComponent}]
+        ),
         MatSnackBarModule
       ]
     });
