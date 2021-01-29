@@ -34,7 +34,7 @@ describe('Service: Crud', () => {
   it('getAll', async () => {
     const projects = [];
 
-    var promiseProjects = service.getAll(); // Action
+    const promiseProjects = service.getAll(); // Action
 
     const req = httpTestingController.expectOne(url);
     expect(req.request.method).toEqual('GET');
@@ -47,7 +47,7 @@ describe('Service: Crud', () => {
   it('getAll, retour à null', async () => {
     const projects = null;
 
-    var promiseProjects = service.getAll(); // Action
+    const promiseProjects = service.getAll(); // Action
 
     const req = httpTestingController.expectOne(url);
     expect(req.request.method).toEqual('GET');
@@ -65,7 +65,7 @@ describe('Service: Crud', () => {
     try {
       const message = '!';
 
-      var promiseProjects = service.getAll(); // Action
+      const promiseProjects = service.getAll(); // Action
 
       const req = httpTestingController.expectOne(url);
       expect(req.request.method).toEqual('GET');
@@ -85,7 +85,7 @@ describe('Service: Crud', () => {
     const project = {} as Projet;
     const id = 5;
 
-    var promiseProjects = service.get(id); // Action
+    const promiseProjects = service.get(id); // Action
 
     const req = httpTestingController.expectOne(url + '/' + id);
     expect(req.request.method).toEqual('GET');
@@ -114,7 +114,7 @@ describe('Service: Crud', () => {
       const message = '!';
       const id = 5;
 
-      var promiseProjects = service.get(id); // Action
+      const promiseProjects = service.get(id); // Action
 
       const req = httpTestingController.expectOne(url + '/' + id);
       expect(req.request.method).toEqual('GET');
@@ -133,7 +133,7 @@ describe('Service: Crud', () => {
   it('delete', async () => {
     const id = 5;
 
-    var promiseProjects = service.delete(id); // Action
+    const promiseProjects = service.delete(id); // Action
 
     const req = httpTestingController.expectOne(url + '/' + id);
     expect(req.request.method).toEqual('DELETE');
@@ -162,7 +162,7 @@ describe('Service: Crud', () => {
       const message = '!';
       const id = 5;
 
-      var promiseProjects = service.delete(id); // Action
+      const promiseProjects = service.delete(id); // Action
 
       const req = httpTestingController.expectOne(url + '/' + id);
       expect(req.request.method).toEqual('DELETE');
@@ -181,7 +181,7 @@ describe('Service: Crud', () => {
   it('modify', async () => {
     const project = { id_p: 5 } as Projet;
 
-    var promiseProjects = service.modify(project, project.id_p); // Action
+    const promiseProjects = service.modify(project, project.id_p); // Action
 
     const req = httpTestingController.expectOne(url + '/' + project.id_p);
     expect(req.request.method).toEqual('PUT');
@@ -212,7 +212,7 @@ describe('Service: Crud', () => {
       const message = '!';
       const project = { id_p: 5 } as Projet;
 
-      var promiseProjects = service.modify(project, project.id_p); // Action
+      const promiseProjects = service.modify(project, project.id_p); // Action
 
       const req = httpTestingController.expectOne(url + '/' + project.id_p);
       expect(req.request.method).toEqual('PUT');
@@ -231,7 +231,7 @@ describe('Service: Crud', () => {
   it('add', async () => {
     let project = {} as Projet;
 
-    var promiseProjects = service.add(project); // Action
+    const promiseProjects = service.add(project); // Action
 
     const req = httpTestingController.expectOne(url);
     expect(req.request.method).toEqual('POST');
@@ -251,7 +251,7 @@ describe('Service: Crud', () => {
       const message = '!';
       const project = { id_p: 5 } as Projet;
 
-      var promiseProjects = service.add(project); // Action
+      const promiseProjects = service.add(project); // Action
 
       const req = httpTestingController.expectOne(url);
       expect(req.request.method).toEqual('POST');

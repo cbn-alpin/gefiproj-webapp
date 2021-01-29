@@ -45,9 +45,9 @@ export class IsAdministratorGuardService implements CanActivate {
    * Dans le cas contraire, il sera redirigé vers la page de connexion.
    * @returns indique si l'utilisateur est authentifié comme administrateur.
    */
-  public canActivate(): boolean {
+  public async canActivate(): Promise<boolean> {
     try {
-      const isAuth = this.authGuard.canActivate();
+      const isAuth = await this.authGuard.canActivate();
 
       if (!isAuth) {
         return false;

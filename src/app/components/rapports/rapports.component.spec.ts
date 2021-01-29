@@ -1,5 +1,9 @@
+import { HomeComponent } from './../home/home.component';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { FormBuilder } from '@angular/forms';
+import { RouterTestingModule } from '@angular/router/testing';
+import { ConnexionComponent } from '../connexion/connexion.component';
 import { RapportsComponent } from './rapports.component';
 
 describe('RapportsComponent', () => {
@@ -8,6 +12,16 @@ describe('RapportsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      imports: [
+        HttpClientTestingModule,
+        RouterTestingModule.withRoutes(
+          [{path: 'connexion', component: ConnexionComponent},
+          {path: 'home', component: HomeComponent}]
+        )
+      ],
+      providers: [
+        FormBuilder
+      ],
       declarations: [ RapportsComponent ]
     })
     .compileComponents();

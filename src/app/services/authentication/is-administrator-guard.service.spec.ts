@@ -1,3 +1,4 @@
+import { HomeComponent } from './../../components/home/home.component';
 /* tslint:disable:no-unused-variable */
 
 import { HttpClientTestingModule } from '@angular/common/http/testing';
@@ -6,6 +7,7 @@ import { RouterStateSnapshot } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { JwtModule } from '@auth0/angular-jwt';
 import { tokenGetter } from 'src/app/app.module';
+import { ConnexionComponent } from 'src/app/components/connexion/connexion.component';
 import { Roles } from 'src/app/models/roles';
 import { Utilisateur } from 'src/app/models/utilisateur';
 import { NavigationService } from '../navigation.service';
@@ -26,7 +28,10 @@ describe('Service: IsAdministratorGuard', () => {
     TestBed.configureTestingModule({
       imports: [
         HttpClientTestingModule,
-        RouterTestingModule,
+        RouterTestingModule.withRoutes(
+          [{path: 'connexion', component: ConnexionComponent},
+          {path: 'home', component: HomeComponent}]
+        ),
         JwtModule.forRoot({
           config: {
             tokenGetter
