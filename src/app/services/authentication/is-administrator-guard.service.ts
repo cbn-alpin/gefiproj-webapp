@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { CanActivate } from '@angular/router';
 import { Roles } from 'src/app/models/roles';
 import { AuthService } from './auth.service';
@@ -14,10 +15,12 @@ export class IsAdministratorGuardService implements CanActivate {
 
   /**
    * Indique si l'utilisateur est authentifié en tant qu'administrateur.
+   * @param snackBar : affiche une information.
    * @param authSrv : permet de récupérer l'utilisateur authentifié.
    * @param authGuard : permet de naviguer vers la page de connexion s'il n'y a pas de session courante.
    */
   constructor(
+    private snackBar: MatSnackBar,
     private authSrv: AuthService,
     private authGuard: EnsureAuthenticatedService) { }
 
@@ -45,18 +48,40 @@ export class IsAdministratorGuardService implements CanActivate {
    * Dans le cas contraire, il sera redirigé vers la page de connexion.
    * @returns indique si l'utilisateur est authentifié comme administrateur.
    */
-  public canActivate(): boolean {
+  public async canActivate(): Promise<boolean> {
     try {
-      const isAuth = this.authGuard.canActivate();
-
-      if (!isAuth) {
-        return false;
+      let isAuthorized = await this.authGuard.canActivate();
+      if (!isAuthorized) {
+        return false; // L'utilisateur est déjà notifié
       }
 
-      return this.isAdministrator();
+      isAuthorized = this.isAdministrator();
+      if (isAuthorized) {
+        return true;
+      }
     } catch (error) {
       console.error(error);
-      return false;
+    }
+
+    this.showInformation('Action non autorisée !');
+    return false;
+  }
+
+  /**
+   * Affiche une information.
+   * @param message : message à afficher.
+   */
+  private showInformation(message: string): void {
+    try {
+      this.snackBar.open(
+        message,
+        'OK', {
+        duration: 5000,
+        horizontalPosition: 'right',
+        verticalPosition: 'top',
+      });
+    } catch (error) {
+      console.error(error);
     }
   }
 }

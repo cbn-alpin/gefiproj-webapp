@@ -1,3 +1,4 @@
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
 
@@ -11,9 +12,11 @@ import { AuthService } from './auth.service';
 export class EnsureAuthenticatedService {
   /**
    * Vérifie que l'utilisateur est authentifié.
+   * @param snackBar : affiche une information.
    * @param authSrv : service de gestion de l'authentification.
    */
   constructor(
+    private snackBar: MatSnackBar,
     private authSrv: AuthService) { }
 
   /**
@@ -33,10 +36,32 @@ export class EnsureAuthenticatedService {
         }
       }
 
-      return isAuth;
+      if (isAuth) {
+        return true;
+      }
     } catch (error) {
       console.error(error);
-      return false;
+    }
+
+    this.showInformation('Action non autorisée !');
+    return false;
+  }
+
+  /**
+   * Affiche une information.
+   * @param message : message à afficher.
+   */
+  private showInformation(message: string): void {
+    try {
+      this.snackBar.open(
+        message,
+        'OK', {
+        duration: 5000,
+        horizontalPosition: 'right',
+        verticalPosition: 'top',
+      });
+    } catch (error) {
+      console.error(error);
     }
   }
 }
