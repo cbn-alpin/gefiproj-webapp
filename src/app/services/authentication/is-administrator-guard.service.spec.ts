@@ -14,6 +14,7 @@ import { NavigationService } from '../navigation.service';
 import { AuthService } from './auth.service';
 import { EnsureAuthenticatedService } from './ensure-authenticated.service';
 import { IsAdministratorGuardService } from './is-administrator-guard.service';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 describe('Service: IsAdministratorGuard', () => {
   let service: IsAdministratorGuardService;
@@ -32,6 +33,7 @@ describe('Service: IsAdministratorGuard', () => {
           [{path: 'connexion', component: ConnexionComponent},
           {path: 'home', component: HomeComponent}]
         ),
+        MatSnackBarModule,
         JwtModule.forRoot({
           config: {
             tokenGetter

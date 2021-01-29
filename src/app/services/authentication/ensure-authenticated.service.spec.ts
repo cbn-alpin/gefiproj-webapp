@@ -9,6 +9,7 @@ import { ConnexionComponent } from 'src/app/components/connexion/connexion.compo
 import { NavigationService } from '../navigation.service';
 import { AuthService } from './auth.service';
 import { EnsureAuthenticatedService } from './ensure-authenticated.service';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 describe('EnsureAuthenticatedService', () => {
   let service: EnsureAuthenticatedService;
@@ -26,6 +27,7 @@ describe('EnsureAuthenticatedService', () => {
           {path: 'home', component: HomeComponent}]
         ),
         HttpClientTestingModule,
+        MatSnackBarModule,
         JwtModule.forRoot({
           config: {
             tokenGetter
