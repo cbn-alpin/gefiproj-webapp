@@ -37,6 +37,7 @@ import { takeUntil } from 'rxjs/operators';
 import { GenericTableService } from '../../services/generic-table.service';
 import { GenericTableErrorService } from '../../services/generic-table-error.service';
 import { GenericTableTypeService } from '../../services/generic-table-type.service';
+import { PopupService } from '../../../../services/popup.service';
 
 @Component({
   selector: 'app-generic-table[title][options]',
@@ -177,9 +178,10 @@ export class GenericTableComponent<T>
 
   constructor(
     private readonly router: Router,
-    public readonly genericTableService: GenericTableService<T>,
-    public readonly genericTableErrorService: GenericTableErrorService<T>,
-    public readonly genericTableTypeService: GenericTableTypeService<T>
+    private readonly popupService: PopupService,
+    public genericTableService: GenericTableService<T>,
+    public genericTableErrorService: GenericTableErrorService<T>,
+    public genericTableTypeService: GenericTableTypeService<T>
   ) {}
 
   /**
@@ -368,7 +370,7 @@ export class GenericTableComponent<T>
         'Navigation impossible car les éléments de navigation sont inutilisables'
       );
     } catch (error) {
-      this.genericTableErrorService.openSnackBarError('Navigation impossible');
+      this.popupService.error('Navigation impossible');
     }
   }
 

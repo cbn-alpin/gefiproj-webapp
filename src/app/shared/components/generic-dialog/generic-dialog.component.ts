@@ -7,15 +7,15 @@ export interface IMessage {
   param?: { [key: string]: string | number };
   type?: string;
   action: {
-    name: string,
-    color?: string
+    name: string;
+    color?: string;
   };
 }
 
 @Component({
   selector: 'app-generic-dialog',
   templateUrl: './generic-dialog.component.html',
-  styleUrls: ['./generic-dialog.component.scss']
+  styleUrls: ['./generic-dialog.component.scss'],
 })
 export class GenericDialogComponent implements OnInit {
   /**
@@ -26,31 +26,32 @@ export class GenericDialogComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<GenericDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: IMessage
-    ) { 
-      this.message = data;
-    }
+  ) {
+    this.message = data;
+  }
 
   ngOnInit(): void {
+    console.log('INIT DIALOG');
   }
 
   /**
    * Confirm and close popup
    */
-  onConfirmClick(){
+  onConfirmClick() {
     this.dialogRef.close(true);
   }
 
   /**
    * Cancel and close popup
    */
-  onCancelClick(){
+  onCancelClick() {
     this.dialogRef.close();
   }
 
   /**
    * Get color button confirm
    */
-  getConfirmColor(){
+  getConfirmColor() {
     return this.message.type === 'warning' ? 'warn' : 'primary';
   }
 }

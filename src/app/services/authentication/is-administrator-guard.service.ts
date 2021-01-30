@@ -1,28 +1,28 @@
 import { Injectable } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { CanActivate } from '@angular/router';
 import { Roles } from 'src/app/models/roles';
 import { AuthService } from './auth.service';
 import { EnsureAuthenticatedService } from './ensure-authenticated.service';
+import { PopupService } from '../../shared/services/popup.service';
 
 /**
  * Indique si l'utilisateur est authentifié en tant qu'administrateur.
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class IsAdministratorGuardService implements CanActivate {
-
   /**
    * Indique si l'utilisateur est authentifié en tant qu'administrateur.
-   * @param snackBar : affiche une information.
+   * @param popupService : affiche une information.
    * @param authSrv : permet de récupérer l'utilisateur authentifié.
    * @param authGuard : permet de naviguer vers la page de connexion s'il n'y a pas de session courante.
    */
   constructor(
-    private snackBar: MatSnackBar,
+    private popupService: PopupService,
     private authSrv: AuthService,
-    private authGuard: EnsureAuthenticatedService) { }
+    private authGuard: EnsureAuthenticatedService
+  ) {}
 
   /**
    * Indique si l'utilisateur est un administrateur.
@@ -30,13 +30,15 @@ export class IsAdministratorGuardService implements CanActivate {
   public isAdministrator(): boolean {
     try {
       const userAuth = this.authSrv.userAuth;
-      const isAuth = this.authSrv.isAuthenticated()
-        || this.authSrv.canRefreshToken(); // Pour éviter des effets indésirables
+      const isAuth =
+        this.authSrv.isAuthenticated() || this.authSrv.canRefreshToken(); // Pour éviter des effets indésirables
 
-      return isAuth
-        && !!userAuth
-        && userAuth.roles
-        && userAuth.roles.indexOf(Roles.Admin) >= 0;
+      return (
+        isAuth &&
+        !!userAuth &&
+        userAuth.roles &&
+        userAuth.roles.indexOf(Roles.Admin) >= 0
+      );
     } catch (error) {
       console.error(error);
       return false;
@@ -63,25 +65,7 @@ export class IsAdministratorGuardService implements CanActivate {
       console.error(error);
     }
 
-    this.showInformation('Action non autorisée !');
+    this.popupService.error('Action non autorisée !');
     return false;
-  }
-
-  /**
-   * Affiche une information.
-   * @param message : message à afficher.
-   */
-  private showInformation(message: string): void {
-    try {
-      this.snackBar.open(
-        message,
-        'OK', {
-        duration: 5000,
-        horizontalPosition: 'right',
-        verticalPosition: 'top',
-      });
-    } catch (error) {
-      console.error(error);
-    }
   }
 }

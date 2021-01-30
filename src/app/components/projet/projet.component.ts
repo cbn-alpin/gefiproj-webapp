@@ -3,18 +3,17 @@ import { Financement } from '../../models/financement';
 import { Recette } from '../../models/recette';
 import { IsAdministratorGuardService } from '../../services/authentication/is-administrator-guard.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { ProjetsService } from '../../services/projets.service';
 import { Projet } from '../../models/projet';
-import { MontantsAffectesService } from "../../services/montants-affectes.service";
-import { MontantAffecte } from "../../models/montantAffecte";
-import { FinancementsService } from "../../services/financements.service";
-import {MatCheckboxChange} from '@angular/material/checkbox';
-import {Utilisateur} from '../../models/utilisateur';
-import {UsersService} from '../../services/users.service';
-import {SpinnerService} from '../../services/spinner.service';
+import { MontantsAffectesService } from '../../services/montants-affectes.service';
+import { MontantAffecte } from '../../models/montantAffecte';
+import { FinancementsService } from '../../services/financements.service';
+import { MatCheckboxChange } from '@angular/material/checkbox';
+import { Utilisateur } from '../../models/utilisateur';
+import { SpinnerService } from '../../services/spinner.service';
 import { RecettesService } from '../../services/recettes.service';
+import { PopupService } from '../../shared/services/popup.service';
 
 @Component({
   selector: 'app-projet',
@@ -48,7 +47,7 @@ export class ProjetComponent implements OnInit {
     private readonly adminSrv: IsAdministratorGuardService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
-    private readonly snackBar: MatSnackBar,
+    private readonly popupService: PopupService,
     private readonly projetsService: ProjetsService,
     private readonly recettesService: RecettesService,
     private readonly montantsAffectesService: MontantsAffectesService,
@@ -66,7 +65,9 @@ export class ProjetComponent implements OnInit {
       await this.loadData(Number(this.projetId));
     } catch (error) {
       console.error(error);
-      this.openSnackBar('Impossible de charger le projet : ' + error.error);
+      this.popupService.error(
+        'Impossible de charger le projet : ' + error.error
+      );
     }
   }
 
@@ -161,18 +162,6 @@ export class ProjetComponent implements OnInit {
     this.financements = financements;
   }
 
-  private openSnackBar(message: string): void {
-    try {
-      this.snackBar.open(message, 'OK', {
-        duration: 5000,
-        horizontalPosition: 'right',
-        verticalPosition: 'top',
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
   private async loadProjetDetailsFromProjetId(projetId: number): Promise<void> {
     try {
       if (projetId) {
@@ -181,7 +170,7 @@ export class ProjetComponent implements OnInit {
     } catch (error) {
       console.error(error);
 
-      this.openSnackBar(error);
+      this.popupService.error(error);
     }
   }
 
@@ -194,7 +183,7 @@ export class ProjetComponent implements OnInit {
     } catch (error) {
       console.error(error);
 
-      this.openSnackBar(error);
+      this.popupService.error(error);
     }
   }
 
@@ -208,7 +197,7 @@ export class ProjetComponent implements OnInit {
     } catch (error) {
       console.error(error);
 
-      this.openSnackBar(error);
+      this.popupService.error(error);
     }
   }
 
@@ -222,7 +211,7 @@ export class ProjetComponent implements OnInit {
     } catch (error) {
       console.error(error);
 
-      this.openSnackBar(error);
+      this.popupService.error(error);
     }
   }
   public async updateProjectStatus(event: MatCheckboxChange): Promise<void> {
@@ -234,23 +223,20 @@ export class ProjetComponent implements OnInit {
       this.projet.responsable = this.manager;
       this.spinnerSrv.hide();
       if (this.projet.statut_p == true)
-        this.openSnackBar("Le projet " + this.projet.nom_p + " est soldé ! ");
+        this.popupService.success(
+          'Le projet ' + this.projet.nom_p + ' est soldé ! '
+        );
       if (this.projet.statut_p == false)
-        this.openSnackBar("Le projet " + this.projet.nom_p + " est non soldé ! ");
-
-    }
-
-  catch(error) {
-    console.error(error);
-    for (const err of error.error.errors) {
-      this.openSnackBar('Impossible de créer le montant affecté : ' + err.message);
+        this.popupService.success(
+          'Le projet ' + this.projet.nom_p + ' est non soldé ! '
+        );
+    } catch (error) {
+      console.error(error);
+      for (const err of error.error.errors) {
+        this.popupService.error(
+          'Impossible de créer le montant affecté : ' + err.message
+        );
+      }
     }
   }
-
-
-  }
-
-
-
-
 }

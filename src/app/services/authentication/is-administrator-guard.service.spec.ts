@@ -1,6 +1,4 @@
-import { HomeComponent } from './../../components/home/home.component';
 /* tslint:disable:no-unused-variable */
-
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { RouterStateSnapshot } from '@angular/router';
@@ -14,6 +12,11 @@ import { NavigationService } from '../navigation.service';
 import { AuthService } from './auth.service';
 import { EnsureAuthenticatedService } from './ensure-authenticated.service';
 import { IsAdministratorGuardService } from './is-administrator-guard.service';
+import {
+  MockPopupService,
+  PopupService,
+} from '../../shared/services/popup.service';
+import { HomeComponent } from '../../components/home/home.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 describe('Service: IsAdministratorGuard', () => {
@@ -23,31 +26,36 @@ describe('Service: IsAdministratorGuard', () => {
   let navSrv: NavigationService;
   const mockSnapshot = jasmine.createSpyObj<RouterStateSnapshot>(
     'RouterStateSnapshot',
-    ['toString']);
+    ['toString']
+  );
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [
         HttpClientTestingModule,
-        RouterTestingModule.withRoutes(
-          [{path: 'connexion', component: ConnexionComponent},
-          {path: 'home', component: HomeComponent}]
-        ),
-        MatSnackBarModule,
+        RouterTestingModule.withRoutes([
+          { path: 'connexion', component: ConnexionComponent },
+          { path: 'home', component: HomeComponent },
+        ]),
         JwtModule.forRoot({
           config: {
-            tokenGetter
-          }
-        })
+            tokenGetter,
+          },
+        }),
+        MatSnackBarModule,
       ],
       providers: [
         IsAdministratorGuardService,
         NavigationService,
         {
           provide: RouterStateSnapshot,
-          useValue: mockSnapshot
-        }
-      ]
+          useValue: mockSnapshot,
+        },
+        {
+          provide: PopupService,
+          useClass: MockPopupService,
+        },
+      ],
     });
     service = TestBed.inject(IsAdministratorGuardService);
     authSrv = TestBed.inject(AuthService);
@@ -67,12 +75,10 @@ describe('Service: IsAdministratorGuard', () => {
       email_u: '',
       initiales_u: '',
       roles: [Roles.Admin],
-      active_u: true
+      active_u: true,
     };
-    spyOnProperty(authSrv, 'userAuth', 'get').and
-      .returnValue(user);
-    spyOn(authSrv, 'isAuthenticated').and
-      .returnValue(true);
+    spyOnProperty(authSrv, 'userAuth', 'get').and.returnValue(user);
+    spyOn(authSrv, 'isAuthenticated').and.returnValue(true);
 
     const isAdmin = service.isAdministrator();
 
@@ -87,12 +93,10 @@ describe('Service: IsAdministratorGuard', () => {
       email_u: '',
       initiales_u: '',
       roles: [Roles.Consultant],
-      active_u: true
+      active_u: true,
     };
-    spyOnProperty(authSrv, 'userAuth', 'get').and
-      .returnValue(user);
-    spyOn(authSrv, 'isAuthenticated').and
-      .returnValue(true);
+    spyOnProperty(authSrv, 'userAuth', 'get').and.returnValue(user);
+    spyOn(authSrv, 'isAuthenticated').and.returnValue(true);
 
     const isAdmin = service.isAdministrator();
 
@@ -100,10 +104,8 @@ describe('Service: IsAdministratorGuard', () => {
   });
 
   it('isAdministrator -> false car pas authentifié', async () => {
-    spyOnProperty(authSrv, 'userAuth', 'get').and
-      .returnValue(null);
-    spyOn(authSrv, 'isAuthenticated').and
-      .returnValue(false);
+    spyOnProperty(authSrv, 'userAuth', 'get').and.returnValue(null);
+    spyOn(authSrv, 'isAuthenticated').and.returnValue(false);
 
     const isAdmin = service.isAdministrator();
 
@@ -111,12 +113,9 @@ describe('Service: IsAdministratorGuard', () => {
   });
 
   it('canActivate -> false car pas authentifié', async () => {
-    spyOnProperty(authSrv, 'userAuth', 'get').and
-      .returnValue(null);
-    spyOn(service, 'isAdministrator').and
-      .returnValue(true);
-    spyOn(authGuard, 'canActivate').and
-      .returnValue(Promise.resolve(false));
+    spyOnProperty(authSrv, 'userAuth', 'get').and.returnValue(null);
+    spyOn(service, 'isAdministrator').and.returnValue(true);
+    spyOn(authGuard, 'canActivate').and.returnValue(Promise.resolve(false));
 
     const isAdmin = await service.canActivate();
 
@@ -124,12 +123,9 @@ describe('Service: IsAdministratorGuard', () => {
   });
 
   it('canActivate -> false car pas admin', async () => {
-    spyOnProperty(authSrv, 'userAuth', 'get').and
-      .returnValue(null);
-    spyOn(service, 'isAdministrator').and
-      .returnValue(false);
-    spyOn(authGuard, 'canActivate').and
-      .returnValue(Promise.resolve(true));
+    spyOnProperty(authSrv, 'userAuth', 'get').and.returnValue(null);
+    spyOn(service, 'isAdministrator').and.returnValue(false);
+    spyOn(authGuard, 'canActivate').and.returnValue(Promise.resolve(true));
 
     const isAdmin = await service.canActivate();
 
@@ -137,12 +133,9 @@ describe('Service: IsAdministratorGuard', () => {
   });
 
   it('canActivate -> true', async () => {
-    spyOnProperty(authSrv, 'userAuth', 'get').and
-      .returnValue(null);
-    spyOn(service, 'isAdministrator').and
-      .returnValue(true);
-    spyOn(authGuard, 'canActivate').and
-      .returnValue(Promise.resolve(true));
+    spyOnProperty(authSrv, 'userAuth', 'get').and.returnValue(null);
+    spyOn(service, 'isAdministrator').and.returnValue(true);
+    spyOn(authGuard, 'canActivate').and.returnValue(Promise.resolve(true));
 
     const isAdmin = await service.canActivate();
 
