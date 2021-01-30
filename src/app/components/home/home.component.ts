@@ -1,10 +1,11 @@
+import { FinanceurService } from 'src/app/services/financeur.service';
 import { Recette } from './../../models/recette';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { first } from 'rxjs/operators';
-import { Financement } from 'src/app/models/financement';
+import { Financement, Statut_F } from 'src/app/models/financement';
 import { IsAdministratorGuardService } from 'src/app/services/authentication/is-administrator-guard.service';
 import { SpinnerService } from 'src/app/services/spinner.service';
 import { UsersService } from 'src/app/services/users.service';
@@ -21,6 +22,7 @@ import { CrudService } from './../../services/crud.service';
 import { GenericTableEntityEvent } from './../../shared/components/generic-table/models/generic-table-entity-event';
 import { GenericTableOptions } from './../../shared/components/generic-table/models/generic-table-options';
 import { MontantAffecte } from 'src/app/models/montantAffecte';
+import { FinancementsService } from 'src/app/services/financements.service';
 
 /**
  * Affiche les projets.
@@ -180,7 +182,8 @@ export class HomeComponent implements OnInit {
     private spinnerSrv: SpinnerService,
 
     // Pour entrer les données de tests
-    private httpSrv: HttpClient
+    private httpSrv: HttpClient,
+    private fSrv: FinancementsService
   ) {
   }
 
@@ -263,9 +266,9 @@ export class HomeComponent implements OnInit {
    * @param user2 : un utilisateur.
    */
   private compareManagers(user1: Utilisateur, user2: Utilisateur): number {
-    if (user1.initiales_u < user2.initiales_u ){
+    if (user1.initiales_u < user2.initiales_u) {
       return -1;
-    } else if (user1.initiales_u > user2.initiales_u ){
+    } else if (user1.initiales_u > user2.initiales_u) {
       return 1;
     } else {
       return 0;
@@ -688,48 +691,181 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  public async onChargeTestsData():  Promise<void> {
+  public async onChargeTestsData(): Promise<void> {
     try {
-      /*this.projets.forEach(async projet => {
-        const fSrv = new CrudService<Financement>(
+      for (const projet of this.projets) {
+        const fSrvByP = new CrudService<Financement>(
           this.httpSrv,
           this.spinnerSrv,
           `/api/projects/${projet.id_p}/fundings`
-          );
-          
-          const financements = await fSrv.getAll();
+        );
 
-          financements.forEach(async financement => {
-            const rSrv = new CrudService<Recette>(
+        const financements = await fSrvByP.getAll();
+
+        for (const financement of financements) {
+          const rSrvByF = new CrudService<Recette>(
+            this.httpSrv,
+            this.spinnerSrv,
+            `/api/fundings/${financement.id_f}/receipts`
+          );
+
+          const recettes = await rSrvByF.getAll();
+
+          for (const recette of recettes) {
+            const maSrvByR = new CrudService<MontantAffecte>(
               this.httpSrv,
               this.spinnerSrv,
-              `/api/fundings/${financement.id_f}/receipts`
+              `/api/receipts/${recette.id_r}/amounts`
             );
-               
-            const recettes = await rSrv.getAll();
-            
-            recettes.forEach(async recette => {
+
+            const affectations = await maSrvByR.getAll();
+
+            for (const affectation of affectations) {
               const maSrv = new CrudService<MontantAffecte>(
                 this.httpSrv,
                 this.spinnerSrv,
-                `/api/receipts/${recette.id_r}/amounts`
+                `/api/amounts`
               );
-              
-              const affectations = await maSrv.getAll();
-            });
-          });
-      });*/
 
+              await maSrv.delete(affectation.id_ma);
+            }
+
+            const rSrv = new CrudService<Recette>(
+              this.httpSrv,
+              this.spinnerSrv,
+              `/api/receipts`
+            );
+            await rSrv.delete(recette.id_r);
+          }
+
+          const fSrv = new CrudService<Financement>(
+            this.httpSrv,
+            this.spinnerSrv,
+            `/api/fundings`
+          );
+          await fSrv.delete(financement.id_f);
+        }
+
+        await this.projectsSrv.delete(projet);
+      }
+
+      // date_arrete_f: new Date(2017, 5, 2), date_limite_solde_f: new Date(2020, 9, 24)
       const projets: Projet[] = [
-        { id_p: 0, code_p: 16025, nom_p: 'Alcotra Resthalp', id_u: 36, statut_p: false},
-        { id_p: 0, code_p: 18003, nom_p: 'SCALP 19', id_u: 36, statut_p: false}
+        {
+          code_p: 16025, nom_p: 'Alcotra Resthalp', id_u: 36, statut_p: false, id_p: 0,
+          financements: [
+            {
+              date_arrete_f: '2017-5-2', date_limite_solde_f: '2020-9-24', montant_arrete_f: 65329.95, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+              recettes: [
+                { montant_r: 7008.33, annee_r: 2018 } as Recette,
+                { montant_r: 32104.95, annee_r: 2019 } as Recette,
+                { montant_r: 26216.67, annee_r: 2020 } as Recette]
+            } as Financement]
+        } as Projet,
+        {
+          code_p: 18003, nom_p: 'SCALP', id_u: 36, statut_p: false, id_p: 0,
+          financements: [
+            {
+              date_arrete_f: '2019-4-29', date_limite_solde_f: '2020-3-31', montant_arrete_f: 16506, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+              recettes: [
+                { montant_r: 4951.8, annee_r: 2019 } as Recette,
+                { montant_r: 11554.2, annee_r: 2020 } as Recette]
+            } as Financement,
+            {
+              date_arrete_f: '2019-4-2', date_limite_solde_f: '2022-9-30', montant_arrete_f: 101001.5, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+              recettes: [
+                { montant_r: 29390.77, annee_r: 2020 } as Recette,
+                { montant_r: 38646.5, annee_r: 2021 } as Recette,
+                { montant_r: 32964.24, annee_r: 2022 } as Recette]
+            } as Financement,
+            {
+              date_arrete_f: '2020-5-25', date_limite_solde_f: '2021-3-30', montant_arrete_f: 23187, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+              recettes: [
+                { montant_r: 11593.5, annee_r: 2020 } as Recette,
+                { montant_r: 11593.5, annee_r: 2021 } as Recette]
+            } as Financement,
+            {
+              montant_arrete_f: 20907, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+              recettes: [
+                { montant_r: 6272.1, annee_r: 2021 } as Recette,
+                { montant_r: 14634.9, annee_r: 2022 } as Recette]
+            } as Financement]
+        } as Projet,
+        {
+          code_p: 18004, nom_p: 'ROCVEG', id_u: 36, statut_p: false, id_p: 0,
+          financements: [
+            {
+              date_arrete_f: '2019-3-19', date_limite_solde_f: '2020-3-31', montant_arrete_f: 11436.37, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+              recettes: [
+                { montant_r: 5232.51, annee_r: 2019 } as Recette,
+                { montant_r: 6203.86, annee_r: 2020 } as Recette]
+            } as Financement,
+            {
+              date_arrete_f: '2019-6-18', date_limite_solde_f: '2022-6-30', montant_arrete_f: 58631.11, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+              recettes: [
+                { montant_r: 19060.61, annee_r: 2020 } as Recette,
+                { montant_r: 17641.5, annee_r: 2021 } as Recette,
+                { montant_r: 21929, annee_r: 2022 } as Recette]
+            } as Financement,
+            {
+              date_arrete_f: '2020-5-25', date_limite_solde_f: '2021-3-30', montant_arrete_f: 10139, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+              recettes: [
+                { montant_r: 5069.5, annee_r: 2020 } as Recette,
+                { montant_r: 5069.5, annee_r: 2021 } as Recette]
+            } as Financement,
+            {
+              montant_arrete_f: 12372.9, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+              recettes: [
+                { montant_r: 3711.87, annee_r: 2021 } as Recette,
+                { montant_r: 8661.03, annee_r: 2022 } as Recette]
+            } as Financement]
+        } as Projet,
+        {
+          code_p: 18022, nom_p: 'SILENE', id_u: 36, statut_p: false, id_p: 0,
+          financements: [
+            {
+              date_arrete_f: '2018-2-14', date_limite_solde_f: '2019-2-13', montant_arrete_f: 7000, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+              recettes: [
+                { montant_r: 7000, annee_r: 2018 } as Recette]
+            } as Financement]
+        } as Projet
       ];
 
-      projets.forEach(async projet => {
+      for (let projet of projets) {
+        const financements: Financement[] = (projet as any).financements || [];
+        delete projet.id_p;
+        delete (projet as any).financements;
+
         projet = await this.projectsSrv.add(projet);
 
-        this.ngOnInit();
-      });
+        for (let financement of financements) {
+          const recettes: Recette[] = (financement as any).recettes || [];
+          financement.id_p = projet.id_p;
+          financement.commentaire_admin_f = 'Données de tests !';
+          delete financement.id_f;
+          delete (financement as any).recettes;
+          const fSrv = new CrudService<Financement>(
+            this.httpSrv,
+            this.spinnerSrv,
+            `/api/fundings`
+          );
+
+          financement = await this.fSrv.post(financement);
+          const rSrv = new CrudService<Recette>(
+            this.httpSrv,
+            this.spinnerSrv,
+            `/api/receipts`
+          );
+
+          for (let recette of recettes) {
+            recette.id_f = financement.id_f;
+
+            recette = await rSrv.add(recette);
+          }
+        }
+      }
+
+      this.ngOnInit();
     } catch (error) {
       console.error(error);
     }
