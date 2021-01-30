@@ -240,7 +240,7 @@ export class FinancementsComponent
       // }
     } catch (error) {
       console.error(error);
-      this.popupService.openErrorPopup(
+      this.popupService.error(
         'Impossible de charger les financements : ' + error.error
       );
       return Promise.reject(error);
@@ -255,7 +255,7 @@ export class FinancementsComponent
       this.financeurs = (await this.financeurService.getAll()) || [];
     } catch (error) {
       console.error(error);
-      this.popupService.openErrorPopup(
+      this.popupService.error(
         'Impossible de charger les financeurs : ' + error
       );
       return Promise.reject(error);
@@ -323,7 +323,7 @@ export class FinancementsComponent
         await this.refreshDataTable();
         event.callBack(null); // Valide la modification dans le composant DataTable fils
         this.editEvent.emit();
-        this.popupService.openSuccessPopup('Le financement a été modifié.');
+        this.popupService.success('Le financement a été modifié.');
       }
     } catch (error) {
       console.error(error.error.errors);
@@ -395,7 +395,7 @@ export class FinancementsComponent
           formErrors,
         });
 
-        this.popupService.openErrorPopup('Veuillez vérifier vos données');
+        this.popupService.error('Veuillez vérifier vos données');
         return false;
       } else {
         return true;
@@ -456,7 +456,7 @@ export class FinancementsComponent
         await this.financementsService.post(financement);
         await this.refreshDataTable();
         event.callBack(null); // Valide la modification dans le composant DataTable fils
-        this.popupService.openSuccessPopup('Le financement a été crée.');
+        this.popupService.success('Le financement a été crée.');
         this.createEvent.emit();
       }
     } catch (error) {
@@ -504,7 +504,7 @@ export class FinancementsComponent
             .then(async () => {
               await this.refreshDataTable();
               event.callBack(null);
-              this.popupService.openSuccessPopup(
+              this.popupService.success(
                 'Le financement de montant ' +
                   financement.montant_arrete_f +
                   '€, a été supprimé du projet.'

@@ -252,7 +252,7 @@ export class HomeComponent implements OnInit {
         .sort((m1, m2) => this.compareManagers(m1, m2));
     } catch (error) {
       console.error(error);
-      this.popupService.openErrorPopup(
+      this.popupService.error(
         'Impossible de charger les responsables de projet.'
       );
       return Promise.reject(error);
@@ -286,7 +286,7 @@ export class HomeComponent implements OnInit {
       this.projets.forEach((p) => this.injectManager(p));
     } catch (error) {
       console.error(error);
-      this.popupService.openErrorPopup('Impossible de charger les projets.');
+      this.popupService.error('Impossible de charger les projets.');
       return Promise.reject(error);
     } finally {
       this.spinnerSrv.hide();
@@ -328,7 +328,7 @@ export class HomeComponent implements OnInit {
 
         this.updateProject(project);
         this.refreshDataTable(); // Pour le trie et pour cacher le projet le cas échéant
-        this.popupService.openSuccessPopup(
+        this.popupService.success(
           `Le projet \'${project.nom_p} (${project.code_p})\' a été modifié.`
         );
       }
@@ -376,7 +376,7 @@ export class HomeComponent implements OnInit {
           formErrors,
         });
 
-        this.popupService.openErrorPopup('Veuillez vérifier vos données');
+        this.popupService.error('Veuillez vérifier vos données');
         return false;
       } else {
         return true;
@@ -529,7 +529,7 @@ export class HomeComponent implements OnInit {
 
         this.addProject(project);
         this.refreshDataTable(); // Pour le trie et pour cacher le projet le cas échéant
-        this.popupService.openSuccessPopup(
+        this.popupService.success(
           `Le projet \'${project.nom_p} (${project.code_p})\' a été créé.`
         );
       }
@@ -621,7 +621,7 @@ export class HomeComponent implements OnInit {
         await this.projectsSrv.delete(project);
         event.callBack(null); // Valide la modification dans le composant DataTable fils
         this.deleteProject(project);
-        this.popupService.openSuccessPopup(
+        this.popupService.success(
           `Le projet \'${project.nom_p} (${project.code_p})\' a été supprimé.`
         );
       } else {

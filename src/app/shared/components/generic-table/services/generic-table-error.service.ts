@@ -80,7 +80,7 @@ export class GenericTableErrorService<T> {
     genericTableEntityErrors: GenericTableEntityErrors
   ): boolean {
     if (genericTableEntityErrors?.apiError) {
-      this.popupService.openErrorPopup(genericTableEntityErrors.apiError);
+      this.popupService.error(genericTableEntityErrors.apiError);
       return true;
     }
     return false;

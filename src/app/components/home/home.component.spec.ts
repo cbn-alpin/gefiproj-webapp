@@ -1,10 +1,14 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from '@angular/router/testing';
-import { ConnexionComponent } from './../connexion/connexion.component';
 import { HomeComponent } from './home.component';
+import {
+  MockPopupService,
+  PopupService,
+} from '../../shared/services/popup.service';
+import { ConnexionComponent } from '../connexion/connexion.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 describe('HomeComponent', () => {
   let component: HomeComponent;
@@ -14,16 +18,21 @@ describe('HomeComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         HttpClientTestingModule,
-        RouterTestingModule.withRoutes(
-          [{path: 'connexion', component: ConnexionComponent},
-          {path: 'home', component: HomeComponent}]
-        ),
+        RouterTestingModule.withRoutes([
+          { path: 'connexion', component: ConnexionComponent },
+          { path: 'home', component: HomeComponent },
+        ]),
+        MatDialogModule,
         MatSnackBarModule,
-        MatDialogModule
       ],
-      declarations: [HomeComponent]
-    })
-      .compileComponents();
+      declarations: [HomeComponent],
+      providers: [
+        {
+          provide: PopupService,
+          useClass: MockPopupService,
+        },
+      ],
+    }).compileComponents();
   });
 
   beforeEach(() => {

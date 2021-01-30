@@ -7,7 +7,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 export class PopupService {
   constructor(private readonly snackBar: MatSnackBar) {}
 
-  public openInformationPopup(message: string): void {
+  public info(message: string): void {
     this.snackBar.open(message, 'OK', {
       duration: 5000,
       horizontalPosition: 'right',
@@ -16,7 +16,7 @@ export class PopupService {
     });
   }
 
-  public openErrorPopup(message: string): void {
+  public error(message: string): void {
     this.snackBar.open(message, 'OK', {
       duration: 5000,
       horizontalPosition: 'right',
@@ -25,12 +25,26 @@ export class PopupService {
     });
   }
 
-  public openSuccessPopup(message: string): void {
+  public success(message: string): void {
     this.snackBar.open(message, 'OK', {
       duration: 5000,
       horizontalPosition: 'right',
       verticalPosition: 'top',
       panelClass: 'popup-success',
     });
+  }
+}
+
+export class MockPopupService extends PopupService {
+  info() {
+    return;
+  }
+
+  error() {
+    return;
+  }
+
+  success() {
+    return;
   }
 }

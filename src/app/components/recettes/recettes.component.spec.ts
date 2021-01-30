@@ -12,18 +12,16 @@ describe('RecettesComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [
-        RecettesComponent],
+      declarations: [RecettesComponent],
       imports: [
-        RouterTestingModule.withRoutes(
-          [{path: 'connexion', component: ConnexionComponent},
-          {path: 'home', component: HomeComponent}]
-        ),
+        RouterTestingModule.withRoutes([
+          { path: 'connexion', component: ConnexionComponent },
+          { path: 'home', component: HomeComponent },
+        ]),
         HttpClientTestingModule,
-        MatSnackBarModule
-      ]
-    })
-      .compileComponents();
+        MatSnackBarModule,
+      ],
+    }).compileComponents();
   });
 
   beforeEach(() => {

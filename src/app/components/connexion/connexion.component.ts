@@ -50,13 +50,13 @@ export class ConnexionComponent implements OnInit {
 
         const isAuth = this.authSrv.isAuthenticated();
         if (!isAuth) {
-          this.popupService.openErrorPopup(
+          this.popupService.error(
             "Ce login n'est pas valide : utilisateur inactif ou sans rôle."
           );
         }
       }
     } catch (error) {
-      this.popupService.openErrorPopup('E-mail/Mot de passe non valide');
+      this.popupService.error('E-mail/Mot de passe non valide');
     }
   }
 }

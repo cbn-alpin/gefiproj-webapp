@@ -139,7 +139,7 @@ export class MontantsAffectesComponent implements OnChanges {
         (await this.montantsAffectesService.getAll(receiptId)) || [];
     } catch (error) {
       console.error(error);
-      this.popupService.openErrorPopup(
+      this.popupService.error(
         'Impossible de charger les montants affectés : ' + error.error
       );
       return Promise.reject(error);
@@ -185,12 +185,12 @@ export class MontantsAffectesComponent implements OnChanges {
 
       if (this.validateForGenericTable(event)) {
         if (this.checkMontantEdit(montant))
-          this.popupService.openErrorPopup(
+          this.popupService.error(
             'La somme des montants est supérieur au montant de la recette !'
           );
         else {
           if (Number(montant.annee_ma) < Number(this.receipt.annee_r))
-            this.popupService.openErrorPopup(
+            this.popupService.error(
               "L'année saisie est inférieure à celle de la recette !"
             );
           else {
@@ -205,7 +205,7 @@ export class MontantsAffectesComponent implements OnChanges {
       }
     } catch (error) {
       console.log('er', error);
-      this.popupService.openErrorPopup(
+      this.popupService.error(
         'Impossible de modifier les montants affectés : ' + error.message
       );
     }
@@ -232,7 +232,7 @@ export class MontantsAffectesComponent implements OnChanges {
           formErrors,
         });
 
-        this.popupService.openErrorPopup('Veuillez vérifier vos données');
+        this.popupService.error('Veuillez vérifier vos données');
         return false;
       } else {
         return true;
@@ -284,12 +284,12 @@ export class MontantsAffectesComponent implements OnChanges {
 
       if (this.validateForGenericTable(event)) {
         if (this.checkMontantCreate(montant))
-          this.popupService.openErrorPopup(
+          this.popupService.error(
             'La somme des montants est supérieur au montant de la recette !'
           );
         else {
           if (Number(montant.annee_ma) < Number(this.receipt.annee_r))
-            this.popupService.openErrorPopup(
+            this.popupService.error(
               "L'année saisie est inférieure à celle de la recette !"
             );
           else {
@@ -304,7 +304,7 @@ export class MontantsAffectesComponent implements OnChanges {
       }
     } catch (error) {
       console.error(error);
-      this.popupService.openErrorPopup(
+      this.popupService.error(
         'Impossible de créer le montant affecté : ' + error.message
       );
     }
@@ -341,7 +341,7 @@ export class MontantsAffectesComponent implements OnChanges {
       dialogRef.afterClosed().subscribe(async (result) => {
         if (result) {
           await this.montantsAffectesService.delete(montant);
-          this.popupService.openSuccessPopup(
+          this.popupService.success(
             'Le montant affecté de montant ' +
               montant.montant_ma +
               ' €, a été supprimé du projet.'
@@ -352,7 +352,7 @@ export class MontantsAffectesComponent implements OnChanges {
       });
     } catch (error) {
       console.error(error);
-      this.popupService.openErrorPopup(
+      this.popupService.error(
         'Impossible de supprimer le montant affecté : ' + error.message
       );
       event?.callBack({
