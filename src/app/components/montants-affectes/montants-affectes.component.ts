@@ -303,9 +303,7 @@ export class MontantsAffectesComponent implements OnChanges {
 
     } catch (error) {
       console.error(error);
-      for( const err of error.error.errors){
-        this.showInformation('Impossible de créer le montant affecté : ' + err.message);
-      }
+      this.showInformation('Impossible de créer le montant affecté : ' + error.message);
     }
   }
 
