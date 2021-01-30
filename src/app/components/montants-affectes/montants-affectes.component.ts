@@ -12,7 +12,7 @@ import { MatDialog } from '@angular/material/dialog';
 import {GenericTableEntityEvent} from '../../shared/components/generic-table/models/generic-table-entity-event';
 import {GenericTableFormError} from '../../shared/components/generic-table/models/generic-table-entity';
 import {GenericDialogComponent, IMessage} from '../../shared/components/generic-dialog/generic-dialog.component';
-import {Financement} from "../../models/financement";
+
 
 @Component({
   selector: 'app-montants-affectes',
@@ -27,9 +27,9 @@ export class MontantsAffectesComponent implements OnChanges {
   readonly title = 'Montants Affectés';
 
   /**
-   * id recette
+   * Recette selectionnée
    */
-  @Input() public receiptId: number;
+  @Input() public receipt: Recette;
 
   /**
    * Données source du tableau générique
@@ -45,16 +45,18 @@ export class MontantsAffectesComponent implements OnChanges {
     recette: undefined,
     montant_ma: undefined,
     annee_ma: undefined,
+    id_r: undefined,
   } ;
 
   /**
    * Mapping pour les noms des attributs d'un montant affecté.
    */
   private readonly namesMap = {
-    id_ma: { code: 'id_f', name: 'Identifiant Montant Affecté' },
+    id_ma: { code: 'id_ma', name: 'Identifiant Montant Affecté' },
     recette: { code: 'id_r', name: 'Recette' },
     montant_ma: { code: 'montant_ma', name: 'Montant' },
     annee_ma: { code: 'annee_ma', name: 'Année d\'affectation' },
+    id_r: { code: 'id_r', name: 'id de la recette' }
   };
 
   /**
@@ -64,8 +66,8 @@ export class MontantsAffectesComponent implements OnChanges {
     dataSource: [],
     defaultEntity: this.defaultEntity,
     entityTypes: [
-      {name: this.namesMap.montant_ma.name, type: GenericTableCellType.CURRENCY, code: this.namesMap.montant_ma.code},
       {name: this.namesMap.annee_ma.name, type: GenericTableCellType.NUMBER, code: this.namesMap.annee_ma.code},
+      {name: this.namesMap.montant_ma.name, type: GenericTableCellType.CURRENCY, code: this.namesMap.montant_ma.code},
     ],
     entityPlaceHolders: [],
     entitySelectBoxOptions: []
@@ -175,7 +177,7 @@ export class MontantsAffectesComponent implements OnChanges {
    */
   private async refreshDataTable() {
     try {
-      await this.loadMontantsAffectes(Number(this.receiptId));
+      await this.loadMontantsAffectes(Number(this.receipt.id_r));
       const dataSource = this.montantsAffectes;
 
       this.options = Object.assign({}, this.options, {
@@ -198,17 +200,26 @@ export class MontantsAffectesComponent implements OnChanges {
       }
 
       if (this.validateForGenericTable(event)) {
-        await this.montantsAffectesService.put(montant);
-        await this.refreshDataTable();
-        event.callBack(null); // Valide la modification dans le composant DataTable fils
+        if (this.checkMontantEdit(montant))
+          this.showInformation('La somme des montants est supérieur au montant de la recette !');
+        else {
+          if (Number(montant.annee_ma) < Number(this.receipt.annee_r))
+            this.showInformation('L\'année saisie est inférieure à celle de la recette !');
+          else {
+            console.log(montant.montant_ma);
+            console.log(montant.id_r);
+            delete montant.recette;
+            await this.montantsAffectesService.put(montant);
+            await this.refreshDataTable();
+            event.callBack(null); // Valide la modification dans le composant DataTable fils
+          }
+        }
       }
+
     } catch (error) {
       console.log('er', error)
-      console.error(error.error.errors);
-      for( const err of error.error.errors){
-        console.log(err)
-        this.showInformation('Impossible de modifier les montants affectés : ' + err.message);
-      }
+      this.showInformation('Impossible de modifier les montants affectés : ' + error.message);
+
     }
   }
 
@@ -276,17 +287,23 @@ export class MontantsAffectesComponent implements OnChanges {
         throw new Error('Le montant affecté n\'existe pas');
       }
 
-      if (this.validateForGenericTable(event)) {
-        await this.montantsAffectesService.post(montant);
-        await this.refreshDataTable();
-        event.callBack(null); // Valide la modification dans le composant DataTable fils
-      }
+        if (this.validateForGenericTable(event)) {
+          if (this.checkMontantCreate(montant))
+            this.showInformation('La somme des montants est supérieur au montant de la recette !');
+          else {
+            if (Number(montant.annee_ma) < Number(this.receipt.annee_r))
+              this.showInformation('L\'année saisie est inférieure à celle de la recette !');
+            else {
+              await this.montantsAffectesService.post(montant, Number(this.receipt.id_r));
+              await this.refreshDataTable();
+              event.callBack(null); // Valide la modification dans le composant DataTable fils
+            }
+          }
+        }
 
     } catch (error) {
       console.error(error);
-      for( const err of error.error.errors){
-        this.showInformation('Impossible de créer le montant affecté : ' + err.message);
-      }
+      this.showInformation('Impossible de créer le montant affecté : ' + error.message);
     }
   }
 
@@ -303,7 +320,7 @@ export class MontantsAffectesComponent implements OnChanges {
       const dialogRef = this.dialog.open(GenericDialogComponent, {
         data: <IMessage>{
           header: 'Suppression du montant affecté',
-          content: 'Voulez-vous supprimer ce montant affecté de montant ' + montant.montant_ma + ' de l\'année' + montant.annee_ma + '?',
+          content: 'Voulez-vous supprimer ce montant affecté de montant ' + montant.montant_ma + ' de l\'année ' + montant.annee_ma + '?',
           type: 'warning',
           action: {
             name: 'Confirmer',
@@ -315,7 +332,7 @@ export class MontantsAffectesComponent implements OnChanges {
         async result => {
           if (result) {
             await this.montantsAffectesService.delete(montant);
-            this.showInformation('Le montant affecté de montant ' + montant.montant_ma + '€, a été supprimé du projet.');
+            this.showInformation('Le montant affecté de montant ' + montant.montant_ma + ' €, a été supprimé du projet.');
             await this.refreshDataTable();
             event.callBack(null);
           }
@@ -329,6 +346,35 @@ export class MontantsAffectesComponent implements OnChanges {
         apiError: 'Impossible de supprimer le montant affecté.'
       });
     }
+  }
+  /**
+   * Vérifier que la somme des montants est inférieur ou égale au montant de la recette lors de la mise à jour d'un montant
+   * @param montant, montant affecté mis à jour
+   */
+  private checkMontantEdit (montant : MontantAffecte) : Boolean{
+    let sumAmounts = 0 ;
+    this.montantsAffectes.forEach((amount) => {
+      if (amount.id_ma !== montant.id_ma) {
+        sumAmounts += +Number(amount.montant_ma);
+      }
+    });
+    return Number(montant.montant_ma) + sumAmounts > this.receipt.montant_r;
+
+
+  }
+
+  /**
+   * Vérifier que la somme des montants est inférieur ou égale au montant de la recette lors de la mise à jour d'un montant
+   * @param montant, montant affecté mis à jour
+   */
+  private checkMontantCreate (montant : MontantAffecte) : Boolean{
+    let sumAmounts = 0 ;
+    this.montantsAffectes.forEach((amount) => {
+        sumAmounts += +Number(amount.montant_ma);
+    });
+    return Number(montant.montant_ma) + sumAmounts > this.receipt.montant_r;
+
+
   }
 
 

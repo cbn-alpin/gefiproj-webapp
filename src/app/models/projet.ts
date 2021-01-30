@@ -1,7 +1,16 @@
 import { Utilisateur } from './utilisateur';
+
 export interface Projet {
   id_p: number;
+
+  /**
+   * Code du projet : 5 chiffres, dont les 2ers représentent une année.
+   */
   code_p: number;
+
+  /**
+   * Nom du projet.
+   */
   nom_p: string;
 
   /**

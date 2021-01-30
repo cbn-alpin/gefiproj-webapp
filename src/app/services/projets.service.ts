@@ -1,6 +1,6 @@
-import { Financement } from 'src/app/models/financement';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Financement } from 'src/app/models/financement';
 import { Projet } from 'src/app/models/projet';
 import { CrudService } from './crud.service';
 import { SpinnerService } from './spinner.service';
@@ -40,7 +40,7 @@ export class ProjetsService {
    * Retourne les projets depuis le serveur.
    */
   public async getAll(): Promise<Projet[]> {
-    return this.crudSrv.getAll('id_p');
+    return this.crudSrv.getAll();
   }
 
   /**
@@ -48,7 +48,7 @@ export class ProjetsService {
    * @param id : identifiant du projet demandé.
    */
   public async get(id: number): Promise<Projet> {
-    return this.crudSrv.get(id, 'id_p');
+    return this.crudSrv.get(id);
   }
 
   /**
@@ -77,7 +77,7 @@ export class ProjetsService {
       this.cleanProject(project);
 
       return await this.crudSrv
-        .add(project, 'id_p');
+        .add(project);
     } catch (error) {
       console.error(error);
       return Promise.reject(error);
@@ -102,7 +102,7 @@ export class ProjetsService {
    * @param project : projet à supprimer.
    */
   public async delete(project: Projet): Promise<void> {
-    const id = project?.id_p || (project as any)?.id; // Pour json-server
+    const id = project?.id_p || 0;
     return this.crudSrv.delete(id);
   }
 
@@ -118,7 +118,7 @@ export class ProjetsService {
         this.spinnerSrv,
         `${this.endPoint}/${id}/fundings`);
 
-      return fundingsSrv.getAll('id_f');
+      return fundingsSrv.getAll();
     } catch (error) {
       console.error(error);
       return Promise.reject(error);

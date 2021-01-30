@@ -7,9 +7,13 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { ProjetsService } from '../../services/projets.service';
 import { Projet } from '../../models/projet';
-import { MontantsAffectesService } from '../../services/montants-affectes.service';
-import { MontantAffecte } from '../../models/montantAffecte';
-import { FinancementsService } from '../../services/financements.service';
+import { MontantsAffectesService } from "../../services/montants-affectes.service";
+import { MontantAffecte } from "../../models/montantAffecte";
+import { FinancementsService } from "../../services/financements.service";
+import {MatCheckboxChange} from '@angular/material/checkbox';
+import {Utilisateur} from '../../models/utilisateur';
+import {UsersService} from '../../services/users.service';
+import {SpinnerService} from '../../services/spinner.service';
 import { RecettesService } from '../../services/recettes.service';
 
 @Component({
@@ -25,6 +29,11 @@ export class ProjetComponent implements OnInit {
   public selectedRecette: Recette;
   public projetId: string;
   public projet: Projet;
+
+  /**
+   * Responsable du projet.
+   */
+  manager: Utilisateur;
 
   public get isReadOnly(): boolean {
     return !this.isAdministrator;
@@ -43,7 +52,8 @@ export class ProjetComponent implements OnInit {
     private readonly projetsService: ProjetsService,
     private readonly recettesService: RecettesService,
     private readonly montantsAffectesService: MontantsAffectesService,
-    private readonly financementsService: FinancementsService
+    private readonly financementsService: FinancementsService,
+    private readonly spinnerSrv: SpinnerService
   ) {
     this.projetId = this.route.snapshot.params.id;
     if (!this.projetId) {
@@ -180,6 +190,7 @@ export class ProjetComponent implements OnInit {
       if (projetId) {
         this.financements = await this.financementsService.getAll(projetId);
       }
+      this.manager = this.projet.responsable;
     } catch (error) {
       console.error(error);
 
@@ -214,4 +225,32 @@ export class ProjetComponent implements OnInit {
       this.openSnackBar(error);
     }
   }
+  public async updateProjectStatus(event: MatCheckboxChange): Promise<void> {
+    this.projet.statut_p = event.checked;
+    this.projet.id_u = this.projet.responsable.id_u;
+    try {
+      this.spinnerSrv.show();
+      await this.projetsService.modify(this.projet);
+      this.projet.responsable = this.manager;
+      this.spinnerSrv.hide();
+      if (this.projet.statut_p == true)
+        this.openSnackBar("Le projet " + this.projet.nom_p + " est soldé ! ");
+      if (this.projet.statut_p == false)
+        this.openSnackBar("Le projet " + this.projet.nom_p + " est non soldé ! ");
+
+    }
+
+  catch(error) {
+    console.error(error);
+    for (const err of error.error.errors) {
+      this.openSnackBar('Impossible de créer le montant affecté : ' + err.message);
+    }
+  }
+
+
+  }
+
+
+
+
 }

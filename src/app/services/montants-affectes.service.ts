@@ -10,9 +10,13 @@ import { SpinnerService } from './spinner.service';
 })
 export class MontantsAffectesService {
   /**
+   * Url relative de l'API Recette
+   */
+  public readonly rEndPoint = '/api/receipts';
+  /**
    * Url relative de l'API.
    */
-  public readonly endPoint = '/api/receipts';
+  public readonly aEndPoint = '/api/amounts';
   /**
    * Effectue les appels au serveur d'API pour une entité donnée.
    */
@@ -31,7 +35,7 @@ export class MontantsAffectesService {
     this.crudSrv = new CrudService<MontantAffecte>(
       http,
       spinnerSrv,
-      this.endPoint);
+      this.aEndPoint);
   }
 
   /**
@@ -46,7 +50,6 @@ export class MontantsAffectesService {
 
       const recette = {} as Recette;
       recette.id_r = receiptId;
-      // TODO modifier la méthode pour récupérer depuis une recette pas un id
       return this.getAmounts(receiptId);
     } catch (error) {
       console.error(error);
@@ -63,10 +66,10 @@ export class MontantsAffectesService {
       const amountSrv = new CrudService<MontantAffecte>(
         this.http,
         this.spinnerSrv,
-        `${this.endPoint}/${receiptId}/amounts`);
+        `${this.rEndPoint}/${receiptId}/amounts`);
 
       // TODO méthode dans ReceiptServ
-      return amountSrv.getAll('id_ma');
+      return amountSrv.getAll();
     } catch (error) {
       console.error(error);
       return Promise.reject(error);
@@ -87,9 +90,10 @@ export class MontantsAffectesService {
    * Transmet le financement d'un projet au serveur.
    * @param financement : le financement à créer
    */
-  public async post(montant: MontantAffecte): Promise<MontantAffecte> {
+  public async post(montant: MontantAffecte, receiptId: number): Promise<MontantAffecte> {
     try {
-      return this.crudSrv.add(montant, 'id_ma');
+      montant.id_r = receiptId;
+      return this.crudSrv.add(montant);
     } catch (error) {
       return Promise.reject(error);
     }

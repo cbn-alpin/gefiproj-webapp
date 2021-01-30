@@ -169,6 +169,12 @@ input[type="number"] {
 }
 
 .mat-cell.actions {
+  button:first-child {
+    float: left;
+  }
+  button:last-child {
+    float: right;
+  }
 }
 
 .empty {

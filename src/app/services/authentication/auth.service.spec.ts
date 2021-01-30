@@ -1,6 +1,9 @@
+import { HomeComponent } from './../../components/home/home.component';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { JwtHelperService, JwtModule } from '@auth0/angular-jwt';
+import { RouterTestingModule } from '@angular/router/testing';
+import { JwtModule } from '@auth0/angular-jwt';
+import { ConnexionComponent } from 'src/app/components/connexion/connexion.component';
 import { Roles } from 'src/app/models/roles';
 import { tokenGetter } from '../../app.module';
 import { Utilisateur } from '../../models/utilisateur';
@@ -11,7 +14,6 @@ import { UtilisateurToken } from './utilisateurToken';
 describe('AuthService', () => {
   let service: AuthService;
   let httpTestingController: HttpTestingController;
-  let jwtSrv: JwtHelperService;
   const accessToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MDI0Mjk1MzIsIm5iZiI6MTYwMjQyOTUzMiwianRpIjoiY2RiYmY4ZmEtOWUyNi00YzhmLTg3NWEtMzJhNjVmYWI1ZDM5IiwiZXhwIjoxNjAyNDMwNDMyLCJpZGVudGl0eSI6ImNhc2gxUCIsImZyZXNoIjpmYWxzZSwidHlwZSI6ImFjY2VzcyJ9.kSiPmWzZUwK2OrxgbXKg5-sZE7XdFBH2F8PZYbP5SkI';
   const refreshToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MDI0Mjk1MzIsIm5iZiI6MTYwMjQyOTUzMiwianRpIjoiNjY1ODk4YjQtYjU0ZC00MDA0LTk2NzYtODEyZWI4YmY1MmM0IiwiZXhwIjoxNjA1MDIxNTMyLCJpZGVudGl0eSI6ImNhc2gxUCIsInR5cGUiOiJyZWZyZXNoIn0.-gUtHowxRs09IMZ5Rw4VBvBJo0gQa0-jYGgxtimFDM0';
 
@@ -19,6 +21,10 @@ describe('AuthService', () => {
     TestBed.configureTestingModule({
       imports: [
         HttpClientTestingModule,
+        RouterTestingModule.withRoutes(
+          [{path: 'connexion', component: ConnexionComponent},
+          {path: 'home', component: HomeComponent}]
+        ),
         JwtModule.forRoot({
           config: {
             tokenGetter
@@ -28,7 +34,6 @@ describe('AuthService', () => {
     });
     service = TestBed.inject(AuthService);
     httpTestingController = TestBed.inject(HttpTestingController);
-    jwtSrv = TestBed.inject(JwtHelperService);
 
     // Nettoyage
     localStorage.removeItem(AuthService.tokenKey);
@@ -42,7 +47,16 @@ describe('AuthService', () => {
     expect(service).toBeTruthy();
   });
 
+  it('isAuthenticated -> false car pas de user dans localStorage', () => {
+    localStorage.removeItem(AuthService.userKey);
+
+    const isAuth = service.isAuthenticated();
+
+    expect(isAuth).toBeFalse(); // Pas authentifié
+  });
+
   it('isAuthenticated -> false car pas de Token dans localStorage', () => {
+    localStorage.setItem(AuthService.userKey, JSON.stringify({active_u: true, roles: 'administrator'}));
     localStorage.removeItem(AuthService.tokenKey);
 
     const isAuth = service.isAuthenticated();
@@ -51,8 +65,9 @@ describe('AuthService', () => {
   });
 
   it('isAuthenticated -> true', () => {
+    localStorage.setItem(AuthService.userKey, JSON.stringify({active_u: true, roles: Roles.Admin}));
     localStorage.setItem(AuthService.tokenKey, accessToken);
-    spyOn(jwtSrv, 'isTokenExpired').and
+    spyOn((service as any).jwtSrv, 'isTokenExpired').and
       .returnValue(false);
 
     const isAuth = service.isAuthenticated(); // Action
@@ -61,9 +76,13 @@ describe('AuthService', () => {
   });
 
   it('isAuthenticated -> false car Token périmé', () => {
+    localStorage.setItem(AuthService.userKey, JSON.stringify({active_u: true, roles: Roles.Admin}));
+    localStorage.removeItem(AuthService.refreshTokenKey);
     localStorage.setItem(AuthService.tokenKey, accessToken);
-    spyOn(jwtSrv, 'isTokenExpired').and
+    spyOn((service as any).jwtSrv, 'isTokenExpired').and
       .returnValue(true);
+    spyOn(service, 'refreshTokenOrLogout').and
+      .returnValue(Promise.resolve());
 
     const isAuth = service.isAuthenticated(); // Action
 
@@ -114,7 +133,7 @@ describe('AuthService', () => {
     let userInObs: Utilisateur;
     service.userObservable
       .subscribe(u => userInObs = u);
-    spyOn(jwtSrv, 'isTokenExpired').and
+    spyOn((service as any).jwtSrv, 'isTokenExpired').and
       .returnValue(false);
 
     const promise = service.login(userLogin);

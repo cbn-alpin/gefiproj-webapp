@@ -1,13 +1,13 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Statut_F } from '../models/financement';
+import { Roles } from '../models/roles';
 import {
   SuiviFinancement,
-  SuiviFinancementDto,
+  SuiviFinancementDto
 } from '../models/suivi-financement';
-import { Roles } from '../models/roles';
-import { Statut_F } from '../models/financement';
-import { SuiviFinancementsService } from '../services/suivi-financements.service';
-import { HttpClient } from '@angular/common/http';
 import { SpinnerService } from '../services/spinner.service';
+import { SuiviFinancementsService } from '../services/suivi-financements.service';
 
 @Injectable({
   providedIn: 'root',

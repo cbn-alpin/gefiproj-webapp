@@ -1,3 +1,4 @@
+import { HomeComponent } from './../../components/home/home.component';
 /* tslint:disable:no-unused-variable */
 
 import { HttpClientTestingModule } from '@angular/common/http/testing';
@@ -6,12 +7,14 @@ import { RouterStateSnapshot } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { JwtModule } from '@auth0/angular-jwt';
 import { tokenGetter } from 'src/app/app.module';
+import { ConnexionComponent } from 'src/app/components/connexion/connexion.component';
 import { Roles } from 'src/app/models/roles';
 import { Utilisateur } from 'src/app/models/utilisateur';
 import { NavigationService } from '../navigation.service';
 import { AuthService } from './auth.service';
 import { EnsureAuthenticatedService } from './ensure-authenticated.service';
 import { IsAdministratorGuardService } from './is-administrator-guard.service';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 describe('Service: IsAdministratorGuard', () => {
   let service: IsAdministratorGuardService;
@@ -26,7 +29,11 @@ describe('Service: IsAdministratorGuard', () => {
     TestBed.configureTestingModule({
       imports: [
         HttpClientTestingModule,
-        RouterTestingModule,
+        RouterTestingModule.withRoutes(
+          [{path: 'connexion', component: ConnexionComponent},
+          {path: 'home', component: HomeComponent}]
+        ),
+        MatSnackBarModule,
         JwtModule.forRoot({
           config: {
             tokenGetter
@@ -109,9 +116,9 @@ describe('Service: IsAdministratorGuard', () => {
     spyOn(service, 'isAdministrator').and
       .returnValue(true);
     spyOn(authGuard, 'canActivate').and
-      .returnValue(false);
+      .returnValue(Promise.resolve(false));
 
-    const isAdmin = service.canActivate();
+    const isAdmin = await service.canActivate();
 
     expect(isAdmin).toBeFalse();
   });
@@ -122,9 +129,9 @@ describe('Service: IsAdministratorGuard', () => {
     spyOn(service, 'isAdministrator').and
       .returnValue(false);
     spyOn(authGuard, 'canActivate').and
-      .returnValue(true);
+      .returnValue(Promise.resolve(true));
 
-    const isAdmin = service.canActivate();
+    const isAdmin = await service.canActivate();
 
     expect(isAdmin).toBeFalse();
   });
@@ -135,9 +142,9 @@ describe('Service: IsAdministratorGuard', () => {
     spyOn(service, 'isAdministrator').and
       .returnValue(true);
     spyOn(authGuard, 'canActivate').and
-      .returnValue(true);
+      .returnValue(Promise.resolve(true));
 
-    const isAdmin = service.canActivate();
+    const isAdmin = await service.canActivate();
 
     expect(isAdmin).toBeTrue();
   });
