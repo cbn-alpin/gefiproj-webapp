@@ -1,5 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 @import "~src/style/variables.scss";
+@import "~src/style/popup.scss";
 
 body {
     margin: 0;
@@ -34,9 +35,11 @@ a:hover, a:visited, a:focus, a:active {
 }
 
 .tooltip-error {
-  background: #b71c1c;
+  background: $color-alert;
 }
 
 .tooltip-textarea {
     font-size: 12px;
 }
+
+

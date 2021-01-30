@@ -1,34 +1,73 @@
-import {SelectBoxOption} from './../../shared/components/generic-table/models/SelectBoxOption';
-import {DatePipe} from '@angular/common';
-import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {ActivatedRoute, Router} from '@angular/router';
-import {Financement, Statut_F} from 'src/app/models/financement';
-import {Financeur} from 'src/app/models/financeur';
-import {FinancementsService} from 'src/app/services/financements.service';
-import {FinanceurService} from 'src/app/services/financeur.service';
-import {GenericTableCellType} from 'src/app/shared/components/generic-table/globals/generic-table-cell-types';
-import {GenericTableEntityEvent} from 'src/app/shared/components/generic-table/models/generic-table-entity-event';
-import {GenericTableInterface} from 'src/app/shared/components/generic-table/models/generic-table-interface';
-import {GenericTableOptions} from 'src/app/shared/components/generic-table/models/generic-table-options';
-import {IsAdministratorGuardService} from 'src/app/services/authentication/is-administrator-guard.service';
-import {EntitySelectBoxOptions} from 'src/app/shared/components/generic-table/models/entity-select-box-options';
-import {GenericTableFormError} from 'src/app/shared/components/generic-table/models/generic-table-entity';
-import {GenericDialogComponent, IMessage} from 'src/app/shared/components/generic-dialog/generic-dialog.component';
-import {MatDialog} from '@angular/material/dialog';
+import { SelectBoxOption } from './../../shared/components/generic-table/models/SelectBoxOption';
+import { DatePipe } from '@angular/common';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Financement, Statut_F } from 'src/app/models/financement';
+import { Financeur } from 'src/app/models/financeur';
+import { FinancementsService } from 'src/app/services/financements.service';
+import { FinanceurService } from 'src/app/services/financeur.service';
+import { GenericTableCellType } from 'src/app/shared/components/generic-table/globals/generic-table-cell-types';
+import { GenericTableEntityEvent } from 'src/app/shared/components/generic-table/models/generic-table-entity-event';
+import { GenericTableInterface } from 'src/app/shared/components/generic-table/models/generic-table-interface';
+import { GenericTableOptions } from 'src/app/shared/components/generic-table/models/generic-table-options';
+import { IsAdministratorGuardService } from 'src/app/services/authentication/is-administrator-guard.service';
+import { EntitySelectBoxOptions } from 'src/app/shared/components/generic-table/models/entity-select-box-options';
+import { GenericTableFormError } from 'src/app/shared/components/generic-table/models/generic-table-entity';
+import {
+  GenericDialogComponent,
+  IMessage,
+} from 'src/app/shared/components/generic-dialog/generic-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+import { PopupService } from '../../shared/services/popup.service';
 
 @Component({
   selector: 'app-financements',
   templateUrl: './financements.component.html',
-  styleUrls: ['./financements.component.scss']
+  styleUrls: ['./financements.component.scss'],
 })
-export class FinancementsComponent implements OnChanges, GenericTableInterface<Financement>  {
+export class FinancementsComponent
+  implements OnInit, OnChanges, GenericTableInterface<Financement> {
   /**
    * Données source du tableau générique
    * @private
    */
   @Input() public financements: Financement[];
-  @Output() public select: EventEmitter<Financement> = new EventEmitter<Financement>();
+
+  @Input() public selectedFinancement: Financement;
+
+  @Output()
+  public selectEvent: EventEmitter<Financement> = new EventEmitter<Financement>();
+
+  @Output() public createEvent: EventEmitter<void> = new EventEmitter<void>();
+
+  @Output() public editEvent: EventEmitter<void> = new EventEmitter<void>();
+
+  @Output() public deleteEvent: EventEmitter<void> = new EventEmitter<void>();
+
+  @Output()
+  public startCreateEvent: EventEmitter<void> = new EventEmitter<void>();
+
+  @Output()
+  public endCreateEvent: EventEmitter<void> = new EventEmitter<void>();
+
+  @Output()
+  public startEditingEvent: EventEmitter<void> = new EventEmitter<void>();
+
+  @Output()
+  public endEditingEvent: EventEmitter<void> = new EventEmitter<void>();
+
+  @Output()
+  public financementChange: EventEmitter<Financement[]> = new EventEmitter<
+    Financement[]
+  >();
 
   /**
    * Titre du tableau générique
@@ -39,8 +78,6 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
    * id projet
    */
   public projectId: string;
-
-
 
   /**
    * Liste de financeurs
@@ -66,8 +103,8 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
     annee_titre_f: undefined,
     imputation_f: undefined,
     difference: 0,
-    financeur: undefined
-  } ;
+    financeur: undefined,
+  };
 
   /**
    * Mapping pour les noms des attributs d'un financement.
@@ -78,11 +115,20 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
     id_financeur: { code: 'id_financeur', name: 'Identifiant Financeur' },
     montant_arrete_f: { code: 'montant_arrete_f', name: 'Montant Arreté' },
     date_arrete_f: { code: 'date_arrete_f', name: 'Date arreté ou commande' },
-    date_limite_solde_f: { code: 'date_limite_solde_f', name: 'Date limite de solde' },
+    date_limite_solde_f: {
+      code: 'date_limite_solde_f',
+      name: 'Date limite de solde',
+    },
     statut_f: { code: 'statut_f', name: 'Statut' },
     date_solde_f: { code: 'date_solde_f', name: 'Date de solde' },
-    commentaire_admin_f: { code: 'commentaire_admin_f', name: 'Commentaire admin' },
-    commentaire_resp_f: { code: 'commentaire_resp_f', name: 'Commentaire responsable' },
+    commentaire_admin_f: {
+      code: 'commentaire_admin_f',
+      name: 'Commentaire admin',
+    },
+    commentaire_resp_f: {
+      code: 'commentaire_resp_f',
+      name: 'Commentaire responsable',
+    },
     numero_titre_f: { code: 'numero_titre_f', name: 'Numéro titre' },
     annee_titre_f: { code: 'annee_titre_f', name: 'Année titre' },
     imputation_f: { code: 'imputation_f', name: 'Imputation' },
@@ -93,28 +139,9 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
   /**
    * Paramètres du tableau de financement.
    */
-  options: GenericTableOptions<Financement> = {
-    dataSource: [],
-    defaultEntity: this.defaultEntity,
-    entityTypes: [
-      {name: this.namesMap.montant_arrete_f.name, type: GenericTableCellType.CURRENCY, code: this.namesMap.montant_arrete_f.code},
-      {name: this.namesMap.date_arrete_f.name, type: GenericTableCellType.DATE, code: this.namesMap.date_arrete_f.code},
-      {name: this.namesMap.date_limite_solde_f.name, type: GenericTableCellType.DATE, code: this.namesMap.date_limite_solde_f.code},
-      {name: this.namesMap.financeur.name, type: GenericTableCellType.SELECTBOX, code: this.namesMap.financeur.code},
-      {name: this.namesMap.statut_f.name, type: GenericTableCellType.SELECTBOX, code: this.namesMap.statut_f.code},
-      {name: this.namesMap.date_solde_f.name, type: GenericTableCellType.DATE, code: this.namesMap.date_solde_f.code},
-      {name: this.namesMap.commentaire_admin_f.name, type: GenericTableCellType.TEXTAREA, code: this.namesMap.commentaire_admin_f.code},
-      {name: this.namesMap.commentaire_resp_f.name, type: GenericTableCellType.TEXTAREA, code: this.namesMap.commentaire_resp_f.code},
-      {name: this.namesMap.numero_titre_f.name, type: GenericTableCellType.TEXT, code: this.namesMap.numero_titre_f.code},
-      {name: this.namesMap.annee_titre_f.name, type: GenericTableCellType.TEXT, code: this.namesMap.annee_titre_f.code},
-      {name: this.namesMap.imputation_f.name, type: GenericTableCellType.TEXT, code: this.namesMap.imputation_f.code},
-      {name: this.namesMap.difference.name, type: GenericTableCellType.CURRENCY, code: this.namesMap.difference.code},
-    ],
-    entityPlaceHolders: [],
-    entitySelectBoxOptions: []
-  };
+  options: GenericTableOptions<Financement>;
 
-    /**
+  /**
    * Indique si le tableau peut-être modifié.
    */
   public get showActions(): boolean {
@@ -125,9 +152,9 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
    * Liste de statut
    */
   private statuts_financement: SelectBoxOption<any>[] = [
-    {id: Statut_F.ANTR, label: Statut_F.ANTR},
-    {id: Statut_F.ATR, label: Statut_F.ATR},
-    {id: Statut_F.SOLDE, label: Statut_F.SOLDE},
+    { id: Statut_F.ANTR, label: Statut_F.ANTR },
+    { id: Statut_F.ATR, label: Statut_F.ATR },
+    { id: Statut_F.SOLDE, label: Statut_F.SOLDE },
   ];
 
   /**
@@ -150,13 +177,13 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
   }
 
   /**
-   *
-   * @param adminSrv : permet de vérifier si l'utilisateur est un administrateur.
-   * @param financementsService : permet de dialoguer avec le serveur d'API pour les entités Financement.
-   * @param financeurService : permet de dialoguer avec le serveur d'API pour les entités Financeur.
+   * @param adminSrv
+   * @param financementsService
+   * @param financeurService
    * @param route
    * @param router
-   * @param snackBar : affiche une information.
+   * @param popupService
+   * @param dialog
    */
   constructor(
     private adminSrv: IsAdministratorGuardService,
@@ -164,11 +191,17 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
     private financeurService: FinanceurService,
     private route: ActivatedRoute,
     private router: Router,
-    private snackBar: MatSnackBar,
+    private readonly popupService: PopupService,
     public dialog: MatDialog
   ) {
     this.projectId = this.route.snapshot.params.id;
-    if (!this.projectId) { this.router.navigate(['home']) }
+    if (!this.projectId) {
+      this.router.navigate(['home']);
+    }
+  }
+
+  public ngOnInit() {
+    this.initGenericTableOptions();
   }
 
   /**
@@ -200,10 +233,16 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
    */
   async loadFinancements(projetId: number): Promise<Financement[]> {
     try {
-      this.financements = (await this.financementsService.getAll(projetId)) || [];
+      this.financements =
+        (await this.financementsService.getAll(projetId)) || [];
+      // if (!this.financements) {
+      //   this.financementChange.emit(this.financements);
+      // }
     } catch (error) {
       console.error(error);
-      this.showInformation('Impossible de charger les financements : ' + error.error);
+      this.popupService.openErrorPopup(
+        'Impossible de charger les financements : ' + error.error
+      );
       return Promise.reject(error);
     }
   }
@@ -216,7 +255,9 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
       this.financeurs = (await this.financeurService.getAll()) || [];
     } catch (error) {
       console.error(error);
-      this.showInformation('Impossible de charger les financeurs : ' + error);
+      this.popupService.openErrorPopup(
+        'Impossible de charger les financeurs : ' + error
+      );
       return Promise.reject(error);
     }
   }
@@ -228,50 +269,37 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
     const dataSource = this.financements;
     const financeursSelectBoxOption: EntitySelectBoxOptions<Financeur> = {
       name: this.namesMap.financeur.code,
-      values: this.financeurs?.map(f => ({ id: f.id_financeur, label: f.nom_financeur, item: f })) || []
+      values:
+        this.financeurs?.map((f) => ({
+          id: f.id_financeur,
+          label: f.nom_financeur,
+          item: f,
+        })) || [],
     };
     const statutSelectBoxOption: EntitySelectBoxOptions<any> = {
       name: this.namesMap.statut_f.code,
-      values: this.statuts_financement
+      values: this.statuts_financement,
     };
     const entitySelectBoxOptions = [
       financeursSelectBoxOption,
-      statutSelectBoxOption
+      statutSelectBoxOption,
     ];
     this.options = Object.assign({}, this.options, {
       dataSource,
-      entitySelectBoxOptions
+      entitySelectBoxOptions,
     });
-  }
-
-  /**
-   * Affiche une information.
-   * @param message : message à afficher.
-   */
-  private showInformation(message: string): void {
-    try {
-      this.snackBar.open(
-        message,
-        'OK', {
-        duration: 5000,
-        horizontalPosition: 'right',
-        verticalPosition: 'top',
-      });
-    } catch (error) {
-      console.error(error);
-    }
   }
 
   /**
    * Met à jour les données d'affichage.
    */
-   private async refreshDataTable() {
+  private async refreshDataTable() {
     try {
       await this.loadData(Number(this.projectId));
-      const dataSource = this.financements
+      const dataSource = this.financements;
 
       this.options = Object.assign({}, this.options, {
-        dataSource
+        dataSource,
       });
     } catch (error) {
       console.error(error);
@@ -286,7 +314,7 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
     try {
       let financement = event?.entity;
       if (!financement) {
-        throw new Error('Le financement n\'existe pas');
+        throw new Error("Le financement n'existe pas");
       }
       financement = this.transformFormat(financement);
 
@@ -294,19 +322,20 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
         await this.financementsService.put(financement);
         await this.refreshDataTable();
         event.callBack(null); // Valide la modification dans le composant DataTable fils
-        this.showInformation('Le financement a été modifié.');
+        this.editEvent.emit();
+        this.popupService.openSuccessPopup('Le financement a été modifié.');
       }
     } catch (error) {
       console.error(error.error.errors);
       if (error.error.errors) {
-        for( const err of error.error.errors){
+        for (const err of error.error.errors) {
           event?.callBack({
-            apiError: 'Impossible de modifier le financement : ' + err.message
+            apiError: 'Impossible de modifier le financement : ' + err.message,
           });
         }
       } else {
         event?.callBack({
-          apiError: 'Impossible de modifier le financement : ' + error.error
+          apiError: 'Impossible de modifier le financement : ' + error.error,
         });
       }
     }
@@ -318,25 +347,42 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
    */
   transformFormat(financement: Financement): Financement {
     if (financement?.financeur) delete financement?.financeur;
-    if (financement.hasOwnProperty('difference')) { delete financement.difference; }
+    if (financement.hasOwnProperty('difference')) {
+      delete financement.difference;
+    }
     if (financement.hasOwnProperty('solde')) delete financement.solde;
-    if (!financement.hasOwnProperty('id_p')) { financement.id_p = Number(this.projectId); }
+    if (!financement.hasOwnProperty('id_p')) {
+      financement.id_p = Number(this.projectId);
+    }
     // transform date
-    if (financement.date_arrete_f) { financement.date_arrete_f = this.toTransformDateFormat(financement.date_arrete_f) }
-    if (financement.date_limite_solde_f) { financement.date_limite_solde_f = this.toTransformDateFormat(financement.date_limite_solde_f) }
-    if (financement.date_solde_f) { financement.date_solde_f = this.toTransformDateFormat(financement.date_solde_f) }
+    if (financement.date_arrete_f) {
+      financement.date_arrete_f = this.toTransformDateFormat(
+        financement.date_arrete_f
+      );
+    }
+    if (financement.date_limite_solde_f) {
+      financement.date_limite_solde_f = this.toTransformDateFormat(
+        financement.date_limite_solde_f
+      );
+    }
+    if (financement.date_solde_f) {
+      financement.date_solde_f = this.toTransformDateFormat(
+        financement.date_solde_f
+      );
+    }
 
     return financement;
   }
-
 
   /**
    * Vérifie la validité du financement en paramètre. Si le financement est invalide, le tableau générique en est notifié.
    * @param gtEvent : encapsule un nouveau financement ou un financement modifié.
    */
-  private validateForGenericTable(gtEvent: GenericTableEntityEvent<Financement>): boolean {
+  private validateForGenericTable(
+    gtEvent: GenericTableEntityEvent<Financement>
+  ): boolean {
     if (!gtEvent) {
-      throw new Error('Le paramètre \'gtEvent\' est invalide');
+      throw new Error("Le paramètre 'gtEvent' est invalide");
     }
 
     try {
@@ -346,10 +392,10 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
       this.verifForms(financement, formErrors);
       if (formErrors.length > 0) {
         gtEvent.callBack({
-          formErrors
+          formErrors,
         });
 
-        this.showInformation('Veuillez vérifier vos données');
+        this.popupService.openErrorPopup('Veuillez vérifier vos données');
         return false;
       } else {
         return true;
@@ -360,16 +406,19 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
     }
   }
 
-   /**
+  /**
    * Vérifie le forms du financement.
    * @param financement : financement à vérifier.
    * @param formErrors : liste des erreurs de validation.
    */
-  private verifForms(financement: Financement, formErrors: GenericTableFormError[]): void {
+  private verifForms(
+    financement: Financement,
+    formErrors: GenericTableFormError[]
+  ): void {
     if (!financement.montant_arrete_f) {
       const error = {
         name: this.namesMap.montant_arrete_f.code,
-        message: 'Un montant de financement doit être défini.'
+        message: 'Un montant de financement doit être défini.',
       };
       formErrors.push(error);
     }
@@ -377,7 +426,7 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
     if (!financement.statut_f) {
       const error = {
         name: this.namesMap.statut_f.code,
-        message: 'Un statut de financement doit être défini.'
+        message: 'Un statut de financement doit être défini.',
       };
       formErrors.push(error);
     }
@@ -385,7 +434,7 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
     if (!financement.id_financeur) {
       const error = {
         name: this.namesMap.financeur.code,
-        message: 'Un financeur doit être défini.'
+        message: 'Un financeur doit être défini.',
       };
       formErrors.push(error);
     }
@@ -399,7 +448,7 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
     try {
       let financement = event.entity;
       if (!financement) {
-        throw new Error('Le financement n\'existe pas');
+        throw new Error("Le financement n'existe pas");
       }
       financement = this.transformFormat(financement);
 
@@ -407,20 +456,20 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
         await this.financementsService.post(financement);
         await this.refreshDataTable();
         event.callBack(null); // Valide la modification dans le composant DataTable fils
-        this.showInformation('Le financement a été crée.');
+        this.popupService.openSuccessPopup('Le financement a été crée.');
+        this.createEvent.emit();
       }
-
     } catch (error) {
       console.error(error);
       if (error.error.errors) {
-        for( const err of error.error.errors){
+        for (const err of error.error.errors) {
           event?.callBack({
-            apiError: 'Impossible de créer le financement : ' + err.message
+            apiError: 'Impossible de créer le financement : ' + err.message,
           });
         }
       } else {
         event?.callBack({
-          apiError: 'Impossible de créer le financement : ' + error.error
+          apiError: 'Impossible de créer le financement : ' + error.error,
         });
       }
     }
@@ -434,7 +483,7 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
     try {
       const financement = event?.entity;
       if (!financement) {
-        throw new Error('Le financement n\'existe pas');
+        throw new Error("Le financement n'existe pas");
       }
 
       const dialogRef = this.dialog.open(GenericDialogComponent, {
@@ -444,30 +493,35 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
           type: 'warning',
           action: {
             name: 'Confirmer',
-          }
-        } as IMessage
+          },
+        } as IMessage,
       });
 
-      dialogRef.afterClosed().subscribe(
-        async result => {
-          if (result) {
-            await this.financementsService.delete(financement)
-            .then( async() => { 
+      dialogRef.afterClosed().subscribe(async (result) => {
+        if (result) {
+          await this.financementsService
+            .delete(financement)
+            .then(async () => {
               await this.refreshDataTable();
               event.callBack(null);
-              this.showInformation('Le financement de montant ' + financement.montant_arrete_f + '€, a été supprimé du projet.');
-            }).catch(error => { 
+              this.popupService.openSuccessPopup(
+                'Le financement de montant ' +
+                  financement.montant_arrete_f +
+                  '€, a été supprimé du projet.'
+              );
+            })
+            .catch((error) => {
               event?.callBack({
-                apiError: 'Impossible de supprimer le financement : ' + error.error
+                apiError:
+                  'Impossible de supprimer le financement : ' + error.error,
               });
             });
-          }
         }
-      );
+      });
     } catch (error) {
       console.error(error.error);
       event?.callBack({
-        apiError: 'Impossible de supprimer le financement : ' + error.error
+        apiError: 'Impossible de supprimer le financement : ' + error.error,
       });
     }
   }
@@ -484,7 +538,96 @@ export class FinancementsComponent implements OnChanges, GenericTableInterface<F
    * Gére la sélection d'une entité
    * @param entity
    */
-  public onSelect(genericTableEntityEvent: GenericTableEntityEvent<Financement>): void {
-    this.select.emit(genericTableEntityEvent.entity);
+  public onSelect(
+    genericTableEntityEvent: GenericTableEntityEvent<Financement>
+  ): void {
+    this.selectEvent.emit(genericTableEntityEvent.entity);
+  }
+
+  public onStartCreation(): void {
+    this.startCreateEvent.emit();
+  }
+
+  public onEndCreation(): void {
+    this.endCreateEvent.emit();
+  }
+
+  public onStartEditing(): void {
+    this.startEditingEvent.emit();
+  }
+
+  public onEndEditing(): void {
+    this.endEditingEvent.emit();
+  }
+
+  private initGenericTableOptions(): void {
+    this.options = {
+      dataSource: this.financements,
+      defaultEntity: this.defaultEntity,
+      entityTypes: [
+        {
+          name: this.namesMap.montant_arrete_f.name,
+          type: GenericTableCellType.CURRENCY,
+          code: this.namesMap.montant_arrete_f.code,
+        },
+        {
+          name: this.namesMap.date_arrete_f.name,
+          type: GenericTableCellType.DATE,
+          code: this.namesMap.date_arrete_f.code,
+        },
+        {
+          name: this.namesMap.date_limite_solde_f.name,
+          type: GenericTableCellType.DATE,
+          code: this.namesMap.date_limite_solde_f.code,
+        },
+        {
+          name: this.namesMap.financeur.name,
+          type: GenericTableCellType.SELECTBOX,
+          code: this.namesMap.financeur.code,
+        },
+        {
+          name: this.namesMap.statut_f.name,
+          type: GenericTableCellType.SELECTBOX,
+          code: this.namesMap.statut_f.code,
+        },
+        {
+          name: this.namesMap.date_solde_f.name,
+          type: GenericTableCellType.DATE,
+          code: this.namesMap.date_solde_f.code,
+        },
+        {
+          name: this.namesMap.commentaire_admin_f.name,
+          type: GenericTableCellType.TEXTAREA,
+          code: this.namesMap.commentaire_admin_f.code,
+        },
+        {
+          name: this.namesMap.commentaire_resp_f.name,
+          type: GenericTableCellType.TEXTAREA,
+          code: this.namesMap.commentaire_resp_f.code,
+        },
+        {
+          name: this.namesMap.numero_titre_f.name,
+          type: GenericTableCellType.TEXT,
+          code: this.namesMap.numero_titre_f.code,
+        },
+        {
+          name: this.namesMap.annee_titre_f.name,
+          type: GenericTableCellType.TEXT,
+          code: this.namesMap.annee_titre_f.code,
+        },
+        {
+          name: this.namesMap.imputation_f.name,
+          type: GenericTableCellType.TEXT,
+          code: this.namesMap.imputation_f.code,
+        },
+        {
+          name: this.namesMap.difference.name,
+          type: GenericTableCellType.CURRENCY,
+          code: this.namesMap.difference.code,
+        },
+      ],
+      entityPlaceHolders: [],
+      entitySelectBoxOptions: [],
+    };
   }
 }

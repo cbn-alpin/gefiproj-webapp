@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { first } from 'rxjs/operators';
 import { IsAdministratorGuardService } from 'src/app/services/authentication/is-administrator-guard.service';
 import { SpinnerService } from 'src/app/services/spinner.service';
 import { UsersService } from 'src/app/services/users.service';
-import { GenericDialogComponent, IMessage } from 'src/app/shared/components/generic-dialog/generic-dialog.component';
+import {
+  GenericDialogComponent,
+  IMessage,
+} from 'src/app/shared/components/generic-dialog/generic-dialog.component';
 import { GenericTableCellType } from 'src/app/shared/components/generic-table/globals/generic-table-cell-types';
 import { EntitySelectBoxOptions } from 'src/app/shared/components/generic-table/models/entity-select-box-options';
 import { GenericTableFormError } from 'src/app/shared/components/generic-table/models/generic-table-entity';
@@ -16,6 +18,7 @@ import { Projet } from './../../models/projet';
 import { Utilisateur } from './../../models/utilisateur';
 import { GenericTableEntityEvent } from './../../shared/components/generic-table/models/generic-table-entity-event';
 import { GenericTableOptions } from './../../shared/components/generic-table/models/generic-table-options';
+import { PopupService } from '../../shared/services/popup.service';
 
 /**
  * Affiche les projets.
@@ -23,7 +26,7 @@ import { GenericTableOptions } from './../../shared/components/generic-table/mod
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+  styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit {
   /**
@@ -67,8 +70,7 @@ export class HomeComponent implements OnInit {
    * Projets non soldés.
    */
   private get projectsNonClosed(): Projet[] {
-    return (this.projets || [])
-      .filter(p => !p.statut_p);
+    return (this.projets || []).filter((p) => !p.statut_p);
   }
 
   /**
@@ -95,7 +97,7 @@ export class HomeComponent implements OnInit {
     manager: { code: 'responsable', name: 'Responsable' },
     managerId: { code: 'id_u', name: 'Id responsable' },
     managerLabel: { code: 'initiales_u', name: 'Responsable' },
-    status: { code: 'statut_p', name: 'Est soldé' }
+    status: { code: 'statut_p', name: 'Est soldé' },
   };
 
   /**
@@ -105,7 +107,7 @@ export class HomeComponent implements OnInit {
     code_p: 20000,
     nom_p: '',
     id_u: 0,
-    statut_p: false
+    statut_p: false,
   } as Projet;
 
   /**
@@ -117,26 +119,34 @@ export class HomeComponent implements OnInit {
     entityTypes: [
       {
         code: this.namesMap.code.code,
-        type: GenericTableCellType.NUMBER, name: this.namesMap.code.name, sortEnabled: true
+        type: GenericTableCellType.NUMBER,
+        name: this.namesMap.code.name,
+        sortEnabled: true,
       },
       {
         code: this.namesMap.name.code,
-        type: GenericTableCellType.TEXT, name: this.namesMap.name.name, sortEnabled: true
+        type: GenericTableCellType.TEXT,
+        name: this.namesMap.name.name,
+        sortEnabled: true,
       },
       {
         code: this.namesMap.managerId.code,
-        type: GenericTableCellType.SELECTBOX, name: this.namesMap.manager.name, sortEnabled: true
+        type: GenericTableCellType.SELECTBOX,
+        name: this.namesMap.manager.name,
+        sortEnabled: true,
       },
       {
         code: this.namesMap.status.code,
-        type: GenericTableCellType.BOOLEAN, name: this.namesMap.status.name, sortEnabled: true
-      }
+        type: GenericTableCellType.BOOLEAN,
+        name: this.namesMap.status.name,
+        sortEnabled: true,
+      },
     ],
     entityPlaceHolders: [],
     entitySelectBoxOptions: [],
     sortName: this.namesMap.code.name,
     sortDirection: 'asc',
-    navigationUrlFt: project => `projet/${project?.id_p || 0}`
+    navigationUrlFt: (project) => `projet/${project?.id_p || 0}`,
   };
 
   /**
@@ -163,18 +173,17 @@ export class HomeComponent implements OnInit {
    * @param adminSrv : permet de vérifier si l'utilisateur est un administrateur.
    * @param projectsSrv : permet de dialoguer avec le serveur d'API pour les entités Projet.
    * @param usersSrv : permet de charger les utilisateurs.
-   * @param snackBar : affiche une information.
+   * @param popupService : affiche une information.
    * @param spinnerSrv : gère le spinner/sablier.
    */
   constructor(
     private adminSrv: IsAdministratorGuardService,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar,
+    private popupService: PopupService,
     private projectsSrv: ProjetsService,
     private usersSrv: UsersService,
     private spinnerSrv: SpinnerService
-  ) {
-  }
+  ) {}
 
   /**
    * Initialise le composant.
@@ -195,18 +204,19 @@ export class HomeComponent implements OnInit {
     const dataSource = this.sort(this.visibleProjects);
     const userSelectBoxOption: EntitySelectBoxOptions<Utilisateur> = {
       name: this.namesMap.managerId.code,
-      values: this.managers?.map<SelectBoxOption<Utilisateur>>(u =>
-        this.transformToSbOption(u)) || []
+      values:
+        this.managers?.map<SelectBoxOption<Utilisateur>>((u) =>
+          this.transformToSbOption(u)
+        ) || [],
     };
-    const entitySelectBoxOptions = [
-      userSelectBoxOption
-    ];
+    const entitySelectBoxOptions = [userSelectBoxOption];
 
     const options = Object.assign({}, this.options, {
       dataSource,
-      entitySelectBoxOptions
+      entitySelectBoxOptions,
     });
-    options.defaultEntity.code_p = (new Date(Date.now()).getFullYear() % 100) * 1000;
+    options.defaultEntity.code_p =
+      (new Date(Date.now()).getFullYear() % 100) * 1000;
     this.options = options;
   }
 
@@ -227,7 +237,7 @@ export class HomeComponent implements OnInit {
     return {
       id: user?.id_u || 0,
       label: user?.initiales_u || '',
-      item: user || null
+      item: user || null,
     };
   }
 
@@ -238,11 +248,13 @@ export class HomeComponent implements OnInit {
     try {
       this.spinnerSrv.show();
       this.managers = (await this.usersSrv.getAll()) // RG : tous les utilisateurs actifs peuvent être responsable projets
-        .filter(m => m.active_u)
+        .filter((m) => m.active_u)
         .sort((m1, m2) => this.compareManagers(m1, m2));
     } catch (error) {
       console.error(error);
-      this.showInformation('Impossible de charger les responsables de projet.');
+      this.popupService.openErrorPopup(
+        'Impossible de charger les responsables de projet.'
+      );
       return Promise.reject(error);
     } finally {
       this.spinnerSrv.hide();
@@ -255,9 +267,9 @@ export class HomeComponent implements OnInit {
    * @param user2 : un utilisateur.
    */
   private compareManagers(user1: Utilisateur, user2: Utilisateur): number {
-    if (user1.initiales_u < user2.initiales_u ){
+    if (user1.initiales_u < user2.initiales_u) {
       return -1;
-    } else if (user1.initiales_u > user2.initiales_u ){
+    } else if (user1.initiales_u > user2.initiales_u) {
       return 1;
     } else {
       return 0;
@@ -271,32 +283,13 @@ export class HomeComponent implements OnInit {
     try {
       this.spinnerSrv.show();
       this.projets = (await this.projectsSrv.getAll()) || [];
-      this.projets.forEach(p =>
-        this.injectManager(p));
+      this.projets.forEach((p) => this.injectManager(p));
     } catch (error) {
       console.error(error);
-      this.showInformation('Impossible de charger les projets.');
+      this.popupService.openErrorPopup('Impossible de charger les projets.');
       return Promise.reject(error);
     } finally {
       this.spinnerSrv.hide();
-    }
-  }
-
-  /**
-   * Affiche une information.
-   * @param message : message à afficher.
-   */
-  private showInformation(message: string): void {
-    try {
-      this.snackBar.open(
-        message,
-        'OK', {
-        duration: 5000,
-        horizontalPosition: 'right',
-        verticalPosition: 'top',
-      });
-    } catch (error) {
-      console.error(error);
     }
   }
 
@@ -308,7 +301,7 @@ export class HomeComponent implements OnInit {
       const dataSource = this.sort(this.visibleProjects);
 
       this.options = Object.assign({}, this.options, {
-        dataSource
+        dataSource,
       });
     } catch (error) {
       console.error(error);
@@ -323,7 +316,7 @@ export class HomeComponent implements OnInit {
     try {
       const project = event?.entity;
       if (!project) {
-        throw new Error('Le projet n\'existe pas');
+        throw new Error("Le projet n'existe pas");
       }
 
       this.injectManager(project);
@@ -335,12 +328,14 @@ export class HomeComponent implements OnInit {
 
         this.updateProject(project);
         this.refreshDataTable(); // Pour le trie et pour cacher le projet le cas échéant
-        this.showInformation(`Le projet \'${project.nom_p} (${project.code_p})\' a été modifié.`);
+        this.popupService.openSuccessPopup(
+          `Le projet \'${project.nom_p} (${project.code_p})\' a été modifié.`
+        );
       }
     } catch (error) {
       console.error(error);
       event?.callBack({
-        apiError: 'Impossible de modifier le projet.'
+        apiError: 'Impossible de modifier le projet.',
       });
     }
   }
@@ -350,7 +345,7 @@ export class HomeComponent implements OnInit {
    * @param project : version modifiée.
    */
   private updateProject(project: Projet): void {
-    const index = this.projets.findIndex(p => p.id_p === project.id_p);
+    const index = this.projets.findIndex((p) => p.id_p === project.id_p);
 
     if (index >= 0) {
       this.projets[index] = project;
@@ -361,9 +356,11 @@ export class HomeComponent implements OnInit {
    * Vérifie la validité du projet en paramètre. Si le projet est invalide, le tableau générique en est notifié.
    * @param gtEvent : encapsule un nouveau projet ou un projet modifié.
    */
-  private validateForGenericTable(gtEvent: GenericTableEntityEvent<Projet>): boolean {
+  private validateForGenericTable(
+    gtEvent: GenericTableEntityEvent<Projet>
+  ): boolean {
     if (!gtEvent) {
-      throw new Error('Le paramètre \'gtEvent\' est invalide');
+      throw new Error("Le paramètre 'gtEvent' est invalide");
     }
 
     try {
@@ -376,10 +373,10 @@ export class HomeComponent implements OnInit {
 
       if (formErrors.length > 0) {
         gtEvent.callBack({
-          formErrors
+          formErrors,
         });
 
-        this.showInformation('Veuillez vérifier vos données');
+        this.popupService.openErrorPopup('Veuillez vérifier vos données');
         return false;
       } else {
         return true;
@@ -395,11 +392,14 @@ export class HomeComponent implements OnInit {
    * @param project : projet à vérifier.
    * @param formErrors : liste des erreurs de validation.
    */
-  private verifProjectManager(project: Projet, formErrors: GenericTableFormError[]): void {
+  private verifProjectManager(
+    project: Projet,
+    formErrors: GenericTableFormError[]
+  ): void {
     if (!project.responsable) {
       const error = {
         name: this.namesMap.managerId.code,
-        message: 'Un responsable projet doit être défini.'
+        message: 'Un responsable projet doit être défini.',
       };
 
       formErrors.push(error);
@@ -411,11 +411,14 @@ export class HomeComponent implements OnInit {
    * @param project : projet à vérifier.
    * @param formErrors : liste des erreurs de validation.
    */
-  private verifProjectName(project: Projet, formErrors: GenericTableFormError[]): void {
+  private verifProjectName(
+    project: Projet,
+    formErrors: GenericTableFormError[]
+  ): void {
     if (!project.nom_p) {
       const error = {
         name: this.namesMap.name.code,
-        message: 'Le nom du projet doit être indiqué.'
+        message: 'Le nom du projet doit être indiqué.',
       };
 
       formErrors.push(error);
@@ -424,20 +427,22 @@ export class HomeComponent implements OnInit {
     if (project.nom_p.length < 3) {
       const error = {
         name: this.namesMap.name.code,
-        message: 'Le nom du projet doit avoir au moins 3 caractères.'
+        message: 'Le nom du projet doit avoir au moins 3 caractères.',
       };
 
       formErrors.push(error);
     }
 
-    const similarProject = this.projets.find(p =>
-      p.id_p !== project.id_p
-      && p.nom_p.toUpperCase() === project.nom_p.toUpperCase());
+    const similarProject = this.projets.find(
+      (p) =>
+        p.id_p !== project.id_p &&
+        p.nom_p.toUpperCase() === project.nom_p.toUpperCase()
+    );
 
     if (similarProject) {
       const error = {
         name: this.namesMap.name.code,
-        message: 'Le nom du projet doit être unique.'
+        message: 'Le nom du projet doit être unique.',
       };
 
       formErrors.push(error);
@@ -449,15 +454,19 @@ export class HomeComponent implements OnInit {
    * @param project : projet à vérifier.
    * @param formErrors : liste des erreurs de validation.
    */
-  private verifProjectCode(project: Projet, formErrors: GenericTableFormError[]): void {
-    if (typeof project.code_p === 'string') { // Le tableau retourne une string !
+  private verifProjectCode(
+    project: Projet,
+    formErrors: GenericTableFormError[]
+  ): void {
+    if (typeof project.code_p === 'string') {
+      // Le tableau retourne une string !
       project.code_p = parseInt(project.code_p as string, 10);
     }
 
     if (isNaN(project.code_p)) {
       const error = {
         name: this.namesMap.code.code,
-        message: 'Le code projet doit ne comprendre que des chiffres.'
+        message: 'Le code projet doit ne comprendre que des chiffres.',
       };
 
       formErrors.push(error);
@@ -466,7 +475,7 @@ export class HomeComponent implements OnInit {
     if (('' + project.code_p).length !== 5) {
       const error = {
         name: this.namesMap.code.code,
-        message: 'Le code projet doit comprendre 5 chiffres.'
+        message: 'Le code projet doit comprendre 5 chiffres.',
       };
 
       formErrors.push(error);
@@ -477,24 +486,23 @@ export class HomeComponent implements OnInit {
     const year = date.getFullYear() % 100;
     const min = Math.max(20, year - 10); // Démarrage en 2020
     const max = year + 10;
-    if (codeVal / 1000 < min
-      || Math.floor(codeVal / 1000) > max) {
+    if (codeVal / 1000 < min || Math.floor(codeVal / 1000) > max) {
       const error = {
         name: this.namesMap.code.code,
-        message: `Le code projet doit être une valeur comprise entre ${min}000 et ${max}999.`
+        message: `Le code projet doit être une valeur comprise entre ${min}000 et ${max}999.`,
       };
 
       formErrors.push(error);
     }
 
-    const similarProject = this.projets.find(p =>
-      p.id_p !== project.id_p
-      && p.code_p === project.code_p);
+    const similarProject = this.projets.find(
+      (p) => p.id_p !== project.id_p && p.code_p === project.code_p
+    );
 
     if (similarProject) {
       const error = {
         name: this.namesMap.code.code,
-        message: 'Le code du projet doit être unique.'
+        message: 'Le code du projet doit être unique.',
       };
 
       formErrors.push(error);
@@ -509,24 +517,26 @@ export class HomeComponent implements OnInit {
     try {
       let project = event?.entity;
       if (!project) {
-        throw new Error('Le projet n\'existe pas');
+        throw new Error("Le projet n'existe pas");
       }
 
       this.injectManager(project);
 
       if (this.validateForGenericTable(event)) {
         project = await this.projectsSrv.add(event.entity);
-        this.injectManager(project);  // Obligatoire car le service nettoye l'entité
+        this.injectManager(project); // Obligatoire car le service nettoye l'entité
         event.callBack(null); // Valide la modification dans le composant DataTable fils
 
         this.addProject(project);
         this.refreshDataTable(); // Pour le trie et pour cacher le projet le cas échéant
-        this.showInformation(`Le projet \'${project.nom_p} (${project.code_p})\' a été créé.`);
+        this.popupService.openSuccessPopup(
+          `Le projet \'${project.nom_p} (${project.code_p})\' a été créé.`
+        );
       }
     } catch (error) {
       console.error(error);
       event?.callBack({
-        apiError: 'Impossible de créer le projet.'
+        apiError: 'Impossible de créer le projet.',
       });
     }
   }
@@ -541,12 +551,16 @@ export class HomeComponent implements OnInit {
         project.id_u = project.responsable?.id_u || 0;
       }
 
-      if ((!project.responsable || project.responsable.id_u !== project.id_u) && project.id_u > 0) {
-        project.responsable = this.managers.find(m =>
-          m.id_u === project.id_u) || null;
+      if (
+        (!project.responsable || project.responsable.id_u !== project.id_u) &&
+        project.id_u > 0
+      ) {
+        project.responsable =
+          this.managers.find((m) => m.id_u === project.id_u) || null;
       }
 
-      project[this.namesMap.managerLabel.code] = project.responsable?.initiales_u || ''; // Initiales, pour le trie
+      project[this.namesMap.managerLabel.code] =
+        project.responsable?.initiales_u || ''; // Initiales, pour le trie
     } catch (error) {
       console.error(error);
     }
@@ -568,16 +582,18 @@ export class HomeComponent implements OnInit {
     try {
       const project = event?.entity;
       if (!project) {
-        throw new Error('Le projet n\'existe pas');
+        throw new Error("Le projet n'existe pas");
       }
 
       // Vérification des RG
       const fundings = (await this.projectsSrv.getFundings(project)) || [];
       const isEmpty = fundings.length === 0;
 
-      if (!isEmpty) { // RG : Ne pas supprimer un projet avec des financements
+      if (!isEmpty) {
+        // RG : Ne pas supprimer un projet avec des financements
         event?.callBack({
-          apiError: 'Impossible de supprimer le projet car il possède des financements.'
+          apiError:
+            'Impossible de supprimer le projet car il possède des financements.',
         });
         return;
       }
@@ -589,29 +605,35 @@ export class HomeComponent implements OnInit {
         type: 'warning',
         action: {
           name: 'Confirmer',
-        }
+        },
       };
       const dialogRef = this.dialog.open(GenericDialogComponent, {
-        data
+        data,
       });
-      const dialogResult = await dialogRef.afterClosed()
-        .pipe(first()).toPromise();
+      const dialogResult = await dialogRef
+        .afterClosed()
+        .pipe(first())
+        .toPromise();
       const okToDelete = !!dialogResult;
 
-      if (okToDelete) { // Suppression
+      if (okToDelete) {
+        // Suppression
         await this.projectsSrv.delete(project);
         event.callBack(null); // Valide la modification dans le composant DataTable fils
         this.deleteProject(project);
-        this.showInformation(`Le projet \'${project.nom_p} (${project.code_p})\' a été supprimé.`);
-      } else { // Annulation
+        this.popupService.openSuccessPopup(
+          `Le projet \'${project.nom_p} (${project.code_p})\' a été supprimé.`
+        );
+      } else {
+        // Annulation
         event?.callBack({
-          apiError: 'La suppression est annulée.'
+          apiError: 'La suppression est annulée.',
         });
       }
     } catch (error) {
       console.error(error);
       event?.callBack({
-        apiError: 'Impossible de supprimer le projet.'
+        apiError: 'Impossible de supprimer le projet.',
       });
     }
   }
@@ -621,7 +643,7 @@ export class HomeComponent implements OnInit {
    * @param project : projet à supprimer.
    */
   private deleteProject(project: Projet): void {
-    const index = this.projets.findIndex(p => p.id_p === project.id_p);
+    const index = this.projets.findIndex((p) => p.id_p === project.id_p);
 
     if (index >= 0) {
       this.projets.splice(index, 1);
@@ -651,13 +673,15 @@ export class HomeComponent implements OnInit {
     // tslint:disable-next-line: prefer-const
     let { name, direction } = this.sortInfo || {
       name: this.namesMap.code.code,
-      direction: 'asc'
+      direction: 'asc',
     };
-    const mult = direction === 'asc' // Pour gérer le sens du trie
-      ? 1
-      : -1;
+    const mult =
+      direction === 'asc' // Pour gérer le sens du trie
+        ? 1
+        : -1;
 
-    if (name === this.namesMap.managerId.code) { // Pour trier sur les initiales du responsable
+    if (name === this.namesMap.managerId.code) {
+      // Pour trier sur les initiales du responsable
       name = this.namesMap.managerLabel.code;
     }
 
@@ -665,7 +689,8 @@ export class HomeComponent implements OnInit {
       let item1 = p1[name];
       let item2 = p2[name];
 
-      if (typeof item1 === 'string') { // Pour du texte
+      if (typeof item1 === 'string') {
+        // Pour du texte
         item1 = item1.toUpperCase();
         item2 = item2.toUpperCase();
       }
