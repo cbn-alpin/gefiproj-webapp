@@ -64,6 +64,11 @@ export class FinancementsComponent
   @Output()
   public endEditingEvent: EventEmitter<void> = new EventEmitter<void>();
 
+  @Output()
+  public financementChange: EventEmitter<Financement[]> = new EventEmitter<
+    Financement[]
+  >();
+
   /**
    * Titre du tableau générique
    */
@@ -218,9 +223,9 @@ export class FinancementsComponent
    * Initialise les options de la table générique.
    */
   private async loadData(projetId: number): Promise<void> {
-    // const promiseFinancements = this.loadFinancements(projetId);
+    const promiseFinancements = this.loadFinancements(projetId);
     const promiseFinanceurs = this.loadFinanceurs();
-    await Promise.all([promiseFinanceurs]); // Pour être plus efficace : les requêtes sont lancées en parallèle
+    await Promise.all([promiseFinanceurs, promiseFinancements]); // Pour être plus efficace : les requêtes sont lancées en parallèle
   }
 
   /**
@@ -230,6 +235,9 @@ export class FinancementsComponent
     try {
       this.financements =
         (await this.financementsService.getAll(projetId)) || [];
+      // if (!this.financements) {
+      //   this.financementChange.emit(this.financements);
+      // }
     } catch (error) {
       console.error(error);
       this.showInformation(

@@ -43,23 +43,18 @@ export class RecettesComponent implements OnInit, OnChanges {
   @Output()
   public selectEvent: EventEmitter<Recette> = new EventEmitter<Recette>();
 
-  @Output() public createEvent: EventEmitter<void> = new EventEmitter<void>();
+  @Output()
+  public createEvent: EventEmitter<Recette> = new EventEmitter<Recette>();
 
   @Output() public editEvent: EventEmitter<void> = new EventEmitter<void>();
 
   @Output() public deleteEvent: EventEmitter<void> = new EventEmitter<void>();
 
   @Output()
-  public startCreateEvent: EventEmitter<Recette> = new EventEmitter<Recette>();
+  public selectedRecetteChangeEvent: EventEmitter<Recette> = new EventEmitter<Recette>();
 
   @Output()
-  public endCreateEvent: EventEmitter<void> = new EventEmitter<void>();
-
-  @Output()
-  public startEditingEvent: EventEmitter<Recette> = new EventEmitter<Recette>();
-
-  @Output()
-  public endEditingEvent: EventEmitter<void> = new EventEmitter<void>();
+  public recettesChange = new EventEmitter<Recette[]>();
 
   /**
    * Titre du tableau
@@ -83,6 +78,10 @@ export class RecettesComponent implements OnInit, OnChanges {
    */
   public get isAdministrator(): boolean {
     return !!this.isAdministratorGuardService.isAdministrator();
+  }
+
+  public onSelectedEntityChange(recette: Recette): void {
+    this.selectedRecetteChangeEvent.emit(recette);
   }
 
   /**
@@ -141,7 +140,14 @@ export class RecettesComponent implements OnInit, OnChanges {
 
   public ngOnChanges(changes: SimpleChanges): void {
     if (changes.recettes && changes.recettes.currentValue) {
-      this.initGenericTableOptions();
+      if (!this.recettes) {
+        this.initGenericTableOptions();
+      } else {
+        this.options = {
+          ...this.options,
+          dataSource: this.recettes,
+        };
+      }
     }
   }
 
@@ -154,14 +160,14 @@ export class RecettesComponent implements OnInit, OnChanges {
       event.callBack({ formErrors });
     } else {
       try {
-        const newRecette = await this.recettesService.add(
+        const createdRecette = await this.recettesService.add(
           recette,
           this.financement,
           this.recettes
         );
         event.callBack(null);
-        this.create(newRecette);
-        this.createEvent.emit();
+        this.create(createdRecette);
+        this.createEvent.emit(createdRecette);
       } catch (error) {
         event?.callBack({
           apiError: error,
@@ -171,7 +177,7 @@ export class RecettesComponent implements OnInit, OnChanges {
   }
 
   public async onEdit(event: GenericTableEntityEvent<Recette>): Promise<void> {
-    const formErrors = this.checkFormErrors(event.entity);
+    const formErrors = this.checkFormErrors(event.entity, true);
     if (formErrors) {
       event.callBack({ formErrors });
     } else {
@@ -212,14 +218,17 @@ export class RecettesComponent implements OnInit, OnChanges {
    * Vérifier le format de chaque champs de la recette
    * @param recette
    */
-  public checkFormErrors(recette: Recette): GenericTableFormError[] {
+  public checkFormErrors(
+    recette: Recette,
+    edit?: boolean
+  ): GenericTableFormError[] {
     let genericTableFormErrors: GenericTableFormError[] = [];
     genericTableFormErrors = this.getAnneeRecetteFormError(
-      recette.annee_r,
+      recette,
       genericTableFormErrors
     );
     genericTableFormErrors = this.getMontantFormError(
-      recette.montant_r,
+      recette,
       genericTableFormErrors
     );
     return genericTableFormErrors.length > 0
@@ -233,14 +242,20 @@ export class RecettesComponent implements OnInit, OnChanges {
    * @param genericTableFormErrors
    */
   public getAnneeRecetteFormError(
-    annee_recette: number,
+    recette: Recette,
     genericTableFormErrors: GenericTableFormError[]
   ): GenericTableFormError[] {
+    const year = recette.annee_r;
     let msg = '';
-    if (!annee_recette) {
+    if (!year) {
       msg = 'Année recette requise';
-    } else if (!/^(\d{4})$/.test(String(annee_recette))) {
+    } else if (!/^(\d{4})$/.test(String(year))) {
       msg = 'Format année non respecté';
+    } else if (this.hasDuplicateYear(recette)) {
+      msg = 'Année doit être unique';
+    } else if (this.hasYearGreaterThanFounding(recette)) {
+      msg =
+        'Année de la recette doit être antérieur à la date de commande ou darrêté du financement';
     }
     if (msg !== '') {
       genericTableFormErrors = genericTableFormErrors.concat({
@@ -248,6 +263,7 @@ export class RecettesComponent implements OnInit, OnChanges {
         message: msg,
       });
     }
+
     return genericTableFormErrors;
   }
 
@@ -257,14 +273,17 @@ export class RecettesComponent implements OnInit, OnChanges {
    * @param genericTableFormErrors
    */
   public getMontantFormError(
-    montant: number,
+    recette: Recette,
     genericTableFormErrors: GenericTableFormError[]
   ): GenericTableFormError[] {
+    const montant = recette.montant_r;
     let msg = '';
     if (!isNotNullOrUndefined(montant)) {
       msg = 'Montant requis';
     } else if (montant <= 0) {
       msg = 'Le montant doit être supérieur à 0';
+    } else if (this.hasAmountGreaterThanFounding(recette)) {
+      msg = 'Montant ne doit pas dépasser le montant du financement';
     }
     if (msg !== '') {
       genericTableFormErrors = genericTableFormErrors.concat({
@@ -272,23 +291,8 @@ export class RecettesComponent implements OnInit, OnChanges {
         message: msg,
       });
     }
+
     return genericTableFormErrors;
-  }
-
-  public onStartCreation(recette: Recette): void {
-    this.startCreateEvent.emit(recette);
-  }
-
-  public onEndCreation(): void {
-    this.endCreateEvent.emit();
-  }
-
-  public onStartEditing(recette: Recette): void {
-    this.startEditingEvent.emit(recette);
-  }
-
-  public onEndEditing(): void {
-    this.endEditingEvent.emit();
   }
 
   /**
@@ -311,31 +315,57 @@ export class RecettesComponent implements OnInit, OnChanges {
     };
   }
 
-  private create(recette: Recette): void {
-    this.recettes.push(recette);
-    this.updateOptionDataSource();
-    this.updateOptionDataSource();
+  private create(createdRecette: Recette): void {
+    this.recettes.push(createdRecette);
+    this.emitReceiptCahnge();
   }
 
-  private modify(recette: Recette): void {
+  private modify(modifiedRecette: Recette): void {
     const index = this.recettes.findIndex(
-      (recette) => recette.id_r === recette.id_r
+      (recette) => modifiedRecette.id_r === recette.id_r
     );
-    this.recettes[index] = recette;
-    this.updateOptionDataSource();
+    this.recettes[index] = modifiedRecette;
+    this.emitReceiptCahnge();
   }
 
-  private delete(recette: Recette): void {
+  private delete(deletedRecette: Recette): void {
     this.recettes = this.recettes.filter(
-      (_recette) => _recette.id_r !== recette.id_r
+      (recette) => recette.id_r !== deletedRecette.id_r
     );
-    this.updateOptionDataSource();
+    this.emitReceiptCahnge();
   }
 
-  private updateOptionDataSource(): void {
-    this.options = {
-      ...this.options,
-      dataSource: this.recettes,
-    };
+  private emitReceiptCahnge(): void {
+    this.recettesChange.emit(this.recettes);
+  }
+
+  private hasDuplicateYear(recette: Recette): boolean {
+    const year = recette.annee_r;
+    const years = this.recettes.map((_recette) => +_recette.annee_r);
+    const tempArray = this.recettes.find(
+      (_recette) =>
+        _recette.id_r === recette.id_r && _recette.annee_r === recette.annee_r
+    )
+      ? years
+      : [...years, +year];
+
+    return tempArray.some(
+      (element, index) => tempArray.indexOf(element) !== index
+    );
+  }
+
+  private hasAmountGreaterThanFounding(recette: Recette): boolean {
+    const amounts = this.recettes
+      .filter((_recette) => _recette.id_r !== recette.id_r)
+      .map((_recette) => _recette.montant_r);
+    const sum = amounts.reduce((a, b) => a + b, 0) + recette.montant_r;
+
+    return sum > this.financement.montant_arrete_f;
+  }
+
+  private hasYearGreaterThanFounding(recette: Recette): boolean {
+    const yearFounding = new Date(this.financement.date_arrete_f).getFullYear();
+
+    return yearFounding ? recette.annee_r > yearFounding : true;
   }
 }
