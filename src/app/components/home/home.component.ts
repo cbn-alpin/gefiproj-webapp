@@ -694,6 +694,10 @@ export class HomeComponent implements OnInit {
   public async onChargeTestsData(): Promise<void> {
     try {
       for (const projet of this.projets) {
+        if (projet.code_p >= 23000) {
+          continue; // Projets de travail, hors projets de tests métier
+        }
+
         const fSrvByP = new CrudService<Financement>(
           this.httpSrv,
           this.spinnerSrv,
@@ -827,6 +831,63 @@ export class HomeComponent implements OnInit {
               date_arrete_f: '2018-2-14', date_limite_solde_f: '2019-2-13', montant_arrete_f: 7000, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
               recettes: [
                 { montant_r: 7000, annee_r: 2018 } as Recette]
+            } as Financement]
+        } as Projet,
+        {
+          code_p: 18059, nom_p: 'Infloreb', id_u: 36, statut_p: false, id_p: 0,
+          financements: [
+            {
+              date_arrete_f: '2019-3-11', date_limite_solde_f: '2022-12-31', montant_arrete_f: 40000, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+              recettes: [
+                { montant_r: 12000, annee_r: 2019 } as Recette,
+                { montant_r: 28000, annee_r: 2020 } as Recette]
+            } as Financement,
+            {
+              date_arrete_f: '2019-11-18', date_limite_solde_f: '2022-12-31', montant_arrete_f: 40000, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+              recettes: [
+                { montant_r: 12000, annee_r: 2019 } as Recette,
+                { montant_r: 28000, annee_r: 2021 } as Recette]
+            } as Financement,
+            {
+              date_arrete_f: '2019-11-14', date_limite_solde_f: '2022-12-31', montant_arrete_f: 40000, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+              recettes: [
+                { montant_r: 28000, annee_r: 2022 } as Recette]
+            } as Financement,
+            {
+              date_arrete_f: '2019-8-8', date_limite_solde_f: '2022-6-30', montant_arrete_f: 120000, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+              recettes: [
+                { montant_r: 40000, annee_r: 2020 } as Recette,
+                { montant_r: 40000, annee_r: 2021 } as Recette,
+                { montant_r: 40000, annee_r: 2022 } as Recette]
+            } as Financement]
+        } as Projet,
+        {
+          code_p: 19017, nom_p: 'Floreclim', id_u: 36, statut_p: false, id_p: 0,
+          financements: [
+            {
+              date_arrete_f: '2020-1-28', date_limite_solde_f: '2022-4-15', montant_arrete_f: 22170, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+              recettes: [
+                { montant_r: 11085, annee_r: 2020 } as Recette,
+                { montant_r: 11085, annee_r: 2022 } as Recette]
+            } as Financement,
+            {
+              date_arrete_f: '2020-4-27', date_limite_solde_f: '2022-8-14', montant_arrete_f: 17149, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+              recettes: [
+                { montant_r: 3429.8, annee_r: 2020 } as Recette,
+                { montant_r: 13719.2, annee_r: 2021 } as Recette]
+            } as Financement,
+            {
+              montant_arrete_f: 17149, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+              recettes: [
+                { montant_r: 3429.8, annee_r: 2021 } as Recette,
+                { montant_r: 13719.2, annee_r: 2022 } as Recette]
+            } as Financement,
+            {
+              date_arrete_f: '2020-2-24', date_limite_solde_f: '2022-10-31', montant_arrete_f: 95270, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+              recettes: [
+                { montant_r: 44086, annee_r: 2021 } as Recette,
+                { montant_r: 45036, annee_r: 2022 } as Recette,
+                { montant_r: 6148, annee_r: 2023 } as Recette]
             } as Financement]
         } as Projet
       ];
