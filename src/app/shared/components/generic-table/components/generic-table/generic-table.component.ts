@@ -370,7 +370,7 @@ export class GenericTableComponent<T>
         'Navigation impossible car les éléments de navigation sont inutilisables'
       );
     } catch (error) {
-      this.popupService.openErrorPopup('Navigation impossible');
+      this.popupService.error('Navigation impossible');
     }
   }
 

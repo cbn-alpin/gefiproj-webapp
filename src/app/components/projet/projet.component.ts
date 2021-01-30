@@ -65,7 +65,7 @@ export class ProjetComponent implements OnInit {
       await this.loadData(Number(this.projetId));
     } catch (error) {
       console.error(error);
-      this.popupService.openErrorPopup(
+      this.popupService.error(
         'Impossible de charger le projet : ' + error.error
       );
     }
@@ -170,7 +170,7 @@ export class ProjetComponent implements OnInit {
     } catch (error) {
       console.error(error);
 
-      this.popupService.openErrorPopup(error);
+      this.popupService.error(error);
     }
   }
 
@@ -183,7 +183,7 @@ export class ProjetComponent implements OnInit {
     } catch (error) {
       console.error(error);
 
-      this.popupService.openErrorPopup(error);
+      this.popupService.error(error);
     }
   }
 
@@ -197,7 +197,7 @@ export class ProjetComponent implements OnInit {
     } catch (error) {
       console.error(error);
 
-      this.popupService.openErrorPopup(error);
+      this.popupService.error(error);
     }
   }
 
@@ -211,7 +211,7 @@ export class ProjetComponent implements OnInit {
     } catch (error) {
       console.error(error);
 
-      this.popupService.openErrorPopup(error);
+      this.popupService.error(error);
     }
   }
   public async updateProjectStatus(event: MatCheckboxChange): Promise<void> {
@@ -223,17 +223,17 @@ export class ProjetComponent implements OnInit {
       this.projet.responsable = this.manager;
       this.spinnerSrv.hide();
       if (this.projet.statut_p == true)
-        this.popupService.openSuccessPopup(
+        this.popupService.success(
           'Le projet ' + this.projet.nom_p + ' est soldé ! '
         );
       if (this.projet.statut_p == false)
-        this.popupService.openSuccessPopup(
+        this.popupService.success(
           'Le projet ' + this.projet.nom_p + ' est non soldé ! '
         );
     } catch (error) {
       console.error(error);
       for (const err of error.error.errors) {
-        this.popupService.openErrorPopup(
+        this.popupService.error(
           'Impossible de créer le montant affecté : ' + err.message
         );
       }

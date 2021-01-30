@@ -45,7 +45,7 @@ export class EnsureAuthenticatedService {
       console.error(error);
     }
 
-    this.popupService.openErrorPopup('Action non autorisée !');
+    this.popupService.error('Action non autorisée !');
     return false;
   }
 }
