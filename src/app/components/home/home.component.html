@@ -4,4 +4,5 @@
     <app-generic-table [title]="" [(options)]="options" [showActions]="true" [isReadOnly]="isReadOnly" (editEvent)="onEdit($event)"
         (createEvent)="onCreate($event)" (deleteEvent)="onDelete($event)" (sortEvent)="onSortChanged($event)">
     </app-generic-table>
+    <p (click)="onChargeTestsData()">Charger les projets de tests - ATTENTION : reset de la BDD !!!</p>
 </div>

@@ -1,7 +1,10 @@
+import { Recette } from './../../models/recette';
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { first } from 'rxjs/operators';
+import { Financement } from 'src/app/models/financement';
 import { IsAdministratorGuardService } from 'src/app/services/authentication/is-administrator-guard.service';
 import { SpinnerService } from 'src/app/services/spinner.service';
 import { UsersService } from 'src/app/services/users.service';
@@ -14,8 +17,10 @@ import { SortInfo } from 'src/app/shared/components/generic-table/models/sortInf
 import { ProjetsService } from '../../services/projets.service';
 import { Projet } from './../../models/projet';
 import { Utilisateur } from './../../models/utilisateur';
+import { CrudService } from './../../services/crud.service';
 import { GenericTableEntityEvent } from './../../shared/components/generic-table/models/generic-table-entity-event';
 import { GenericTableOptions } from './../../shared/components/generic-table/models/generic-table-options';
+import { MontantAffecte } from 'src/app/models/montantAffecte';
 
 /**
  * Affiche les projets.
@@ -172,7 +177,10 @@ export class HomeComponent implements OnInit {
     private snackBar: MatSnackBar,
     private projectsSrv: ProjetsService,
     private usersSrv: UsersService,
-    private spinnerSrv: SpinnerService
+    private spinnerSrv: SpinnerService,
+
+    // Pour entrer les données de tests
+    private httpSrv: HttpClient
   ) {
   }
 
@@ -678,5 +686,52 @@ export class HomeComponent implements OnInit {
       }
       return 0;
     });
+  }
+
+  public async onChargeTestsData():  Promise<void> {
+    try {
+      /*this.projets.forEach(async projet => {
+        const fSrv = new CrudService<Financement>(
+          this.httpSrv,
+          this.spinnerSrv,
+          `/api/projects/${projet.id_p}/fundings`
+          );
+          
+          const financements = await fSrv.getAll();
+
+          financements.forEach(async financement => {
+            const rSrv = new CrudService<Recette>(
+              this.httpSrv,
+              this.spinnerSrv,
+              `/api/fundings/${financement.id_f}/receipts`
+            );
+               
+            const recettes = await rSrv.getAll();
+            
+            recettes.forEach(async recette => {
+              const maSrv = new CrudService<MontantAffecte>(
+                this.httpSrv,
+                this.spinnerSrv,
+                `/api/receipts/${recette.id_r}/amounts`
+              );
+              
+              const affectations = await maSrv.getAll();
+            });
+          });
+      });*/
+
+      const projets: Projet[] = [
+        { id_p: 0, code_p: 16025, nom_p: 'Alcotra Resthalp', id_u: 36, statut_p: false},
+        { id_p: 0, code_p: 18003, nom_p: 'SCALP 19', id_u: 36, statut_p: false}
+      ];
+
+      projets.forEach(async projet => {
+        projet = await this.projectsSrv.add(projet);
+
+        this.ngOnInit();
+      });
+    } catch (error) {
+      console.error(error);
+    }
   }
 }
