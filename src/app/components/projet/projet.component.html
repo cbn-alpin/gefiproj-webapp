@@ -28,7 +28,7 @@
       (createEvent)="onCreateFinancement()"
       (editEvent)="onEditFinancement()"
       (deleteEvent)="onDeleteFinancement()"
-      (startCreateEvent)="onStartCreationFinancement()"
+      (financementChange)="onFinancementsChange($event)"
     ></app-financements>
   </div>
 
@@ -45,12 +45,11 @@
         [financement]="selectedFinancement"
         [selectedRecette]="selectedRecette"
         (selectEvent)="onSelectRecette($event)"
-        (createEvent)="onCreateRecette()"
+        (createEvent)="onCreateRecette($event)"
         (editEvent)="onEditRecette()"
         (deleteEvent)="onDeleteRecette()"
-        (startCreateEvent)="onStartCreationRecette($event)"
-        (startEditingEvent)="onStartEditingRecette($event)"
-        (endEditingEvent)="onEndEditingRecette()"
+        (selectedRecetteChangeEvent)="onSelectedRecetteChange($event)"
+        (recettesChange)="onRecettesChange($event)"
       ></app-recettes>
     </div>
 

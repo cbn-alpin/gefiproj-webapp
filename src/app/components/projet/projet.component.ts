@@ -89,7 +89,6 @@ export class ProjetComponent implements OnInit {
   }
 
   public onSelectRecette(recette: Recette): void {
-    this.selectedRecette = recette;
     this.loadMontantsFromRecetteId(recette.id_r);
   }
 
@@ -109,71 +108,47 @@ export class ProjetComponent implements OnInit {
   }
 
   public onDeleteFinancement(): void {
-    if (this.recettes) {
+    if (!this.selectedFinancement && this.recettes) {
       this.recettes = null;
-    }
-  }
-
-  public onCreateRecette(): void {
-    if (!this.montantsAffectes) {
-      this.montantsAffectes = [];
-    }
-    if (this.recettes.length === 1) {
-      this.selectedRecette = this.recettes[0];
-    }
-  }
-
-  public onEditRecette(): void {
-    if (!this.montantsAffectes) {
-      this.montantsAffectes = [];
-    }
-  }
-
-  public onEndEditingRecette(): void {
-    if (!this.montantsAffectes) {
-      this.selectedRecette = null;
+      this.montantsAffectes = null;
     }
   }
 
   public onDeleteRecette(): void {
-    if (this.montantsAffectes) {
+    if (!this.selectedRecette && this.montantsAffectes) {
       this.montantsAffectes = null;
     }
   }
 
-  public onStartCreationRecette(recette: Recette): void {
+  public onSelectedRecetteChange(recette: Recette): void {
     this.selectedRecette = recette;
-    this.montantsAffectes = null;
-  }
-
-  public onEndCreationRecette(): void {
-    this.selectedRecette = null;
-    this.montantsAffectes = null;
-  }
-
-  public onStartEditingRecette(recette: Recette): void {
-    if (this.selectedRecette?.id_r !== recette.id_r) {
-      this.selectedRecette = recette;
+    if (this.selectedRecette == null) {
       this.montantsAffectes = null;
     }
   }
 
-  public onStartCreationFinancement(financement: Financement): void {
-    this.selectedFinancement = financement;
-    this.selectedRecette = null;
-    this.recettes = null;
-    this.montantsAffectes = null;
+  public onCreateRecette(recette: Recette): void {
+    if (this.selectedRecette == null) {
+      this.selectedRecette = recette;
+      console.log('PROJET SELECTED RECETTE: ', this.selectedRecette);
+    }
+    if (!this.montantsAffectes) {
+      this.montantsAffectes = [];
+    }
   }
 
-  public onEndCreationFinancement(): void {
-    this.selectedFinancement = null;
-    this.selectedRecette = null;
-    this.recettes = null;
-    this.montantsAffectes = null;
+  public onEditRecette(): void {
+    if (!this.montantsAffectes && this.selectedRecette) {
+      this.loadMontantsFromRecetteId(this.selectedRecette.id_r);
+    }
   }
 
-  public onStartEditingFinancement(financement: Financement): void {
-    this.selectedFinancement = financement;
+  public onRecettesChange(recettes: Recette[]): void {
+    this.recettes = [...recettes];
+  }
+
+  public onFinancementsChange(financements: Financement[]): void {
+    this.financements = financements;
   }
 
   private openSnackBar(message: string): void {

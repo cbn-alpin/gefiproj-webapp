@@ -156,7 +156,8 @@
                   columnName.code
                 )
               "
-              [(ngModel)]="element.data[columnName.code]"
+              [ngModel]="element.data[columnName.code]"
+              (ngModelChange)="element.data[columnName.code] = +$event"
               [placeholder]="
                 genericTableService.getPlaceHolder(options, columnName.code)
               "
@@ -386,7 +387,8 @@
       mat-row
       *matRowDef="let row; columns: displayedColumns"
       [ngClass]="{
-        selected: isSelected(row)
+        selected: isSelected(row),
+        withHover: withHover(row)
       }"
       (click)="select(row)"
     ></tr>
