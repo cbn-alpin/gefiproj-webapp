@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { first } from 'rxjs/operators';
 import { IsAdministratorGuardService } from 'src/app/services/authentication/is-administrator-guard.service';
 import { SpinnerService } from 'src/app/services/spinner.service';
 import { UsersService } from 'src/app/services/users.service';
-import { GenericDialogComponent, IMessage } from 'src/app/shared/components/generic-dialog/generic-dialog.component';
+import {
+  GenericDialogComponent,
+  IMessage,
+} from 'src/app/shared/components/generic-dialog/generic-dialog.component';
 import { GenericTableCellType } from 'src/app/shared/components/generic-table/globals/generic-table-cell-types';
 import { EntitySelectBoxOptions } from 'src/app/shared/components/generic-table/models/entity-select-box-options';
 import { GenericTableFormError } from 'src/app/shared/components/generic-table/models/generic-table-entity';
@@ -16,6 +18,7 @@ import { Projet } from './../../models/projet';
 import { Utilisateur } from './../../models/utilisateur';
 import { GenericTableEntityEvent } from './../../shared/components/generic-table/models/generic-table-entity-event';
 import { GenericTableOptions } from './../../shared/components/generic-table/models/generic-table-options';
+import { PopupService } from '../../shared/services/popup.service';
 
 /**
  * Affiche les projets.
@@ -170,18 +173,17 @@ export class HomeComponent implements OnInit {
    * @param adminSrv : permet de vérifier si l'utilisateur est un administrateur.
    * @param projectsSrv : permet de dialoguer avec le serveur d'API pour les entités Projet.
    * @param usersSrv : permet de charger les utilisateurs.
-   * @param snackBar : affiche une information.
+   * @param popupService : affiche une information.
    * @param spinnerSrv : gère le spinner/sablier.
    */
   constructor(
     private adminSrv: IsAdministratorGuardService,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar,
+    private popupService: PopupService,
     private projectsSrv: ProjetsService,
     private usersSrv: UsersService,
     private spinnerSrv: SpinnerService
-  ) {
-  }
+  ) {}
 
   /**
    * Initialise le composant.
@@ -202,8 +204,10 @@ export class HomeComponent implements OnInit {
     const dataSource = this.sort(this.visibleProjects);
     const userSelectBoxOption: EntitySelectBoxOptions<Utilisateur> = {
       name: this.namesMap.managerId.code,
-      values: this.managers?.map<SelectBoxOption<Utilisateur>>(u =>
-        this.transformToSbOption(u)) || []
+      values:
+        this.managers?.map<SelectBoxOption<Utilisateur>>((u) =>
+          this.transformToSbOption(u)
+        ) || [],
     };
     const entitySelectBoxOptions = [userSelectBoxOption];
 
@@ -211,7 +215,8 @@ export class HomeComponent implements OnInit {
       dataSource,
       entitySelectBoxOptions,
     });
-    options.defaultEntity.code_p = (new Date(Date.now()).getFullYear() % 100) * 1000;
+    options.defaultEntity.code_p =
+      (new Date(Date.now()).getFullYear() % 100) * 1000;
     this.options = options;
   }
 
@@ -243,11 +248,13 @@ export class HomeComponent implements OnInit {
     try {
       this.spinnerSrv.show();
       this.managers = (await this.usersSrv.getAll()) // RG : tous les utilisateurs actifs peuvent être responsable projets
-        .filter(m => m.active_u)
+        .filter((m) => m.active_u)
         .sort((m1, m2) => this.compareManagers(m1, m2));
     } catch (error) {
       console.error(error);
-      this.showInformation('Impossible de charger les responsables de projet.');
+      this.popupService.openErrorPopup(
+        'Impossible de charger les responsables de projet.'
+      );
       return Promise.reject(error);
     } finally {
       this.spinnerSrv.hide();
@@ -260,9 +267,9 @@ export class HomeComponent implements OnInit {
    * @param user2 : un utilisateur.
    */
   private compareManagers(user1: Utilisateur, user2: Utilisateur): number {
-    if (user1.initiales_u < user2.initiales_u ){
+    if (user1.initiales_u < user2.initiales_u) {
       return -1;
-    } else if (user1.initiales_u > user2.initiales_u ){
+    } else if (user1.initiales_u > user2.initiales_u) {
       return 1;
     } else {
       return 0;
@@ -276,30 +283,13 @@ export class HomeComponent implements OnInit {
     try {
       this.spinnerSrv.show();
       this.projets = (await this.projectsSrv.getAll()) || [];
-      this.projets.forEach(p =>
-        this.injectManager(p));
+      this.projets.forEach((p) => this.injectManager(p));
     } catch (error) {
       console.error(error);
-      this.showInformation('Impossible de charger les projets.');
+      this.popupService.openErrorPopup('Impossible de charger les projets.');
       return Promise.reject(error);
     } finally {
       this.spinnerSrv.hide();
-    }
-  }
-
-  /**
-   * Affiche une information.
-   * @param message : message à afficher.
-   */
-  private showInformation(message: string): void {
-    try {
-      this.snackBar.open(message, 'OK', {
-        duration: 5000,
-        horizontalPosition: 'right',
-        verticalPosition: 'top',
-      });
-    } catch (error) {
-      console.error(error);
     }
   }
 
@@ -338,7 +328,9 @@ export class HomeComponent implements OnInit {
 
         this.updateProject(project);
         this.refreshDataTable(); // Pour le trie et pour cacher le projet le cas échéant
-        this.showInformation(`Le projet \'${project.nom_p} (${project.code_p})\' a été modifié.`);
+        this.popupService.openSuccessPopup(
+          `Le projet \'${project.nom_p} (${project.code_p})\' a été modifié.`
+        );
       }
     } catch (error) {
       console.error(error);
@@ -384,7 +376,7 @@ export class HomeComponent implements OnInit {
           formErrors,
         });
 
-        this.showInformation('Veuillez vérifier vos données');
+        this.popupService.openErrorPopup('Veuillez vérifier vos données');
         return false;
       } else {
         return true;
@@ -462,15 +454,19 @@ export class HomeComponent implements OnInit {
    * @param project : projet à vérifier.
    * @param formErrors : liste des erreurs de validation.
    */
-  private verifProjectCode(project: Projet, formErrors: GenericTableFormError[]): void {
-    if (typeof project.code_p === 'string') { // Le tableau retourne une string !
+  private verifProjectCode(
+    project: Projet,
+    formErrors: GenericTableFormError[]
+  ): void {
+    if (typeof project.code_p === 'string') {
+      // Le tableau retourne une string !
       project.code_p = parseInt(project.code_p as string, 10);
     }
 
     if (isNaN(project.code_p)) {
       const error = {
         name: this.namesMap.code.code,
-        message: 'Le code projet doit ne comprendre que des chiffres.'
+        message: 'Le code projet doit ne comprendre que des chiffres.',
       };
 
       formErrors.push(error);
@@ -479,7 +475,7 @@ export class HomeComponent implements OnInit {
     if (('' + project.code_p).length !== 5) {
       const error = {
         name: this.namesMap.code.code,
-        message: 'Le code projet doit comprendre 5 chiffres.'
+        message: 'Le code projet doit comprendre 5 chiffres.',
       };
 
       formErrors.push(error);
@@ -490,19 +486,18 @@ export class HomeComponent implements OnInit {
     const year = date.getFullYear() % 100;
     const min = Math.max(20, year - 10); // Démarrage en 2020
     const max = year + 10;
-    if (codeVal / 1000 < min
-      || Math.floor(codeVal / 1000) > max) {
+    if (codeVal / 1000 < min || Math.floor(codeVal / 1000) > max) {
       const error = {
         name: this.namesMap.code.code,
-        message: `Le code projet doit être une valeur comprise entre ${min}000 et ${max}999.`
+        message: `Le code projet doit être une valeur comprise entre ${min}000 et ${max}999.`,
       };
 
       formErrors.push(error);
     }
 
-    const similarProject = this.projets.find(p =>
-      p.id_p !== project.id_p
-      && p.code_p === project.code_p);
+    const similarProject = this.projets.find(
+      (p) => p.id_p !== project.id_p && p.code_p === project.code_p
+    );
 
     if (similarProject) {
       const error = {
@@ -534,7 +529,9 @@ export class HomeComponent implements OnInit {
 
         this.addProject(project);
         this.refreshDataTable(); // Pour le trie et pour cacher le projet le cas échéant
-        this.showInformation(`Le projet \'${project.nom_p} (${project.code_p})\' a été créé.`);
+        this.popupService.openSuccessPopup(
+          `Le projet \'${project.nom_p} (${project.code_p})\' a été créé.`
+        );
       }
     } catch (error) {
       console.error(error);
@@ -608,13 +605,15 @@ export class HomeComponent implements OnInit {
         type: 'warning',
         action: {
           name: 'Confirmer',
-        }
+        },
       };
       const dialogRef = this.dialog.open(GenericDialogComponent, {
-        data
+        data,
       });
-      const dialogResult = await dialogRef.afterClosed()
-        .pipe(first()).toPromise();
+      const dialogResult = await dialogRef
+        .afterClosed()
+        .pipe(first())
+        .toPromise();
       const okToDelete = !!dialogResult;
 
       if (okToDelete) {
@@ -622,8 +621,11 @@ export class HomeComponent implements OnInit {
         await this.projectsSrv.delete(project);
         event.callBack(null); // Valide la modification dans le composant DataTable fils
         this.deleteProject(project);
-        this.showInformation(`Le projet \'${project.nom_p} (${project.code_p})\' a été supprimé.`);
-      } else { // Annulation
+        this.popupService.openSuccessPopup(
+          `Le projet \'${project.nom_p} (${project.code_p})\' a été supprimé.`
+        );
+      } else {
+        // Annulation
         event?.callBack({
           apiError: 'La suppression est annulée.',
         });
@@ -687,7 +689,8 @@ export class HomeComponent implements OnInit {
       let item1 = p1[name];
       let item2 = p2[name];
 
-      if (typeof item1 === 'string') { // Pour du texte
+      if (typeof item1 === 'string') {
+        // Pour du texte
         item1 = item1.toUpperCase();
         item2 = item2.toUpperCase();
       }

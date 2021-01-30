@@ -11,7 +11,6 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { DirectivesModule } from '../../directives/directives.module';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -32,7 +31,6 @@ import { MatSortModule } from '@angular/material/sort';
     ReactiveFormsModule,
     DirectivesModule,
     MatTooltipModule,
-    MatSnackBarModule,
     MatIconModule,
     MatFormFieldModule,
     MatDialogModule,

@@ -9,7 +9,6 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Financement, Statut_F } from 'src/app/models/financement';
 import { Financeur } from 'src/app/models/financeur';
@@ -27,6 +26,7 @@ import {
   IMessage,
 } from 'src/app/shared/components/generic-dialog/generic-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { PopupService } from '../../shared/services/popup.service';
 
 @Component({
   selector: 'app-financements',
@@ -177,13 +177,13 @@ export class FinancementsComponent
   }
 
   /**
-   *
-   * @param adminSrv : permet de vérifier si l'utilisateur est un administrateur.
-   * @param financementsService : permet de dialoguer avec le serveur d'API pour les entités Financement.
-   * @param financeurService : permet de dialoguer avec le serveur d'API pour les entités Financeur.
+   * @param adminSrv
+   * @param financementsService
+   * @param financeurService
    * @param route
    * @param router
-   * @param snackBar : affiche une information.
+   * @param popupService
+   * @param dialog
    */
   constructor(
     private adminSrv: IsAdministratorGuardService,
@@ -191,7 +191,7 @@ export class FinancementsComponent
     private financeurService: FinanceurService,
     private route: ActivatedRoute,
     private router: Router,
-    private snackBar: MatSnackBar,
+    private readonly popupService: PopupService,
     public dialog: MatDialog
   ) {
     this.projectId = this.route.snapshot.params.id;
@@ -240,7 +240,7 @@ export class FinancementsComponent
       // }
     } catch (error) {
       console.error(error);
-      this.showInformation(
+      this.popupService.openErrorPopup(
         'Impossible de charger les financements : ' + error.error
       );
       return Promise.reject(error);
@@ -255,7 +255,9 @@ export class FinancementsComponent
       this.financeurs = (await this.financeurService.getAll()) || [];
     } catch (error) {
       console.error(error);
-      this.showInformation('Impossible de charger les financeurs : ' + error);
+      this.popupService.openErrorPopup(
+        'Impossible de charger les financeurs : ' + error
+      );
       return Promise.reject(error);
     }
   }
@@ -289,28 +291,12 @@ export class FinancementsComponent
   }
 
   /**
-   * Affiche une information.
-   * @param message : message à afficher.
-   */
-  private showInformation(message: string): void {
-    try {
-      this.snackBar.open(message, 'OK', {
-        duration: 5000,
-        horizontalPosition: 'right',
-        verticalPosition: 'top',
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  /**
    * Met à jour les données d'affichage.
    */
   private async refreshDataTable() {
     try {
       await this.loadData(Number(this.projectId));
-      const dataSource = this.financements
+      const dataSource = this.financements;
 
       this.options = Object.assign({}, this.options, {
         dataSource,
@@ -337,19 +323,19 @@ export class FinancementsComponent
         await this.refreshDataTable();
         event.callBack(null); // Valide la modification dans le composant DataTable fils
         this.editEvent.emit();
-        this.showInformation('Le financement a été modifié.');
+        this.popupService.openSuccessPopup('Le financement a été modifié.');
       }
     } catch (error) {
       console.error(error.error.errors);
       if (error.error.errors) {
-        for( const err of error.error.errors){
+        for (const err of error.error.errors) {
           event?.callBack({
-            apiError: 'Impossible de modifier le financement : ' + err.message
+            apiError: 'Impossible de modifier le financement : ' + err.message,
           });
         }
       } else {
         event?.callBack({
-          apiError: 'Impossible de modifier le financement : ' + error.error
+          apiError: 'Impossible de modifier le financement : ' + error.error,
         });
       }
     }
@@ -409,7 +395,7 @@ export class FinancementsComponent
           formErrors,
         });
 
-        this.showInformation('Veuillez vérifier vos données');
+        this.popupService.openErrorPopup('Veuillez vérifier vos données');
         return false;
       } else {
         return true;
@@ -470,20 +456,20 @@ export class FinancementsComponent
         await this.financementsService.post(financement);
         await this.refreshDataTable();
         event.callBack(null); // Valide la modification dans le composant DataTable fils
-        this.showInformation('Le financement a été crée.');
+        this.popupService.openSuccessPopup('Le financement a été crée.');
         this.createEvent.emit();
       }
     } catch (error) {
       console.error(error);
       if (error.error.errors) {
-        for( const err of error.error.errors){
+        for (const err of error.error.errors) {
           event?.callBack({
-            apiError: 'Impossible de créer le financement : ' + err.message
+            apiError: 'Impossible de créer le financement : ' + err.message,
           });
         }
       } else {
         event?.callBack({
-          apiError: 'Impossible de créer le financement : ' + error.error
+          apiError: 'Impossible de créer le financement : ' + error.error,
         });
       }
     }
@@ -511,26 +497,31 @@ export class FinancementsComponent
         } as IMessage,
       });
 
-      dialogRef.afterClosed().subscribe(
-        async result => {
-          if (result) {
-            await this.financementsService.delete(financement)
-            .then( async() => { 
+      dialogRef.afterClosed().subscribe(async (result) => {
+        if (result) {
+          await this.financementsService
+            .delete(financement)
+            .then(async () => {
               await this.refreshDataTable();
               event.callBack(null);
-              this.showInformation('Le financement de montant ' + financement.montant_arrete_f + '€, a été supprimé du projet.');
-            }).catch(error => { 
+              this.popupService.openSuccessPopup(
+                'Le financement de montant ' +
+                  financement.montant_arrete_f +
+                  '€, a été supprimé du projet.'
+              );
+            })
+            .catch((error) => {
               event?.callBack({
-                apiError: 'Impossible de supprimer le financement : ' + error.error
+                apiError:
+                  'Impossible de supprimer le financement : ' + error.error,
               });
             });
-          }
         }
-      );
+      });
     } catch (error) {
       console.error(error.error);
       event?.callBack({
-        apiError: 'Impossible de supprimer le financement : ' + error.error
+        apiError: 'Impossible de supprimer le financement : ' + error.error,
       });
     }
   }
