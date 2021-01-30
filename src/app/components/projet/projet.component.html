@@ -1,16 +1,20 @@
 <div class="project-details" *ngIf="projet">
   <span class="bold project-name">{{projet.nom_p}}</span>
 
-  <div class="project-status">
-    <mat-checkbox
-      [checked]=projet.statut_p
-      [disabled]="!isAdministrator"> <!-- disabled if not administrator  -->
-      Soldé
-    </mat-checkbox>
+  <div class="project-edit">
+    <mat-icon>edit</mat-icon>
   </div>
   <br><br>
   <span class="project-code-content"> <span class="bold"> code : </span>{{projet.code_p}} </span>
   <span class="project-responsable-content"> <span class="bold"> responsable : </span>{{projet.responsable.initiales_u }} </span>
+  <span class="project-status">
+  <mat-checkbox
+    [checked]=projet.statut_p
+    [disabled]="!isAdministrator"
+    (change)="updateProjectStatus($event)"> <!-- disabled if not administrator  -->
+    Soldé
+  </mat-checkbox>
+  </span>
 </div>
 <hr class="project-line">
 
@@ -36,6 +40,7 @@
     <app-montants-affectes
       *ngIf="montantsAffectes"
       [montantsAffectes]="montantsAffectes"
+      [receipt]="selectedRecette"
     ></app-montants-affectes>
   </div>
 </div>
