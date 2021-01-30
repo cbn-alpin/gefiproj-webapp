@@ -1,10 +1,10 @@
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { CrudService } from './crud.service';
 import {
   SuiviFinancement,
-  SuiviFinancementDto,
+  SuiviFinancementDto
 } from '../models/suivi-financement';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { CrudService } from './crud.service';
 import { SpinnerService } from './spinner.service';
 
 @Injectable({
@@ -53,7 +53,7 @@ export class SuiviFinancementsService {
     const params = new HttpParams()
       .append('annee1', String(annee1))
       .append('annee2', String(annee2));
-    const dtos = await this.crudSrv.getAll(null, params);
+    const dtos = await this.crudSrv.getAll(params);
 
     return this.dtoToModel(dtos);
   }

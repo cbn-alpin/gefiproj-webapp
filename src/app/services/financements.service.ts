@@ -71,7 +71,7 @@ export class FinancementsService {
    */
   public async post(financement: Financement): Promise<Financement> {
     try {
-      return this.crudSrv.add(financement, 'id_f');
+      return this.crudSrv.add(financement);
     } catch (error) {
       return Promise.reject(error);
     }

@@ -165,11 +165,8 @@ export class RecettesComponent implements OnInit, OnChanges {
     } else {
       try {
         const updatedRecette = await this.projetService.modifyRecette(event.entity, this.financement, this.recettes);
-        const index = this.recettes.findIndex((r) => {
-          const id = r?.id_r || (r as any)?.id; // Pour json-server
-
-          return id === updatedRecette.id_r;
-        });
+        const index = this.recettes.findIndex((r) => 
+          r?.id_r === updatedRecette.id_r);
         this.recettes[index] = updatedRecette;
         event.callBack(null);
       } catch (error) {
@@ -188,11 +185,8 @@ export class RecettesComponent implements OnInit, OnChanges {
   async onDelete(event: GenericTableEntityEvent<Recette>): Promise<void> {
     try {
       const deletedRecette = await this.projetService.deleteRecette(event.entity);
-      this.recettes = this.recettes.filter((recette) => {
-        const id = recette?.id_r || (recette as any)?.id; // Pour json-server
-
-        return id !== deletedRecette.id_r;
-      });
+      this.recettes = this.recettes.filter((recette) => 
+        recette?.id_r !== deletedRecette.id_r);
       event.callBack(null);
     } catch (error) {
       console.error(error);

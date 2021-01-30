@@ -1,3 +1,4 @@
+import { environment } from './../../../environments/environment';
 import { Location } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
@@ -12,7 +13,7 @@ import { UtilisateurToken } from './utilisateurToken';
 /**
  * URL de base des requêtes.
  */
-const BASE_URL = '/api/auth';
+const BASE_URL = `${environment.backendServer}/api/auth`;
 
 /**
  * Gère l'authentification de l'utilisateur avec le serveur.
@@ -165,21 +166,23 @@ export class AuthService {
 
       if (accessToken) { // Fermeture de session côté serveur
         const url = AuthService.LOGOUT_URL;
-
-        // TODO: api/auth/logout non géré par le back pour le moment
-        // await this.http
-        //   .post(
-        //     url,
-        //     accessToken, {
-        //     headers: new HttpHeaders(AuthService.headers)
-        //   })
-        //   .toPromise();
-      }
-
-      this.next(null); // Notification
+        const headers = Object.assign({
+          Authorization: `Bearer ${accessToken}`
+        }, AuthService.headers);
+      
+        await this.http
+          .post(
+            url,
+            null, {
+            headers: new HttpHeaders(headers)
+          })
+          .toPromise();
+      }      
     } catch (error) {
       console.error(error);
       return Promise.reject(error);
+    } finally {
+      this.next(null); // Notification
     }
   }
 

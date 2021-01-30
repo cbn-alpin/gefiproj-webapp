@@ -1,5 +1,9 @@
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatMenuModule } from '@angular/material/menu';
+import { RouterTestingModule } from '@angular/router/testing';
+import { ConnexionComponent } from '../connexion/connexion.component';
+import { HomeComponent } from '../home/home.component';
 import { HeaderComponent } from './header.component';
 
 describe('HeaderComponent', () => {
@@ -9,8 +13,16 @@ describe('HeaderComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [
-        MatMenuModule,
-        HeaderComponent]
+        HeaderComponent
+      ],
+      imports: [
+        HttpClientTestingModule,
+        RouterTestingModule.withRoutes(
+          [{path: 'connexion', component: ConnexionComponent},
+          {path: 'home', component: HomeComponent}]
+        ),
+        MatMenuModule
+      ]
     })
       .compileComponents();
   });

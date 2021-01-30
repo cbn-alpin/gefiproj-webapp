@@ -9,7 +9,7 @@ export interface IMessage {
   action: {
     name: string,
     color?: string
-  }
+  };
 }
 
 @Component({

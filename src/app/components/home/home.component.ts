@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { first } from 'rxjs/operators';
 import { IsAdministratorGuardService } from 'src/app/services/authentication/is-administrator-guard.service';
 import { SpinnerService } from 'src/app/services/spinner.service';
 import { UsersService } from 'src/app/services/users.service';
+import { GenericDialogComponent, IMessage } from 'src/app/shared/components/generic-dialog/generic-dialog.component';
 import { GenericTableCellType } from 'src/app/shared/components/generic-table/globals/generic-table-cell-types';
 import { EntitySelectBoxOptions } from 'src/app/shared/components/generic-table/models/entity-select-box-options';
 import { GenericTableFormError } from 'src/app/shared/components/generic-table/models/generic-table-entity';
@@ -13,7 +16,6 @@ import { Projet } from './../../models/projet';
 import { Utilisateur } from './../../models/utilisateur';
 import { GenericTableEntityEvent } from './../../shared/components/generic-table/models/generic-table-entity-event';
 import { GenericTableOptions } from './../../shared/components/generic-table/models/generic-table-options';
-import { Router } from "@angular/router";
 
 /**
  * Affiche les projets.
@@ -100,7 +102,7 @@ export class HomeComponent implements OnInit {
    * Représente un nouveau projet et définit les colonnes à afficher.
    */
   private readonly defaultEntity = {
-    code_p: '0000' as any as number,
+    code_p: 20000,
     nom_p: '',
     id_u: 0,
     statut_p: false
@@ -166,11 +168,11 @@ export class HomeComponent implements OnInit {
    */
   constructor(
     private adminSrv: IsAdministratorGuardService,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar,
     private projectsSrv: ProjetsService,
     private usersSrv: UsersService,
-    private snackBar: MatSnackBar,
-    private spinnerSrv: SpinnerService,
-    private router: Router
+    private spinnerSrv: SpinnerService
   ) {
   }
 
@@ -193,17 +195,19 @@ export class HomeComponent implements OnInit {
     const dataSource = this.sort(this.visibleProjects);
     const userSelectBoxOption: EntitySelectBoxOptions<Utilisateur> = {
       name: this.namesMap.managerId.code,
-      values: this.managers?.map<SelectBoxOption<Utilisateur>>(u => this.transformToSbOption(u)
-      ) || []
+      values: this.managers?.map<SelectBoxOption<Utilisateur>>(u =>
+        this.transformToSbOption(u)) || []
     };
     const entitySelectBoxOptions = [
       userSelectBoxOption
     ];
 
-    this.options = Object.assign({}, this.options, {
+    const options = Object.assign({}, this.options, {
       dataSource,
       entitySelectBoxOptions
     });
+    options.defaultEntity.code_p = (new Date(Date.now()).getFullYear() % 100) * 1000;
+    this.options = options;
   }
 
   /**
@@ -234,13 +238,29 @@ export class HomeComponent implements OnInit {
     try {
       this.spinnerSrv.show();
       this.managers = (await this.usersSrv.getAll()) // RG : tous les utilisateurs actifs peuvent être responsable projets
-        .filter(m => m.active_u);
+        .filter(m => m.active_u)
+        .sort((m1, m2) => this.compareManagers(m1, m2));
     } catch (error) {
       console.error(error);
       this.showInformation('Impossible de charger les responsables de projet.');
       return Promise.reject(error);
     } finally {
       this.spinnerSrv.hide();
+    }
+  }
+
+  /**
+   * Compare les utilisateurs en paramètres, via leurs initiales.
+   * @param user1 : un utilisateur.
+   * @param user2 : un utilisateur.
+   */
+  private compareManagers(user1: Utilisateur, user2: Utilisateur): number {
+    if (user1.initiales_u < user2.initiales_u ){
+      return -1;
+    } else if (user1.initiales_u > user2.initiales_u ){
+      return 1;
+    } else {
+      return 0;
     }
   }
 
@@ -252,7 +272,7 @@ export class HomeComponent implements OnInit {
       this.spinnerSrv.show();
       this.projets = (await this.projectsSrv.getAll()) || [];
       this.projets.forEach(p =>
-          this.injectManager(p));
+        this.injectManager(p));
     } catch (error) {
       console.error(error);
       this.showInformation('Impossible de charger les projets.');
@@ -315,6 +335,7 @@ export class HomeComponent implements OnInit {
 
         this.updateProject(project);
         this.refreshDataTable(); // Pour le trie et pour cacher le projet le cas échéant
+        this.showInformation(`Le projet \'${project.nom_p} (${project.code_p})\' a été modifié.`);
       }
     } catch (error) {
       console.error(error);
@@ -429,19 +450,38 @@ export class HomeComponent implements OnInit {
    * @param formErrors : liste des erreurs de validation.
    */
   private verifProjectCode(project: Projet, formErrors: GenericTableFormError[]): void {
-    if (('' + project.code_p).length !== 4) {
+    if (typeof project.code_p === 'string') { // Le tableau retourne une string !
+      project.code_p = parseInt(project.code_p as string, 10);
+    }
+
+    if (isNaN(project.code_p)) {
       const error = {
         name: this.namesMap.code.code,
-        message: 'Le code projet doit comprendre 4 chiffres.'
+        message: 'Le code projet doit ne comprendre que des chiffres.'
       };
 
       formErrors.push(error);
     }
 
-    if (project.code_p <= 0) {
+    if (('' + project.code_p).length !== 5) {
       const error = {
         name: this.namesMap.code.code,
-        message: 'Le code projet doit être une valeur comprise entre 1 et 9999.'
+        message: 'Le code projet doit comprendre 5 chiffres.'
+      };
+
+      formErrors.push(error);
+    }
+
+    const codeVal = project.code_p || 0;
+    const date = new Date(Date.now());
+    const year = date.getFullYear() % 100;
+    const min = Math.max(20, year - 10); // Démarrage en 2020
+    const max = year + 10;
+    if (codeVal / 1000 < min
+      || Math.floor(codeVal / 1000) > max) {
+      const error = {
+        name: this.namesMap.code.code,
+        message: `Le code projet doit être une valeur comprise entre ${min}000 et ${max}999.`
       };
 
       formErrors.push(error);
@@ -481,6 +521,7 @@ export class HomeComponent implements OnInit {
 
         this.addProject(project);
         this.refreshDataTable(); // Pour le trie et pour cacher le projet le cas échéant
+        this.showInformation(`Le projet \'${project.nom_p} (${project.code_p})\' a été créé.`);
       }
     } catch (error) {
       console.error(error);
@@ -542,12 +583,26 @@ export class HomeComponent implements OnInit {
       }
 
       // Etes-vous sûr ?
-      const okToDelete = confirm(`Vous vous apprêtez à supprimer le projet \'${project.nom_p} (${project.code_p})\'. Etes-vous certain de vouloir le supprimer ?`);
+      const data: IMessage = {
+        header: 'Suppression du projet',
+        content: `Vous vous apprêtez à supprimer le projet \'${project.nom_p} (${project.code_p})\'. Etes-vous certain de vouloir le supprimer ?`,
+        type: 'warning',
+        action: {
+          name: 'Confirmer',
+        }
+      };
+      const dialogRef = this.dialog.open(GenericDialogComponent, {
+        data
+      });
+      const dialogResult = await dialogRef.afterClosed()
+        .pipe(first()).toPromise();
+      const okToDelete = !!dialogResult;
 
       if (okToDelete) { // Suppression
         await this.projectsSrv.delete(project);
         event.callBack(null); // Valide la modification dans le composant DataTable fils
         this.deleteProject(project);
+        this.showInformation(`Le projet \'${project.nom_p} (${project.code_p})\' a été supprimé.`);
       } else { // Annulation
         event?.callBack({
           apiError: 'La suppression est annulée.'
@@ -610,10 +665,7 @@ export class HomeComponent implements OnInit {
       let item1 = p1[name];
       let item2 = p2[name];
 
-      if (name === this.namesMap.code.code) { // Les codes sont des entiers
-        item1 = parseInt(item1, 10);
-        item2 = parseInt(item2, 10);
-      } else if (typeof item1 === 'string') { // Pour du texte
+      if (typeof item1 === 'string') { // Pour du texte
         item1 = item1.toUpperCase();
         item2 = item2.toUpperCase();
       }
