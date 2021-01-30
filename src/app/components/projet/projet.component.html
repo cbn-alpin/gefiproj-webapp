@@ -1,5 +1,6 @@
-<div class="project-details" *ngIf="projet">
-  <span class="bold project-name">{{projet.nom_p}}</span>
+<ng-container *ngIf="projet && financements">
+  <div class="project-details" *ngIf="projet">
+    <span class="bold project-name">{{ projet.nom_p }}</span>
 
   <div class="project-edit">
     <mat-icon>edit</mat-icon>
@@ -18,29 +19,46 @@
 </div>
 <hr class="project-line">
 
-<div class="financements">
-  <app-financements
-    *ngIf="financements"
-    [financements]="financements"
-    (select)="onSelectFinancement($event)"
-  ></app-financements>
-</div>
-
-<div class="block" fxLayout="row" fxLayoutAlign="space-between start" fxLayoutGap="30px">
-  <div class="recettes">
-    <app-recettes
-      *ngIf="recettes"
-      [recettes]="recettes"
-      [financement]="selectedFinancement"
-      (select)="onSelectRecette($event)"
-    ></app-recettes>
+  <div class="financements">
+    <app-financements
+      *ngIf="financements"
+      [financements]="financements"
+      [selectedFinancement]="selectedFinancement"
+      (selectEvent)="onSelectFinancement($event)"
+      (createEvent)="onCreateFinancement()"
+      (editEvent)="onEditFinancement()"
+      (deleteEvent)="onDeleteFinancement()"
+      (financementChange)="onFinancementsChange($event)"
+    ></app-financements>
   </div>
 
-  <div class="montants-affectes">
-    <app-montants-affectes
-      *ngIf="montantsAffectes"
-      [montantsAffectes]="montantsAffectes"
-      [receipt]="selectedRecette"
-    ></app-montants-affectes>
+  <div
+    class="block"
+    fxLayout="row"
+    fxLayoutAlign="space-between start"
+    fxLayoutGap="30px"
+  >
+    <div class="recettes">
+      <app-recettes
+        *ngIf="recettes"
+        [recettes]="recettes"
+        [financement]="selectedFinancement"
+        [selectedRecette]="selectedRecette"
+        (selectEvent)="onSelectRecette($event)"
+        (createEvent)="onCreateRecette($event)"
+        (editEvent)="onEditRecette()"
+        (deleteEvent)="onDeleteRecette()"
+        (selectedRecetteChangeEvent)="onSelectedRecetteChange($event)"
+        (recettesChange)="onRecettesChange($event)"
+      ></app-recettes>
+    </div>
+
+    <div class="montants-affectes">
+      <app-montants-affectes
+        *ngIf="montantsAffectes"
+        [montantsAffectes]="montantsAffectes"
+        [receipt]="selectedRecette"
+      ></app-montants-affectes>
+    </div>
   </div>
-</div>
+</ng-container>

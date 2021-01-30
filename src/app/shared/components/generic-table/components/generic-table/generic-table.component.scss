@@ -121,7 +121,7 @@
   }
 
   .can-select {
-    .mat-row:hover {
+    .withHover:hover {
       background: $light-color;
       cursor: pointer;
     }

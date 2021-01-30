@@ -5,11 +5,11 @@
   [canSelect]="true"
   [showActions]="isAdministrator"
   [isReadOnly]="isReadOnly"
-  [getEntityInformationsCallBack]="getEntityInformationsCallBack"
+  [selectedRow]="selectedRecette"
   (editEvent)="onEdit($event)"
   (createEvent)="onCreate($event)"
   (deleteEvent)="onDelete($event)"
   (selectEvent)="onSelect($event)"
+  (selectedEntityUpdatedEvent)="onSelectedEntityChange($event)"
 >
 </app-generic-table>
-

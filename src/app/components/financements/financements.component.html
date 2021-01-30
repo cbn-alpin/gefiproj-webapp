@@ -1,9 +1,12 @@
 <app-generic-table
+  *ngIf="options"
   [title]="title"
   [(options)]="options"
   [showActions]="true"
   [isReadOnly]="isReadOnly"
   [canSelect]="true"
+  [autoSelectFirstRow]="true"
+  [selectedRow]="selectedFinancement"
   (editEvent)="onEdit($event)"
   (createEvent)="onCreate($event)"
   (deleteEvent)="onDelete($event)"

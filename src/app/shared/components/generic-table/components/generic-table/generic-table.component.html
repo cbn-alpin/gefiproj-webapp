@@ -156,7 +156,8 @@
                   columnName.code
                 )
               "
-              [(ngModel)]="element.data[columnName.code]"
+              [ngModel]="element.data[columnName.code]"
+              (ngModelChange)="element.data[columnName.code] = +$event"
               [placeholder]="
                 genericTableService.getPlaceHolder(options, columnName.code)
               "
@@ -236,7 +237,7 @@
                     ' €'
                   : element.data[columnName.code]
               "
-              (ngModelChange)="element.data[columnName.code] = $event"
+              (ngModelChange)="element.data[columnName.code] = +$event"
               [placeholder]="
                 genericTableService.getPlaceHolder(options, columnName.code)
               "
@@ -324,7 +325,7 @@
         <div fxLayout="row" fxLayoutAlign="space-between center">
           <!-- Actions pour le mode lecture -->
           <span *ngIf="element.state === GenericTableEntityState.READ">
-            <!-- Naviguation vers fils -->
+            <!-- Naviguation vers un composant -->
             <button
               *ngIf="withNagivation"
               mat-icon-button
@@ -344,7 +345,7 @@
             <button
               *ngIf="!isReadOnly"
               mat-icon-button
-              (click)="delete(element)"
+              (click)="delete($event, element)"
             >
               <mat-icon>delete</mat-icon>
             </button>
@@ -386,9 +387,8 @@
       mat-row
       *matRowDef="let row; columns: displayedColumns"
       [ngClass]="{
-        selected: selectedEntity === row,
-        'default-row':
-          (selectedEntity === null || selectedEntity === undefined) && canSelect
+        selected: isSelected(row),
+        withHover: withHover(row)
       }"
       (click)="select(row)"
     ></tr>
