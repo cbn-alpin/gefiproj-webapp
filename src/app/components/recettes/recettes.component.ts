@@ -18,6 +18,7 @@ import { EntityPlaceholder } from '../../shared/components/generic-table/models/
 import { GenericTableFormError } from '../../shared/components/generic-table/models/generic-table-entity';
 import { IsAdministratorGuardService } from 'src/app/services/authentication/is-administrator-guard.service';
 import { RecettesService } from '../../services/recettes.service';
+import { PopupService } from '../../shared/services/popup.service';
 
 @Component({
   selector: 'app-recettes',
@@ -131,7 +132,8 @@ export class RecettesComponent implements OnInit, OnChanges {
 
   constructor(
     private readonly isAdministratorGuardService: IsAdministratorGuardService,
-    private readonly recettesService: RecettesService
+    private readonly recettesService: RecettesService,
+    private readonly popupService: PopupService
   ) {}
 
   public ngOnInit(): void {
@@ -140,20 +142,20 @@ export class RecettesComponent implements OnInit, OnChanges {
 
   public ngOnChanges(changes: SimpleChanges): void {
     if (changes.recettes && changes.recettes.currentValue) {
-      if (!this.recettes) {
-        this.initGenericTableOptions();
-      } else {
-        this.options = {
-          ...this.options,
-          dataSource: this.recettes,
-        };
-      }
+      this.recettes.forEach((recette) => {
+        this.recettesService.cleanRecette(recette);
+      });
+      this.options = {
+        ...this.options,
+        dataSource: this.recettes,
+      };
     }
   }
 
   public async onCreate(
     event: GenericTableEntityEvent<Recette>
   ): Promise<void> {
+    console.log('RECETTE CREATE FROM GT: ', event.entity);
     const recette: Recette = { ...event.entity, id_f: this.financement.id_f };
     const formErrors = this.checkFormErrors(recette);
     if (formErrors) {
@@ -167,6 +169,7 @@ export class RecettesComponent implements OnInit, OnChanges {
         );
         event.callBack(null);
         this.create(createdRecette);
+        this.popupService.success('La recette a été crée.');
         this.createEvent.emit(createdRecette);
       } catch (error) {
         event?.callBack({
@@ -177,6 +180,7 @@ export class RecettesComponent implements OnInit, OnChanges {
   }
 
   public async onEdit(event: GenericTableEntityEvent<Recette>): Promise<void> {
+    console.log('RECETTE EDIT FROM GT: ', event.entity);
     const formErrors = this.checkFormErrors(event.entity, true);
     if (formErrors) {
       event.callBack({ formErrors });
@@ -223,11 +227,11 @@ export class RecettesComponent implements OnInit, OnChanges {
     edit?: boolean
   ): GenericTableFormError[] {
     let genericTableFormErrors: GenericTableFormError[] = [];
-    genericTableFormErrors = this.getAnneeRecetteFormError(
+    genericTableFormErrors = this.getAnneeError(
       recette,
       genericTableFormErrors
     );
-    genericTableFormErrors = this.getMontantFormError(
+    genericTableFormErrors = this.getMontantError(
       recette,
       genericTableFormErrors
     );
@@ -241,7 +245,7 @@ export class RecettesComponent implements OnInit, OnChanges {
    * @param annee_recette
    * @param genericTableFormErrors
    */
-  public getAnneeRecetteFormError(
+  public getAnneeError(
     recette: Recette,
     genericTableFormErrors: GenericTableFormError[]
   ): GenericTableFormError[] {
@@ -272,7 +276,7 @@ export class RecettesComponent implements OnInit, OnChanges {
    * @param montant
    * @param genericTableFormErrors
    */
-  public getMontantFormError(
+  public getMontantError(
     recette: Recette,
     genericTableFormErrors: GenericTableFormError[]
   ): GenericTableFormError[] {

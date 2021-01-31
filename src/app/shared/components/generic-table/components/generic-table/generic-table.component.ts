@@ -243,8 +243,8 @@ export class GenericTableComponent<T>
     const genericTableEntityEvent: GenericTableEntityEvent<T> = {
       entity: entity.data,
       updatedGenericTable: this.genericTableEntities.map((row) => row.data),
-      callBack: (genericTableEntityErrors?: GenericTableEntityErrors) =>
-        this.handleAction(entity, genericTableEntityErrors),
+      callBack: (genericTableEntityErrors?: GenericTableEntityErrors, up?: T) =>
+        this.handleAction(entity, genericTableEntityErrors, up),
     };
     this.editEvent.emit(genericTableEntityEvent);
     if (!this.selectedEntity) {
@@ -291,11 +291,11 @@ export class GenericTableComponent<T>
     const genericTableEntityEvent: GenericTableEntityEvent<T> = {
       entity: entity.data,
       updatedGenericTable: this.genericTableEntities.map((row) => row.data),
-      callBack: (genericTableEntityErrors?: GenericTableEntityErrors) =>
-        this.handleAction(entity, genericTableEntityErrors),
+      callBack: (genericTableEntityErrors?: GenericTableEntityErrors, up?: T) =>
+        this.handleAction(entity, genericTableEntityErrors, up),
     };
     this.createEvent.emit(genericTableEntityEvent);
-    this.updateSelectedEntity(null);
+    this.updateSelectedEntity(entity);
   }
 
   public cancelCreation(event, entity: GenericTableEntity<T>): void {
@@ -384,16 +384,25 @@ export class GenericTableComponent<T>
 
   private handleAction(
     entity: GenericTableEntity<T>,
-    genericTableEntityErrors: GenericTableEntityErrors
+    genericTableEntityErrors: GenericTableEntityErrors,
+    up?: T
   ): void {
     const canDoAction = this.genericTableErrorService.handleErrors(
       entity,
       genericTableEntityErrors
     );
     if (canDoAction) {
-      if (this.genericTableAction === GenericTableAction.EDIT) {
-        this.setReadEntityState(entity);
-      } else if (this.genericTableAction === GenericTableAction.NEW) {
+      if (up) {
+        console.log('SR: ', this.selectedRow);
+        console.log('UP: ', up);
+        this.selectedRow = up;
+        this.loadSelectedEntity();
+        this.updateSelectedEntity(this.selectedEntity);
+      }
+      if (
+        this.genericTableAction === GenericTableAction.EDIT ||
+        this.genericTableAction === GenericTableAction.NEW
+      ) {
         this.setReadEntityState(entity);
       }
     }
@@ -475,16 +484,9 @@ export class GenericTableComponent<T>
 
   private loadSelectedEntity(): void {
     let entity: GenericTableEntity<T>;
-    entity = this.genericTableEntities?.find((entity) =>
-      this.isEqualWithReference(entity.data, this.selectedRow)
+    entity = this.genericTableEntities?.find(
+      (entity) => entity.data === this.selectedRow
     );
-
-    if (!entity && this.selectedRow) {
-      entity = this.genericTableEntities?.find((entity) =>
-        this.isEqualWithoutReference(this.selectedRow, entity.data)
-      );
-    }
-
     if (entity) {
       this.selectedEntity = entity;
     } else if (this.selectedEntity) {
@@ -495,19 +497,5 @@ export class GenericTableComponent<T>
     } else {
       this.selectedEntity = null;
     }
-  }
-
-  private isEqualWithReference(obj1: T, obj2: T): boolean {
-    return obj1 === obj2;
-  }
-
-  private isEqualWithoutReference(obj1: T, obj2: T): boolean {
-    const prop1 = Object.values(obj1);
-    const prop2 = Object.values(obj2);
-    const tabFiltered = prop1.filter((item1) =>
-      prop2.find((item2) => item1 === item2)
-    );
-
-    return tabFiltered.length === prop1.length ? true : false;
   }
 }
