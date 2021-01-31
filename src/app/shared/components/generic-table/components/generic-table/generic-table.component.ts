@@ -393,8 +393,6 @@ export class GenericTableComponent<T>
     );
     if (canDoAction) {
       if (up) {
-        console.log('SR: ', this.selectedRow);
-        console.log('UP: ', up);
         this.selectedRow = up;
         this.loadSelectedEntity();
         this.updateSelectedEntity(this.selectedEntity);
