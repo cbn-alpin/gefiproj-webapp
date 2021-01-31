@@ -66,6 +66,7 @@
         *ngIf="montantsAffectes"
         [montantsAffectes]="montantsAffectes"
         [receipt]="selectedRecette"
+        (montantsAffectesChange)="onMontantsAffectesChange($event)"
       ></app-montants-affectes>
     </div>
   </div>

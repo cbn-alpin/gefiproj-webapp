@@ -167,6 +167,10 @@ export class ProjetComponent implements OnInit {
     this.financements = [...financements];
   }
 
+  public onMontantsAffectesChange(montantAffectes: MontantAffecte[]): void {
+    this.montantsAffectes = [...montantAffectes];
+  }
+
   private async loadProjetDetailsFromProjetId(projetId: number): Promise<void> {
     try {
       if (projetId) {

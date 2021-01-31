@@ -1,4 +1,11 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import { MontantAffecte } from '../../models/montantAffecte';
 import { Recette } from '../../models/recette';
 import { GenericTableOptions } from '../../shared/components/generic-table/models/generic-table-options';
@@ -37,6 +44,11 @@ export class MontantsAffectesComponent implements OnChanges {
    * @private
    */
   @Input() public montantsAffectes: MontantAffecte[];
+
+  @Output()
+  public montantsAffectesChange: EventEmitter<
+    MontantAffecte[]
+  > = new EventEmitter<MontantAffecte[]>();
 
   /**
    * Représente un nouveau montant affecté et définit les colonnes à afficher.
@@ -120,13 +132,10 @@ export class MontantsAffectesComponent implements OnChanges {
    */
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes.montantsAffectes && changes.montantsAffectes.currentValue) {
-      try {
-        this.pipe = new DatePipe('fr-FR');
-        //await this.loadMontantsAffectes(Number(this.receiptId));
-        this.initDtOptions();
-      } catch (error) {
-        console.error(error);
-      }
+      this.options = {
+        ...this.options,
+        dataSource: this.montantsAffectes,
+      };
     }
   }
 
@@ -147,32 +156,6 @@ export class MontantsAffectesComponent implements OnChanges {
   }
 
   /**
-   * Initialise les options de la table générique.
-   */
-  private initDtOptions(): void {
-    const dataSource = this.montantsAffectes;
-    this.options = Object.assign({}, this.options, {
-      dataSource,
-    });
-  }
-
-  /**
-   * Met à jour les données d'affichage.
-   */
-  private async refreshDataTable() {
-    try {
-      await this.loadMontantsAffectes(Number(this.receipt.id_r));
-      const dataSource = this.montantsAffectes;
-
-      this.options = Object.assign({}, this.options, {
-        dataSource,
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  /**
    * Un montant affecté a été modifié dans le tableau.
    * @param event : encapsule le montant affecté à modifier.
    */
@@ -189,18 +172,12 @@ export class MontantsAffectesComponent implements OnChanges {
             'La somme des montants est supérieur au montant de la recette !'
           );
         else {
-          if (Number(montant.annee_ma) < Number(this.receipt.annee_r))
-            this.popupService.error(
-              "L'année saisie est inférieure à celle de la recette !"
-            );
-          else {
-            console.log(montant.montant_ma);
-            console.log(montant.id_r);
-            delete montant.recette;
-            await this.montantsAffectesService.put(montant);
-            await this.refreshDataTable();
-            event.callBack(null); // Valide la modification dans le composant DataTable fils
-          }
+          delete montant.recette;
+          const updatedMontant = await this.montantsAffectesService.put(
+            montant
+          );
+          event.callBack(null);
+          this.modify(updatedMontant);
         }
       }
     } catch (error) {
@@ -288,18 +265,12 @@ export class MontantsAffectesComponent implements OnChanges {
             'La somme des montants est supérieur au montant de la recette !'
           );
         else {
-          if (Number(montant.annee_ma) < Number(this.receipt.annee_r))
-            this.popupService.error(
-              "L'année saisie est inférieure à celle de la recette !"
-            );
-          else {
-            await this.montantsAffectesService.post(
-              montant,
-              Number(this.receipt.id_r)
-            );
-            await this.refreshDataTable();
-            event.callBack(null); // Valide la modification dans le composant DataTable fils
-          }
+          const createdMontant = await this.montantsAffectesService.post(
+            montant,
+            Number(this.receipt.id_r)
+          );
+          event.callBack(null);
+          this.create(createdMontant);
         }
       }
     } catch (error) {
@@ -346,8 +317,8 @@ export class MontantsAffectesComponent implements OnChanges {
               montant.montant_ma +
               ' €, a été supprimé du projet.'
           );
-          await this.refreshDataTable();
           event.callBack(null);
+          this.delete(montant);
         }
       });
     } catch (error) {
@@ -384,5 +355,29 @@ export class MontantsAffectesComponent implements OnChanges {
       sumAmounts += +Number(amount.montant_ma);
     });
     return Number(montant.montant_ma) + sumAmounts > this.receipt.montant_r;
+  }
+
+  private create(montantAffecte: MontantAffecte): void {
+    this.montantsAffectes.push(montantAffecte);
+    this.emitMontantsAffectesChange();
+  }
+
+  private modify(montantAffecte: MontantAffecte): void {
+    const index = this.montantsAffectes.findIndex(
+      (_montantAffecte) => _montantAffecte.id_ma === montantAffecte.id_ma
+    );
+    this.montantsAffectes[index] = montantAffecte;
+    this.emitMontantsAffectesChange();
+  }
+
+  private delete(montantAffecte: MontantAffecte): void {
+    this.montantsAffectes = this.montantsAffectes.filter(
+      (_montantAffecte) => _montantAffecte.id_ma !== montantAffecte.id_ma
+    );
+    this.emitMontantsAffectesChange();
+  }
+
+  public emitMontantsAffectesChange(): void {
+    this.montantsAffectesChange.emit(this.montantsAffectes);
   }
 }
