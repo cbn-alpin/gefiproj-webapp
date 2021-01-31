@@ -1,4 +1,4 @@
-import { SelectBoxOption } from './../../shared/components/generic-table/models/SelectBoxOption';
+import { SelectBoxOption } from '../../shared/components/generic-table/models/SelectBoxOption';
 import { DatePipe } from '@angular/common';
 import {
   Component,
@@ -50,18 +50,6 @@ export class FinancementsComponent implements OnInit, OnChanges {
   @Output() public editEvent: EventEmitter<void> = new EventEmitter<void>();
 
   @Output() public deleteEvent: EventEmitter<void> = new EventEmitter<void>();
-
-  @Output()
-  public startCreateEvent: EventEmitter<void> = new EventEmitter<void>();
-
-  @Output()
-  public endCreateEvent: EventEmitter<void> = new EventEmitter<void>();
-
-  @Output()
-  public startEditingEvent: EventEmitter<void> = new EventEmitter<void>();
-
-  @Output()
-  public endEditingEvent: EventEmitter<void> = new EventEmitter<void>();
 
   @Output()
   public financementsChange: EventEmitter<Financement[]> = new EventEmitter<
@@ -180,8 +168,8 @@ export class FinancementsComponent implements OnInit, OnChanges {
     private financeurService: FinanceurService,
     private route: ActivatedRoute,
     private router: Router,
-    private readonly popupService: PopupService,
-    public dialog: MatDialog
+    private popupService: PopupService,
+    private dialog: MatDialog
   ) {
     this.projectId = this.route.snapshot.params.id;
     if (!this.projectId) {
@@ -203,7 +191,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
   /**
    * Initialise le composant.
    */
-  async ngOnChanges(changes: SimpleChanges): Promise<void> {
+  public async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes.financements && changes.financements.currentValue) {
       this.options = {
         ...this.options,
@@ -213,97 +201,12 @@ export class FinancementsComponent implements OnInit, OnChanges {
   }
 
   /**
-   * Initialise les options de la table générique.
-   */
-  private async loadData(projetId: number): Promise<void> {
-    const promiseFinancements = this.loadFinancements(projetId);
-    const promiseFinanceurs = this.loadFinanceurs();
-    await Promise.all([promiseFinanceurs, promiseFinancements]);
-  }
-
-  /**
-   * Charge les financements depuis le serveur.
-   */
-  async loadFinancements(projetId: number): Promise<Financement[]> {
-    try {
-      this.financements =
-        (await this.financementsService.getAll(projetId)) || [];
-      // if (!this.financements) {
-      //   this.financementChange.emit(this.financements);
-      // }
-    } catch (error) {
-      console.error(error);
-      this.popupService.error(
-        'Impossible de charger les financements : ' + error.error
-      );
-      return Promise.reject(error);
-    }
-  }
-
-  /**
-   * Charge les financeurs depuis le serveur.
-   */
-  async loadFinanceurs(): Promise<Financeur[]> {
-    try {
-      this.financeurs = (await this.financeurService.getAll()) || [];
-    } catch (error) {
-      console.error(error);
-      this.popupService.error(
-        'Impossible de charger les financeurs : ' + error
-      );
-      return Promise.reject(error);
-    }
-  }
-
-  /**
-   * Initialise les options de la table générique.
-   */
-  private initDtOptions(): void {
-    const dataSource = this.financements;
-    const financeursSelectBoxOption: EntitySelectBoxOptions<Financeur> = {
-      name: this.namesMap.financeur.code,
-      values:
-        this.financeurs?.map((f) => ({
-          id: f.id_financeur,
-          label: f.nom_financeur,
-          item: f,
-        })) || [],
-    };
-    const statutSelectBoxOption: EntitySelectBoxOptions<any> = {
-      name: this.namesMap.statut_f.code,
-      values: this.statuts_financement,
-    };
-    const entitySelectBoxOptions = [
-      financeursSelectBoxOption,
-      statutSelectBoxOption,
-    ];
-    this.options = Object.assign({}, this.options, {
-      dataSource,
-      entitySelectBoxOptions,
-    });
-  }
-
-  /**
-   * Met à jour les données d'affichage.
-   */
-  private async refreshDataTable() {
-    try {
-      await this.loadData(Number(this.projectId));
-      const dataSource = this.financements;
-
-      this.options = Object.assign({}, this.options, {
-        dataSource,
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  /**
    * Un financement a été modifié dans le tableau.
    * @param event : encapsule le financement à modifier.
    */
-  async onEdit(event: GenericTableEntityEvent<Financement>): Promise<void> {
+  public async onEdit(
+    event: GenericTableEntityEvent<Financement>
+  ): Promise<void> {
     try {
       let financement: Financement = event.entity;
       if (!financement) {
@@ -345,10 +248,228 @@ export class FinancementsComponent implements OnInit, OnChanges {
   }
 
   /**
+   * Un financements a été créé et initialisé dans le tableau.
+   * @param event : encapsule le financement à modifier.
+   */
+  public async onCreate(
+    event: GenericTableEntityEvent<Financement>
+  ): Promise<void> {
+    try {
+      let financement: Financement = event.entity;
+      if (!financement) {
+        throw new Error("Le financement n'existe pas");
+      }
+      financement = this.transformFormat(financement);
+
+      if (this.validateForGenericTable(event)) {
+        let createdFinancement = await this.financementsService.post(
+          financement
+        );
+        createdFinancement = this.loadFinanceurInFinancement(
+          createdFinancement
+        );
+        event.callBack(null, createdFinancement); // Valide la modification dans le composant DataTable fils
+        this.create(createdFinancement);
+        this.selectedFinancement = createdFinancement;
+        this.popupService.success('Le financement a été crée.');
+        this.createEvent.emit();
+      }
+    } catch (error) {
+      console.error(error);
+      if (error.error.errors) {
+        for (const err of error.error.errors) {
+          event?.callBack({
+            apiError: 'Impossible de créer le financement : ' + err.message,
+          });
+        }
+      } else {
+        event?.callBack({
+          apiError: 'Impossible de créer le financement : ' + error.error,
+        });
+      }
+    }
+  }
+
+  /**
+   * Un financements a été supprimé du tableau.
+   * @param event : encapsule le financement à modifier.
+   */
+  public async onDelete(
+    event: GenericTableEntityEvent<Financement>
+  ): Promise<void> {
+    const financement = event.entity;
+    if (!financement) {
+      throw new Error("Le financement n'existe pas");
+    }
+
+    const dialogRef = this.dialog.open(GenericDialogComponent, {
+      data: {
+        header: 'Suppression du financement',
+        content: `Voulez-vous supprimer ce financement d'un montant de ${financement.montant_arrete_f} provenant du financeur ${financement.financeur.nom_financeur} ?`,
+        type: 'warning',
+        action: {
+          name: 'Confirmer',
+        },
+      } as IMessage,
+    });
+
+    dialogRef
+      .afterClosed()
+      .pipe(take(1))
+      .subscribe(async (result) => {
+        if (result) {
+          try {
+            await this.financementsService.delete(financement);
+            event.callBack(null);
+            this.delete(financement);
+            this.popupService.success(
+              'Le financement de montant ' +
+                financement.montant_arrete_f +
+                '€, a été supprimé du projet.'
+            );
+          } catch (error) {
+            event?.callBack({
+              apiError:
+                'Impossible de supprimer le financement : ' + error.error,
+            });
+          }
+        }
+      });
+  }
+
+  /**
+   * Gére la sélection d'une entité
+   * @param entity
+   */
+  public onSelect(
+    genericTableEntityEvent: GenericTableEntityEvent<Financement>
+  ): void {
+    this.selectEvent.emit(genericTableEntityEvent.entity);
+  }
+
+  public onSelectedEntityChange(financement: Financement): void {
+    this.selectedFinancementChange.emit(financement);
+  }
+
+  /**
+   * transform date format to yyyy-MM-dd
+   * @param date
+   */
+  private toTransformDateFormat(date): string {
+    return this.pipe.transform(new Date(date), 'yyyy-MM-dd');
+  }
+
+  private initGenericTableOptions(): void {
+    this.options = {
+      dataSource: this.financements,
+      defaultEntity: this.defaultEntity,
+      entityTypes: [
+        {
+          name: this.namesMap.montant_arrete_f.name,
+          type: GenericTableCellType.CURRENCY,
+          code: this.namesMap.montant_arrete_f.code,
+        },
+        {
+          name: this.namesMap.date_arrete_f.name,
+          type: GenericTableCellType.DATE,
+          code: this.namesMap.date_arrete_f.code,
+        },
+        {
+          name: this.namesMap.date_limite_solde_f.name,
+          type: GenericTableCellType.DATE,
+          code: this.namesMap.date_limite_solde_f.code,
+        },
+        {
+          name: this.namesMap.financeur.name,
+          type: GenericTableCellType.SELECTBOX,
+          code: this.namesMap.financeur.code,
+        },
+        {
+          name: this.namesMap.statut_f.name,
+          type: GenericTableCellType.SELECTBOX,
+          code: this.namesMap.statut_f.code,
+        },
+        {
+          name: this.namesMap.date_solde_f.name,
+          type: GenericTableCellType.DATE,
+          code: this.namesMap.date_solde_f.code,
+        },
+        {
+          name: this.namesMap.commentaire_admin_f.name,
+          type: GenericTableCellType.TEXTAREA,
+          code: this.namesMap.commentaire_admin_f.code,
+        },
+        {
+          name: this.namesMap.commentaire_resp_f.name,
+          type: GenericTableCellType.TEXTAREA,
+          code: this.namesMap.commentaire_resp_f.code,
+        },
+        {
+          name: this.namesMap.numero_titre_f.name,
+          type: GenericTableCellType.TEXT,
+          code: this.namesMap.numero_titre_f.code,
+        },
+        {
+          name: this.namesMap.annee_titre_f.name,
+          type: GenericTableCellType.TEXT,
+          code: this.namesMap.annee_titre_f.code,
+        },
+        {
+          name: this.namesMap.imputation_f.name,
+          type: GenericTableCellType.TEXT,
+          code: this.namesMap.imputation_f.code,
+        },
+        {
+          name: this.namesMap.difference.name,
+          type: GenericTableCellType.CURRENCY,
+          code: this.namesMap.difference.code,
+        },
+      ],
+      entityPlaceHolders: [],
+      entitySelectBoxOptions: [],
+    };
+  }
+
+  private create(financement: Financement): void {
+    this.financements.push(financement);
+    this.emitFinancementsChange();
+  }
+
+  private modify(financement: Financement): void {
+    const index = this.financements.findIndex(
+      (_financement) => _financement.id_f === financement.id_f
+    );
+    this.financements[index] = financement;
+    this.emitFinancementsChange();
+  }
+
+  private delete(financement: Financement): void {
+    this.financements = this.financements.filter(
+      (_financement) => _financement.id_f !== financement.id_f
+    );
+    this.emitFinancementsChange();
+  }
+
+  private emitFinancementsChange(): void {
+    this.financementsChange.emit(this.financements);
+  }
+
+  private loadFinanceurInFinancement(financement: Financement): Financement {
+    return financement.id_financeur
+      ? {
+          ...financement,
+          financeur: this.financeurs.find(
+            (financeur) => financeur.id_financeur === financement.id_financeur
+          ),
+        }
+      : financement;
+  }
+
+  /**
    * transforme le format du formulaire
    * @param financement
    */
-  transformFormat(financement: Financement): Financement {
+  private transformFormat(financement: Financement): Financement {
     if (financement?.financeur) delete financement?.financeur;
     if (financement.hasOwnProperty('difference')) {
       delete financement.difference;
@@ -444,232 +565,45 @@ export class FinancementsComponent implements OnInit, OnChanges {
   }
 
   /**
-   * Un financements a été créé et initialisé dans le tableau.
-   * @param event : encapsule le financement à modifier.
+   * Charge les financeurs depuis le serveur.
    */
-  async onCreate(event: GenericTableEntityEvent<Financement>): Promise<void> {
+  private async loadFinanceurs(): Promise<Financeur[]> {
     try {
-      let financement: Financement = event.entity;
-      if (!financement) {
-        throw new Error("Le financement n'existe pas");
-      }
-      financement = this.transformFormat(financement);
-
-      if (this.validateForGenericTable(event)) {
-        let createdFinancement = await this.financementsService.post(
-          financement
-        );
-        createdFinancement = this.loadFinanceurInFinancement(
-          createdFinancement
-        );
-        event.callBack(null, createdFinancement); // Valide la modification dans le composant DataTable fils
-        this.create(createdFinancement);
-        this.selectedFinancement = createdFinancement;
-        this.popupService.success('Le financement a été crée.');
-        this.createEvent.emit();
-      }
+      this.financeurs = (await this.financeurService.getAll()) || [];
     } catch (error) {
       console.error(error);
-      if (error.error.errors) {
-        for (const err of error.error.errors) {
-          event?.callBack({
-            apiError: 'Impossible de créer le financement : ' + err.message,
-          });
-        }
-      } else {
-        event?.callBack({
-          apiError: 'Impossible de créer le financement : ' + error.error,
-        });
-      }
+      this.popupService.error(
+        'Impossible de charger les financeurs : ' + error
+      );
+      return Promise.reject(error);
     }
   }
 
   /**
-   * Un financements a été supprimé du tableau.
-   * @param event : encapsule le financement à modifier.
+   * Initialise les options de la table générique.
    */
-  async onDelete(event: GenericTableEntityEvent<Financement>): Promise<void> {
-    const financement = event.entity;
-    if (!financement) {
-      throw new Error("Le financement n'existe pas");
-    }
-
-    const dialogRef = this.dialog.open(GenericDialogComponent, {
-      data: {
-        header: 'Suppression du financement',
-        content: `Voulez-vous supprimer ce financement d'un montant de ${financement.montant_arrete_f} provenant du financeur ${financement.financeur.nom_financeur} ?`,
-        type: 'warning',
-        action: {
-          name: 'Confirmer',
-        },
-      } as IMessage,
-    });
-
-    dialogRef
-      .afterClosed()
-      .pipe(take(1))
-      .subscribe(async (result) => {
-        if (result) {
-          try {
-            await this.financementsService.delete(financement);
-            event.callBack(null);
-            this.delete(financement);
-            this.popupService.success(
-              'Le financement de montant ' +
-                financement.montant_arrete_f +
-                '€, a été supprimé du projet.'
-            );
-          } catch (error) {
-            event?.callBack({
-              apiError:
-                'Impossible de supprimer le financement : ' + error.error,
-            });
-          }
-        }
-      });
-  }
-
-  /**
-   * transform date format to yyyy-MM-dd
-   * @param date
-   */
-  toTransformDateFormat(date): string {
-    return this.pipe.transform(new Date(date), 'yyyy-MM-dd');
-  }
-
-  /**
-   * Gére la sélection d'une entité
-   * @param entity
-   */
-  public onSelect(
-    genericTableEntityEvent: GenericTableEntityEvent<Financement>
-  ): void {
-    this.selectEvent.emit(genericTableEntityEvent.entity);
-  }
-
-  public onStartCreation(): void {
-    this.startCreateEvent.emit();
-  }
-
-  public onEndCreation(): void {
-    this.endCreateEvent.emit();
-  }
-
-  public onStartEditing(): void {
-    this.startEditingEvent.emit();
-  }
-
-  public onEndEditing(): void {
-    this.endEditingEvent.emit();
-  }
-
-  private initGenericTableOptions(): void {
-    this.options = {
-      dataSource: this.financements,
-      defaultEntity: this.defaultEntity,
-      entityTypes: [
-        {
-          name: this.namesMap.montant_arrete_f.name,
-          type: GenericTableCellType.CURRENCY,
-          code: this.namesMap.montant_arrete_f.code,
-        },
-        {
-          name: this.namesMap.date_arrete_f.name,
-          type: GenericTableCellType.DATE,
-          code: this.namesMap.date_arrete_f.code,
-        },
-        {
-          name: this.namesMap.date_limite_solde_f.name,
-          type: GenericTableCellType.DATE,
-          code: this.namesMap.date_limite_solde_f.code,
-        },
-        {
-          name: this.namesMap.financeur.name,
-          type: GenericTableCellType.SELECTBOX,
-          code: this.namesMap.financeur.code,
-        },
-        {
-          name: this.namesMap.statut_f.name,
-          type: GenericTableCellType.SELECTBOX,
-          code: this.namesMap.statut_f.code,
-        },
-        {
-          name: this.namesMap.date_solde_f.name,
-          type: GenericTableCellType.DATE,
-          code: this.namesMap.date_solde_f.code,
-        },
-        {
-          name: this.namesMap.commentaire_admin_f.name,
-          type: GenericTableCellType.TEXTAREA,
-          code: this.namesMap.commentaire_admin_f.code,
-        },
-        {
-          name: this.namesMap.commentaire_resp_f.name,
-          type: GenericTableCellType.TEXTAREA,
-          code: this.namesMap.commentaire_resp_f.code,
-        },
-        {
-          name: this.namesMap.numero_titre_f.name,
-          type: GenericTableCellType.TEXT,
-          code: this.namesMap.numero_titre_f.code,
-        },
-        {
-          name: this.namesMap.annee_titre_f.name,
-          type: GenericTableCellType.TEXT,
-          code: this.namesMap.annee_titre_f.code,
-        },
-        {
-          name: this.namesMap.imputation_f.name,
-          type: GenericTableCellType.TEXT,
-          code: this.namesMap.imputation_f.code,
-        },
-        {
-          name: this.namesMap.difference.name,
-          type: GenericTableCellType.CURRENCY,
-          code: this.namesMap.difference.code,
-        },
-      ],
-      entityPlaceHolders: [],
-      entitySelectBoxOptions: [],
+  private initDtOptions(): void {
+    const dataSource = this.financements;
+    const financeursSelectBoxOption: EntitySelectBoxOptions<Financeur> = {
+      name: this.namesMap.financeur.code,
+      values:
+        this.financeurs?.map((f) => ({
+          id: f.id_financeur,
+          label: f.nom_financeur,
+          item: f,
+        })) || [],
     };
-  }
-
-  public onSelectedEntityChange(financement: Financement): void {
-    this.selectedFinancementChange.emit(financement);
-  }
-
-  private create(financement: Financement): void {
-    this.financements.push(financement);
-    this.emitFinancementsChange();
-  }
-
-  private modify(financement: Financement): void {
-    const index = this.financements.findIndex(
-      (_financement) => _financement.id_f === financement.id_f
-    );
-    this.financements[index] = financement;
-    this.emitFinancementsChange();
-  }
-
-  private delete(financement: Financement): void {
-    this.financements = this.financements.filter(
-      (_financement) => _financement.id_f !== financement.id_f
-    );
-    this.emitFinancementsChange();
-  }
-
-  private emitFinancementsChange(): void {
-    this.financementsChange.emit(this.financements);
-  }
-
-  private loadFinanceurInFinancement(financement: Financement): Financement {
-    return financement.id_financeur
-      ? {
-          ...financement,
-          financeur: this.financeurs.find(
-            (financeur) => financeur.id_financeur === financement.id_financeur
-          ),
-        }
-      : financement;
+    const statutSelectBoxOption: EntitySelectBoxOptions<any> = {
+      name: this.namesMap.statut_f.code,
+      values: this.statuts_financement,
+    };
+    const entitySelectBoxOptions = [
+      financeursSelectBoxOption,
+      statutSelectBoxOption,
+    ];
+    this.options = Object.assign({}, this.options, {
+      dataSource,
+      entitySelectBoxOptions,
+    });
   }
 }
