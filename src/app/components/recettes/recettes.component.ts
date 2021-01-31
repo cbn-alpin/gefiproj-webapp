@@ -19,6 +19,13 @@ import { GenericTableFormError } from '../../shared/components/generic-table/mod
 import { IsAdministratorGuardService } from 'src/app/services/authentication/is-administrator-guard.service';
 import { RecettesService } from '../../services/recettes.service';
 import { PopupService } from '../../shared/services/popup.service';
+import { Messages } from '../../models/messages';
+import {
+  GenericDialogComponent,
+  IMessage,
+} from '../../shared/components/generic-dialog/generic-dialog.component';
+import { take } from 'rxjs/operators';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-recettes',
@@ -133,7 +140,8 @@ export class RecettesComponent implements OnInit, OnChanges {
   constructor(
     private readonly isAdministratorGuardService: IsAdministratorGuardService,
     private readonly recettesService: RecettesService,
-    private readonly popupService: PopupService
+    private readonly popupService: PopupService,
+    private readonly dialog: MatDialog
   ) {}
 
   public ngOnInit(): void {
@@ -155,10 +163,10 @@ export class RecettesComponent implements OnInit, OnChanges {
   public async onCreate(
     event: GenericTableEntityEvent<Recette>
   ): Promise<void> {
-    console.log('RECETTE CREATE FROM GT: ', event.entity);
     const recette: Recette = { ...event.entity, id_f: this.financement.id_f };
     const formErrors = this.checkFormErrors(recette);
     if (formErrors) {
+      this.popupService.error(Messages.ERROR_FORM);
       event.callBack({ formErrors });
     } else {
       try {
@@ -167,22 +175,22 @@ export class RecettesComponent implements OnInit, OnChanges {
           this.financement,
           this.recettes
         );
-        event.callBack(null);
+        event.callBack(null, createdRecette);
         this.create(createdRecette);
-        this.popupService.success('La recette a été crée.');
+        this.popupService.success(Messages.SUCCESS_CREATE_RECETTE);
         this.createEvent.emit(createdRecette);
       } catch (error) {
         event?.callBack({
-          apiError: error,
+          apiError: Messages.FAILURE_CREATE_RECETTE,
         });
       }
     }
   }
 
   public async onEdit(event: GenericTableEntityEvent<Recette>): Promise<void> {
-    console.log('RECETTE EDIT FROM GT: ', event.entity);
     const formErrors = this.checkFormErrors(event.entity, true);
     if (formErrors) {
+      this.popupService.error(Messages.ERROR_FORM);
       event.callBack({ formErrors });
     } else {
       try {
@@ -191,12 +199,18 @@ export class RecettesComponent implements OnInit, OnChanges {
           this.financement,
           this.recettes
         );
-        event.callBack(null);
+        event.callBack(
+          null,
+          updatedRecette.id_r === this.selectedRecette.id_r
+            ? updatedRecette
+            : null
+        );
         this.modify(updatedRecette);
+        this.popupService.success(Messages.SUCCESS_UPDATE_RECETTE);
         this.editEvent.emit();
       } catch (error) {
         event?.callBack({
-          apiError: error,
+          apiError: Messages.FAILURE_UPDATE_RECETTE,
         });
       }
     }
@@ -206,16 +220,34 @@ export class RecettesComponent implements OnInit, OnChanges {
     event: GenericTableEntityEvent<Recette>
   ): Promise<void> {
     const recette: Recette = event.entity;
-    try {
-      await this.recettesService.delete(recette);
-      event.callBack(null);
-      this.delete(recette);
-      this.deleteEvent.emit();
-    } catch (error) {
-      event?.callBack({
-        apiError: error,
+    const dialogRef = this.dialog.open(GenericDialogComponent, {
+      data: {
+        header: `Suppression d'une recette`,
+        content: `Voulez-vous supprimer la recette de ${recette.annee_r} ?`,
+        type: 'warning',
+        action: {
+          name: 'Confirmer',
+        },
+      } as IMessage,
+    });
+
+    dialogRef
+      .afterClosed()
+      .pipe(take(1))
+      .subscribe(async (result) => {
+        if (result) {
+          try {
+            await this.recettesService.delete(recette);
+            event.callBack(null);
+            this.delete(recette);
+            this.popupService.success(Messages.SUCCESS_DELETE_RECETTE);
+          } catch (error) {
+            event?.callBack({
+              apiError: Messages.FAILURE_DELETE_RECETTE,
+            });
+          }
+        }
       });
-    }
   }
 
   /**

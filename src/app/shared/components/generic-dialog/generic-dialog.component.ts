@@ -30,9 +30,7 @@ export class GenericDialogComponent implements OnInit {
     this.message = data;
   }
 
-  ngOnInit(): void {
-    console.log('INIT DIALOG');
-  }
+  ngOnInit(): void {}
 
   /**
    * Confirm and close popup
