@@ -353,7 +353,7 @@ export class RecettesComponent implements OnInit, OnChanges {
 
   private create(createdRecette: Recette): void {
     this.recettes.push(createdRecette);
-    this.emitReceiptCahnge();
+    this.emitRecettesChange();
   }
 
   private modify(modifiedRecette: Recette): void {
@@ -361,17 +361,17 @@ export class RecettesComponent implements OnInit, OnChanges {
       (recette) => modifiedRecette.id_r === recette.id_r
     );
     this.recettes[index] = modifiedRecette;
-    this.emitReceiptCahnge();
+    this.emitRecettesChange();
   }
 
   private delete(deletedRecette: Recette): void {
     this.recettes = this.recettes.filter(
       (recette) => recette.id_r !== deletedRecette.id_r
     );
-    this.emitReceiptCahnge();
+    this.emitRecettesChange();
   }
 
-  private emitReceiptCahnge(): void {
+  private emitRecettesChange(): void {
     this.recettesChange.emit(this.recettes);
   }
 
