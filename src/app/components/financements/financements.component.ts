@@ -16,7 +16,6 @@ import { FinancementsService } from 'src/app/services/financements.service';
 import { FinanceurService } from 'src/app/services/financeur.service';
 import { GenericTableCellType } from 'src/app/shared/components/generic-table/globals/generic-table-cell-types';
 import { GenericTableEntityEvent } from 'src/app/shared/components/generic-table/models/generic-table-entity-event';
-import { GenericTableInterface } from 'src/app/shared/components/generic-table/models/generic-table-interface';
 import { GenericTableOptions } from 'src/app/shared/components/generic-table/models/generic-table-options';
 import { IsAdministratorGuardService } from 'src/app/services/authentication/is-administrator-guard.service';
 import { EntitySelectBoxOptions } from 'src/app/shared/components/generic-table/models/entity-select-box-options';
@@ -27,14 +26,14 @@ import {
 } from 'src/app/shared/components/generic-dialog/generic-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { PopupService } from '../../shared/services/popup.service';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-financements',
   templateUrl: './financements.component.html',
   styleUrls: ['./financements.component.scss'],
 })
-export class FinancementsComponent
-  implements OnInit, OnChanges, GenericTableInterface<Financement> {
+export class FinancementsComponent implements OnInit, OnChanges {
   /**
    * Données source du tableau générique
    * @private
@@ -65,9 +64,12 @@ export class FinancementsComponent
   public endEditingEvent: EventEmitter<void> = new EventEmitter<void>();
 
   @Output()
-  public financementChange: EventEmitter<Financement[]> = new EventEmitter<
+  public financementsChange: EventEmitter<Financement[]> = new EventEmitter<
     Financement[]
   >();
+
+  @Output()
+  public selectedFinancementChange: EventEmitter<Financement> = new EventEmitter<Financement>();
 
   /**
    * Titre du tableau générique
@@ -89,22 +91,9 @@ export class FinancementsComponent
    * Représente un nouveau financement et définit les colonnes à afficher.
    */
   private readonly defaultEntity: Financement = {
-    id_f: undefined,
-    id_p: undefined,
-    id_financeur: undefined,
-    montant_arrete_f: undefined,
-    date_arrete_f: undefined,
-    date_limite_solde_f: undefined,
     statut_f: Statut_F.ANTR,
-    date_solde_f: undefined,
-    commentaire_admin_f: undefined,
-    commentaire_resp_f: undefined,
-    numero_titre_f: undefined,
-    annee_titre_f: undefined,
-    imputation_f: undefined,
     difference: 0,
-    financeur: undefined,
-  };
+  } as Financement;
 
   /**
    * Mapping pour les noms des attributs d'un financement.
@@ -200,8 +189,15 @@ export class FinancementsComponent
     }
   }
 
-  public ngOnInit() {
+  public async ngOnInit() {
     this.initGenericTableOptions();
+    try {
+      this.pipe = new DatePipe('fr-FR');
+      await this.loadFinanceurs();
+      this.initDtOptions();
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   /**
@@ -209,13 +205,10 @@ export class FinancementsComponent
    */
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes.financements && changes.financements.currentValue) {
-      try {
-        this.pipe = new DatePipe('fr-FR');
-        await this.loadFinanceurs();
-        this.initDtOptions();
-      } catch (error) {
-        console.error(error);
-      }
+      this.options = {
+        ...this.options,
+        dataSource: this.financements,
+      };
     }
   }
 
@@ -225,7 +218,7 @@ export class FinancementsComponent
   private async loadData(projetId: number): Promise<void> {
     const promiseFinancements = this.loadFinancements(projetId);
     const promiseFinanceurs = this.loadFinanceurs();
-    await Promise.all([promiseFinanceurs, promiseFinancements]); // Pour être plus efficace : les requêtes sont lancées en parallèle
+    await Promise.all([promiseFinanceurs, promiseFinancements]);
   }
 
   /**
@@ -312,16 +305,26 @@ export class FinancementsComponent
    */
   async onEdit(event: GenericTableEntityEvent<Financement>): Promise<void> {
     try {
-      let financement = event?.entity;
+      let financement: Financement = event.entity;
       if (!financement) {
         throw new Error("Le financement n'existe pas");
       }
       financement = this.transformFormat(financement);
 
       if (this.validateForGenericTable(event)) {
-        await this.financementsService.put(financement);
-        await this.refreshDataTable();
-        event.callBack(null); // Valide la modification dans le composant DataTable fils
+        let updatedFinancement = await this.financementsService.put(
+          financement
+        );
+        updatedFinancement = this.loadFinanceurInFinancement(
+          updatedFinancement
+        );
+        event.callBack(
+          null,
+          updatedFinancement.id_f === this.selectedFinancement.id_f
+            ? updatedFinancement
+            : null
+        );
+        this.modify(updatedFinancement);
         this.editEvent.emit();
         this.popupService.success('Le financement a été modifié.');
       }
@@ -446,16 +449,22 @@ export class FinancementsComponent
    */
   async onCreate(event: GenericTableEntityEvent<Financement>): Promise<void> {
     try {
-      let financement = event.entity;
+      let financement: Financement = event.entity;
       if (!financement) {
         throw new Error("Le financement n'existe pas");
       }
       financement = this.transformFormat(financement);
 
       if (this.validateForGenericTable(event)) {
-        await this.financementsService.post(financement);
-        await this.refreshDataTable();
-        event.callBack(null); // Valide la modification dans le composant DataTable fils
+        let createdFinancement = await this.financementsService.post(
+          financement
+        );
+        createdFinancement = this.loadFinanceurInFinancement(
+          createdFinancement
+        );
+        event.callBack(null, createdFinancement); // Valide la modification dans le composant DataTable fils
+        this.create(createdFinancement);
+        this.selectedFinancement = createdFinancement;
         this.popupService.success('Le financement a été crée.');
         this.createEvent.emit();
       }
@@ -480,50 +489,44 @@ export class FinancementsComponent
    * @param event : encapsule le financement à modifier.
    */
   async onDelete(event: GenericTableEntityEvent<Financement>): Promise<void> {
-    try {
-      const financement = event?.entity;
-      if (!financement) {
-        throw new Error("Le financement n'existe pas");
-      }
+    const financement = event.entity;
+    if (!financement) {
+      throw new Error("Le financement n'existe pas");
+    }
 
-      const dialogRef = this.dialog.open(GenericDialogComponent, {
-        data: {
-          header: 'Suppression du financement',
-          content: `Voulez-vous supprimer ce financement d'un montant de ${financement.montant_arrete_f} provenant du financeur ${financement.financeur.nom_financeur} ?`,
-          type: 'warning',
-          action: {
-            name: 'Confirmer',
-          },
-        } as IMessage,
-      });
+    const dialogRef = this.dialog.open(GenericDialogComponent, {
+      data: {
+        header: 'Suppression du financement',
+        content: `Voulez-vous supprimer ce financement d'un montant de ${financement.montant_arrete_f} provenant du financeur ${financement.financeur.nom_financeur} ?`,
+        type: 'warning',
+        action: {
+          name: 'Confirmer',
+        },
+      } as IMessage,
+    });
 
-      dialogRef.afterClosed().subscribe(async (result) => {
+    dialogRef
+      .afterClosed()
+      .pipe(take(1))
+      .subscribe(async (result) => {
         if (result) {
-          await this.financementsService
-            .delete(financement)
-            .then(async () => {
-              await this.refreshDataTable();
-              event.callBack(null);
-              this.popupService.success(
-                'Le financement de montant ' +
-                  financement.montant_arrete_f +
-                  '€, a été supprimé du projet.'
-              );
-            })
-            .catch((error) => {
-              event?.callBack({
-                apiError:
-                  'Impossible de supprimer le financement : ' + error.error,
-              });
+          try {
+            await this.financementsService.delete(financement);
+            event.callBack(null);
+            this.delete(financement);
+            this.popupService.success(
+              'Le financement de montant ' +
+                financement.montant_arrete_f +
+                '€, a été supprimé du projet.'
+            );
+          } catch (error) {
+            event?.callBack({
+              apiError:
+                'Impossible de supprimer le financement : ' + error.error,
             });
+          }
         }
       });
-    } catch (error) {
-      console.error(error.error);
-      event?.callBack({
-        apiError: 'Impossible de supprimer le financement : ' + error.error,
-      });
-    }
   }
 
   /**
@@ -629,5 +632,44 @@ export class FinancementsComponent
       entityPlaceHolders: [],
       entitySelectBoxOptions: [],
     };
+  }
+
+  public onSelectedEntityChange(financement: Financement): void {
+    this.selectedFinancementChange.emit(financement);
+  }
+
+  private create(financement: Financement): void {
+    this.financements.push(financement);
+    this.emitFinancementsChange();
+  }
+
+  private modify(financement: Financement): void {
+    const index = this.financements.findIndex(
+      (_financement) => _financement.id_f === financement.id_f
+    );
+    this.financements[index] = financement;
+    this.emitFinancementsChange();
+  }
+
+  private delete(financement: Financement): void {
+    this.financements = this.financements.filter(
+      (_financement) => _financement.id_f !== financement.id_f
+    );
+    this.emitFinancementsChange();
+  }
+
+  private emitFinancementsChange(): void {
+    this.financementsChange.emit(this.financements);
+  }
+
+  private loadFinanceurInFinancement(financement: Financement): Financement {
+    return financement.id_financeur
+      ? {
+          ...financement,
+          financeur: this.financeurs.find(
+            (financeur) => financeur.id_financeur === financement.id_financeur
+          ),
+        }
+      : financement;
   }
 }

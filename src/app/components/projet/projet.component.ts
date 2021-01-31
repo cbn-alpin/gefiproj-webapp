@@ -73,8 +73,9 @@ export class ProjetComponent implements OnInit {
 
   public async loadData(projetId: number): Promise<Projet> {
     try {
-      await this.loadProjetDetailsFromProjetId(projetId);
-      await this.loadFinancementsFromProjetId(projetId);
+      const promiseDetails = this.loadProjetDetailsFromProjetId(projetId);
+      const promiseFinancement = this.loadFinancementsFromProjetId(projetId);
+      await Promise.all([promiseDetails, promiseFinancement]);
       if (this.financements && this.financements.length > 0) {
         this.selectedFinancement = this.financements[0];
         await this.loadRecettesFromFinancementId(this.selectedFinancement.id_f);
@@ -138,11 +139,15 @@ export class ProjetComponent implements OnInit {
     }
   }
 
-  public onCreateRecette(recette: Recette): void {
-    if (this.selectedRecette == null) {
-      this.selectedRecette = recette;
-      console.log('PROJET SELECTED RECETTE: ', this.selectedRecette);
+  public onSelectedFinancementChange(financement: Financement): void {
+    this.selectedFinancement = financement;
+    if (this.selectedFinancement == null) {
+      this.recettes = null;
+      this.montantsAffectes = null;
     }
+  }
+
+  public onCreateRecette(recette: Recette): void {
     if (!this.montantsAffectes) {
       this.montantsAffectes = [];
     }
@@ -159,7 +164,7 @@ export class ProjetComponent implements OnInit {
   }
 
   public onFinancementsChange(financements: Financement[]): void {
-    this.financements = financements;
+    this.financements = [...financements];
   }
 
   private async loadProjetDetailsFromProjetId(projetId: number): Promise<void> {
@@ -238,5 +243,13 @@ export class ProjetComponent implements OnInit {
         );
       }
     }
+  }
+
+  a() {
+    console.log('SELECTED FINANCEMENT: ', this.selectedFinancement);
+    console.log('SELECTED RECETTE: ', this.selectedRecette);
+    console.log('FINANCEMENTS: ', this.financements);
+    console.log('RECETTES: ', this.recettes);
+    console.log('MONANTS AFFECTEES: ', this.montantsAffectes);
   }
 }

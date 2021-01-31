@@ -1,7 +1,7 @@
 <app-generic-table
   *ngIf="options"
   [title]="title"
-  [(options)]="options"
+  [options]="options"
   [showActions]="true"
   [isReadOnly]="isReadOnly"
   [canSelect]="true"
@@ -11,5 +11,6 @@
   (createEvent)="onCreate($event)"
   (deleteEvent)="onDelete($event)"
   (selectEvent)="onSelect($event)"
+  (selectedEntityUpdatedEvent)="onSelectedEntityChange($event)"
 >
 </app-generic-table>
