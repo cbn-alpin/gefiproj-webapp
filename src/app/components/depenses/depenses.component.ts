@@ -12,6 +12,9 @@ import { SortInfo } from 'src/app/shared/components/generic-table/models/sortInf
 import { PopupService } from 'src/app/shared/services/popup.service';
 import { Depense } from './../../models/depense';
 
+/**
+ * Affiche les dépenses.
+ */
 @Component({
   selector: 'app-depenses',
   templateUrl: './depenses.component.html',
@@ -96,7 +99,6 @@ export class DepensesComponent implements OnInit {
    * @param dialog : affiche une boîte de dialogue.
    * @param popupService : affiche une information.
    * @param expensesSrv : permet de charger les dépenses.
-   * @param spinnerSrv : gère le spinner/sablier.
    */
   constructor(
     private adminSrv: IsAdministratorGuardService,

@@ -13,7 +13,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Financement, Statut_F } from 'src/app/models/financement';
 import { Financeur } from 'src/app/models/financeur';
 import { FinancementsService } from 'src/app/services/financements.service';
-import { FinanceurService } from 'src/app/services/financeur.service';
+import { FinanceurService } from 'src/app/services/funders.service';
 import { GenericTableCellType } from 'src/app/shared/components/generic-table/globals/generic-table-cell-types';
 import { GenericTableEntityEvent } from 'src/app/shared/components/generic-table/models/generic-table-entity-event';
 import { GenericTableOptions } from 'src/app/shared/components/generic-table/models/generic-table-options';

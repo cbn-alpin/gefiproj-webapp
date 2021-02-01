@@ -1,6 +1,6 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { FinanceurService } from './financeur.service';
+import { FinanceurService } from './funders.service';
 
 describe('FinanceurService', () => {
   let service: FinanceurService;
