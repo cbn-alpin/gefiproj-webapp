@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { first } from 'rxjs/operators';
-import { Financement } from 'src/app/models/financement';
+import { Financement, Statut_F } from 'src/app/models/financement';
 import { IsAdministratorGuardService } from 'src/app/services/authentication/is-administrator-guard.service';
 import { SpinnerService } from 'src/app/services/spinner.service';
 import { UsersService } from 'src/app/services/users.service';
@@ -24,6 +24,7 @@ import { GenericTableEntityEvent } from './../../shared/components/generic-table
 import { GenericTableOptions } from './../../shared/components/generic-table/models/generic-table-options';
 import { MontantAffecte } from 'src/app/models/montantAffecte';
 import { PopupService } from '../../shared/services/popup.service';
+import { FinancementsService } from 'src/app/services/financements.service';
 
 /**
  * Affiche les projets.
@@ -190,7 +191,8 @@ export class HomeComponent implements OnInit {
     private spinnerSrv: SpinnerService,
 
     // Pour entrer les données de tests
-    private httpSrv: HttpClient
+    private httpSrv: HttpClient,
+    private fSrv: FinancementsService
   ) {
   }
 
@@ -714,50 +716,458 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  public async onChargeTestsData():  Promise<void> {
-    try {
-      /*this.projets.forEach(async projet => {
+  private async deleteData(): Promise<void> {
+    for (const projet of this.projets) {
+      if (projet.code_p >= 23000) {
+        continue; // Projets de travail, hors projets de tests métier
+      }
+
+      const fSrvByP = new CrudService<Financement>(
+        this.httpSrv,
+        this.spinnerSrv,
+        `/api/projects/${projet.id_p}/fundings`
+      );
+
+      const financements = await fSrvByP.getAll();
+
+      for (const financement of financements) {
+        const rSrvByF = new CrudService<Recette>(
+          this.httpSrv,
+          this.spinnerSrv,
+          `/api/fundings/${financement.id_f}/receipts`
+        );
+
+        const recettes = await rSrvByF.getAll();
+
+        for (const recette of recettes) {
+          const maSrvByR = new CrudService<MontantAffecte>(
+            this.httpSrv,
+            this.spinnerSrv,
+            `/api/receipts/${recette.id_r}/amounts`
+          );
+
+          const affectations = await maSrvByR.getAll();
+
+          for (const affectation of affectations) {
+            const maSrv = new CrudService<MontantAffecte>(
+              this.httpSrv,
+              this.spinnerSrv,
+              `/api/amounts`
+            );
+
+            await maSrv.delete(affectation.id_ma);
+          }
+
+          const rSrv = new CrudService<Recette>(
+            this.httpSrv,
+            this.spinnerSrv,
+            `/api/receipts`
+          );
+          await rSrv.delete(recette.id_r);
+        }
+
         const fSrv = new CrudService<Financement>(
           this.httpSrv,
           this.spinnerSrv,
-          `/api/projects/${projet.id_p}/fundings`
-          );
-          
-          const financements = await fSrv.getAll();
+          `/api/fundings`
+        );
+        await fSrv.delete(financement.id_f);
+      }
 
-          financements.forEach(async financement => {
-            const rSrv = new CrudService<Recette>(
-              this.httpSrv,
-              this.spinnerSrv,
-              `/api/fundings/${financement.id_f}/receipts`
-            );
-               
-            const recettes = await rSrv.getAll();
-            
-            recettes.forEach(async recette => {
-              const maSrv = new CrudService<MontantAffecte>(
-                this.httpSrv,
-                this.spinnerSrv,
-                `/api/receipts/${recette.id_r}/amounts`
-              );
-              
-              const affectations = await maSrv.getAll();
-            });
-          });
-      });*/
+      await this.projectsSrv.delete(projet);
+    }
+  }
 
-      const projets: Projet[] = [
-        { id_p: 0, code_p: 16025, nom_p: 'Alcotra Resthalp', id_u: 36, statut_p: false},
-        { id_p: 0, code_p: 18003, nom_p: 'SCALP 19', id_u: 36, statut_p: false}
-      ];
+  public async onChargeTestsData(): Promise<void> {
+    try {
+      await this.deleteData();
 
-      projets.forEach(async projet => {
+      // date_arrete_f: new Date(2017, 5, 2), date_limite_solde_f: new Date(2020, 9, 24)
+      const projets: Projet[] = this.getProjetsForTests();
+
+      for (let projet of projets) {
+        const financements: Financement[] = (projet as any).financements || [];
+        delete projet.id_p;
+        delete (projet as any).financements;
+
         projet = await this.projectsSrv.add(projet);
 
-        this.ngOnInit();
-      });
+        for (let financement of financements) {
+          const recettes: Recette[] = (financement as any).recettes || [];
+          financement.id_p = projet.id_p;
+          financement.commentaire_admin_f = 'Données de tests !';
+          delete financement.id_f;
+          delete (financement as any).recettes;
+          const fSrv = new CrudService<Financement>(
+            this.httpSrv,
+            this.spinnerSrv,
+            `/api/fundings`
+          );
+
+          financement = await this.fSrv.post(financement);
+          const rSrv = new CrudService<Recette>(
+            this.httpSrv,
+            this.spinnerSrv,
+            `/api/receipts`
+          );
+
+          for (let recette of recettes) {
+            const affectations: MontantAffecte[] = (recette as any).affectations || [];
+            recette.id_f = financement.id_f;
+            delete recette.id_r;
+            delete (recette as any).affectations;
+            const maSrv = new CrudService<MontantAffecte>(
+              this.httpSrv,
+              this.spinnerSrv,
+              `/api/amounts`
+            );
+
+            recette = await rSrv.add(recette);
+            for (let affectation of affectations) {
+              affectation.id_r = recette.id_r;
+              delete affectation.id_ma;
+
+              affectation = await maSrv.add(affectation);
+            }
+          }
+        }
+      }
+
+      this.ngOnInit();
     } catch (error) {
       console.error(error);
     }
+  }
+
+  private getProjetsForTests(): Projet[] {
+    return [
+      {
+        code_p: 16025, nom_p: 'Alcotra Resthalp', id_u: 36, statut_p: false, id_p: 0,
+        financements: [
+          {
+            date_arrete_f: '2017-5-2', date_limite_solde_f: '2020-9-24', montant_arrete_f: 65329.95, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+            recettes: [
+              {
+                montant_r: 7008.33, annee_r: 2017, affectations: [
+                  { montant_ma: 1572, annee_ma: 2016 } as MontantAffecte,
+                  { montant_ma: 5436.33, annee_ma: 2017 } as MontantAffecte
+                ]
+              } as Recette,
+              {
+                montant_r: 32104.95, annee_r: 2019, affectations: [
+                  { montant_ma: 19604.67, annee_ma: 2017 } as MontantAffecte,
+                  { montant_ma: 12500.28, annee_ma: 2018 } as MontantAffecte
+                ]
+              } as Recette,
+              {
+                montant_r: 26216.67, annee_r: 2020, affectations: [
+                  { montant_ma: 483.72, annee_ma: 2018 } as MontantAffecte,
+                  { montant_ma: 10628, annee_ma: 2019 } as MontantAffecte,
+                  { montant_ma: 15104.95, annee_ma: 2020 } as MontantAffecte
+                ]
+              } as Recette
+            ]
+          } as Financement
+        ]
+      } as Projet,
+      {
+        code_p: 18003, nom_p: 'SCALP', id_u: 36, statut_p: false, id_p: 0,
+        financements: [
+          {
+            date_arrete_f: '2019-4-29', date_limite_solde_f: '2020-3-31', montant_arrete_f: 16506, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+            recettes: [
+              {
+                montant_r: 4951.8, annee_r: 2019, affectations: [
+                  { montant_ma: 4951.8, annee_ma: 2019 } as MontantAffecte
+                ]
+              } as Recette,
+              {
+                montant_r: 11554.2, annee_r: 2020, affectations: [
+                  { montant_ma: 11554.2, annee_ma: 2019 } as MontantAffecte
+                ]
+              } as Recette
+            ]
+          } as Financement,
+          {
+            date_arrete_f: '2019-4-2', date_limite_solde_f: '2022-9-30', montant_arrete_f: 101001.5, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+            recettes: [
+              {
+                montant_r: 29390.77, annee_r: 2020, affectations: [
+                  { montant_ma: 29390.77, annee_ma: 2019 } as MontantAffecte
+                ]
+              } as Recette,
+              {
+                montant_r: 38646.5, annee_r: 2021, affectations: [
+                  { montant_ma: 38646.5, annee_ma: 2020 } as MontantAffecte
+                ]
+              } as Recette,
+              {
+                montant_r: 32964.24, annee_r: 2022, affectations: [
+                  { montant_ma: 32964.24, annee_ma: 2021 } as MontantAffecte
+                ]
+              } as Recette
+            ]
+          } as Financement,
+          {
+            date_arrete_f: '2020-5-25', date_limite_solde_f: '2021-3-30', montant_arrete_f: 23187, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+            recettes: [
+              {
+                montant_r: 11593.5, annee_r: 2020, affectations: [
+                  { montant_ma: 11593.5, annee_ma: 2020 } as MontantAffecte
+                ]
+              } as Recette,
+              {
+                montant_r: 11593.5, annee_r: 2021, affectations: [
+                  { montant_ma: 11593.5, annee_ma: 2020 } as MontantAffecte
+                ]
+              } as Recette
+            ]
+          } as Financement,
+          {
+            montant_arrete_f: 20907, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+            recettes: [
+              {
+                montant_r: 6272.1, annee_r: 2021, affectations: [
+                  { montant_ma: 6272.1, annee_ma: 2021 } as MontantAffecte
+                ]
+              } as Recette,
+              {
+                montant_r: 14634.9, annee_r: 2022, affectations: [
+                  { montant_ma: 14634.9, annee_ma: 2021 } as MontantAffecte
+                ]
+              } as Recette
+            ]
+          } as Financement
+        ]
+      } as Projet,
+      {
+        code_p: 18004, nom_p: 'ROCVEG', id_u: 36, statut_p: false, id_p: 0,
+        financements: [
+          {
+            date_arrete_f: '2019-3-19', date_limite_solde_f: '2020-3-31', montant_arrete_f: 11436.37, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+            recettes: [
+              {
+                montant_r: 5232.51, annee_r: 2019, affectations: [
+                  { montant_ma: 5232.51, annee_ma: 2019 } as MontantAffecte
+                ]
+              } as Recette,
+              {
+                montant_r: 6203.86, annee_r: 2020, affectations: [
+                  { montant_ma: 6203.86, annee_ma: 2019 } as MontantAffecte
+                ]
+              } as Recette
+            ]
+          } as Financement,
+          {
+            date_arrete_f: '2019-6-18', date_limite_solde_f: '2022-6-30', montant_arrete_f: 58631.11, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+            recettes: [
+              {
+                montant_r: 19060.61, annee_r: 2020, affectations: [
+                  { montant_ma: 19060.61, annee_ma: 2019 } as MontantAffecte
+                ]
+              } as Recette,
+              {
+                montant_r: 17641.5, annee_r: 2021, affectations: [
+                  { montant_ma: 17641.5, annee_ma: 2020 } as MontantAffecte
+                ]
+              } as Recette,
+              {
+                montant_r: 21929, annee_r: 2022, affectations: [
+                  { montant_ma: 21929, annee_ma: 2021 } as MontantAffecte
+                ]
+              } as Recette
+            ]
+          } as Financement,
+          {
+            date_arrete_f: '2020-5-25', date_limite_solde_f: '2021-3-30', montant_arrete_f: 10139, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+            recettes: [
+              {
+                montant_r: 5069.5, annee_r: 2020, affectations: [
+                  { montant_ma: 5069.5, annee_ma: 2020 } as MontantAffecte
+                ]
+              } as Recette,
+              {
+                montant_r: 5069.5, annee_r: 2021, affectations: [
+                  { montant_ma: 5069.5, annee_ma: 2020 } as MontantAffecte
+                ]
+              } as Recette
+            ]
+          } as Financement,
+          {
+            montant_arrete_f: 12372.9, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+            recettes: [
+              {
+                montant_r: 3711.87, annee_r: 2021, affectations: [
+                  { montant_ma: 3711.87, annee_ma: 2021 } as MontantAffecte
+                ]
+              } as Recette,
+              {
+                montant_r: 8661.03, annee_r: 2022, affectations: [
+                  { montant_ma: 8661.03, annee_ma: 2021 } as MontantAffecte
+                ]
+              } as Recette
+            ]
+          } as Financement
+        ]
+      } as Projet,
+      {
+        code_p: 18022, nom_p: 'SILENE', id_u: 36, statut_p: false, id_p: 0,
+        financements: [
+          {
+            date_arrete_f: '2018-2-14', date_limite_solde_f: '2019-2-13', montant_arrete_f: 7000, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+            recettes: [
+              {
+                montant_r: 7000, annee_r: 2018, affectations: [
+                  { montant_ma: 7000, annee_ma: 2018 } as MontantAffecte
+                ]
+              } as Recette
+            ]
+          } as Financement
+        ]
+      } as Projet,
+      {
+        code_p: 18059, nom_p: 'Infloreb', id_u: 36, statut_p: false, id_p: 0,
+        financements: [
+          {
+            date_arrete_f: '2019-3-11', date_limite_solde_f: '2022-12-31', montant_arrete_f: 40000, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+            recettes: [
+              {
+                montant_r: 12000, annee_r: 2019, affectations: [
+                  { montant_ma: 12000, annee_ma: 2019 } as MontantAffecte
+                ]
+              } as Recette,
+              {
+                montant_r: 28000, annee_r: 2020, affectations: [
+                  { montant_ma: 28000, annee_ma: 2019 } as MontantAffecte
+                ]
+              } as Recette
+            ]
+          } as Financement,
+          {
+            date_arrete_f: '2019-11-18', date_limite_solde_f: '2022-12-31', montant_arrete_f: 40000, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+            recettes: [
+              {
+                montant_r: 12000, annee_r: 2019, affectations: [
+                  { montant_ma: 12000, annee_ma: 2020 } as MontantAffecte
+                ]
+              } as Recette,
+              {
+                montant_r: 28000, annee_r: 2021, affectations: [
+                  { montant_ma: 28000, annee_ma: 2020 } as MontantAffecte
+                ]
+              } as Recette
+            ]
+          } as Financement,
+          {
+            date_arrete_f: '2019-11-14', date_limite_solde_f: '2022-12-31', montant_arrete_f: 40000, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+            recettes: [
+              {
+                montant_r: 12000, annee_r: 2019, affectations: [
+                  { montant_ma: 12000, annee_ma: 2021 } as MontantAffecte
+                ]
+              } as Recette,
+              {
+                montant_r: 28000, annee_r: 2022, affectations: [
+                  { montant_ma: 28000, annee_ma: 2021 } as MontantAffecte
+                ]
+              } as Recette
+            ]
+          } as Financement,
+          {
+            date_arrete_f: '2019-8-8', date_limite_solde_f: '2022-6-30', montant_arrete_f: 120000, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+            recettes: [
+              {
+                montant_r: 40000, annee_r: 2020, affectations: [
+                  { montant_ma: 40000, annee_ma: 2019 } as MontantAffecte
+                ]
+              } as Recette,
+              {
+                montant_r: 40000, annee_r: 2021, affectations: [
+                  { montant_ma: 40000, annee_ma: 2020 } as MontantAffecte
+                ]
+              } as Recette,
+              {
+                montant_r: 40000, annee_r: 2022, affectations: [
+                  { montant_ma: 40000, annee_ma: 2021 } as MontantAffecte
+                ]
+              } as Recette
+            ]
+          } as Financement
+        ]
+      } as Projet,
+      {
+        code_p: 19017, nom_p: 'Floreclim', id_u: 36, statut_p: false, id_p: 0,
+        financements: [
+          {
+            date_arrete_f: '2020-1-28', date_limite_solde_f: '2022-4-15', montant_arrete_f: 22170, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+            recettes: [
+              {
+                montant_r: 11085, annee_r: 2020, affectations: [
+                  { montant_ma: 11085, annee_ma: 2020 } as MontantAffecte
+                ]
+              } as Recette,
+              {
+                montant_r: 11085, annee_r: 2022, affectations: [
+                  { montant_ma: 9653, annee_ma: 2021 } as MontantAffecte,
+                  { montant_ma: 1432, annee_ma: 2022 } as MontantAffecte
+                ]
+              } as Recette
+            ]
+          } as Financement,
+          {
+            date_arrete_f: '2020-4-27', date_limite_solde_f: '2022-8-14', montant_arrete_f: 17149, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+            recettes: [
+              {
+                montant_r: 3429.8, annee_r: 2020, affectations: [
+                  { montant_ma: 3429.8, annee_ma: 2020 } as MontantAffecte
+                ]
+              } as Recette,
+              {
+                montant_r: 13719.2, annee_r: 2021, affectations: [
+                  { montant_ma: 12440.2, annee_ma: 2020 } as MontantAffecte,
+                  { montant_ma: 1279, annee_ma: 2021 } as MontantAffecte
+                ]
+              } as Recette
+            ]
+          } as Financement,
+          {
+            montant_arrete_f: 17149, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+            recettes: [
+              {
+                montant_r: 3429.8, annee_r: 2021, affectations: [
+                  { montant_ma: 3429.8, annee_ma: 2021 } as MontantAffecte
+                ]
+              } as Recette,
+              {
+                montant_r: 13719.2, annee_r: 2022, affectations: [
+                  { montant_ma: 11504, annee_ma: 2021 } as MontantAffecte,
+                  { montant_ma: 2215.2, annee_ma: 2022 } as MontantAffecte
+                ]
+              } as Recette
+            ]
+          } as Financement,
+          {
+            date_arrete_f: '2020-2-24', date_limite_solde_f: '2022-10-31', montant_arrete_f: 95270, statut_f: Statut_F.ATR, id_financeur: 2, id_p: 0,
+            recettes: [
+              {
+                montant_r: 44086, annee_r: 2021, affectations: [
+                  { montant_ma: 44086, annee_ma: 2020 } as MontantAffecte
+                ]
+              } as Recette,
+              {
+                montant_r: 45036, annee_r: 2022, affectations: [
+                  { montant_ma: 45036, annee_ma: 2021 } as MontantAffecte
+                ]
+              } as Recette,
+              {
+                montant_r: 6148, annee_r: 2023, affectations: [
+                  { montant_ma: 6148, annee_ma: 2022 } as MontantAffecte
+                ]
+              } as Recette
+            ]
+          } as Financement
+        ]
+      } as Projet
+    ];
   }
 }

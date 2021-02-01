@@ -9,7 +9,7 @@ export interface Financement {
   date_arrete_f?: Date | string;
   date_limite_solde_f?: Date | string;
   statut_f: Statut_F;
-  date_solde_f: Date | string;
+  date_solde_f?: Date | string;
   commentaire_admin_f?: string;
   commentaire_resp_f?: string;
   numero_titre_f?: string;
