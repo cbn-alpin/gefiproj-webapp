@@ -5,7 +5,6 @@
   max-width: 96vw;
   overflow: auto;
   margin-top: 10px;
-  max-height: 300px;   
 }
 .result {
   float: right;
@@ -97,7 +96,7 @@
     padding: 5px 10px !important;
   }
   .mat-cell.actions {
-    border-right: 1px solid #f5f5f5;
+    //border-right: 1px solid #f5f5f5;
   }
   .mat-form-field-appearance-legacy .mat-form-field-underline {
     background-image: none !important;
@@ -145,6 +144,7 @@
 
 .mat-table-sticky:last-child {
   border-left: 0.5px solid #e0e0e0;
+  right: -1px!important;
 }
 
 /* Chrome, Safari, Edge, Opera */
@@ -186,9 +186,3 @@ input[type="number"] {
 .content {
   display: contents;
 }
-
-//th.mat-header-cell , .actions{
-  //position: sticky; 
-  //top: 0;
-  //z-index: 10;
-//}
