@@ -5,6 +5,7 @@
   max-width: 96vw;
   overflow: auto;
   margin-top: 10px;
+  max-height: 300px;   
 }
 .result {
   float: right;
@@ -185,3 +186,9 @@ input[type="number"] {
 .content {
   display: contents;
 }
+
+//th.mat-header-cell , .actions{
+  //position: sticky; 
+  //top: 0;
+  //z-index: 10;
+//}

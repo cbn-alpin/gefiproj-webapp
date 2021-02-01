@@ -137,7 +137,9 @@ export class GenericTableService<T> {
     let disabled = false;
     // exception edition pour l'instance financement
     if (this.instanceOfFinancement(selectedEntity)) {
-      if (selectedEntity?.solde && entityName !== 'statut_f') {
+      if (selectedEntity?.solde && entityName !== 'statut_f' && entityName !== 'date_limite_solde_f') {
+        disabled = true;
+      } else if (!selectedEntity?.solde && entityName === 'date_limite_solde_f') {
         disabled = true;
       } else if (entityName === 'difference') {
         disabled = true;

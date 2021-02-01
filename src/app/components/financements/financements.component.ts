@@ -27,6 +27,7 @@ import {
 } from 'src/app/shared/components/generic-dialog/generic-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { PopupService } from '../../shared/services/popup.service';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-financements',
@@ -418,7 +419,7 @@ export class FinancementsComponent
     if (!financement.montant_arrete_f) {
       const error = {
         name: this.namesMap.montant_arrete_f.code,
-        message: 'Un montant de financement doit être défini.',
+        message: 'Un montant de financement doit être défini et supérieur à 0.',
       };
       formErrors.push(error);
     }
@@ -437,6 +438,32 @@ export class FinancementsComponent
         message: 'Un financeur doit être défini.',
       };
       formErrors.push(error);
+    }
+
+    if (financement.date_arrete_f && financement.date_limite_solde_f && moment(financement.date_arrete_f).isAfter(financement.date_limite_solde_f)) {
+      const errord1 = {
+        name: this.namesMap.date_arrete_f.code,
+        message: 'format date non respecté : la date arrêté ou commande est postérieure à la date limite de solde.',
+      };
+      const errord2 = {
+        name: this.namesMap.date_limite_solde_f.code,
+        message: 'format date non respecté : la date limite de solde est antérieur à la date arrêté ou commande.',
+      };
+      formErrors.push(errord1);
+      formErrors.push(errord2);
+    }
+
+    if (financement.date_arrete_f && financement.date_solde_f && moment(financement.date_arrete_f).isAfter(financement.date_solde_f)) {
+      const errord1 = {
+        name: this.namesMap.date_arrete_f.code,
+        message: 'format date non respecté : la date arrêté ou commande est postérieure à la date de solde.',
+      };
+      const errord2 = {
+        name: this.namesMap.date_solde_f.code,
+        message: 'format date non respecté : la date de solde est antérieur à la date arrêté ou commande.',
+      };
+      formErrors.push(errord1);
+      formErrors.push(errord2);
     }
   }
 
