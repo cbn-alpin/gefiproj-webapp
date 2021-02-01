@@ -188,6 +188,17 @@ export class FinanceursComponent implements OnInit {
         throw new Error('Le financeur n\'existe pas');
       }
 
+      // RG
+      const fundings = (await this.fundersSrv.fundingsOf(funder)) || [];
+      const isEmpty = fundings.length === 0;
+      if (!isEmpty) {
+        event?.callBack({
+          apiError:
+            'Impossible de supprimer le financeur car il possède des financements.',
+        });
+        return;
+      }
+
       // Etes-vous sûr ?
       const data: IMessage = {
         header: 'Suppression du financeur',
