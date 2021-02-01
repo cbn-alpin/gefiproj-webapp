@@ -1103,7 +1103,8 @@ export class HomeComponent implements OnInit {
             recettes: [
               {
                 montant_r: 11085, annee_r: 2020, affectations: [
-                  { montant_ma: 11085, annee_ma: 2020 } as MontantAffecte
+                  { montant_ma: 10258, annee_ma: 2020 } as MontantAffecte,
+                  { montant_ma: 827, annee_ma: 2021 } as MontantAffecte
                 ]
               } as Recette,
               {
