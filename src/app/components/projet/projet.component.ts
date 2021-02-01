@@ -202,32 +202,29 @@ export class ProjetComponent implements OnInit {
     }
   }
 
-  public onEditRecette(): void {
-    if (!this.montantsAffectes && this.selectedRecette) {
-      this.loadMontantsFromRecetteId(this.selectedRecette.id_r);
-    }
-  }
-
-  public onRecettesChange(recettes: Recette[]): void {
-    this.recettes = [...recettes];
-  }
+  public onEditRecette(): void {}
 
   public onFinancementsChange(financements: Financement[]): void {
     this.financements = [...financements];
   }
 
+  public onRecettesChange(recettes: Recette[]): void {
+    this.recettes = [...recettes];
+    // Calcule de la différence pour le financement sélectionné
+    const sumRecettes = this.recettes.reduce((a, b) => a + b.montant_r, 0);
+    this.selectedFinancement.difference =
+      this.selectedFinancement.montant_arrete_f - sumRecettes;
+  }
+
   public onMontantsAffectesChange(montantAffectes: MontantAffecte[]): void {
     this.montantsAffectes = [...montantAffectes];
-    const recette = this.recettes.find(
-      (recette) => recette.id_r === this.selectedRecette.id_r
+    // Calcule de la différence pour la recette sélectionné
+    const sumMontants = this.montantsAffectes.reduce(
+      (a, b) => a + b.montant_ma,
+      0
     );
-    if (recette) {
-      const sumMontants = this.montantsAffectes.reduce(
-        (a, b) => a + b.montant_ma,
-        0
-      );
-      recette.difference = recette.montant_r - sumMontants;
-    }
+    this.selectedRecette.difference =
+      this.selectedRecette.montant_r - sumMontants;
   }
 
   private async loadProjetDetailsFromProjetId(projetId: number): Promise<void> {
@@ -263,7 +260,6 @@ export class ProjetComponent implements OnInit {
           this.financementsDefaultSortInfo.sortInfo
         );
       }
-      this.manager = this.projet.responsable;
     } catch (error) {
       console.error(error);
 

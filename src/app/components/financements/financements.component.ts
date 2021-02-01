@@ -30,6 +30,7 @@ import { take } from 'rxjs/operators';
 import { SortInfo } from '../../shared/components/generic-table/models/sortInfo';
 import { basicSort } from '../../shared/tools/utils';
 import { DefaultSortInfo } from '../../models/projet';
+import { RecettesService } from '../../services/recettes.service';
 
 @Component({
   selector: 'app-financements',
@@ -176,7 +177,8 @@ export class FinancementsComponent implements OnInit, OnChanges {
     private route: ActivatedRoute,
     private router: Router,
     private popupService: PopupService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private recettesService: RecettesService
   ) {
     this.projectId = this.route.snapshot.params.id;
     if (!this.projectId) {
@@ -229,6 +231,13 @@ export class FinancementsComponent implements OnInit, OnChanges {
         updatedFinancement = this.loadFinanceurInFinancement(
           updatedFinancement
         );
+        // TODO: à supprimmer quand back renvoie la bonne différence
+        const recettes = await this.recettesService.getAll(
+          updatedFinancement.id_f
+        );
+        const sumRecettes = recettes.reduce((a, b) => a + b.montant_r, 0);
+        const difference = updatedFinancement.montant_arrete_f - sumRecettes;
+        updatedFinancement.difference = difference;
         event.callBack(
           null,
           updatedFinancement.id_f === this.selectedFinancement.id_f
@@ -276,6 +285,10 @@ export class FinancementsComponent implements OnInit, OnChanges {
         createdFinancement = this.loadFinanceurInFinancement(
           createdFinancement
         );
+        // TODO: à supprimmer quand back renvoie la bonne différence
+        if (!createdFinancement.difference) {
+          createdFinancement.difference = createdFinancement.montant_arrete_f;
+        }
         event.callBack(null, createdFinancement); // Valide la modification dans le composant DataTable fils
         this.create(createdFinancement);
         this.selectedFinancement = createdFinancement;
