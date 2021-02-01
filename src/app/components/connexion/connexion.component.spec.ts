@@ -4,6 +4,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from '@angular/router/testing';
 import { JwtModule } from '@auth0/angular-jwt';
 import { tokenGetter } from 'src/app/app.module';
+import { HomeComponent } from '../home/home.component';
 import { ConnexionComponent } from './connexion.component';
 
 describe('ConnexionComponent', () => {
@@ -17,7 +18,10 @@ describe('ConnexionComponent', () => {
       ],
       imports: [
         HttpClientTestingModule,
-        RouterTestingModule,
+        RouterTestingModule.withRoutes(
+          [{path: 'connexion', component: ConnexionComponent},
+          {path: 'home', component: HomeComponent}]
+        ),
         JwtModule.forRoot({
           config: {
             tokenGetter

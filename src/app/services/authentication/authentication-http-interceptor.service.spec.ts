@@ -4,6 +4,8 @@ import { RouterStateSnapshot } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { JwtModule } from '@auth0/angular-jwt';
 import { tokenGetter } from 'src/app/app.module';
+import { ConnexionComponent } from 'src/app/components/connexion/connexion.component';
+import { HomeComponent } from 'src/app/components/home/home.component';
 import { NavigationService } from '../navigation.service';
 import { AuthenticationHttpInterceptorService } from './authentication-http-interceptor.service';
 
@@ -17,7 +19,10 @@ describe('AuthenticationHttpInterceptorService', () => {
     TestBed.configureTestingModule({
       imports: [
         HttpClientTestingModule,
-        RouterTestingModule,
+        RouterTestingModule.withRoutes(
+          [{path: 'connexion', component: ConnexionComponent},
+          {path: 'home', component: HomeComponent}]
+        ),
         JwtModule.forRoot({
           config: {
             tokenGetter

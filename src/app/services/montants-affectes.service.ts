@@ -92,8 +92,7 @@ export class MontantsAffectesService {
    */
   public async post(montant: MontantAffecte, receiptId: number): Promise<MontantAffecte> {
     try {
-      montant.id_r=receiptId;
-      console.log("Recette ID" + montant.id_r);
+      montant.id_r = receiptId;
       return this.crudSrv.add(montant);
     } catch (error) {
       return Promise.reject(error);
