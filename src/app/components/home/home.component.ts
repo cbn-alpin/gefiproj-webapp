@@ -171,9 +171,10 @@ export class HomeComponent implements OnInit {
   /**
    * Affiche les projets.
    * @param adminSrv : permet de vérifier si l'utilisateur est un administrateur.
+   * @param dialog : affiche une boîte de dialogue.
+   * @param popupService : affiche une information.
    * @param projectsSrv : permet de dialoguer avec le serveur d'API pour les entités Projet.
    * @param usersSrv : permet de charger les utilisateurs.
-   * @param popupService : affiche une information.
    * @param spinnerSrv : gère le spinner/sablier.
    */
   constructor(
@@ -316,7 +317,7 @@ export class HomeComponent implements OnInit {
     try {
       const project = event?.entity;
       if (!project) {
-        throw new Error("Le projet n'existe pas");
+        throw new Error('Le projet n\'existe pas');
       }
 
       this.injectManager(project);
@@ -360,7 +361,7 @@ export class HomeComponent implements OnInit {
     gtEvent: GenericTableEntityEvent<Projet>
   ): boolean {
     if (!gtEvent) {
-      throw new Error("Le paramètre 'gtEvent' est invalide");
+      throw new Error('Le paramètre \'gtEvent\' est invalide');
     }
 
     try {
@@ -517,13 +518,13 @@ export class HomeComponent implements OnInit {
     try {
       let project = event?.entity;
       if (!project) {
-        throw new Error("Le projet n'existe pas");
+        throw new Error('Le projet n\'existe pas');
       }
 
       this.injectManager(project);
 
       if (this.validateForGenericTable(event)) {
-        project = await this.projectsSrv.add(event.entity);
+        project = await this.projectsSrv.add(project);
         this.injectManager(project); // Obligatoire car le service nettoye l'entité
         event.callBack(null); // Valide la modification dans le composant DataTable fils
 
@@ -576,21 +577,20 @@ export class HomeComponent implements OnInit {
 
   /**
    * Un projet a été supprimé du tableau.
-   * @param event : encapsule le projet à modifier.
+   * @param event : encapsule le projet à supprimer.
    */
   async onDelete(event: GenericTableEntityEvent<Projet>): Promise<void> {
     try {
       const project = event?.entity;
       if (!project) {
-        throw new Error("Le projet n'existe pas");
+        throw new Error('Le projet n\'existe pas');
       }
 
       // Vérification des RG
       const fundings = (await this.projectsSrv.getFundings(project)) || [];
       const isEmpty = fundings.length === 0;
 
-      if (!isEmpty) {
-        // RG : Ne pas supprimer un projet avec des financements
+      if (!isEmpty) { // RG : Ne pas supprimer un projet avec des financements
         event?.callBack({
           apiError:
             'Impossible de supprimer le projet car il possède des financements.',
@@ -616,16 +616,15 @@ export class HomeComponent implements OnInit {
         .toPromise();
       const okToDelete = !!dialogResult;
 
-      if (okToDelete) {
-        // Suppression
+      if (okToDelete) { // Suppression
         await this.projectsSrv.delete(project);
         event.callBack(null); // Valide la modification dans le composant DataTable fils
         this.deleteProject(project);
+        this.refreshDataTable();
         this.popupService.success(
           `Le projet \'${project.nom_p} (${project.code_p})\' a été supprimé.`
         );
-      } else {
-        // Annulation
+      } else { // Annulation
         event?.callBack({
           apiError: 'La suppression est annulée.',
         });
