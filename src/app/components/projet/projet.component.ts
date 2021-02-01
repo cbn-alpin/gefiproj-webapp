@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Inject, OnInit} from '@angular/core';
 import { Financement } from "../../models/financement";
 import { ProjetService } from "../../services/projet.service";
 import { Recette } from "../../models/recette";
 import { IsAdministratorGuardService } from '../../services/authentication/is-administrator-guard.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialog } from '@angular/material/dialog';
+import {MAT_DIALOG_DATA, MatDialog} from '@angular/material/dialog';
 import { ProjetsService } from '../../services/projets.service';
 import { Projet } from '../../models/projet';
 import { MontantsAffectesService } from "../../services/montants-affectes.service";
@@ -16,6 +16,13 @@ import {Utilisateur} from '../../models/utilisateur';
 import {UsersService} from '../../services/users.service';
 import {SpinnerService} from '../../services/spinner.service';
 
+export interface DialogData {
+  project: Projet;
+  users: Utilisateur[];
+  manager : Utilisateur;
+  projectName : string;
+  edited : boolean;
+}
 @Component({
   selector: 'app-projet',
   templateUrl: './projet.component.html',
@@ -37,9 +44,18 @@ export class ProjetComponent implements OnInit {
    */
   public projet: Projet;
   /**
+   * /**
+   * projet modifié
+   */
+  public projetToEdit: Projet;
+  /**
    * Responsable du projet.
    */
   manager: Utilisateur;
+  /**
+   * La liste des utilisateur
+   */
+  managers: Utilisateur[];
 
   /**
    * Indique si le tableau est en lecture seule.
@@ -74,6 +90,7 @@ export class ProjetComponent implements OnInit {
     private readonly _montantsAffectesService: MontantsAffectesService,
     private readonly _financementsService: FinancementsService,
     private spinnerSrv: SpinnerService,
+    private usersSrv: UsersService,
   ) {
     this.projectId = this.route.snapshot.params.id;
     if (!this.projectId) {
@@ -125,6 +142,9 @@ export class ProjetComponent implements OnInit {
   async loadData(projetId: number): Promise<Projet> {
     try {
       this.projet = await this._projetsService.get(projetId);
+      this.projetToEdit = await this._projetsService.get(projetId);
+      this.managers = await this.usersSrv.getAll(); // RG : tous les utilisateurs actifs peuvent être responsable projets
+      // .filter(m => m.active_u);
       this.financements = await this._financementsService.getAll(this.projet.id_p);
       if (this.financements.length > 0) {
         this.recettes = await this._projetService.getAllRecettesFromFinancement(this.financements[0]);
@@ -177,14 +197,89 @@ export class ProjetComponent implements OnInit {
   catch(error) {
     console.error(error);
     for (const err of error.error.errors) {
-      this.showInformation('Impossible de créer le montant affecté : ' + err.message);
+      this.showInformation('Impossible de modifier le statut du projet : ' + err.message);
     }
   }
 
 
   }
 
+  public openEditProjectDialog() : void {
+    let projectName = this.projet.nom_p;
+    let edited = false;
+    const dialogRef = this.dialog.open(EditProjectDialogComponent, {
+      width: '600px',
+      data: {project : this.projetToEdit, users : this.managers, manager : this.manager , projectName : projectName ,edited :  edited},
+    });
+
+    dialogRef.afterClosed().subscribe(async result => {
+      if(result)
+      {
+        if(result.edited) {
+          console.log("result  : " , result);
+          await this.updateProjectInfos(result.project);
+
+          await this.refreshProject();
+        }
+      }
+    });
+  }
+
+  /**
+   * Met à jour les données d'affichage.
+   */
+  private async refreshProject() {
+
+    try {
+      this.projet = await this._projetsService.get(this.projet.id_p);
+      this.manager=this.projet.responsable;
+
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  public async updateProjectInfos(editedProject : Projet): Promise<void> {
+    editedProject.id_u = editedProject.responsable.id_u;
+    try {
+      this.spinnerSrv.show();
+      await this._projetsService.modify(editedProject);
+      this.spinnerSrv.hide();
+      this.showInformation("Le projet a bien été modifé ! ");
+      console.log("Update end");
+
+    } catch (error) {
+      console.error(error);
+      for (const err of error.error.errors) {
+        this.showInformation('Impossible de modifier le projet : ' + err.message);
+      }
+
+    }
+  }
 
 
+}
 
+
+@Component({
+  selector: 'edit-project-dialog',
+  templateUrl: 'edit-project-popup.component.html',
+  styleUrls: ['./projet.component.scss']
+})
+export class EditProjectDialogComponent {
+  constructor(
+    public dialogRef: MatDialog,
+    @Inject(MAT_DIALOG_DATA) public data : DialogData,) {
+  }
+
+  public managerId = this.data.manager.id_u;
+
+  onNoClick(): void {
+    this.dialogRef.closeAll()
+  }
+
+  async onYesClick(): Promise<void> {
+    this.data.edited = true;
+    this.data.project.responsable = this.data.users.find(responsable => responsable.id_u === this.managerId );
+  }
 }

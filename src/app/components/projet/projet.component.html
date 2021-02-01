@@ -1,12 +1,19 @@
-<div class="project-details" *ngIf="projet">
+<div class="project-details" *ngIf="projet && manager">
   <span class="bold project-name">{{projet.nom_p}}</span>
 
   <div class="project-edit">
-    <mat-icon>edit</mat-icon>
+    <!-- Edit -->
+    <button
+      *ngIf="!isReadOnly && projet.statut_p==false"
+      mat-icon-button
+      (click)="openEditProjectDialog()"
+    >
+      <mat-icon>edit</mat-icon>
+    </button>
   </div>
   <br><br>
   <span class="project-code-content"> <span class="bold"> code : </span>{{projet.code_p}} </span>
-  <span class="project-responsable-content"> <span class="bold"> responsable : </span>{{projet.responsable.initiales_u }} </span>
+  <span class="project-responsable-content"> <span class="bold"> responsable : </span>{{manager.initiales_u }} </span>
   <span class="project-status">
   <mat-checkbox
     [checked]=projet.statut_p
