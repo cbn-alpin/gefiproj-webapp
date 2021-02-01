@@ -40,6 +40,7 @@ export class RecettesService {
     financement: Financement,
     recettes: Recette[]
   ): Promise<Recette> {
+    this.cleanRecette(recette);
     try {
       if (recette) {
         return await this.crudSrv.add(recette);
@@ -69,6 +70,7 @@ export class RecettesService {
   }
 
   public async delete(recette: Recette): Promise<void> {
+    this.cleanRecette(recette);
     try {
       if (recette && recette.id_r) {
         return await this.crudSrv.delete(recette.id_r);

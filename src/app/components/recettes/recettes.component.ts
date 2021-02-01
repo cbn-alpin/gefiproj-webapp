@@ -18,6 +18,14 @@ import { EntityPlaceholder } from '../../shared/components/generic-table/models/
 import { GenericTableFormError } from '../../shared/components/generic-table/models/generic-table-entity';
 import { IsAdministratorGuardService } from 'src/app/services/authentication/is-administrator-guard.service';
 import { RecettesService } from '../../services/recettes.service';
+import { PopupService } from '../../shared/services/popup.service';
+import { Messages } from '../../models/messages';
+import {
+  GenericDialogComponent,
+  IMessage,
+} from '../../shared/components/generic-dialog/generic-dialog.component';
+import { take } from 'rxjs/operators';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-recettes',
@@ -89,8 +97,9 @@ export class RecettesComponent implements OnInit, OnChanges {
    * @private
    */
   private defaultEntity: Recette = {
-    annee_r: 2020,
-    montant_r: 0,
+    annee_r: null,
+    montant_r: null,
+    difference: null,
   };
 
   /**
@@ -101,6 +110,7 @@ export class RecettesComponent implements OnInit, OnChanges {
   private EntityPropertyName = {
     ANNEE_RECETTE: Object.keys(this.defaultEntity)[0],
     MONTANT: Object.keys(this.defaultEntity)[1],
+    DIFFERENCE: Object.keys(this.defaultEntity)[2],
   };
 
   /**
@@ -118,6 +128,11 @@ export class RecettesComponent implements OnInit, OnChanges {
       type: GenericTableCellType.CURRENCY,
       code: this.EntityPropertyName.MONTANT,
     },
+    {
+      name: 'Différence',
+      type: GenericTableCellType.CURRENCY,
+      code: this.EntityPropertyName.DIFFERENCE,
+    },
   ];
 
   /**
@@ -131,7 +146,9 @@ export class RecettesComponent implements OnInit, OnChanges {
 
   constructor(
     private readonly isAdministratorGuardService: IsAdministratorGuardService,
-    private readonly recettesService: RecettesService
+    private readonly recettesService: RecettesService,
+    private readonly popupService: PopupService,
+    private readonly dialog: MatDialog
   ) {}
 
   public ngOnInit(): void {
@@ -140,14 +157,10 @@ export class RecettesComponent implements OnInit, OnChanges {
 
   public ngOnChanges(changes: SimpleChanges): void {
     if (changes.recettes && changes.recettes.currentValue) {
-      if (!this.recettes) {
-        this.initGenericTableOptions();
-      } else {
-        this.options = {
-          ...this.options,
-          dataSource: this.recettes,
-        };
-      }
+      this.options = {
+        ...this.options,
+        dataSource: this.recettes,
+      };
     }
   }
 
@@ -157,6 +170,7 @@ export class RecettesComponent implements OnInit, OnChanges {
     const recette: Recette = { ...event.entity, id_f: this.financement.id_f };
     const formErrors = this.checkFormErrors(recette);
     if (formErrors) {
+      this.popupService.error(Messages.ERROR_FORM);
       event.callBack({ formErrors });
     } else {
       try {
@@ -165,12 +179,16 @@ export class RecettesComponent implements OnInit, OnChanges {
           this.financement,
           this.recettes
         );
-        event.callBack(null);
+        if (!createdRecette.difference) {
+          createdRecette.difference = createdRecette.montant_r;
+        }
+        event.callBack(null, createdRecette);
         this.create(createdRecette);
+        this.popupService.success(Messages.SUCCESS_CREATE_RECETTE);
         this.createEvent.emit(createdRecette);
       } catch (error) {
         event?.callBack({
-          apiError: error,
+          apiError: Messages.FAILURE_CREATE_RECETTE,
         });
       }
     }
@@ -179,6 +197,7 @@ export class RecettesComponent implements OnInit, OnChanges {
   public async onEdit(event: GenericTableEntityEvent<Recette>): Promise<void> {
     const formErrors = this.checkFormErrors(event.entity, true);
     if (formErrors) {
+      this.popupService.error(Messages.ERROR_FORM);
       event.callBack({ formErrors });
     } else {
       try {
@@ -187,12 +206,18 @@ export class RecettesComponent implements OnInit, OnChanges {
           this.financement,
           this.recettes
         );
-        event.callBack(null);
+        event.callBack(
+          null,
+          updatedRecette.id_r === this.selectedRecette.id_r
+            ? updatedRecette
+            : null
+        );
         this.modify(updatedRecette);
+        this.popupService.success(Messages.SUCCESS_UPDATE_RECETTE);
         this.editEvent.emit();
       } catch (error) {
         event?.callBack({
-          apiError: error,
+          apiError: Messages.FAILURE_UPDATE_RECETTE,
         });
       }
     }
@@ -202,16 +227,34 @@ export class RecettesComponent implements OnInit, OnChanges {
     event: GenericTableEntityEvent<Recette>
   ): Promise<void> {
     const recette: Recette = event.entity;
-    try {
-      await this.recettesService.delete(recette);
-      event.callBack(null);
-      this.delete(recette);
-      this.deleteEvent.emit();
-    } catch (error) {
-      event?.callBack({
-        apiError: error,
+    const dialogRef = this.dialog.open(GenericDialogComponent, {
+      data: {
+        header: `Suppression d'une recette`,
+        content: `Voulez-vous supprimer la recette de ${recette.annee_r} ?`,
+        type: 'warning',
+        action: {
+          name: 'Confirmer',
+        },
+      } as IMessage,
+    });
+
+    dialogRef
+      .afterClosed()
+      .pipe(take(1))
+      .subscribe(async (result) => {
+        if (result) {
+          try {
+            await this.recettesService.delete(recette);
+            event.callBack(null);
+            this.delete(recette);
+            this.popupService.success(Messages.SUCCESS_DELETE_RECETTE);
+          } catch (error) {
+            event?.callBack({
+              apiError: Messages.FAILURE_DELETE_RECETTE,
+            });
+          }
+        }
       });
-    }
   }
 
   /**
@@ -223,11 +266,11 @@ export class RecettesComponent implements OnInit, OnChanges {
     edit?: boolean
   ): GenericTableFormError[] {
     let genericTableFormErrors: GenericTableFormError[] = [];
-    genericTableFormErrors = this.getAnneeRecetteFormError(
+    genericTableFormErrors = this.getAnneeError(
       recette,
       genericTableFormErrors
     );
-    genericTableFormErrors = this.getMontantFormError(
+    genericTableFormErrors = this.getMontantError(
       recette,
       genericTableFormErrors
     );
@@ -241,7 +284,7 @@ export class RecettesComponent implements OnInit, OnChanges {
    * @param annee_recette
    * @param genericTableFormErrors
    */
-  public getAnneeRecetteFormError(
+  public getAnneeError(
     recette: Recette,
     genericTableFormErrors: GenericTableFormError[]
   ): GenericTableFormError[] {
@@ -272,7 +315,7 @@ export class RecettesComponent implements OnInit, OnChanges {
    * @param montant
    * @param genericTableFormErrors
    */
-  public getMontantFormError(
+  public getMontantError(
     recette: Recette,
     genericTableFormErrors: GenericTableFormError[]
   ): GenericTableFormError[] {
@@ -317,7 +360,7 @@ export class RecettesComponent implements OnInit, OnChanges {
 
   private create(createdRecette: Recette): void {
     this.recettes.push(createdRecette);
-    this.emitReceiptCahnge();
+    this.emitRecettesChange();
   }
 
   private modify(modifiedRecette: Recette): void {
@@ -325,17 +368,17 @@ export class RecettesComponent implements OnInit, OnChanges {
       (recette) => modifiedRecette.id_r === recette.id_r
     );
     this.recettes[index] = modifiedRecette;
-    this.emitReceiptCahnge();
+    this.emitRecettesChange();
   }
 
   private delete(deletedRecette: Recette): void {
     this.recettes = this.recettes.filter(
       (recette) => recette.id_r !== deletedRecette.id_r
     );
-    this.emitReceiptCahnge();
+    this.emitRecettesChange();
   }
 
-  private emitReceiptCahnge(): void {
+  private emitRecettesChange(): void {
     this.recettesChange.emit(this.recettes);
   }
 

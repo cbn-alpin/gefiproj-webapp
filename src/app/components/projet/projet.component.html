@@ -2,22 +2,29 @@
   <div class="project-details" *ngIf="projet">
     <span class="bold project-name">{{ projet.nom_p }}</span>
 
-  <div class="project-edit">
-    <mat-icon>edit</mat-icon>
+    <div class="project-edit">
+      <mat-icon>edit</mat-icon>
+    </div>
+    <br /><br />
+    <span class="project-code-content">
+      <span class="bold"> code : </span>{{ projet.code_p }}
+    </span>
+    <span class="project-responsable-content">
+      <span class="bold"> responsable : </span
+      >{{ projet.responsable.initiales_u }}
+    </span>
+    <span class="project-status">
+      <mat-checkbox
+        [checked]="projet.statut_p"
+        [disabled]="!isAdministrator"
+        (change)="updateProjectStatus($event)"
+      >
+        <!-- disabled if not administrator  -->
+        Soldé
+      </mat-checkbox>
+    </span>
   </div>
-  <br><br>
-  <span class="project-code-content"> <span class="bold"> code : </span>{{projet.code_p}} </span>
-  <span class="project-responsable-content"> <span class="bold"> responsable : </span>{{projet.responsable.initiales_u }} </span>
-  <span class="project-status">
-  <mat-checkbox
-    [checked]=projet.statut_p
-    [disabled]="!isAdministrator"
-    (change)="updateProjectStatus($event)"> <!-- disabled if not administrator  -->
-    Soldé
-  </mat-checkbox>
-  </span>
-</div>
-<hr class="project-line">
+  <hr class="project-line" />
 
   <div class="financements">
     <app-financements
@@ -28,7 +35,8 @@
       (createEvent)="onCreateFinancement()"
       (editEvent)="onEditFinancement()"
       (deleteEvent)="onDeleteFinancement()"
-      (financementChange)="onFinancementsChange($event)"
+      (financementsChange)="onFinancementsChange($event)"
+      (selectedFinancementChange)="onSelectedFinancementChange($event)"
     ></app-financements>
   </div>
 
@@ -48,8 +56,8 @@
         (createEvent)="onCreateRecette($event)"
         (editEvent)="onEditRecette()"
         (deleteEvent)="onDeleteRecette()"
-        (selectedRecetteChangeEvent)="onSelectedRecetteChange($event)"
         (recettesChange)="onRecettesChange($event)"
+        (selectedRecetteChangeEvent)="onSelectedRecetteChange($event)"
       ></app-recettes>
     </div>
 
@@ -58,6 +66,7 @@
         *ngIf="montantsAffectes"
         [montantsAffectes]="montantsAffectes"
         [receipt]="selectedRecette"
+        (montantsAffectesChange)="onMontantsAffectesChange($event)"
       ></app-montants-affectes>
     </div>
   </div>
