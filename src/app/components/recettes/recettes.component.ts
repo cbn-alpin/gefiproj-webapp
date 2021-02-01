@@ -26,6 +26,8 @@ import {
 } from '../../shared/components/generic-dialog/generic-dialog.component';
 import { take } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
+import { SortInfo } from '../../shared/components/generic-table/models/sortInfo';
+import { Projet } from '../../models/projet';
 
 @Component({
   selector: 'app-recettes',
@@ -122,16 +124,19 @@ export class RecettesComponent implements OnInit, OnChanges {
       name: 'Année recette',
       type: GenericTableCellType.NUMBER,
       code: this.EntityPropertyName.ANNEE_RECETTE,
+      sortEnabled: true,
     },
     {
       name: 'Montant',
       type: GenericTableCellType.CURRENCY,
       code: this.EntityPropertyName.MONTANT,
+      sortEnabled: true,
     },
     {
       name: 'Différence',
       type: GenericTableCellType.CURRENCY,
       code: this.EntityPropertyName.DIFFERENCE,
+      sortEnabled: true,
     },
   ];
 
@@ -143,6 +148,8 @@ export class RecettesComponent implements OnInit, OnChanges {
     { name: this.EntityPropertyName.ANNEE_RECETTE, value: '2019' },
     { name: this.EntityPropertyName.MONTANT, value: '25 000' },
   ];
+
+  private sortInfo: SortInfo;
 
   constructor(
     private readonly isAdministratorGuardService: IsAdministratorGuardService,
@@ -156,11 +163,12 @@ export class RecettesComponent implements OnInit, OnChanges {
   }
 
   public ngOnChanges(changes: SimpleChanges): void {
-    if (changes.recettes && changes.recettes.currentValue) {
-      this.options = {
-        ...this.options,
-        dataSource: this.recettes,
-      };
+    if (
+      changes.recettes &&
+      changes.recettes.currentValue &&
+      changes.recettes.previousValue
+    ) {
+      this.refreshDataTable();
     }
   }
 
@@ -255,6 +263,18 @@ export class RecettesComponent implements OnInit, OnChanges {
           }
         }
       });
+  }
+
+  public onSortChanged(sort: SortInfo): void {
+    try {
+      if (sort) {
+        console.log('SS', sort);
+        this.sortInfo = sort;
+        this.refreshDataTable();
+      }
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   /**
@@ -355,6 +375,8 @@ export class RecettesComponent implements OnInit, OnChanges {
       entitySelectBoxOptions: [],
       entityTypes: this.entityTypes,
       entityPlaceHolders: this.entityPlaceHolders,
+      sortName: this.EntityPropertyName.ANNEE_RECETTE,
+      sortDirection: 'asc',
     };
   }
 
@@ -410,5 +432,41 @@ export class RecettesComponent implements OnInit, OnChanges {
     const yearFounding = new Date(this.financement.date_arrete_f).getFullYear();
 
     return yearFounding ? recette.annee_r > yearFounding : true;
+  }
+
+  private sort(recettes: Recette[]): Recette[] {
+    let { name, direction } = this.sortInfo || {
+      name: this.EntityPropertyName.ANNEE_RECETTE,
+      direction: 'asc',
+    };
+    const mult =
+      direction === 'asc' // Pour gérer le sens du trie
+        ? 1
+        : -1;
+
+    return recettes.sort((p1, p2) => {
+      let item1 = p1[name];
+      let item2 = p2[name];
+
+      if (typeof item1 === 'string') {
+        item1 = item1.toUpperCase();
+        item2 = item2.toUpperCase();
+      }
+
+      if (item1 < item2) {
+        return -1 * mult;
+      }
+      if (item1 > item2) {
+        return 1 * mult;
+      }
+      return 0;
+    });
+  }
+
+  private refreshDataTable(): void {
+    this.options = {
+      ...this.options,
+      dataSource: this.sort(this.recettes),
+    };
   }
 }

@@ -368,6 +368,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
           name: this.namesMap.montant_arrete_f.name,
           type: GenericTableCellType.CURRENCY,
           code: this.namesMap.montant_arrete_f.code,
+          sortEnabled: true,
         },
         {
           name: this.namesMap.date_arrete_f.name,
