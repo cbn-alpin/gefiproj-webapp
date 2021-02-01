@@ -296,8 +296,8 @@ export class DepensesComponent implements OnInit {
         formErrors.push(error);
       }
 
-      if (isNaN(expense.montant_d) || expense.montant_d === 0) {
-        const newLocal = 'Le montant doit être une valeur non nulle';
+      if (isNaN(expense.montant_d) || expense.montant_d <= 0) {
+        const newLocal = 'Le montant doit être une valeur strictement positive';
         const error = {
           name: this.namesMap.amount.code,
           message: newLocal,

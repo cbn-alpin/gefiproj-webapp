@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Financement } from '../models/financement';
 import { Financeur } from './../models/financeur';
 import { CrudService } from './crud.service';
 import { SpinnerService } from './spinner.service';
@@ -41,8 +42,8 @@ export class FinanceurService {
    * @param spinnerSrv : gère le spinner/sablier.
    */
   constructor(
-    http: HttpClient,
-    spinnerSrv: SpinnerService) {
+    private http: HttpClient,
+    private spinnerSrv: SpinnerService) {
       this.crudSrv = new CrudService<Financeur>(
         http,
         spinnerSrv,
@@ -111,5 +112,24 @@ export class FinanceurService {
     return;
     const id = funder?.id_financeur || 0;
     return this.crudSrv.delete(id);
+  }
+
+  /**
+   * Retourne les financements du financeur en paramètre.
+   * @param funder : financeur ciblé.
+   */
+  public async fundingsOf(funder: Financeur): Promise<Financement[]> {
+    try {
+      return [];
+      const fundersSrv = new CrudService<Financement>(
+        this.http,
+        this.spinnerSrv,
+        `${this.endPoint}/${funder.id_financeur || 0}/fundings`
+      );
+      return fundersSrv.getAll();
+    } catch (error) {
+      console.error(error);
+      return Promise.reject(error);
+    }
   }
 }
