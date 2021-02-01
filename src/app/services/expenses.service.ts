@@ -5,7 +5,7 @@ import { CrudService } from './crud.service';
 import { SpinnerService } from './spinner.service';
 
 /**
- * Gère les requêtes relaitves aux dépenses.
+ * Gère les requêtes relatives aux dépenses.
  */
 @Injectable({
   providedIn: 'root'
@@ -58,7 +58,7 @@ export class ExpensesService {
   }
 
   /**
-   * Retourne la dépense demandé depuis le serveur.
+   * Retourne la dépense demandée depuis le serveur.
    * @param id : identifiant de la dépense demandée.
    */
   public async get(id: number): Promise<Depense> {
@@ -88,8 +88,8 @@ export class ExpensesService {
    * @param expense : dépense à créer.
    */
   public async add(expense: Depense): Promise<Depense> {
-      expense.id_d = this.expenses.map(e => e.id_d).reduce((p, c) => Math.max(p, c), 0) + 1;
       const expenses = this.expenses;
+      expense.id_d = expenses.map(e => e.id_d).reduce((p, c) => Math.max(p, c), 0) + 1;
       expenses.push(expense);
       this.expenses = expenses;
       return expense;
