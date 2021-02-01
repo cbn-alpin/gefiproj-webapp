@@ -5,6 +5,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { ConnexionComponent } from '../connexion/connexion.component';
 import { HomeComponent } from '../home/home.component';
 import { RecettesComponent } from './recettes.component';
+import { MatDialogModule } from '@angular/material/dialog';
 
 describe('RecettesComponent', () => {
   let component: RecettesComponent;
@@ -12,18 +13,17 @@ describe('RecettesComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [
-        RecettesComponent],
+      declarations: [RecettesComponent],
       imports: [
-        RouterTestingModule.withRoutes(
-          [{path: 'connexion', component: ConnexionComponent},
-          {path: 'home', component: HomeComponent}]
-        ),
+        RouterTestingModule.withRoutes([
+          { path: 'connexion', component: ConnexionComponent },
+          { path: 'home', component: HomeComponent },
+        ]),
         HttpClientTestingModule,
-        MatSnackBarModule
-      ]
-    })
-      .compileComponents();
+        MatSnackBarModule,
+        MatDialogModule,
+      ],
+    }).compileComponents();
   });
 
   beforeEach(() => {

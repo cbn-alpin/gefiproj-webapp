@@ -3,9 +3,11 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnChanges,
   OnDestroy,
   OnInit,
   Output,
+  SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import {
@@ -35,6 +37,7 @@ import { takeUntil } from 'rxjs/operators';
 import { GenericTableService } from '../../services/generic-table.service';
 import { GenericTableErrorService } from '../../services/generic-table-error.service';
 import { GenericTableTypeService } from '../../services/generic-table-type.service';
+import { PopupService } from '../../../../services/popup.service';
 
 @Component({
   selector: 'app-generic-table[title][options]',
@@ -51,7 +54,7 @@ import { GenericTableTypeService } from '../../services/generic-table-type.servi
   ],
 })
 export class GenericTableComponent<T>
-  implements OnInit, AfterViewInit, OnDestroy {
+  implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   /**
    * Défini le paramétrage d'affichage et les données du tableau.
    */
@@ -77,6 +80,10 @@ export class GenericTableComponent<T>
 
   @Input() canSelect = false;
 
+  @Input() autoSelectFirstRow = false;
+
+  @Input() selectedRow: T;
+
   @Output() editEvent: EventEmitter<
     GenericTableEntityEvent<T>
   > = new EventEmitter<GenericTableEntityEvent<T>>();
@@ -97,6 +104,10 @@ export class GenericTableComponent<T>
    * Notifie le composant parent que le trie a changé.
    */
   @Output() sortEvent = new EventEmitter<SortInfo>();
+
+  @Output() selectedEntityUpdatedEvent = new EventEmitter<T>();
+
+  @Output() startEditEvent = new EventEmitter<T>();
 
   /**
    * Récupère le trie courant.
@@ -132,8 +143,6 @@ export class GenericTableComponent<T>
 
   public GenericTableEntityState = GenericTableEntityState;
 
-  public selectedEntity: GenericTableEntity<T>;
-
   public canSelectSelectedEntity: boolean = true;
 
   /**
@@ -158,6 +167,8 @@ export class GenericTableComponent<T>
 
   public actionsHeaderColumnName: string = 'Actions';
 
+  public selectedEntity: GenericTableEntity<T>;
+
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
 
   // tslint:disable-next-line: variable-name
@@ -167,9 +178,10 @@ export class GenericTableComponent<T>
 
   constructor(
     private readonly router: Router,
-    public readonly genericTableService: GenericTableService<T>,
-    public readonly genericTableErrorService: GenericTableErrorService<T>,
-    public readonly genericTableTypeService: GenericTableTypeService<T>
+    private readonly popupService: PopupService,
+    public genericTableService: GenericTableService<T>,
+    public genericTableErrorService: GenericTableErrorService<T>,
+    public genericTableTypeService: GenericTableTypeService<T>
   ) {}
 
   /**
@@ -180,6 +192,12 @@ export class GenericTableComponent<T>
       this.initTable();
     } catch (error) {
       console.error(error);
+    }
+  }
+
+  public ngOnChanges(changes: SimpleChanges) {
+    if (changes.selectedRow && changes.selectedRow.currentValue) {
+      this.loadSelectedEntity();
     }
   }
 
@@ -205,7 +223,6 @@ export class GenericTableComponent<T>
 
   public onEdit(event, entity: GenericTableEntity<T>): void {
     event.stopPropagation();
-    this.selectedEntity = entity;
     const cleanedGenericTableEntities = this.genericTableService.getOtherEntitiesReseted(
       this.genericTableEntities,
       this.genericTableEntitiesCopy,
@@ -215,6 +232,9 @@ export class GenericTableComponent<T>
       (cleanedEntity) => cleanedEntity !== null
     );
     entity.state = GenericTableEntityState.EDIT;
+    if (!this.selectedEntity) {
+      this.updateSelectedEntity(null);
+    }
   }
 
   public edit(event, entity: GenericTableEntity<T>): void {
@@ -223,10 +243,13 @@ export class GenericTableComponent<T>
     const genericTableEntityEvent: GenericTableEntityEvent<T> = {
       entity: entity.data,
       updatedGenericTable: this.genericTableEntities.map((row) => row.data),
-      callBack: (genericTableEntityErrors?: GenericTableEntityErrors) =>
-        this.handleAction(entity, genericTableEntityErrors),
+      callBack: (genericTableEntityErrors?: GenericTableEntityErrors, up?: T) =>
+        this.handleAction(entity, genericTableEntityErrors, up),
     };
     this.editEvent.emit(genericTableEntityEvent);
+    if (!this.selectedEntity) {
+      this.updateSelectedEntity(null);
+    }
   }
 
   public cancelEditing(event, entity: GenericTableEntity<T>): void {
@@ -236,9 +259,12 @@ export class GenericTableComponent<T>
     );
     const entityCopied = this.genericTableService.getDeepCopy(entityToCopy);
     this.genericTableEntities = this.genericTableEntities.map((entity) =>
-      entity.id === entityCopied.id ? entityCopied : entity
+      entity?.id === entityCopied?.id ? entityCopied : entity
     );
     this.genericTableErrorService.cleanErrors(entity);
+    if (!this.selectedEntity) {
+      this.updateSelectedEntity(null);
+    }
   }
 
   public onCreate(): void {
@@ -246,7 +272,7 @@ export class GenericTableComponent<T>
     const defaultEntityCopied = this.genericTableService.getDeepCopy(
       this.options.defaultEntity
     );
-    const newElement: GenericTableEntity<T> = {
+    const entity: GenericTableEntity<T> = {
       data: defaultEntityCopied,
       state: GenericTableEntityState.NEW,
       id: this.genericTableEntities.length,
@@ -255,8 +281,8 @@ export class GenericTableComponent<T>
       this.genericTableEntities,
       this.genericTableEntitiesCopy
     );
-    this.selectedEntity = newElement;
-    this.genericTableEntities = [newElement].concat(this.genericTableEntities);
+    this.genericTableEntities = [entity].concat(this.genericTableEntities);
+    this.updateSelectedEntity(null);
   }
 
   public create(event, entity: GenericTableEntity<T>): void {
@@ -265,10 +291,11 @@ export class GenericTableComponent<T>
     const genericTableEntityEvent: GenericTableEntityEvent<T> = {
       entity: entity.data,
       updatedGenericTable: this.genericTableEntities.map((row) => row.data),
-      callBack: (genericTableEntityErrors?: GenericTableEntityErrors) =>
-        this.handleAction(entity, genericTableEntityErrors),
+      callBack: (genericTableEntityErrors?: GenericTableEntityErrors, up?: T) =>
+        this.handleAction(entity, genericTableEntityErrors, up),
     };
     this.createEvent.emit(genericTableEntityEvent);
+    this.updateSelectedEntity(entity);
   }
 
   public cancelCreation(event, entity: GenericTableEntity<T>): void {
@@ -276,9 +303,11 @@ export class GenericTableComponent<T>
     this.genericTableEntities = this.genericTableEntities?.filter(
       (data) => entity.data !== data.data
     );
+    this.updateSelectedEntity(null);
   }
 
-  public delete(entity: GenericTableEntity<T>): void {
+  public delete(event, entity: GenericTableEntity<T>): void {
+    event.stopPropagation();
     this.genericTableAction = GenericTableAction.DELETE;
     const genericTableEntityEvent: GenericTableEntityEvent<T> = {
       entity: entity.data,
@@ -287,19 +316,35 @@ export class GenericTableComponent<T>
         this.handleAction(entity, genericTableEntityErrors),
     };
     this.deleteEvent.emit(genericTableEntityEvent);
+    if (this.selectedEntity && this.selectedEntity.id === entity.id) {
+      this.updateSelectedEntity(null);
+    }
   }
 
   /**
    * Lorsqu'une entité est sélectionné dans le tableau, on émet un événement avec l'entité en paramètre
-   * @param genericTableEntity : l'élément sélectionné.
+   * @param entity : l'élément sélectionné.
    */
-  public select(genericTableEntity: GenericTableEntity<T>): void {
-    if (genericTableEntity.state === GenericTableEntityState.READ) {
-      this.selectedEntity = genericTableEntity;
+  public select(entity: GenericTableEntity<T>): void {
+    if (
+      entity.state === GenericTableEntityState.READ &&
+      (!this.selectedEntity || this.selectedEntity.id !== entity.id)
+    ) {
       const genericTableEntityEvent: GenericTableEntityEvent<T> = {
-        entity: genericTableEntity.data,
+        entity: entity.data,
       };
+      if (this.canSelect) {
+        const cleanedGenericTableEntities = this.genericTableService.getOtherEntitiesReseted(
+          this.genericTableEntities,
+          this.genericTableEntitiesCopy,
+          entity
+        );
+        this.genericTableEntities = cleanedGenericTableEntities.filter(
+          (cleanedEntity) => cleanedEntity !== null
+        );
+      }
       this.selectEvent.emit(genericTableEntityEvent);
+      this.updateSelectedEntity(entity);
     }
   }
 
@@ -325,44 +370,45 @@ export class GenericTableComponent<T>
         'Navigation impossible car les éléments de navigation sont inutilisables'
       );
     } catch (error) {
-      console.error(error);
-      this.genericTableErrorService.openSnackBarError('Navigation impossible');
+      this.popupService.error('Navigation impossible');
     }
+  }
+
+  public isSelected(entity: GenericTableEntity<T>): boolean {
+    return this.selectedEntity && this.selectedEntity.id === entity.id;
+  }
+
+  public withHover(entity: GenericTableEntity<T>): boolean {
+    return entity.state === GenericTableEntityState.READ;
   }
 
   private handleAction(
     entity: GenericTableEntity<T>,
-    genericTableEntityErrors: GenericTableEntityErrors
+    genericTableEntityErrors: GenericTableEntityErrors,
+    up?: T
   ): void {
     const canDoAction = this.genericTableErrorService.handleErrors(
       entity,
       genericTableEntityErrors
     );
     if (canDoAction) {
-      if (this.genericTableAction === GenericTableAction.EDIT) {
-        this.handleActionEdit(entity);
-      } else if (this.genericTableAction === GenericTableAction.NEW) {
-        this.handleActionNew(entity);
-      } else if (this.genericTableAction === GenericTableAction.DELETE) {
-        this.handleActionDelete(entity);
+      if (up) {
+        this.selectedRow = up;
+        this.loadSelectedEntity();
+        this.updateSelectedEntity(this.selectedEntity);
+      }
+      if (
+        this.genericTableAction === GenericTableAction.EDIT ||
+        this.genericTableAction === GenericTableAction.NEW
+      ) {
+        this.setReadEntityState(entity);
       }
     }
   }
 
-  private handleActionEdit(entity: GenericTableEntity<T>): void {
+  private setReadEntityState(entity: GenericTableEntity<T>): void {
     entity.errors = [];
     entity.state = GenericTableEntityState.READ;
-  }
-
-  private handleActionNew(entity: GenericTableEntity<T>): void {
-    entity.errors = [];
-    entity.state = GenericTableEntityState.READ;
-  }
-
-  private handleActionDelete(entity: GenericTableEntity<T>): void {
-    this.genericTableEntities = this.genericTableEntities?.filter(
-      (data) => entity.data !== data.data
-    );
   }
 
   /**
@@ -403,7 +449,7 @@ export class GenericTableComponent<T>
    */
   private initTable(): void {
     try {
-      this.genericTableEntities = this.options.dataSource?.map(
+      this.genericTableEntities = this.options.dataSource.map(
         (entity, index) => {
           return {
             data: entity,
@@ -421,8 +467,33 @@ export class GenericTableComponent<T>
       this.genericTableEntitiesCopy = this.genericTableService.getDeepCopy(
         this.genericTableEntities
       );
+      this.loadSelectedEntity();
     } catch (error) {
       console.error(error);
+    }
+  }
+
+  private updateSelectedEntity(entity: GenericTableEntity<T>): void {
+    this.selectedEntity = entity;
+    this.selectedEntityUpdatedEvent.emit(
+      this.selectedEntity ? this.selectedEntity.data : null
+    );
+  }
+
+  private loadSelectedEntity(): void {
+    let entity: GenericTableEntity<T>;
+    entity = this.genericTableEntities?.find(
+      (entity) => entity.data === this.selectedRow
+    );
+    if (entity) {
+      this.selectedEntity = entity;
+    } else if (this.selectedEntity) {
+      this.selectedEntity = {
+        ...this.selectedEntity,
+        data: this.selectedRow,
+      };
+    } else {
+      this.selectedEntity = null;
     }
   }
 }

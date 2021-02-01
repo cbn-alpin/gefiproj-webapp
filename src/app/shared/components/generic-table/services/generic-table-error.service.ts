@@ -5,13 +5,13 @@ import {
   GenericTableFormError,
 } from '../models/generic-table-entity';
 import { GenericTableEntityState } from '../globals/generic-table-entity-states';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { PopupService } from '../../../services/popup.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GenericTableErrorService<T> {
-  constructor(private readonly snackBar: MatSnackBar) {}
+  constructor(private readonly popupService: PopupService) {}
 
   public getErrorMessage(
     errors: GenericTableFormError[],
@@ -30,14 +30,6 @@ export class GenericTableErrorService<T> {
 
   public cleanErrors(entity: GenericTableEntity<T>): void {
     entity.errors = [];
-  }
-
-  public openSnackBarError(message: string): void {
-    this.snackBar.open(message, 'OK', {
-      duration: 5000,
-      horizontalPosition: 'right',
-      verticalPosition: 'top',
-    });
   }
 
   public handleErrors(
@@ -88,7 +80,7 @@ export class GenericTableErrorService<T> {
     genericTableEntityErrors: GenericTableEntityErrors
   ): boolean {
     if (genericTableEntityErrors?.apiError) {
-      this.openSnackBarError(genericTableEntityErrors.apiError);
+      this.popupService.error(genericTableEntityErrors.apiError);
       return true;
     }
     return false;

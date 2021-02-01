@@ -1,23 +1,38 @@
-import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
-import {isNotNullOrUndefined} from "codelyzer/util/isNotNullOrUndefined";
-import {Financement, Statut_F} from "../../models/financement";
-import {Recette} from "../../models/recette";
-import {GenericTableOptions} from "../../shared/components/generic-table/models/generic-table-options";
-import {GenericTableEntityEvent} from "../../shared/components/generic-table/models/generic-table-entity-event";
-import {EntityType} from "../../shared/components/generic-table/models/entity-types";
-import {GenericTableCellType} from "../../shared/components/generic-table/globals/generic-table-cell-types";
-import {EntityPlaceholder} from "../../shared/components/generic-table/models/entity-placeholder";
-import {GenericTableFormError} from "../../shared/components/generic-table/models/generic-table-entity";
-import {ProjetService} from "../../services/projet.service";
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
+import { isNotNullOrUndefined } from 'codelyzer/util/isNotNullOrUndefined';
+import { Financement } from '../../models/financement';
+import { Recette } from '../../models/recette';
+import { GenericTableOptions } from '../../shared/components/generic-table/models/generic-table-options';
+import { GenericTableEntityEvent } from '../../shared/components/generic-table/models/generic-table-entity-event';
+import { EntityType } from '../../shared/components/generic-table/models/entity-types';
+import { GenericTableCellType } from '../../shared/components/generic-table/globals/generic-table-cell-types';
+import { EntityPlaceholder } from '../../shared/components/generic-table/models/entity-placeholder';
+import { GenericTableFormError } from '../../shared/components/generic-table/models/generic-table-entity';
 import { IsAdministratorGuardService } from 'src/app/services/authentication/is-administrator-guard.service';
+import { RecettesService } from '../../services/recettes.service';
+import { PopupService } from '../../shared/services/popup.service';
+import { Messages } from '../../models/messages';
+import {
+  GenericDialogComponent,
+  IMessage,
+} from '../../shared/components/generic-dialog/generic-dialog.component';
+import { take } from 'rxjs/operators';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-recettes',
   templateUrl: './recettes.component.html',
-  styleUrls: ['./recettes.component.scss']
+  styleUrls: ['./recettes.component.scss'],
 })
 export class RecettesComponent implements OnInit, OnChanges {
-
   /**
    * Financement sélectionné
    */
@@ -28,10 +43,26 @@ export class RecettesComponent implements OnInit, OnChanges {
    */
   @Input() public recettes: Recette[];
 
+  @Input() public selectedRecette: Recette;
+
   /**
    * Recette séléctioné event
    */
-  @Output() public select: EventEmitter<Recette> = new EventEmitter<Recette>();
+  @Output()
+  public selectEvent: EventEmitter<Recette> = new EventEmitter<Recette>();
+
+  @Output()
+  public createEvent: EventEmitter<Recette> = new EventEmitter<Recette>();
+
+  @Output() public editEvent: EventEmitter<void> = new EventEmitter<void>();
+
+  @Output() public deleteEvent: EventEmitter<void> = new EventEmitter<void>();
+
+  @Output()
+  public selectedRecetteChangeEvent: EventEmitter<Recette> = new EventEmitter<Recette>();
+
+  @Output()
+  public recettesChange = new EventEmitter<Recette[]>();
 
   /**
    * Titre du tableau
@@ -54,24 +85,21 @@ export class RecettesComponent implements OnInit, OnChanges {
    * Indique si l'utilisateur est un administrateur.
    */
   public get isAdministrator(): boolean {
-    return !!this.adminSrv.isAdministrator();
+    return !!this.isAdministratorGuardService.isAdministrator();
+  }
+
+  public onSelectedEntityChange(recette: Recette): void {
+    this.selectedRecetteChangeEvent.emit(recette);
   }
 
   /**
-   * Obtenir les informations d'une recette
-   * @param entity
-   */
-  public getEntityInformationsCallBack: Function;
-
-  public Statut_F = Statut_F;
-
-  /**
-   * Entité par défaut utilisé lors de la création d'une nouvelle recette
+   * recette par défaut utilisé lors de la création d'une nouvelle recette
    * @private
    */
   private defaultEntity: Recette = {
-    annee_r: 2020,
-    montant_r: 0
+    annee_r: null,
+    montant_r: null,
+    difference: null,
   };
 
   /**
@@ -81,130 +109,174 @@ export class RecettesComponent implements OnInit, OnChanges {
    */
   private EntityPropertyName = {
     ANNEE_RECETTE: Object.keys(this.defaultEntity)[0],
-    MONTANT: Object.keys(this.defaultEntity)[1]
+    MONTANT: Object.keys(this.defaultEntity)[1],
+    DIFFERENCE: Object.keys(this.defaultEntity)[2],
   };
 
   /**
-   * Tableau des types de l'entité recette
+   * Tableau des types
    * @private
    */
   private entityTypes: EntityType[] = [
-    {name: 'Année recette', type: GenericTableCellType.NUMBER, code: this.EntityPropertyName.ANNEE_RECETTE},
-    {name: 'Montant', type: GenericTableCellType.CURRENCY, code: this.EntityPropertyName.MONTANT}
+    {
+      name: 'Année recette',
+      type: GenericTableCellType.NUMBER,
+      code: this.EntityPropertyName.ANNEE_RECETTE,
+    },
+    {
+      name: 'Montant',
+      type: GenericTableCellType.CURRENCY,
+      code: this.EntityPropertyName.MONTANT,
+    },
+    {
+      name: 'Différence',
+      type: GenericTableCellType.CURRENCY,
+      code: this.EntityPropertyName.DIFFERENCE,
+    },
   ];
 
   /**
-   * Tableau des placeholders de l'entité recette
+   * Tableau des placeholders
    * @private
    */
   private entityPlaceHolders: EntityPlaceholder[] = [
-    {name: this.EntityPropertyName.ANNEE_RECETTE, value: '2019'},
-    {name: this.EntityPropertyName.MONTANT, value: '25 000'}
+    { name: this.EntityPropertyName.ANNEE_RECETTE, value: '2019' },
+    { name: this.EntityPropertyName.MONTANT, value: '25 000' },
   ];
 
   constructor(
-    private readonly adminSrv: IsAdministratorGuardService,
-    private projetService: ProjetService
-  ) { }
+    private readonly isAdministratorGuardService: IsAdministratorGuardService,
+    private readonly recettesService: RecettesService,
+    private readonly popupService: PopupService,
+    private readonly dialog: MatDialog
+  ) {}
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.initGenericTableOptions();
-    this.getEntityInformationsCallBack = this.getEntityInformations.bind(this);
   }
 
-  ngOnChanges(changes: SimpleChanges) {
+  public ngOnChanges(changes: SimpleChanges): void {
     if (changes.recettes && changes.recettes.currentValue) {
-      this.initGenericTableOptions();
+      this.options = {
+        ...this.options,
+        dataSource: this.recettes,
+      };
     }
   }
 
-  /**
-   * Initialisation des options du tableau générique
-   * @private
-   */
-  private initGenericTableOptions(): void {
-    this.options = {
-      dataSource: this.recettes,
-      defaultEntity: this.defaultEntity,
-      entitySelectBoxOptions: [],
-      entityTypes: this.entityTypes,
-      entityPlaceHolders: this.entityPlaceHolders
-    };
-  }
-
-  /**
-   * Une recette a été créé et on l'initialise dans le tableau.
-   * @param event : encapsule la recette à créer.
-   */
-  async onCreate(event: GenericTableEntityEvent<Recette>): Promise<void> {
-    const formErrors = this.handleFormErrors(event.entity);
+  public async onCreate(
+    event: GenericTableEntityEvent<Recette>
+  ): Promise<void> {
+    const recette: Recette = { ...event.entity, id_f: this.financement.id_f };
+    const formErrors = this.checkFormErrors(recette);
     if (formErrors) {
-      event.callBack({formErrors});
+      this.popupService.error(Messages.ERROR_FORM);
+      event.callBack({ formErrors });
     } else {
       try {
-        const newRecette = await this.projetService.addRecetteToFinancement(event.entity, this.financement, this.recettes);
-        this.recettes = this.recettes.concat(newRecette);
-        event.callBack(null);
+        const createdRecette = await this.recettesService.add(
+          recette,
+          this.financement,
+          this.recettes
+        );
+        if (!createdRecette.difference) {
+          createdRecette.difference = createdRecette.montant_r;
+        }
+        event.callBack(null, createdRecette);
+        this.create(createdRecette);
+        this.popupService.success(Messages.SUCCESS_CREATE_RECETTE);
+        this.createEvent.emit(createdRecette);
       } catch (error) {
-        console.error(error);
         event?.callBack({
-          apiError: error
+          apiError: Messages.FAILURE_CREATE_RECETTE,
         });
       }
     }
   }
 
-  /**
-   * Une recette a été modifié dans le tableau.
-   * @param event : encapsule la recette à modifier.
-   */
-  async onEdit(event: GenericTableEntityEvent<Recette>): Promise<void> {
-    const formErrors = this.handleFormErrors(event.entity);
+  public async onEdit(event: GenericTableEntityEvent<Recette>): Promise<void> {
+    const formErrors = this.checkFormErrors(event.entity, true);
     if (formErrors) {
-      event.callBack({formErrors});
+      this.popupService.error(Messages.ERROR_FORM);
+      event.callBack({ formErrors });
     } else {
       try {
-        const updatedRecette = await this.projetService.modifyRecette(event.entity, this.financement, this.recettes);
-        const index = this.recettes.findIndex((r) => 
-          r?.id_r === updatedRecette.id_r);
-        this.recettes[index] = updatedRecette;
-        event.callBack(null);
+        const updatedRecette = await this.recettesService.modify(
+          event.entity,
+          this.financement,
+          this.recettes
+        );
+        event.callBack(
+          null,
+          updatedRecette.id_r === this.selectedRecette.id_r
+            ? updatedRecette
+            : null
+        );
+        this.modify(updatedRecette);
+        this.popupService.success(Messages.SUCCESS_UPDATE_RECETTE);
+        this.editEvent.emit();
       } catch (error) {
-        console.error(error);
         event?.callBack({
-          apiError: error
+          apiError: Messages.FAILURE_UPDATE_RECETTE,
         });
       }
     }
   }
 
-  /**
-   * Une recette a été supprimé du tableau.
-   * @param event : encapsule lea recette à modifier.
-   */
-  async onDelete(event: GenericTableEntityEvent<Recette>): Promise<void> {
-    try {
-      const deletedRecette = await this.projetService.deleteRecette(event.entity);
-      this.recettes = this.recettes.filter((recette) => 
-        recette?.id_r !== deletedRecette.id_r);
-      event.callBack(null);
-    } catch (error) {
-      console.error(error);
-      event?.callBack({
-        apiError: error
+  public async onDelete(
+    event: GenericTableEntityEvent<Recette>
+  ): Promise<void> {
+    const recette: Recette = event.entity;
+    const dialogRef = this.dialog.open(GenericDialogComponent, {
+      data: {
+        header: `Suppression d'une recette`,
+        content: `Voulez-vous supprimer la recette de ${recette.annee_r} ?`,
+        type: 'warning',
+        action: {
+          name: 'Confirmer',
+        },
+      } as IMessage,
+    });
+
+    dialogRef
+      .afterClosed()
+      .pipe(take(1))
+      .subscribe(async (result) => {
+        if (result) {
+          try {
+            await this.recettesService.delete(recette);
+            event.callBack(null);
+            this.delete(recette);
+            this.popupService.success(Messages.SUCCESS_DELETE_RECETTE);
+          } catch (error) {
+            event?.callBack({
+              apiError: Messages.FAILURE_DELETE_RECETTE,
+            });
+          }
+        }
       });
-    }
   }
 
   /**
-   * Vérifier le format de chaque champs de l'entité recette
-   * @param entity
+   * Vérifier le format de chaque champs de la recette
+   * @param recette
    */
-  public handleFormErrors(entity: Recette): GenericTableFormError[] {
+  public checkFormErrors(
+    recette: Recette,
+    edit?: boolean
+  ): GenericTableFormError[] {
     let genericTableFormErrors: GenericTableFormError[] = [];
-    genericTableFormErrors = this.getAnneeRecetteFormError(entity.annee_r, genericTableFormErrors);
-    genericTableFormErrors = this.getMontantFormError(entity.montant_r, genericTableFormErrors);
-    return genericTableFormErrors.length > 0 ? genericTableFormErrors : undefined;
+    genericTableFormErrors = this.getAnneeError(
+      recette,
+      genericTableFormErrors
+    );
+    genericTableFormErrors = this.getMontantError(
+      recette,
+      genericTableFormErrors
+    );
+    return genericTableFormErrors.length > 0
+      ? genericTableFormErrors
+      : undefined;
   }
 
   /**
@@ -212,21 +284,29 @@ export class RecettesComponent implements OnInit, OnChanges {
    * @param annee_recette
    * @param genericTableFormErrors
    */
-  public getAnneeRecetteFormError(
-    annee_recette: number,
-    genericTableFormErrors: GenericTableFormError[]): GenericTableFormError[] {
+  public getAnneeError(
+    recette: Recette,
+    genericTableFormErrors: GenericTableFormError[]
+  ): GenericTableFormError[] {
+    const year = recette.annee_r;
     let msg = '';
-    if (!annee_recette) {
+    if (!year) {
       msg = 'Année recette requise';
-    } else if (!/^(\d{4})$/.test(String(annee_recette))) {
+    } else if (!/^(\d{4})$/.test(String(year))) {
       msg = 'Format année non respecté';
+    } else if (this.hasDuplicateYear(recette)) {
+      msg = 'Année doit être unique';
+    } else if (this.hasYearGreaterThanFounding(recette)) {
+      msg =
+        'Année de la recette doit être antérieur à la date de commande ou darrêté du financement';
     }
     if (msg !== '') {
       genericTableFormErrors = genericTableFormErrors.concat({
         name: this.EntityPropertyName.ANNEE_RECETTE,
-        message: msg
+        message: msg,
       });
     }
+
     return genericTableFormErrors;
   }
 
@@ -235,38 +315,100 @@ export class RecettesComponent implements OnInit, OnChanges {
    * @param montant
    * @param genericTableFormErrors
    */
-  public getMontantFormError(
-    montant: number,
-    genericTableFormErrors: GenericTableFormError[]): GenericTableFormError[] {
+  public getMontantError(
+    recette: Recette,
+    genericTableFormErrors: GenericTableFormError[]
+  ): GenericTableFormError[] {
+    const montant = recette.montant_r;
     let msg = '';
     if (!isNotNullOrUndefined(montant)) {
       msg = 'Montant requis';
     } else if (montant <= 0) {
       msg = 'Le montant doit être supérieur à 0';
+    } else if (this.hasAmountGreaterThanFounding(recette)) {
+      msg = 'Montant ne doit pas dépasser le montant du financement';
     }
     if (msg !== '') {
       genericTableFormErrors = genericTableFormErrors.concat({
         name: this.EntityPropertyName.MONTANT,
-        message: msg
+        message: msg,
       });
     }
+
     return genericTableFormErrors;
   }
 
   /**
-   * Renvoie les informations d'une recette
+   * Gestion de la sélection d'une recette
    * @param entity
    */
-  public getEntityInformations(recette?: Recette): string {
-    return recette ? "Recette: [année = " + recette.annee_r + ", montant = " + recette.montant_r + "]" : "";
+  public onSelect(
+    genericTableEntityEvent: GenericTableEntityEvent<Recette>
+  ): void {
+    this.selectEvent.emit(genericTableEntityEvent.entity);
   }
 
-  /**
-   * Gére la sélection d'une entité
-   * @param entity
-   */
-  public onSelect(genericTableEntityEvent: GenericTableEntityEvent<Recette>): void {
-    this.select.emit(genericTableEntityEvent.entity);
+  private initGenericTableOptions(): void {
+    this.options = {
+      dataSource: this.recettes,
+      defaultEntity: this.defaultEntity,
+      entitySelectBoxOptions: [],
+      entityTypes: this.entityTypes,
+      entityPlaceHolders: this.entityPlaceHolders,
+    };
   }
 
+  private create(createdRecette: Recette): void {
+    this.recettes.push(createdRecette);
+    this.emitRecettesChange();
+  }
+
+  private modify(modifiedRecette: Recette): void {
+    const index = this.recettes.findIndex(
+      (recette) => modifiedRecette.id_r === recette.id_r
+    );
+    this.recettes[index] = modifiedRecette;
+    this.emitRecettesChange();
+  }
+
+  private delete(deletedRecette: Recette): void {
+    this.recettes = this.recettes.filter(
+      (recette) => recette.id_r !== deletedRecette.id_r
+    );
+    this.emitRecettesChange();
+  }
+
+  private emitRecettesChange(): void {
+    this.recettesChange.emit(this.recettes);
+  }
+
+  private hasDuplicateYear(recette: Recette): boolean {
+    const year = recette.annee_r;
+    const years = this.recettes.map((_recette) => +_recette.annee_r);
+    const tempArray = this.recettes.find(
+      (_recette) =>
+        _recette.id_r === recette.id_r && _recette.annee_r === recette.annee_r
+    )
+      ? years
+      : [...years, +year];
+
+    return tempArray.some(
+      (element, index) => tempArray.indexOf(element) !== index
+    );
+  }
+
+  private hasAmountGreaterThanFounding(recette: Recette): boolean {
+    const amounts = this.recettes
+      .filter((_recette) => _recette.id_r !== recette.id_r)
+      .map((_recette) => _recette.montant_r);
+    const sum = amounts.reduce((a, b) => a + b, 0) + recette.montant_r;
+
+    return sum > this.financement.montant_arrete_f;
+  }
+
+  private hasYearGreaterThanFounding(recette: Recette): boolean {
+    const yearFounding = new Date(this.financement.date_arrete_f).getFullYear();
+
+    return yearFounding ? recette.annee_r > yearFounding : true;
+  }
 }

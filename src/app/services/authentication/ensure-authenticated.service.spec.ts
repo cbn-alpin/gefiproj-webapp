@@ -1,4 +1,3 @@
-import { HomeComponent } from './../../components/home/home.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { RouterStateSnapshot } from '@angular/router';
@@ -9,6 +8,11 @@ import { ConnexionComponent } from 'src/app/components/connexion/connexion.compo
 import { NavigationService } from '../navigation.service';
 import { AuthService } from './auth.service';
 import { EnsureAuthenticatedService } from './ensure-authenticated.service';
+import {
+  MockPopupService,
+  PopupService,
+} from '../../shared/services/popup.service';
+import { HomeComponent } from '../../components/home/home.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 describe('EnsureAuthenticatedService', () => {
@@ -17,29 +21,34 @@ describe('EnsureAuthenticatedService', () => {
   let navSrv: NavigationService;
   const mockSnapshot = jasmine.createSpyObj<RouterStateSnapshot>(
     'RouterStateSnapshot',
-    ['toString']);
+    ['toString']
+  );
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [
-        RouterTestingModule.withRoutes(
-          [{path: 'connexion', component: ConnexionComponent},
-          {path: 'home', component: HomeComponent}]
-        ),
+        RouterTestingModule.withRoutes([
+          { path: 'connexion', component: ConnexionComponent },
+          { path: 'home', component: HomeComponent },
+        ]),
         HttpClientTestingModule,
-        MatSnackBarModule,
         JwtModule.forRoot({
           config: {
-            tokenGetter
-          }
-        })
+            tokenGetter,
+          },
+        }),
+        MatSnackBarModule,
       ],
       providers: [
         {
           provide: RouterStateSnapshot,
-          useValue: mockSnapshot
-        }
-      ]
+          useValue: mockSnapshot,
+        },
+        {
+          provide: PopupService,
+          useClass: MockPopupService,
+        },
+      ],
     });
     service = TestBed.inject(EnsureAuthenticatedService);
     authSrv = TestBed.inject(AuthService);
@@ -51,10 +60,8 @@ describe('EnsureAuthenticatedService', () => {
   });
 
   it('canActivate -> ok', async () => {
-    spyOn(authSrv, 'isAuthenticated').and
-      .returnValue(true);
-    spyOn(navSrv, 'goToLogin').and
-      .throwError('bouchonnage'); // Pour être certain que ce n'est pas appelé
+    spyOn(authSrv, 'isAuthenticated').and.returnValue(true);
+    spyOn(navSrv, 'goToLogin').and.throwError('bouchonnage'); // Pour être certain que ce n'est pas appelé
 
     const canActivate = await service.canActivate();
 
@@ -63,15 +70,12 @@ describe('EnsureAuthenticatedService', () => {
 
   it('canActivate -> false, changement de page vers login', async () => {
     let isGoToLogin = false;
-    spyOn(authSrv, 'isAuthenticated').and
-      .returnValue(false);
-    spyOn(authSrv, 'canRefreshToken').and
-      .returnValue(false);
-    spyOn(authSrv, 'logout').and
-      .callFake(() => {
-        isGoToLogin = true;
-        return Promise.resolve();
-      });
+    spyOn(authSrv, 'isAuthenticated').and.returnValue(false);
+    spyOn(authSrv, 'canRefreshToken').and.returnValue(false);
+    spyOn(authSrv, 'logout').and.callFake(() => {
+      isGoToLogin = true;
+      return Promise.resolve();
+    });
 
     const canActivate = await service.canActivate();
 
