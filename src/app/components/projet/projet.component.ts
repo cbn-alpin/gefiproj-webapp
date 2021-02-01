@@ -266,12 +266,4 @@ export class ProjetComponent implements OnInit {
       }
     }
   }
-
-  a() {
-    console.log('SELECTED FINANCEMENT: ', this.selectedFinancement);
-    console.log('SELECTED RECETTE: ', this.selectedRecette);
-    console.log('FINANCEMENTS: ', this.financements);
-    console.log('RECETTES: ', this.recettes);
-    console.log('MONANTS AFFECTEES: ', this.montantsAffectes);
-  }
 }
