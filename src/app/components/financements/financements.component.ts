@@ -27,6 +27,8 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { PopupService } from '../../shared/services/popup.service';
 import { take } from 'rxjs/operators';
+import { SortInfo } from '../../shared/components/generic-table/models/sortInfo';
+import { basicSort } from '../../shared/tools/utils';
 
 @Component({
   selector: 'app-financements',
@@ -153,6 +155,8 @@ export class FinancementsComponent implements OnInit, OnChanges {
     return !!this.adminSrv.isAdministrator();
   }
 
+  private sortInfo: SortInfo;
+
   /**
    * @param adminSrv
    * @param financementsService
@@ -192,11 +196,12 @@ export class FinancementsComponent implements OnInit, OnChanges {
    * Initialise le composant.
    */
   public async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    if (changes.financements && changes.financements.currentValue) {
-      this.options = {
-        ...this.options,
-        dataSource: this.financements,
-      };
+    if (
+      changes.financements &&
+      changes.financements.currentValue &&
+      changes.financements.previousValue
+    ) {
+      this.refreshDataTable();
     }
   }
 
@@ -347,8 +352,28 @@ export class FinancementsComponent implements OnInit, OnChanges {
     this.selectEvent.emit(genericTableEntityEvent.entity);
   }
 
+  /**
+   * Le trie du tableau a changé.
+   * @param sort : défini le trie à appliquer.
+   */
+  public onSortChanged(sort: SortInfo): void {
+    try {
+      if (sort) {
+        this.sortInfo = sort;
+        this.refreshDataTable();
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   public onSelectedEntityChange(financement: Financement): void {
-    this.selectedFinancementChange.emit(financement);
+    this.selectedFinancement = financement;
+    this.emitSelectedFinancementChange();
+  }
+
+  private emitSelectedFinancementChange(): void {
+    this.selectedFinancementChange.emit(this.selectedFinancement);
   }
 
   /**
@@ -374,26 +399,31 @@ export class FinancementsComponent implements OnInit, OnChanges {
           name: this.namesMap.date_arrete_f.name,
           type: GenericTableCellType.DATE,
           code: this.namesMap.date_arrete_f.code,
+          sortEnabled: true,
         },
         {
           name: this.namesMap.date_limite_solde_f.name,
           type: GenericTableCellType.DATE,
           code: this.namesMap.date_limite_solde_f.code,
+          sortEnabled: true,
         },
         {
           name: this.namesMap.financeur.name,
           type: GenericTableCellType.SELECTBOX,
           code: this.namesMap.financeur.code,
+          sortEnabled: true,
         },
         {
           name: this.namesMap.statut_f.name,
           type: GenericTableCellType.SELECTBOX,
           code: this.namesMap.statut_f.code,
+          sortEnabled: true,
         },
         {
           name: this.namesMap.date_solde_f.name,
           type: GenericTableCellType.DATE,
           code: this.namesMap.date_solde_f.code,
+          sortEnabled: true,
         },
         {
           name: this.namesMap.commentaire_admin_f.name,
@@ -424,10 +454,13 @@ export class FinancementsComponent implements OnInit, OnChanges {
           name: this.namesMap.difference.name,
           type: GenericTableCellType.CURRENCY,
           code: this.namesMap.difference.code,
+          sortEnabled: true,
         },
       ],
       entityPlaceHolders: [],
       entitySelectBoxOptions: [],
+      sortName: this.namesMap.montant_arrete_f.name,
+      sortDirection: 'asc',
     };
   }
 
@@ -606,5 +639,12 @@ export class FinancementsComponent implements OnInit, OnChanges {
       dataSource,
       entitySelectBoxOptions,
     });
+  }
+
+  private refreshDataTable(): void {
+    this.options = {
+      ...this.options,
+      dataSource: basicSort(this.financements, this.sortInfo),
+    };
   }
 }

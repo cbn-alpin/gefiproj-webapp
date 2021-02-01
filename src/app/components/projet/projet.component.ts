@@ -1,9 +1,9 @@
-import {Component, Inject, OnInit} from '@angular/core';
-import { Financement } from "../../models/financement";
-import { Recette } from "../../models/recette";
+import { Component, Inject, OnInit } from '@angular/core';
+import { Financement } from '../../models/financement';
+import { Recette } from '../../models/recette';
 import { IsAdministratorGuardService } from '../../services/authentication/is-administrator-guard.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import {MAT_DIALOG_DATA, MatDialog} from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { ProjetsService } from '../../services/projets.service';
 import { Projet } from '../../models/projet';
 import { MontantsAffectesService } from '../../services/montants-affectes.service';
@@ -14,14 +14,14 @@ import { Utilisateur } from '../../models/utilisateur';
 import { SpinnerService } from '../../services/spinner.service';
 import { RecettesService } from '../../services/recettes.service';
 import { PopupService } from '../../shared/services/popup.service';
-import { UsersService} from '../../services/users.service';
+import { UsersService } from '../../services/users.service';
 
 export interface DialogData {
   project: Projet;
   users: Utilisateur[];
-  manager : Utilisateur;
-  projectName : string;
-  edited : boolean;
+  manager: Utilisateur;
+  projectName: string;
+  edited: boolean;
 }
 @Component({
   selector: 'app-projet',
@@ -70,7 +70,7 @@ export class ProjetComponent implements OnInit {
     private readonly montantsAffectesService: MontantsAffectesService,
     private readonly financementsService: FinancementsService,
     private readonly spinnerSrv: SpinnerService,
-    private readonly usersSrv: UsersService,
+    private readonly usersSrv: UsersService
   ) {
     this.projetId = this.route.snapshot.params.id;
     if (!this.projetId) {
@@ -94,10 +94,14 @@ export class ProjetComponent implements OnInit {
       const promiseDetails = this.loadProjetDetailsFromProjetId(projetId);
       const promiseFinancement = this.loadFinancementsFromProjetId(projetId);
       const promiseUtilisateurs = this.loadAllUsers(projetId);
-      await Promise.all([promiseDetails, promiseFinancement, promiseUtilisateurs]);
+      await Promise.all([
+        promiseDetails,
+        promiseFinancement,
+        promiseUtilisateurs,
+      ]);
       if (this.financements && this.financements.length > 0) {
         this.projetToEdit = JSON.parse(JSON.stringify(this.projet));
-        this.manager= this.projet.responsable;
+        this.manager = this.projet.responsable;
         this.selectedFinancement = this.financements[0];
         await this.loadRecettesFromFinancementId(this.selectedFinancement.id_f);
         if (this.recettes && this.recettes.length > 0) {
@@ -226,7 +230,6 @@ export class ProjetComponent implements OnInit {
     }
   }
 
-
   private async loadFinancementsFromProjetId(projetId: number): Promise<void> {
     try {
       if (projetId) {
@@ -289,35 +292,35 @@ export class ProjetComponent implements OnInit {
         );
       if (this.projet.statut_p == false)
         this.popupService.success(
-          "Le projet " + this.projet.nom_p + " est non soldé ! ");
-
-    }
-
-  catch(error) {
-    console.error(error);
-    for (const err of error.error.errors) {
-      this.popupService.error(
-        'Impossible de créer le montant affecté : ' + err.message
-      );
+          'Le projet ' + this.projet.nom_p + ' est non soldé ! '
+        );
+    } catch (error) {
+      console.error(error);
+      for (const err of error.error.errors) {
+        this.popupService.error(
+          'Impossible de créer le montant affecté : ' + err.message
+        );
+      }
     }
   }
 
-
-  }
-
-  public openEditProjectDialog() : void {
+  public openEditProjectDialog(): void {
     let projectName = this.projet.nom_p;
     let edited = false;
     const dialogRef = this.dialog.open(EditProjectDialogComponent, {
       width: '600px',
-      data: {project : this.projetToEdit, users : this.managers, manager : this.manager , projectName : projectName ,edited :  edited},
+      data: {
+        project: this.projetToEdit,
+        users: this.managers,
+        manager: this.manager,
+        projectName: projectName,
+        edited: edited,
+      },
     });
 
-    dialogRef.afterClosed().subscribe(async result => {
-      if(result)
-      {
-        if(result.edited) {
-          console.log("result  : " , result);
+    dialogRef.afterClosed().subscribe(async (result) => {
+      if (result) {
+        if (result.edited) {
           await this.updateProjectInfos(result.project);
 
           await this.refreshProject();
@@ -330,58 +333,53 @@ export class ProjetComponent implements OnInit {
    * Met à jour les données d'affichage.
    */
   private async refreshProject() {
-
     try {
       this.projet = await this.projetsService.get(this.projet.id_p);
-      this.manager=this.projet.responsable;
-
+      this.manager = this.projet.responsable;
     } catch (error) {
       console.error(error);
     }
   }
 
-  public async updateProjectInfos(editedProject : Projet): Promise<void> {
+  public async updateProjectInfos(editedProject: Projet): Promise<void> {
     editedProject.id_u = editedProject.responsable.id_u;
     try {
       this.spinnerSrv.show();
       await this.projetsService.modify(editedProject);
       this.spinnerSrv.hide();
-      this.popupService.success(
-        "Le projet a bien été modifé ! ");
-
+      this.popupService.success('Le projet a bien été modifé ! ');
     } catch (error) {
       console.error(error);
       for (const err of error.error.errors) {
         this.popupService.error(
-          'Impossible de modifier le projet : ' + err.message);
+          'Impossible de modifier le projet : ' + err.message
+        );
       }
-
     }
   }
-
-
 }
-
 
 @Component({
   selector: 'edit-project-dialog',
   templateUrl: 'edit-project-popup.component.html',
-  styleUrls: ['./projet.component.scss']
+  styleUrls: ['./projet.component.scss'],
 })
 export class EditProjectDialogComponent {
   constructor(
     public dialogRef: MatDialog,
-    @Inject(MAT_DIALOG_DATA) public data : DialogData) {
-  }
+    @Inject(MAT_DIALOG_DATA) public data: DialogData
+  ) {}
 
   public managerId = this.data.manager.id_u;
 
   onNoClick(): void {
-    this.dialogRef.closeAll()
+    this.dialogRef.closeAll();
   }
 
   async onYesClick(): Promise<void> {
     this.data.edited = true;
-    this.data.project.responsable = this.data.users.find(responsable => responsable.id_u === this.managerId );
+    this.data.project.responsable = this.data.users.find(
+      (responsable) => responsable.id_u === this.managerId
+    );
   }
 }

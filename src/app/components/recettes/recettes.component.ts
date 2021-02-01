@@ -27,7 +27,7 @@ import {
 import { take } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { SortInfo } from '../../shared/components/generic-table/models/sortInfo';
-import { Projet } from '../../models/projet';
+import { basicSort } from '../../shared/tools/utils';
 
 @Component({
   selector: 'app-recettes',
@@ -269,7 +269,6 @@ export class RecettesComponent implements OnInit, OnChanges {
   public onSortChanged(sort: SortInfo): void {
     try {
       if (sort) {
-        console.log('SS', sort);
         this.sortInfo = sort;
         this.refreshDataTable();
       }
@@ -467,7 +466,7 @@ export class RecettesComponent implements OnInit, OnChanges {
   private refreshDataTable(): void {
     this.options = {
       ...this.options,
-      dataSource: this.sort(this.recettes),
+      dataSource: basicSort(this.recettes, this.sortInfo),
     };
   }
 }
