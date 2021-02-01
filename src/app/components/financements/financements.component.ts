@@ -29,6 +29,7 @@ import { PopupService } from '../../shared/services/popup.service';
 import { take } from 'rxjs/operators';
 import { SortInfo } from '../../shared/components/generic-table/models/sortInfo';
 import { basicSort } from '../../shared/tools/utils';
+import { DefaultSortInfo } from '../../models/projet';
 
 @Component({
   selector: 'app-financements',
@@ -43,6 +44,8 @@ export class FinancementsComponent implements OnInit, OnChanges {
   @Input() public financements: Financement[];
 
   @Input() public selectedFinancement: Financement;
+
+  @Input() public defaultSortInfo: DefaultSortInfo;
 
   @Output()
   public selectEvent: EventEmitter<Financement> = new EventEmitter<Financement>();
@@ -459,8 +462,8 @@ export class FinancementsComponent implements OnInit, OnChanges {
       ],
       entityPlaceHolders: [],
       entitySelectBoxOptions: [],
-      sortName: this.namesMap.montant_arrete_f.name,
-      sortDirection: 'asc',
+      sortName: this.defaultSortInfo?.headerName,
+      sortDirection: this.defaultSortInfo?.sortInfo?.direction,
     };
   }
 

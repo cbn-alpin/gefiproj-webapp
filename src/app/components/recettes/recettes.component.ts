@@ -28,6 +28,7 @@ import { take } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { SortInfo } from '../../shared/components/generic-table/models/sortInfo';
 import { basicSort } from '../../shared/tools/utils';
+import { DefaultSortInfo } from '../../models/projet';
 
 @Component({
   selector: 'app-recettes',
@@ -46,6 +47,8 @@ export class RecettesComponent implements OnInit, OnChanges {
   @Input() public recettes: Recette[];
 
   @Input() public selectedRecette: Recette;
+
+  @Input() public defaultSortInfo: DefaultSortInfo;
 
   /**
    * Recette séléctioné event
@@ -375,8 +378,8 @@ export class RecettesComponent implements OnInit, OnChanges {
       entitySelectBoxOptions: [],
       entityTypes: this.entityTypes,
       entityPlaceHolders: this.entityPlaceHolders,
-      sortName: this.namesMap.ANNEE.name,
-      sortDirection: 'asc',
+      sortName: this.defaultSortInfo?.headerName,
+      sortDirection: this.defaultSortInfo?.sortInfo?.direction,
     };
   }
 

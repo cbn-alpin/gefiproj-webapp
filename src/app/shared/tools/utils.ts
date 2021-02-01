@@ -14,7 +14,6 @@ export function basicSort(array: any[], sortInfo: SortInfo): any[] {
     direction === 'asc' // Pour gérer le sens du trie
       ? 1
       : -1;
-
   return array.sort((p1, p2) => {
     let item1 = p1[name];
     let item2 = p2[name];
@@ -37,4 +36,8 @@ export function basicSort(array: any[], sortInfo: SortInfo): any[] {
       return 0;
     }
   });
+}
+
+export function getDeepCopy(object: any): any {
+  return JSON.parse(JSON.stringify(object));
 }
