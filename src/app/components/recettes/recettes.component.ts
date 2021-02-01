@@ -97,8 +97,9 @@ export class RecettesComponent implements OnInit, OnChanges {
    * @private
    */
   private defaultEntity: Recette = {
-    annee_r: 2020,
-    montant_r: 0,
+    annee_r: null,
+    montant_r: null,
+    difference: null,
   };
 
   /**
@@ -109,6 +110,7 @@ export class RecettesComponent implements OnInit, OnChanges {
   private EntityPropertyName = {
     ANNEE_RECETTE: Object.keys(this.defaultEntity)[0],
     MONTANT: Object.keys(this.defaultEntity)[1],
+    DIFFERENCE: Object.keys(this.defaultEntity)[2],
   };
 
   /**
@@ -125,6 +127,11 @@ export class RecettesComponent implements OnInit, OnChanges {
       name: 'Montant',
       type: GenericTableCellType.CURRENCY,
       code: this.EntityPropertyName.MONTANT,
+    },
+    {
+      name: 'Différence',
+      type: GenericTableCellType.CURRENCY,
+      code: this.EntityPropertyName.DIFFERENCE,
     },
   ];
 
@@ -150,9 +157,6 @@ export class RecettesComponent implements OnInit, OnChanges {
 
   public ngOnChanges(changes: SimpleChanges): void {
     if (changes.recettes && changes.recettes.currentValue) {
-      this.recettes.forEach((recette) => {
-        this.recettesService.cleanRecette(recette);
-      });
       this.options = {
         ...this.options,
         dataSource: this.recettes,
@@ -175,6 +179,9 @@ export class RecettesComponent implements OnInit, OnChanges {
           this.financement,
           this.recettes
         );
+        if (!createdRecette.difference) {
+          createdRecette.difference = createdRecette.montant_r;
+        }
         event.callBack(null, createdRecette);
         this.create(createdRecette);
         this.popupService.success(Messages.SUCCESS_CREATE_RECETTE);
