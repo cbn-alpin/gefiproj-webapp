@@ -437,35 +437,6 @@ export class RecettesComponent implements OnInit, OnChanges {
     return yearFounding ? recette.annee_r > yearFounding : true;
   }
 
-  private sort(recettes: Recette[]): Recette[] {
-    let { name, direction } = this.sortInfo || {
-      name: this.namesMap.ANNEE.name,
-      direction: 'asc',
-    };
-    const mult =
-      direction === 'asc' // Pour gérer le sens du trie
-        ? 1
-        : -1;
-
-    return recettes.sort((p1, p2) => {
-      let item1 = p1[name];
-      let item2 = p2[name];
-
-      if (typeof item1 === 'string') {
-        item1 = item1.toUpperCase();
-        item2 = item2.toUpperCase();
-      }
-
-      if (item1 < item2) {
-        return -1 * mult;
-      }
-      if (item1 > item2) {
-        return 1 * mult;
-      }
-      return 0;
-    });
-  }
-
   private refreshDataTable(): void {
     this.options = {
       ...this.options,
