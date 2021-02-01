@@ -105,14 +105,15 @@ export class RecettesComponent implements OnInit, OnChanges {
   };
 
   /**
-   * Extraire les noms de chaque propriétés du type Recette vers une énumération.
-   * Cette énumération facilite le paramétrage du tableau.
-   * @private
+   * Mapping pour les noms des attributs d'un projet.
    */
-  private EntityPropertyName = {
-    ANNEE_RECETTE: Object.keys(this.defaultEntity)[0],
-    MONTANT: Object.keys(this.defaultEntity)[1],
-    DIFFERENCE: Object.keys(this.defaultEntity)[2],
+  private readonly namesMap = {
+    ID: { code: 'id_r', name: 'Identifiant' },
+    FINANCEMENT: { code: 'financement', name: 'Financement' },
+    MONTANT: { code: 'montant_r', name: 'Montant' },
+    ANNEE: { code: 'annee_r', name: 'Année recette' },
+    ID_FINANCEUR: { code: 'id_f', name: 'Id financeur' },
+    DIFFERENCE: { code: 'difference', name: 'Différence' },
   };
 
   /**
@@ -121,21 +122,21 @@ export class RecettesComponent implements OnInit, OnChanges {
    */
   private entityTypes: EntityType[] = [
     {
-      name: 'Année recette',
+      name: this.namesMap.ANNEE.name,
       type: GenericTableCellType.NUMBER,
-      code: this.EntityPropertyName.ANNEE_RECETTE,
+      code: this.namesMap.ANNEE.code,
       sortEnabled: true,
     },
     {
-      name: 'Montant',
+      name: this.namesMap.MONTANT.name,
       type: GenericTableCellType.CURRENCY,
-      code: this.EntityPropertyName.MONTANT,
+      code: this.namesMap.MONTANT.code,
       sortEnabled: true,
     },
     {
-      name: 'Différence',
+      name: this.namesMap.DIFFERENCE.name,
       type: GenericTableCellType.CURRENCY,
-      code: this.EntityPropertyName.DIFFERENCE,
+      code: this.namesMap.DIFFERENCE.code,
       sortEnabled: true,
     },
   ];
@@ -145,8 +146,8 @@ export class RecettesComponent implements OnInit, OnChanges {
    * @private
    */
   private entityPlaceHolders: EntityPlaceholder[] = [
-    { name: this.EntityPropertyName.ANNEE_RECETTE, value: '2019' },
-    { name: this.EntityPropertyName.MONTANT, value: '25 000' },
+    { name: this.namesMap.ANNEE.code, value: '2019' },
+    { name: this.namesMap.MONTANT.code, value: '25 000' },
   ];
 
   private sortInfo: SortInfo;
@@ -322,7 +323,7 @@ export class RecettesComponent implements OnInit, OnChanges {
     }
     if (msg !== '') {
       genericTableFormErrors = genericTableFormErrors.concat({
-        name: this.EntityPropertyName.ANNEE_RECETTE,
+        name: this.namesMap.ANNEE.code,
         message: msg,
       });
     }
@@ -350,7 +351,7 @@ export class RecettesComponent implements OnInit, OnChanges {
     }
     if (msg !== '') {
       genericTableFormErrors = genericTableFormErrors.concat({
-        name: this.EntityPropertyName.MONTANT,
+        name: this.namesMap.MONTANT.code,
         message: msg,
       });
     }
@@ -375,7 +376,7 @@ export class RecettesComponent implements OnInit, OnChanges {
       entitySelectBoxOptions: [],
       entityTypes: this.entityTypes,
       entityPlaceHolders: this.entityPlaceHolders,
-      sortName: 'Année recette',
+      sortName: this.namesMap.ANNEE.name,
       sortDirection: 'asc',
     };
   }
@@ -436,7 +437,7 @@ export class RecettesComponent implements OnInit, OnChanges {
 
   private sort(recettes: Recette[]): Recette[] {
     let { name, direction } = this.sortInfo || {
-      name: this.EntityPropertyName.ANNEE_RECETTE,
+      name: this.namesMap.ANNEE.name,
       direction: 'asc',
     };
     const mult =
