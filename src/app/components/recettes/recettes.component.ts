@@ -375,7 +375,7 @@ export class RecettesComponent implements OnInit, OnChanges {
       entitySelectBoxOptions: [],
       entityTypes: this.entityTypes,
       entityPlaceHolders: this.entityPlaceHolders,
-      sortName: this.EntityPropertyName.ANNEE_RECETTE,
+      sortName: 'Année recette',
       sortDirection: 'asc',
     };
   }
