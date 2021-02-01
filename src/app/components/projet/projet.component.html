@@ -1,30 +1,30 @@
-<ng-container *ngIf="projet && financements">
-  <div class="project-details" *ngIf="projet">
-    <span class="bold project-name">{{ projet.nom_p }}</span>
+<ng-container  *ngIf="projet && manager">
+  <div class="project-details">
+    <span class="bold project-name">{{projet.nom_p}}</span>
 
     <div class="project-edit">
-      <mat-icon>edit</mat-icon>
-    </div>
-    <br /><br />
-    <span class="project-code-content">
-      <span class="bold"> code : </span>{{ projet.code_p }}
-    </span>
-    <span class="project-responsable-content">
-      <span class="bold"> responsable : </span
-      >{{ projet.responsable.initiales_u }}
-    </span>
-    <span class="project-status">
-      <mat-checkbox
-        [checked]="projet.statut_p"
-        [disabled]="!isAdministrator"
-        (change)="updateProjectStatus($event)"
+      <!-- Edit -->
+      <button
+        *ngIf="!isReadOnly && projet.statut_p==false"
+        mat-icon-button
+        (click)="openEditProjectDialog()"
       >
-        <!-- disabled if not administrator  -->
-        Soldé
-      </mat-checkbox>
+        <mat-icon>edit</mat-icon>
+      </button>
+    </div>
+    <br><br>
+    <span class="project-code-content"> <span class="bold"> code : </span>{{projet.code_p}} </span>
+    <span class="project-responsable-content"> <span class="bold"> responsable : </span>{{manager.initiales_u }} </span>
+    <span class="project-status">
+    <mat-checkbox
+      [checked]=projet.statut_p
+      [disabled]="!isAdministrator"
+      (change)="updateProjectStatus($event)"> <!-- disabled if not administrator  -->
+      Soldé
+    </mat-checkbox>
     </span>
   </div>
-  <hr class="project-line" />
+<hr class="project-line">
 
   <div class="financements">
     <app-financements

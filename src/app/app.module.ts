@@ -36,6 +36,9 @@ import { UtilisateursComponent } from './components/utilisateurs/utilisateurs.co
 import { AuthService } from './services/authentication/auth.service';
 import { AuthenticationHttpInterceptorService } from './services/authentication/authentication-http-interceptor.service';
 import { SharedModule } from './shared/shared.module';
+import {EditProjectDialogComponent} from './components/projet/projet.component';
+import {MatDialogModule} from '@angular/material/dialog';
+import {MatSelectModule} from '@angular/material/select';
 
 /**
  * Retourne le token courant.
@@ -65,6 +68,7 @@ registerLocaleData(localeFr, 'fr-FR');
     ProjetComponent,
     MontantsAffectesComponent,
     SuiviFinancementsComponent,
+    EditProjectDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -88,6 +92,8 @@ registerLocaleData(localeFr, 'fr-FR');
     ReactiveFormsModule,
     MatInputModule,
     MatTooltipModule,
+    MatDialogModule,
+    MatSelectModule,
   ],
   providers: [
     {
