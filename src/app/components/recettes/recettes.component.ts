@@ -29,6 +29,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { SortInfo } from '../../shared/components/generic-table/models/sortInfo';
 import { basicSort } from '../../shared/tools/utils';
 import { DefaultSortInfo } from '../../models/projet';
+import { MontantsAffectesService } from '../../services/montants-affectes.service';
 
 @Component({
   selector: 'app-recettes',
@@ -59,7 +60,8 @@ export class RecettesComponent implements OnInit, OnChanges {
   @Output()
   public createEvent: EventEmitter<Recette> = new EventEmitter<Recette>();
 
-  @Output() public editEvent: EventEmitter<void> = new EventEmitter<void>();
+  @Output()
+  public editEvent: EventEmitter<void> = new EventEmitter<void>();
 
   @Output() public deleteEvent: EventEmitter<void> = new EventEmitter<void>();
 
@@ -159,7 +161,8 @@ export class RecettesComponent implements OnInit, OnChanges {
     private readonly isAdministratorGuardService: IsAdministratorGuardService,
     private readonly recettesService: RecettesService,
     private readonly popupService: PopupService,
-    private readonly dialog: MatDialog
+    private readonly dialog: MatDialog,
+    private readonly montantsAffectesService: MontantsAffectesService
   ) {}
 
   public ngOnInit(): void {
@@ -191,6 +194,7 @@ export class RecettesComponent implements OnInit, OnChanges {
           this.financement,
           this.recettes
         );
+        // TODO: à supprimmer quand back renvoie la bonne différence
         if (!createdRecette.difference) {
           createdRecette.difference = createdRecette.montant_r;
         }
@@ -207,17 +211,25 @@ export class RecettesComponent implements OnInit, OnChanges {
   }
 
   public async onEdit(event: GenericTableEntityEvent<Recette>): Promise<void> {
-    const formErrors = this.checkFormErrors(event.entity, true);
+    const recette = event.entity;
+    const formErrors = this.checkFormErrors(recette, true);
     if (formErrors) {
       this.popupService.error(Messages.ERROR_FORM);
       event.callBack({ formErrors });
     } else {
       try {
         const updatedRecette = await this.recettesService.modify(
-          event.entity,
+          recette,
           this.financement,
           this.recettes
         );
+        // TODO: à supprimmer quand back renvoie la bonne différence
+        const montants = await this.montantsAffectesService.getAll(
+          updatedRecette.id_r
+        );
+        const sumMontants = montants.reduce((a, b) => a + b.montant_ma, 0);
+        const difference = updatedRecette.montant_r - sumMontants;
+        updatedRecette.difference = difference;
         event.callBack(
           null,
           updatedRecette.id_r === this.selectedRecette.id_r
