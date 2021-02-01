@@ -60,7 +60,7 @@ export class DepensesComponent implements OnInit {
       },
       {
         code: this.namesMap.amount.code,
-        type: GenericTableCellType.TEXT, // TODO : Pour permettre les nombres <0. A terme faire évoluer le tableau générique !!
+        type: GenericTableCellType.NUMBER,
         name: this.namesMap.amount.name,
         sortEnabled: false,
       }
