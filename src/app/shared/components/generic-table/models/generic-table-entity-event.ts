@@ -1,7 +1,10 @@
-import {GenericTableEntityErrors} from './generic-table-entity';
+import { GenericTableEntityErrors } from './generic-table-entity';
 
 export interface GenericTableEntityEvent<T> {
-    entity: T;
-    updatedGenericTable?: T[];
-    callBack?: (genericTableEntityErrors?: GenericTableEntityErrors) => any;
+  entity: T;
+  updatedGenericTable?: T[];
+  callBack?: (
+    genericTableEntityErrors?: GenericTableEntityErrors,
+    up?: T
+  ) => any;
 }

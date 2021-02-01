@@ -73,8 +73,9 @@ export class ProjetComponent implements OnInit {
 
   public async loadData(projetId: number): Promise<Projet> {
     try {
-      await this.loadProjetDetailsFromProjetId(projetId);
-      await this.loadFinancementsFromProjetId(projetId);
+      const promiseDetails = this.loadProjetDetailsFromProjetId(projetId);
+      const promiseFinancement = this.loadFinancementsFromProjetId(projetId);
+      await Promise.all([promiseDetails, promiseFinancement]);
       if (this.financements && this.financements.length > 0) {
         this.selectedFinancement = this.financements[0];
         await this.loadRecettesFromFinancementId(this.selectedFinancement.id_f);
@@ -138,11 +139,15 @@ export class ProjetComponent implements OnInit {
     }
   }
 
-  public onCreateRecette(recette: Recette): void {
-    if (this.selectedRecette == null) {
-      this.selectedRecette = recette;
-      console.log('PROJET SELECTED RECETTE: ', this.selectedRecette);
+  public onSelectedFinancementChange(financement: Financement): void {
+    this.selectedFinancement = financement;
+    if (this.selectedFinancement == null) {
+      this.recettes = null;
+      this.montantsAffectes = null;
     }
+  }
+
+  public onCreateRecette(recette: Recette): void {
     if (!this.montantsAffectes) {
       this.montantsAffectes = [];
     }
@@ -159,7 +164,21 @@ export class ProjetComponent implements OnInit {
   }
 
   public onFinancementsChange(financements: Financement[]): void {
-    this.financements = financements;
+    this.financements = [...financements];
+  }
+
+  public onMontantsAffectesChange(montantAffectes: MontantAffecte[]): void {
+    this.montantsAffectes = [...montantAffectes];
+    const recette = this.recettes.find(
+      (recette) => recette.id_r === this.selectedRecette.id_r
+    );
+    if (recette) {
+      const sumMontants = this.montantsAffectes.reduce(
+        (a, b) => a + b.montant_ma,
+        0
+      );
+      recette.difference = recette.montant_r - sumMontants;
+    }
   }
 
   private async loadProjetDetailsFromProjetId(projetId: number): Promise<void> {
@@ -193,6 +212,14 @@ export class ProjetComponent implements OnInit {
     try {
       if (financementId) {
         this.recettes = await this.recettesService.getAll(financementId);
+        // TODO:
+        // Dans le back, si une recette n'a pas de financement alors sa difference = null
+        // Il faut mieux set la difference = montant recette dans ce cas
+        this.recettes.forEach((recette) => {
+          if (recette.difference == null) {
+            recette.difference = recette.montant_r;
+          }
+        });
       }
     } catch (error) {
       console.error(error);
@@ -238,5 +265,13 @@ export class ProjetComponent implements OnInit {
         );
       }
     }
+  }
+
+  a() {
+    console.log('SELECTED FINANCEMENT: ', this.selectedFinancement);
+    console.log('SELECTED RECETTE: ', this.selectedRecette);
+    console.log('FINANCEMENTS: ', this.financements);
+    console.log('RECETTES: ', this.recettes);
+    console.log('MONANTS AFFECTEES: ', this.montantsAffectes);
   }
 }
