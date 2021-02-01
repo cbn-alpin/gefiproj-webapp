@@ -22,6 +22,8 @@ import {
   IMessage,
 } from '../../shared/components/generic-dialog/generic-dialog.component';
 import { PopupService } from '../../shared/services/popup.service';
+import { SortInfo } from '../../shared/components/generic-table/models/sortInfo';
+import { basicSort } from '../../shared/tools/utils';
 
 @Component({
   selector: 'app-montants-affectes',
@@ -83,15 +85,19 @@ export class MontantsAffectesComponent implements OnChanges {
         name: this.namesMap.annee_ma.name,
         type: GenericTableCellType.NUMBER,
         code: this.namesMap.annee_ma.code,
+        sortEnabled: true,
       },
       {
         name: this.namesMap.montant_ma.name,
         type: GenericTableCellType.CURRENCY,
         code: this.namesMap.montant_ma.code,
+        sortEnabled: true,
       },
     ],
     entityPlaceHolders: [],
     entitySelectBoxOptions: [],
+    sortName: this.namesMap.annee_ma.name,
+    sortDirection: 'asc',
   };
   /**
    * Indique si le tableau peut-être modifié.
@@ -118,6 +124,8 @@ export class MontantsAffectesComponent implements OnChanges {
     return !!this.adminSrv.isAdministrator();
   }
 
+  private sortInfo: SortInfo;
+
   constructor(
     private readonly adminSrv: IsAdministratorGuardService,
     private readonly montantsAffectesService: MontantsAffectesService,
@@ -132,10 +140,7 @@ export class MontantsAffectesComponent implements OnChanges {
    */
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes.montantsAffectes && changes.montantsAffectes.currentValue) {
-      this.options = {
-        ...this.options,
-        dataSource: this.montantsAffectes,
-      };
+      this.refreshDataTable();
     }
   }
 
@@ -331,6 +336,22 @@ export class MontantsAffectesComponent implements OnChanges {
       });
     }
   }
+
+  /**
+   * Le trie du tableau a changé.
+   * @param sort : défini le trie à appliquer.
+   */
+  public onSortChanged(sort: SortInfo): void {
+    try {
+      if (sort) {
+        this.sortInfo = sort;
+        this.refreshDataTable();
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   /**
    * Vérifier que la somme des montants est inférieur ou égale au montant de la recette lors de la mise à jour d'un montant
    * @param montant, montant affecté mis à jour
@@ -379,5 +400,12 @@ export class MontantsAffectesComponent implements OnChanges {
 
   public emitMontantsAffectesChange(): void {
     this.montantsAffectesChange.emit(this.montantsAffectes);
+  }
+
+  private refreshDataTable(): void {
+    this.options = {
+      ...this.options,
+      dataSource: basicSort(this.montantsAffectes, this.sortInfo),
+    };
   }
 }

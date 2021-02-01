@@ -416,8 +416,6 @@ export class GenericTableComponent<T>
    */
   private onSortChange(): void {
     try {
-      console.log('RR: ', this._options.entityTypes);
-      console.log('SORT: ', this.sort.active);
       const name =
         this._options.entityTypes // Pour récupérer le nom de la propriété
           .find((t) => t.name === this.sort.active)?.code || this.sort.active;
@@ -426,7 +424,6 @@ export class GenericTableComponent<T>
         name,
         direction: this.sort.direction,
       };
-      console.log('NAME: ', name);
       this.sortEvent.emit(sort);
     } catch (error) {
       console.error(error);
