@@ -5,7 +5,7 @@ import { IsAdministratorGuardService } from '../../services/authentication/is-ad
 import { ActivatedRoute, Router } from '@angular/router';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { ProjetsService } from '../../services/projets.service';
-import { Projet } from '../../models/projet';
+import { DefaultSortInfo, Projet } from '../../models/projet';
 import { MontantsAffectesService } from '../../services/montants-affectes.service';
 import { MontantAffecte } from '../../models/montantAffecte';
 import { FinancementsService } from '../../services/financements.service';
@@ -15,6 +15,7 @@ import { SpinnerService } from '../../services/spinner.service';
 import { RecettesService } from '../../services/recettes.service';
 import { PopupService } from '../../shared/services/popup.service';
 import { UsersService } from '../../services/users.service';
+import { basicSort } from '../../shared/tools/utils';
 
 export interface DialogData {
   project: Projet;
@@ -23,6 +24,7 @@ export interface DialogData {
   projectName: string;
   edited: boolean;
 }
+
 @Component({
   selector: 'app-projet',
   templateUrl: './projet.component.html',
@@ -30,12 +32,34 @@ export interface DialogData {
 })
 export class ProjetComponent implements OnInit {
   public financements: Financement[];
+
   public recettes: Recette[];
+
   public montantsAffectes: MontantAffecte[];
+
   public selectedFinancement: Financement;
+
   public selectedRecette: Recette;
+
   public projetId: string;
+
   public projet: Projet;
+
+  public financementsDefaultSortInfo: DefaultSortInfo = {
+    sortInfo: {
+      name: 'montant_arrete_f',
+      direction: 'asc',
+    },
+    headerName: 'Montant Arreté',
+  };
+
+  public recettesDefaultSortInfo: DefaultSortInfo = {
+    sortInfo: {
+      name: 'annee_r',
+      direction: 'asc',
+    },
+    headerName: 'Année recette',
+  };
 
   /**
    * /**
@@ -233,7 +257,11 @@ export class ProjetComponent implements OnInit {
   private async loadFinancementsFromProjetId(projetId: number): Promise<void> {
     try {
       if (projetId) {
-        this.financements = await this.financementsService.getAll(projetId);
+        const financements = await this.financementsService.getAll(projetId);
+        this.financements = basicSort(
+          financements,
+          this.financementsDefaultSortInfo.sortInfo
+        );
       }
       this.manager = this.projet.responsable;
     } catch (error) {
@@ -248,7 +276,11 @@ export class ProjetComponent implements OnInit {
   ): Promise<void> {
     try {
       if (financementId) {
-        this.recettes = await this.recettesService.getAll(financementId);
+        const recettes = await this.recettesService.getAll(financementId);
+        this.recettes = basicSort(
+          recettes,
+          this.recettesDefaultSortInfo.sortInfo
+        );
         // TODO:
         // Dans le back, si une recette n'a pas de financement alors sa difference = null
         // Il faut mieux set la difference = montant recette dans ce cas
@@ -357,6 +389,14 @@ export class ProjetComponent implements OnInit {
       }
     }
   }
+
+  // debug() {
+  //   console.log('FINANCEMENTS: ', this.financements);
+  //   console.log('RECETTES: ', this.recettes);
+  //   console.log('MONTANTS: ', this.montantsAffectes);
+  //   console.log('SELECTED FINANCEMENTS: ', this.selectedFinancement);
+  //   console.log('SELECTED RECETTES: ', this.selectedRecette);
+  // }
 }
 
 @Component({
