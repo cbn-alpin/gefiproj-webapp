@@ -169,6 +169,16 @@ export class ProjetComponent implements OnInit {
 
   public onMontantsAffectesChange(montantAffectes: MontantAffecte[]): void {
     this.montantsAffectes = [...montantAffectes];
+    const recette = this.recettes.find(
+      (recette) => recette.id_r === this.selectedRecette.id_r
+    );
+    if (recette) {
+      const sumMontants = this.montantsAffectes.reduce(
+        (a, b) => a + b.montant_ma,
+        0
+      );
+      recette.difference = recette.montant_r - sumMontants;
+    }
   }
 
   private async loadProjetDetailsFromProjetId(projetId: number): Promise<void> {
@@ -202,6 +212,14 @@ export class ProjetComponent implements OnInit {
     try {
       if (financementId) {
         this.recettes = await this.recettesService.getAll(financementId);
+        // TODO:
+        // Dans le back, si une recette n'a pas de financement alors sa difference = null
+        // Il faut mieux set la difference = montant recette dans ce cas
+        this.recettes.forEach((recette) => {
+          if (recette.difference == null) {
+            recette.difference = recette.montant_r;
+          }
+        });
       }
     } catch (error) {
       console.error(error);
