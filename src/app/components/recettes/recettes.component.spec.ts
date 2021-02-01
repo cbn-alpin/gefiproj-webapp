@@ -5,6 +5,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { ConnexionComponent } from '../connexion/connexion.component';
 import { HomeComponent } from '../home/home.component';
 import { RecettesComponent } from './recettes.component';
+import { MatDialogModule } from '@angular/material/dialog';
 
 describe('RecettesComponent', () => {
   let component: RecettesComponent;
@@ -20,6 +21,7 @@ describe('RecettesComponent', () => {
         ]),
         HttpClientTestingModule,
         MatSnackBarModule,
+        MatDialogModule,
       ],
     }).compileComponents();
   });
