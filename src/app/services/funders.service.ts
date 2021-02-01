@@ -48,7 +48,9 @@ export class FinanceurService {
         http,
         spinnerSrv,
         this.endPoint);
-    }
+      this.crudSrv.getAll() // TODO à supprimer quand Back prêt
+        .then(funders => this.funders = funders);
+  }
 
   /**
    * Retourne les financeurs depuis le serveur.
