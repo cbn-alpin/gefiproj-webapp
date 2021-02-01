@@ -1,3 +1,4 @@
+import { FinanceurService } from 'src/app/services/financeur.service';
 import { Recette } from './../../models/recette';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
