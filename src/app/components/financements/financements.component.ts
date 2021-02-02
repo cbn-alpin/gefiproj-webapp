@@ -49,10 +49,6 @@ export class FinancementsComponent implements OnInit, OnChanges {
 
   @Input() public defaultSortInfo: DefaultSortInfo;
 
-  @Input() public iisAdministrator: boolean;
-
-  @Input() public iisResponsable: boolean;
-
   @Output()
   public selectEvent: EventEmitter<Financement> = new EventEmitter<Financement>();
 
@@ -130,13 +126,6 @@ export class FinancementsComponent implements OnInit, OnChanges {
   options: GenericTableOptions<Financement>;
 
   /**
-   * Indique si le tableau peut-être modifié.
-   */
-  public get showActions(): boolean {
-    return !!this.adminSrv.isAdministrator();
-  }
-
-  /**
    * Liste de statut
    */
   private statuts_financement: SelectBoxOption<any>[] = [
@@ -153,15 +142,15 @@ export class FinancementsComponent implements OnInit, OnChanges {
   /**
    * Indique si le tableau est en lecture seule.
    */
-  public get isReadOnly(): boolean {
-    return !this.isAdministrator;
+  public get showActions(): boolean {
+    return this.isAdministrator;
   }
 
   /**
    * Indique si l'utilisateur est un administrateur.
    */
   public get isAdministrator(): boolean {
-    return !!this.adminSrv.isAdministrator();
+    return this.adminSrv.isAdministrator();
   }
 
   private sortInfo: SortInfo;
@@ -192,8 +181,6 @@ export class FinancementsComponent implements OnInit, OnChanges {
   }
 
   public async ngOnInit() {
-    console.log('IIS ADMIN: ', this.iisAdministrator);
-    console.log('IIS RESP: ', this.iisResponsable);
     this.initGenericTableOptions();
     try {
       this.pipe = new DatePipe('fr-FR');

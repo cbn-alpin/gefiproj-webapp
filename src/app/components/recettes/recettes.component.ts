@@ -82,17 +82,17 @@ export class RecettesComponent implements OnInit, OnChanges {
   public options: GenericTableOptions<Recette>;
 
   /**
-   * Indique si le tableau est en lecture seule.
+   * Indique si le tableau peut être modifié.
    */
-  public get isReadOnly(): boolean {
-    return !this.isAdministrator;
+  public get showActions(): boolean {
+    return this.isAdministrator;
   }
 
   /**
    * Indique si l'utilisateur est un administrateur.
    */
   public get isAdministrator(): boolean {
-    return !!this.isAdministratorGuardService.isAdministrator();
+    return this.isAdministratorGuardService.isAdministrator();
   }
 
   public onSelectedEntityChange(recette: Recette): void {

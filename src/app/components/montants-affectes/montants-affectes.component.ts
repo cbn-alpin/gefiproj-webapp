@@ -99,29 +99,24 @@ export class MontantsAffectesComponent implements OnChanges {
     sortName: this.namesMap.annee_ma.name,
     sortDirection: 'asc',
   };
-  /**
-   * Indique si le tableau peut-être modifié.
-   */
-  public get showActions(): boolean {
-    return !!this.adminSrv.isAdministrator();
-  }
+
   /**
    * Date Pipe
    */
   pipe: DatePipe;
 
   /**
-   * Indique si le tableau est en lecture seule.
+   * Indique si le tableau peut-être modifié.
    */
-  public get isReadOnly(): boolean {
-    return !this.isAdministrator;
+  public get showActions(): boolean {
+    return this.isAdministrator;
   }
 
   /**
    * Indique si l'utilisateur est un administrateur.
    */
   public get isAdministrator(): boolean {
-    return !!this.adminSrv.isAdministrator();
+    return this.adminSrv.isAdministrator();
   }
 
   private sortInfo: SortInfo;
