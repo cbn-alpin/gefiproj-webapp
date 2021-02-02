@@ -341,14 +341,6 @@ export class FinancementsComponent implements OnInit, OnChanges {
       formErrors.push(error);
     }
 
-    if (!financement.date_solde_f) {
-      const error = {
-        name: this.namesMap.date_solde_f.code,
-        message: 'La date de solde doit être défini.',
-      };
-      formErrors.push(error);
-    }
-
     if (financement.date_arrete_f && financement.date_limite_solde_f && moment(financement.date_arrete_f).isAfter(financement.date_limite_solde_f)) {
       const errord1 = {
         name: this.namesMap.date_arrete_f.code,
