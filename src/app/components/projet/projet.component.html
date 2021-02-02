@@ -5,7 +5,7 @@
     <div class="project-edit">
       <!-- Edit -->
       <button
-        *ngIf="!isReadOnly && projet.statut_p == false"
+        *ngIf="canDoActions"
         mat-icon-button
         (click)="openEditProjectDialog()"
       >
@@ -38,8 +38,6 @@
       [financements]="financements"
       [selectedFinancement]="selectedFinancement"
       [defaultSortInfo]="financementsDefaultSortInfo"
-      [iisAdministrator]="isAdministrator"
-      [iisResponsable]="isResponsable"
       (selectEvent)="onSelectFinancement($event)"
       (createEvent)="onCreateFinancement()"
       (editEvent)="onEditFinancement()"

@@ -17,6 +17,7 @@ import { PopupService } from '../../shared/services/popup.service';
 import { UsersService } from '../../services/users.service';
 import { basicSort, getDeepCopy } from '../../shared/tools/utils';
 import { AuthService } from '../../services/authentication/auth.service';
+import { take } from 'rxjs/operators';
 
 export interface DialogData {
   project: Projet;
@@ -76,17 +77,15 @@ export class ProjetComponent implements OnInit {
    */
   managers: Utilisateur[];
 
-  public get isReadOnly(): boolean {
-    return !this.isAdministrator;
-  }
+  public canDoActions: boolean;
 
   public get isAdministrator(): boolean {
     return !!this.adminSrv.isAdministrator();
   }
 
-  public get isResponsable(): boolean {
-    return this.projet.responsable.id_u === this.authService.userAuth.id_u;
-  }
+  // public get isResponsable(): boolean {
+  //   return this.projet.responsable.id_u === this.authService.userAuth.id_u;
+  // }
 
   constructor(
     public readonly dialog: MatDialog,
@@ -238,7 +237,7 @@ export class ProjetComponent implements OnInit {
       this.projet &&
       this.manager &&
       this.isAdministrator != null &&
-      this.isResponsable != null
+      this.canDoActions != null
     );
   }
 
@@ -246,6 +245,8 @@ export class ProjetComponent implements OnInit {
     try {
       if (projetId) {
         this.projet = await this.projetsService.get(projetId);
+        this.canDoActions =
+          this.isAdministrator && this.projet.statut_p == false;
       }
     } catch (error) {
       console.error(error);
@@ -327,12 +328,15 @@ export class ProjetComponent implements OnInit {
     try {
       this.spinnerSrv.show();
       await this.projetsService.modify(this.projet);
+      this.canDoActions =
+        this.isAdministrator && this.projet.statut_p === false;
       this.projet.responsable = this.manager;
       this.spinnerSrv.hide();
       if (this.projet.statut_p == true)
         this.popupService.success(
           'Le projet ' + this.projet.nom_p + ' est soldé ! '
         );
+
       if (this.projet.statut_p == false)
         this.popupService.success(
           'Le projet ' + this.projet.nom_p + ' est non soldé ! '
@@ -361,15 +365,18 @@ export class ProjetComponent implements OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe(async (result) => {
-      if (result) {
-        if (result.edited) {
-          await this.updateProjectInfos(result.project);
+    dialogRef
+      .afterClosed()
+      .pipe(take(1))
+      .subscribe(async (result) => {
+        if (result) {
+          if (result.edited) {
+            await this.updateProjectInfos(result.project);
 
-          await this.refreshProject();
+            await this.refreshProject();
+          }
         }
-      }
-    });
+      });
   }
 
   /**
