@@ -23,20 +23,6 @@ export class FinanceurService {
   private readonly crudSrv: CrudService<Financeur>;
 
   /**
-   * TODO : bouchonnage !
-   */
-  private get funders(): Financeur[] {
-    return JSON.parse(localStorage.getItem('debugFinanceurService') || '[]') as Financeur[];
-  }
-
-  /**
-   * TODO : bouchonnage !
-   */
-  private set funders(funders: Financeur[]) {
-    localStorage.setItem('debugFinanceurService', JSON.stringify(funders || []));
-  }
-
-  /**
    * Effectue les appels au serveur d'API pour les financeurs.
    * @param http : permet d'effectuer les appels au serveur d'API.
    * @param spinnerSrv : gère le spinner/sablier.
@@ -48,15 +34,12 @@ export class FinanceurService {
         http,
         spinnerSrv,
         this.endPoint);
-      this.crudSrv.getAll() // TODO à supprimer quand Back prêt
-        .then(funders => this.funders = funders);
   }
 
   /**
    * Retourne les financeurs depuis le serveur.
    */
   public async getAll(): Promise<Financeur[]> {
-    return this.funders.slice();
     return this.crudSrv.getAll();
   }
 
@@ -65,7 +48,6 @@ export class FinanceurService {
    * @param id : identifiant du financeur demandé.
    */
   public async get(id: number): Promise<Financeur> {
-    return this.funders.find(e => e.id_financeur === id) || null;
     return this.crudSrv.get(id);
   }
 
@@ -74,13 +56,6 @@ export class FinanceurService {
    * @param funder : financeur modifié.
    */
   public async modify(funder: Financeur): Promise<Financeur> {
-      const funders = this.funders;
-      const index = funders.findIndex(e => e.id_financeur === funder.id_financeur);
-      if (index >= 0) {
-        funders[index] = funder;
-        this.funders = funders;
-      }
-      return funder;
       return this.crudSrv.modify(
         funder,
         funder?.id_financeur);
@@ -91,13 +66,7 @@ export class FinanceurService {
    * @param funder : financeur à créer.
    */
   public async add(funder: Financeur): Promise<Financeur> {
-      const funders = this.funders;
-      funder.id_financeur = funders.map(e => e.id_financeur).reduce((p, c) => Math.max(p, c), 0) + 1;
-      funders.push(funder);
-      this.funders = funders;
-      return funder;
-      return await this.crudSrv
-        .add(funder);
+      return await this.crudSrv.add(funder);
   }
 
   /**
@@ -105,13 +74,6 @@ export class FinanceurService {
    * @param funder : financeur à supprimer.
    */
   public async delete(funder: Financeur): Promise<void> {
-    const funders = this.funders;
-    const index = funders.findIndex(e => e.id_financeur === funder.id_financeur);
-    if (index >= 0) {
-      funders.splice(index, 1);
-      this.funders = funders;
-    }
-    return;
     const id = funder?.id_financeur || 0;
     return this.crudSrv.delete(id);
   }
@@ -120,9 +82,8 @@ export class FinanceurService {
    * Retourne les financements du financeur en paramètre.
    * @param funder : financeur ciblé.
    */
-  public async fundingsOf(funder: Financeur): Promise<Financement[]> {
+  public async getFundings(funder: Financeur): Promise<Financement[]> {
     try {
-      return [];
       const fundersSrv = new CrudService<Financement>(
         this.http,
         this.spinnerSrv,

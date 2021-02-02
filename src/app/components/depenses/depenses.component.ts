@@ -29,7 +29,7 @@ export class DepensesComponent implements OnInit {
   /**
    * Liste des dépenses.
    */
-  expenses: Depense[];
+  expenses: Depense[] = [];
 
   /**
    * Mapping pour les noms des attributs d'une dépense.
