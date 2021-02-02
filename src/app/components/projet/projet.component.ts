@@ -335,7 +335,9 @@ export class ProjetComponent implements OnInit {
     this.projet.id_u = this.projet.responsable.id_u;
     try {
       this.spinnerSrv.show();
-      await this.projetsService.modify(this.projet);
+      const updatedProjet = await this.projetsService.modify(this.projet);
+      this.projet.statut_p = updatedProjet.statut_p;
+      this.projetToEdit = getDeepCopy(this.projet);
       this.checkIfProjetIsBalance(this.projet);
       this.checkIfUserCanEditProjetDetails();
       this.projet.responsable = this.manager;
@@ -406,7 +408,7 @@ export class ProjetComponent implements OnInit {
       await this.projetsService.modify(editedProject);
       this.checkIfUserHasResponsableRight(editedProject);
       this.spinnerSrv.hide();
-      this.popupService.success('Le projet a bien été modifé ! ');
+      this.popupService.success('Le projet a bien été modifié ! ');
     } catch (error) {
       console.error(error);
       for (const err of error.error.errors) {
