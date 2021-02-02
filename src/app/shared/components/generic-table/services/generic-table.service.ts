@@ -139,34 +139,34 @@ export class GenericTableService<T> {
     entity: GenericTableEntity<T>,
     entityType: EntityType
   ): boolean {
-    const selectedEntity = entity.data;
-    const entityName = entityType.name;
-    if (entityType.disableEditing) {
-      return true;
-    }
-    let disabled = false;
-    // exception edition pour l'instance financement
-    if (this.instanceOfFinancement(selectedEntity)) {
-      if (
-        selectedEntity?.solde &&
-        entityName !== 'statut_f' &&
-        entityName !== 'date_limite_solde_f'
-      ) {
-        disabled = true;
-      } else if (
-        !selectedEntity?.solde &&
-        entityName === 'date_limite_solde_f'
-      ) {
-        disabled = true;
-      } else if (this.isAdministrator && entityName === 'commentaire_resp_f') {
-        disabled = true;
-      } else if (entityName === 'difference') {
-        disabled = true;
-      } else {
-        disabled = false;
-      }
-    }
+    return entityType.disableEditing;
 
-    return disabled;
+    // TODO: Utiliser la propriété disableEditing dans le paramétrage du tableau financement puis supprimer le code ci-dessous
+    // const selectedEntity = entity.data;
+    // const entityName = entityType.code;
+    // let disabled = false;
+    // // exception edition pour l'instance financement
+    // if (this.instanceOfFinancement(selectedEntity)) {
+    //   if (
+    //     selectedEntity?.solde &&
+    //     entityName !== 'statut_f' &&
+    //     entityName !== 'date_limite_solde_f'
+    //   ) {
+    //     disabled = true;
+    //   } else if (
+    //     !selectedEntity?.solde &&
+    //     entityName === 'date_limite_solde_f'
+    //   ) {
+    //     disabled = true;
+    //   } else if (this.isAdministrator && entityName === 'commentaire_resp_f') {
+    //     disabled = true;
+    //   } else if (entityName === 'difference') {
+    //     disabled = true;
+    //   } else {
+    //     disabled = false;
+    //   }
+    // }
+    //
+    // return disabled;
   }
 }

@@ -31,6 +31,8 @@ import { SortInfo } from '../../shared/components/generic-table/models/sortInfo'
 import { basicSort } from '../../shared/tools/utils';
 import { DefaultSortInfo } from '../../models/projet';
 import { RecettesService } from '../../services/recettes.service';
+import { EntityType } from '../../shared/components/generic-table/models/entity-types';
+import { Entity } from '@angular/compiler-cli/src/ngtsc/file_system/testing/src/mock_file_system';
 
 @Component({
   selector: 'app-financements',
@@ -48,7 +50,11 @@ export class FinancementsComponent implements OnInit, OnChanges {
 
   @Input() public defaultSortInfo: DefaultSortInfo;
 
-  @Input() public canDoActions: boolean;
+  @Input() public isAdministrator: boolean;
+
+  @Input() public isResponsable: boolean;
+
+  @Input() public projectIsBalance: boolean;
 
   @Output()
   public selectEvent: EventEmitter<Financement> = new EventEmitter<Financement>();
@@ -82,6 +88,12 @@ export class FinancementsComponent implements OnInit, OnChanges {
    * @private
    */
   public financeurs: Financeur[];
+
+  public get showActions(): boolean {
+    return (
+      (this.isResponsable || this.isAdministrator) && !this.projectIsBalance
+    );
+  }
 
   /**
    * Représente un nouveau financement et définit les colonnes à afficher.
@@ -175,6 +187,9 @@ export class FinancementsComponent implements OnInit, OnChanges {
     } catch (error) {
       console.error(error);
     }
+    console.log('+IS RESPONSABLE: ', this.isResponsable);
+    console.log('+IS ADMINISTRATOR: ', this.isAdministrator);
+    console.log('+PROJECT IS BALANCED: ', this.projectIsBalance);
   }
 
   /**
@@ -188,6 +203,24 @@ export class FinancementsComponent implements OnInit, OnChanges {
     ) {
       this.refreshDataTable();
     }
+    if (
+      changes.isResponsable &&
+      changes.isResponsable.currentValue != null &&
+      changes.isResponsable.previousValue != null
+    ) {
+      if (this.hasOnlyResponsableRight()) {
+        const entityTypes = this.disableAllEditingFieldsExceptCommentResponsableField(
+          this.options.entityTypes
+        );
+        this.options = {
+          ...this.options,
+          entityTypes: entityTypes,
+        };
+      }
+    }
+    console.log('*IS RESPONSABLE: ', this.isResponsable);
+    console.log('*IS ADMINISTRATOR: ', this.isAdministrator);
+    console.log('*PROJECT IS BALANCED: ', this.projectIsBalance);
   }
 
   /**
@@ -527,42 +560,48 @@ export class FinancementsComponent implements OnInit, OnChanges {
           type: GenericTableCellType.CURRENCY,
           code: this.namesMap.montant_arrete_f.code,
           sortEnabled: true,
-          disableEditing: true,
+          disableEditing: this.hasOnlyResponsableRight(),
         },
         {
           name: this.namesMap.date_arrete_f.name,
           type: GenericTableCellType.DATE,
           code: this.namesMap.date_arrete_f.code,
           sortEnabled: true,
+          disableEditing: this.hasOnlyResponsableRight(),
         },
         {
           name: this.namesMap.date_limite_solde_f.name,
           type: GenericTableCellType.DATE,
           code: this.namesMap.date_limite_solde_f.code,
           sortEnabled: true,
+          disableEditing: this.hasOnlyResponsableRight(),
         },
         {
           name: this.namesMap.financeur.name,
           type: GenericTableCellType.SELECTBOX,
           code: this.namesMap.financeur.code,
           sortEnabled: true,
+          disableEditing: this.hasOnlyResponsableRight(),
         },
         {
           name: this.namesMap.statut_f.name,
           type: GenericTableCellType.SELECTBOX,
           code: this.namesMap.statut_f.code,
           sortEnabled: true,
+          disableEditing: this.hasOnlyResponsableRight(),
         },
         {
           name: this.namesMap.date_solde_f.name,
           type: GenericTableCellType.DATE,
           code: this.namesMap.date_solde_f.code,
           sortEnabled: true,
+          disableEditing: this.hasOnlyResponsableRight(),
         },
         {
           name: this.namesMap.commentaire_admin_f.name,
           type: GenericTableCellType.TEXTAREA,
           code: this.namesMap.commentaire_admin_f.code,
+          disableEditing: this.hasOnlyResponsableRight(),
         },
         {
           name: this.namesMap.commentaire_resp_f.name,
@@ -573,22 +612,26 @@ export class FinancementsComponent implements OnInit, OnChanges {
           name: this.namesMap.numero_titre_f.name,
           type: GenericTableCellType.TEXT,
           code: this.namesMap.numero_titre_f.code,
+          disableEditing: this.hasOnlyResponsableRight(),
         },
         {
           name: this.namesMap.annee_titre_f.name,
           type: GenericTableCellType.TEXT,
           code: this.namesMap.annee_titre_f.code,
+          disableEditing: this.hasOnlyResponsableRight(),
         },
         {
           name: this.namesMap.imputation_f.name,
           type: GenericTableCellType.TEXT,
           code: this.namesMap.imputation_f.code,
+          disableEditing: this.hasOnlyResponsableRight(),
         },
         {
           name: this.namesMap.difference.name,
           type: GenericTableCellType.CURRENCY,
           code: this.namesMap.difference.code,
           sortEnabled: true,
+          disableEditing: true,
         },
       ],
       entityPlaceHolders: [],
@@ -681,5 +724,22 @@ export class FinancementsComponent implements OnInit, OnChanges {
       ...this.options,
       dataSource: basicSort(this.financements, this.sortInfo),
     };
+  }
+
+  private disableAllEditingFieldsExceptCommentResponsableField(
+    entityTypes: EntityType[]
+  ): EntityType[] {
+    return entityTypes.map((entityType) =>
+      entityType.code !== this.namesMap.commentaire_resp_f.code
+        ? {
+            ...entityType,
+            disableEditing: true,
+          }
+        : entityType
+    );
+  }
+
+  private hasOnlyResponsableRight(): boolean {
+    return !this.isAdministrator && this.isResponsable;
   }
 }

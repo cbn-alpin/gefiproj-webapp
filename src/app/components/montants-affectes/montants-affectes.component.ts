@@ -40,18 +40,24 @@ export class MontantsAffectesComponent implements OnChanges {
    */
   @Input() public receipt: Recette;
 
+  @Input() public isAdministrator: boolean;
+
+  @Input() public projectIsBalance: boolean;
+
   /**
    * Données source du tableau générique
    * @private
    */
   @Input() public montantsAffectes: MontantAffecte[];
 
-  @Input() public canDoActions: boolean;
-
   @Output()
   public montantsAffectesChange: EventEmitter<
     MontantAffecte[]
   > = new EventEmitter<MontantAffecte[]>();
+
+  public get showActions(): boolean {
+    return this.isAdministrator && !this.projectIsBalance;
+  }
 
   /**
    * Représente un nouveau montant affecté et définit les colonnes à afficher.

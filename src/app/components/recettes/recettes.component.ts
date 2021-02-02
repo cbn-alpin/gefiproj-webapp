@@ -36,25 +36,18 @@ import { MontantsAffectesService } from '../../services/montants-affectes.servic
   styleUrls: ['./recettes.component.scss'],
 })
 export class RecettesComponent implements OnInit, OnChanges {
-  /**
-   * Financement sélectionné
-   */
   @Input() public financement: Financement;
 
-  /**
-   * Recettes du financement sélectionné
-   */
   @Input() public recettes: Recette[];
 
   @Input() public selectedRecette: Recette;
 
   @Input() public defaultSortInfo: DefaultSortInfo;
 
-  @Input() public canDoActions: boolean;
+  @Input() public isAdministrator: boolean;
 
-  /**
-   * Recette séléctioné event
-   */
+  @Input() public projectIsBalance: boolean;
+
   @Output()
   public selectEvent: EventEmitter<Recette> = new EventEmitter<Recette>();
 
@@ -72,18 +65,12 @@ export class RecettesComponent implements OnInit, OnChanges {
   @Output()
   public recettesChange = new EventEmitter<Recette[]>();
 
-  /**
-   * Titre du tableau
-   */
   public title = 'Recettes';
 
-  /**
-   * Options du tableau
-   */
   public options: GenericTableOptions<Recette>;
 
-  public onSelectedEntityChange(recette: Recette): void {
-    this.selectedRecetteChangeEvent.emit(recette);
+  public get showActions(): boolean {
+    return this.isAdministrator && !this.projectIsBalance;
   }
 
   /**
@@ -130,6 +117,7 @@ export class RecettesComponent implements OnInit, OnChanges {
       type: GenericTableCellType.CURRENCY,
       code: this.namesMap.DIFFERENCE.code,
       sortEnabled: true,
+      disableEditing: true,
     },
   ];
 
@@ -367,6 +355,10 @@ export class RecettesComponent implements OnInit, OnChanges {
     genericTableEntityEvent: GenericTableEntityEvent<Recette>
   ): void {
     this.selectEvent.emit(genericTableEntityEvent.entity);
+  }
+
+  public onSelectedEntityChange(recette: Recette): void {
+    this.selectedRecetteChangeEvent.emit(recette);
   }
 
   private initGenericTableOptions(): void {

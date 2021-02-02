@@ -77,15 +77,21 @@ export class ProjetComponent implements OnInit {
    */
   managers: Utilisateur[];
 
-  public canDoActions: boolean;
+  /**
+   * Vrai si le projet n'est pas soldé et que l'utilisateur est une administrateur
+   */
+  public canEditDetails: boolean;
+
+  /**
+   * Vrai si le projet est soldé
+   */
+  public isBalance: boolean;
+
+  public isResponsable: boolean;
 
   public get isAdministrator(): boolean {
-    return !!this.adminSrv.isAdministrator();
+    return this.adminSrv.isAdministrator();
   }
-
-  // public get isResponsable(): boolean {
-  //   return this.projet.responsable.id_u === this.authService.userAuth.id_u;
-  // }
 
   constructor(
     public readonly dialog: MatDialog,
@@ -237,7 +243,8 @@ export class ProjetComponent implements OnInit {
       this.projet &&
       this.manager &&
       this.isAdministrator != null &&
-      this.canDoActions != null
+      this.canEditDetails != null &&
+      this.isResponsable != null
     );
   }
 
@@ -245,8 +252,9 @@ export class ProjetComponent implements OnInit {
     try {
       if (projetId) {
         this.projet = await this.projetsService.get(projetId);
-        this.canDoActions =
-          this.isAdministrator && this.projet.statut_p == false;
+        this.checkIfUserHasResponsableRight(this.projet);
+        this.checkIfProjetIsBalance(this.projet);
+        this.checkIfUserCanEditProjetDetails();
       }
     } catch (error) {
       console.error(error);
@@ -328,8 +336,8 @@ export class ProjetComponent implements OnInit {
     try {
       this.spinnerSrv.show();
       await this.projetsService.modify(this.projet);
-      this.canDoActions =
-        this.isAdministrator && this.projet.statut_p === false;
+      this.checkIfProjetIsBalance(this.projet);
+      this.checkIfUserCanEditProjetDetails();
       this.projet.responsable = this.manager;
       this.spinnerSrv.hide();
       if (this.projet.statut_p == true)
@@ -396,6 +404,7 @@ export class ProjetComponent implements OnInit {
     try {
       this.spinnerSrv.show();
       await this.projetsService.modify(editedProject);
+      this.checkIfUserHasResponsableRight(editedProject);
       this.spinnerSrv.hide();
       this.popupService.success('Le projet a bien été modifé ! ');
     } catch (error) {
@@ -406,6 +415,20 @@ export class ProjetComponent implements OnInit {
         );
       }
     }
+  }
+
+  private checkIfUserHasResponsableRight(projet: Projet): void {
+    this.isResponsable =
+      this.authService.userAuth.id_u ===
+      (projet.responsable ? projet.responsable.id_u : projet.id_u);
+  }
+
+  private checkIfProjetIsBalance(projet: Projet): void {
+    this.isBalance = projet.statut_p;
+  }
+
+  private checkIfUserCanEditProjetDetails(): void {
+    this.canEditDetails = this.isAdministrator && this.isBalance === false;
   }
 
   // debug() {

@@ -5,7 +5,7 @@
     <div class="project-edit">
       <!-- Edit -->
       <button
-        *ngIf="canDoActions"
+        *ngIf="canEditDetails"
         mat-icon-button
         (click)="openEditProjectDialog()"
       >
@@ -38,7 +38,9 @@
       [financements]="financements"
       [selectedFinancement]="selectedFinancement"
       [defaultSortInfo]="financementsDefaultSortInfo"
-      [canDoActions]="canDoActions"
+      [isAdministrator]="isAdministrator"
+      [isResponsable]="isResponsable"
+      [projectIsBalance]="isBalance"
       (selectEvent)="onSelectFinancement($event)"
       (createEvent)="onCreateFinancement()"
       (editEvent)="onEditFinancement()"
@@ -61,7 +63,8 @@
         [financement]="selectedFinancement"
         [defaultSortInfo]="recettesDefaultSortInfo"
         [selectedRecette]="selectedRecette"
-        [canDoActions]="canDoActions"
+        [isAdministrator]="isAdministrator"
+        [projectIsBalance]="isBalance"
         (selectEvent)="onSelectRecette($event)"
         (createEvent)="onCreateRecette($event)"
         (editEvent)="onEditRecette()"
@@ -76,7 +79,8 @@
         *ngIf="montantsAffectes"
         [montantsAffectes]="montantsAffectes"
         [receipt]="selectedRecette"
-        [canDoActions]="canDoActions"
+        [isAdministrator]="isAdministrator"
+        [projectIsBalance]="isBalance"
         (montantsAffectesChange)="onMontantsAffectesChange($event)"
       ></app-montants-affectes>
     </div>
