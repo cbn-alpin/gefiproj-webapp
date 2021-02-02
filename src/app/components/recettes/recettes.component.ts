@@ -51,6 +51,8 @@ export class RecettesComponent implements OnInit, OnChanges {
 
   @Input() public defaultSortInfo: DefaultSortInfo;
 
+  @Input() public canDoActions: boolean;
+
   /**
    * Recette séléctioné event
    */

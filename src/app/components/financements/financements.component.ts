@@ -49,6 +49,8 @@ export class FinancementsComponent implements OnInit, OnChanges {
 
   @Input() public defaultSortInfo: DefaultSortInfo;
 
+  @Input() public canDoActions: boolean;
+
   @Output()
   public selectEvent: EventEmitter<Financement> = new EventEmitter<Financement>();
 
@@ -143,7 +145,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
    * Indique si le tableau est en lecture seule.
    */
   public get showActions(): boolean {
-    return this.isAdministrator;
+    return this.isAdministrator && this.canDoActions;
   }
 
   /**

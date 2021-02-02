@@ -200,6 +200,13 @@ export class GenericTableComponent<T>
     if (changes.selectedRow && changes.selectedRow.currentValue) {
       this.loadSelectedEntity();
     }
+    if (
+      changes.showActions &&
+      changes.showActions.currentValue != null &&
+      changes.showActions.previousValue != null
+    ) {
+      this.loadDisplayedColumns();
+    }
   }
 
   public ngOnDestroy() {
@@ -457,11 +464,7 @@ export class GenericTableComponent<T>
         }
       );
       this.entityTypes = this.options.entityTypes;
-      this.displayedColumns = this.showActions
-        ? this.genericTableService
-            .getDisplayedColumns(this.options)
-            .concat(this.actionsHeaderColumnName)
-        : this.genericTableService.getDisplayedColumns(this.options);
+      this.loadDisplayedColumns();
       this.genericTableEntitiesCopy = getDeepCopy(this.genericTableEntities);
       this.loadSelectedEntity();
     } catch (error) {
@@ -491,5 +494,13 @@ export class GenericTableComponent<T>
     } else {
       this.selectedEntity = null;
     }
+  }
+
+  private loadDisplayedColumns(): void {
+    this.displayedColumns = this.showActions
+      ? this.genericTableService
+          .getDisplayedColumns(this.options)
+          .concat(this.actionsHeaderColumnName)
+      : this.genericTableService.getDisplayedColumns(this.options);
   }
 }

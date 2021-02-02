@@ -47,6 +47,8 @@ export class MontantsAffectesComponent implements OnChanges {
    */
   @Input() public montantsAffectes: MontantAffecte[];
 
+  @Input() public canDoActions: boolean;
+
   @Output()
   public montantsAffectesChange: EventEmitter<
     MontantAffecte[]

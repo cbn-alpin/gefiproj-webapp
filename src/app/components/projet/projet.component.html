@@ -38,6 +38,7 @@
       [financements]="financements"
       [selectedFinancement]="selectedFinancement"
       [defaultSortInfo]="financementsDefaultSortInfo"
+      [canDoActions]="canDoActions"
       (selectEvent)="onSelectFinancement($event)"
       (createEvent)="onCreateFinancement()"
       (editEvent)="onEditFinancement()"
@@ -60,6 +61,7 @@
         [financement]="selectedFinancement"
         [defaultSortInfo]="recettesDefaultSortInfo"
         [selectedRecette]="selectedRecette"
+        [canDoActions]="canDoActions"
         (selectEvent)="onSelectRecette($event)"
         (createEvent)="onCreateRecette($event)"
         (editEvent)="onEditRecette()"
@@ -74,6 +76,7 @@
         *ngIf="montantsAffectes"
         [montantsAffectes]="montantsAffectes"
         [receipt]="selectedRecette"
+        [canDoActions]="canDoActions"
         (montantsAffectesChange)="onMontantsAffectesChange($event)"
       ></app-montants-affectes>
     </div>
