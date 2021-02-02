@@ -11,7 +11,6 @@ import { Recette } from '../../models/recette';
 import { GenericTableOptions } from '../../shared/components/generic-table/models/generic-table-options';
 import { GenericTableCellType } from '../../shared/components/generic-table/globals/generic-table-cell-types';
 import { DatePipe } from '@angular/common';
-import { IsAdministratorGuardService } from '../../services/authentication/is-administrator-guard.service';
 import { MontantsAffectesService } from '../../services/montants-affectes.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
@@ -107,24 +106,9 @@ export class MontantsAffectesComponent implements OnChanges {
    */
   pipe: DatePipe;
 
-  /**
-   * Indique si le tableau peut-être modifié.
-   */
-  public get showActions(): boolean {
-    return this.isAdministrator;
-  }
-
-  /**
-   * Indique si l'utilisateur est un administrateur.
-   */
-  public get isAdministrator(): boolean {
-    return this.adminSrv.isAdministrator();
-  }
-
   private sortInfo: SortInfo;
 
   constructor(
-    private readonly adminSrv: IsAdministratorGuardService,
     private readonly montantsAffectesService: MontantsAffectesService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,

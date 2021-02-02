@@ -17,7 +17,6 @@ import { FinanceurService } from 'src/app/services/funders.service';
 import { GenericTableCellType } from 'src/app/shared/components/generic-table/globals/generic-table-cell-types';
 import { GenericTableEntityEvent } from 'src/app/shared/components/generic-table/models/generic-table-entity-event';
 import { GenericTableOptions } from 'src/app/shared/components/generic-table/models/generic-table-options';
-import { IsAdministratorGuardService } from 'src/app/services/authentication/is-administrator-guard.service';
 import { EntitySelectBoxOptions } from 'src/app/shared/components/generic-table/models/entity-select-box-options';
 import { GenericTableFormError } from 'src/app/shared/components/generic-table/models/generic-table-entity';
 import {
@@ -141,20 +140,6 @@ export class FinancementsComponent implements OnInit, OnChanges {
    */
   pipe: DatePipe;
 
-  /**
-   * Indique si le tableau est en lecture seule.
-   */
-  public get showActions(): boolean {
-    return this.isAdministrator && this.canDoActions;
-  }
-
-  /**
-   * Indique si l'utilisateur est un administrateur.
-   */
-  public get isAdministrator(): boolean {
-    return this.adminSrv.isAdministrator();
-  }
-
   private sortInfo: SortInfo;
 
   /**
@@ -167,7 +152,6 @@ export class FinancementsComponent implements OnInit, OnChanges {
    * @param dialog
    */
   constructor(
-    private adminSrv: IsAdministratorGuardService,
     private financementsService: FinancementsService,
     private financeurService: FinanceurService,
     private route: ActivatedRoute,

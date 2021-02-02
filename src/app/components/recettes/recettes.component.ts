@@ -16,7 +16,6 @@ import { EntityType } from '../../shared/components/generic-table/models/entity-
 import { GenericTableCellType } from '../../shared/components/generic-table/globals/generic-table-cell-types';
 import { EntityPlaceholder } from '../../shared/components/generic-table/models/entity-placeholder';
 import { GenericTableFormError } from '../../shared/components/generic-table/models/generic-table-entity';
-import { IsAdministratorGuardService } from 'src/app/services/authentication/is-administrator-guard.service';
 import { RecettesService } from '../../services/recettes.service';
 import { PopupService } from '../../shared/services/popup.service';
 import { Messages } from '../../models/messages';
@@ -83,20 +82,6 @@ export class RecettesComponent implements OnInit, OnChanges {
    */
   public options: GenericTableOptions<Recette>;
 
-  /**
-   * Indique si le tableau peut être modifié.
-   */
-  public get showActions(): boolean {
-    return this.isAdministrator;
-  }
-
-  /**
-   * Indique si l'utilisateur est un administrateur.
-   */
-  public get isAdministrator(): boolean {
-    return this.isAdministratorGuardService.isAdministrator();
-  }
-
   public onSelectedEntityChange(recette: Recette): void {
     this.selectedRecetteChangeEvent.emit(recette);
   }
@@ -160,7 +145,6 @@ export class RecettesComponent implements OnInit, OnChanges {
   private sortInfo: SortInfo;
 
   constructor(
-    private readonly isAdministratorGuardService: IsAdministratorGuardService,
     private readonly recettesService: RecettesService,
     private readonly popupService: PopupService,
     private readonly dialog: MatDialog,
