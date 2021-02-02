@@ -12,9 +12,7 @@ import { EntityType } from '../models/entity-types';
   providedIn: 'root',
 })
 export class GenericTableService<T> {
-  constructor(
-    private adminSrv: IsAdministratorGuardService,
-  ) {}
+  constructor(private adminSrv: IsAdministratorGuardService) {}
 
   /**
    * Indique si l'utilisateur est un administrateur.
@@ -143,12 +141,22 @@ export class GenericTableService<T> {
   ): boolean {
     const selectedEntity = entity.data;
     const entityName = entityType.name;
+    if (entityType.disableEditing) {
+      return true;
+    }
     let disabled = false;
     // exception edition pour l'instance financement
     if (this.instanceOfFinancement(selectedEntity)) {
-      if (selectedEntity?.solde && entityName !== 'statut_f' && entityName !== 'date_limite_solde_f') {
+      if (
+        selectedEntity?.solde &&
+        entityName !== 'statut_f' &&
+        entityName !== 'date_limite_solde_f'
+      ) {
         disabled = true;
-      } else if (!selectedEntity?.solde && entityName === 'date_limite_solde_f') {
+      } else if (
+        !selectedEntity?.solde &&
+        entityName === 'date_limite_solde_f'
+      ) {
         disabled = true;
       } else if (this.isAdministrator && entityName === 'commentaire_resp_f') {
         disabled = true;
