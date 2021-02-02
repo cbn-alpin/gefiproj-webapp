@@ -83,7 +83,13 @@
               >
                 <textarea
                   matInput
-                  [disabled]="element.state === GenericTableEntityState.READ"
+                  [disabled]="
+                    element.state === GenericTableEntityState.READ ||
+                    this.genericTableService.disabledEditField(
+                      element,
+                      columnName
+                    )
+                  "
                   [(ngModel)]="element.data[columnName.code]"
                   [placeholder]="
                     genericTableService.getPlaceHolder(options, columnName.code)
