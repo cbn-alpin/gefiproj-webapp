@@ -32,7 +32,6 @@ import { basicSort } from '../../shared/tools/utils';
 import { DefaultSortInfo } from '../../models/projet';
 import { RecettesService } from '../../services/recettes.service';
 import { EntityType } from '../../shared/components/generic-table/models/entity-types';
-import { Entity } from '@angular/compiler-cli/src/ngtsc/file_system/testing/src/mock_file_system';
 
 @Component({
   selector: 'app-financements',
@@ -106,7 +105,6 @@ export class FinancementsComponent implements OnInit, OnChanges {
    */
   private readonly defaultEntity: Financement = {
     statut_f: Statut_F.ANTR,
-    difference: 0,
   } as Financement;
 
   /**
@@ -185,7 +183,6 @@ export class FinancementsComponent implements OnInit, OnChanges {
   }
 
   public async ngOnInit() {
-    this.updateTableActionIfUserHasOnlyResponsableRight();
     this.initGenericTableOptions();
     try {
       this.pipe = new DatePipe('fr-FR');
@@ -194,9 +191,9 @@ export class FinancementsComponent implements OnInit, OnChanges {
     } catch (error) {
       console.error(error);
     }
-    console.log('+IS RESPONSABLE: ', this.isResponsable);
-    console.log('+IS ADMINISTRATOR: ', this.isAdministrator);
-    console.log('+PROJECT IS BALANCED: ', this.projectIsBalance);
+    console.log('$IS RESPONSABLE: ', this.isResponsable);
+    console.log('$IS ADMINISTRATOR: ', this.isAdministrator);
+    console.log('$PROJECT IS BALANCED: ', this.projectIsBalance);
   }
 
   /**
@@ -215,16 +212,8 @@ export class FinancementsComponent implements OnInit, OnChanges {
       changes.isResponsable.currentValue != null &&
       changes.isResponsable.previousValue != null
     ) {
-      const hasOnlyResponsableRight = this.updateTableActionIfUserHasOnlyResponsableRight();
-      if (hasOnlyResponsableRight) {
-        const entityTypes = this.disableAllEditingFieldsExceptCommentResponsableField(
-          this.options.entityTypes
-        );
-        this.options = {
-          ...this.options,
-          entityTypes: entityTypes,
-        };
-      }
+      this.updateTableActionWithUserRight();
+      this.updateEntityTypesWithUserRight();
     }
     console.log('*IS RESPONSABLE: ', this.isResponsable);
     console.log('*IS ADMINISTRATOR: ', this.isAdministrator);
@@ -568,48 +557,41 @@ export class FinancementsComponent implements OnInit, OnChanges {
           type: GenericTableCellType.CURRENCY,
           code: this.namesMap.montant_arrete_f.code,
           sortEnabled: true,
-          disableEditing: this.hasOnlyResponsableRight(),
         },
         {
           name: this.namesMap.date_arrete_f.name,
           type: GenericTableCellType.DATE,
           code: this.namesMap.date_arrete_f.code,
           sortEnabled: true,
-          disableEditing: this.hasOnlyResponsableRight(),
         },
         {
           name: this.namesMap.date_limite_solde_f.name,
           type: GenericTableCellType.DATE,
           code: this.namesMap.date_limite_solde_f.code,
           sortEnabled: true,
-          disableEditing: this.hasOnlyResponsableRight(),
         },
         {
           name: this.namesMap.financeur.name,
           type: GenericTableCellType.SELECTBOX,
           code: this.namesMap.financeur.code,
           sortEnabled: true,
-          disableEditing: this.hasOnlyResponsableRight(),
         },
         {
           name: this.namesMap.statut_f.name,
           type: GenericTableCellType.SELECTBOX,
           code: this.namesMap.statut_f.code,
           sortEnabled: true,
-          disableEditing: this.hasOnlyResponsableRight(),
         },
         {
           name: this.namesMap.date_solde_f.name,
           type: GenericTableCellType.DATE,
           code: this.namesMap.date_solde_f.code,
           sortEnabled: true,
-          disableEditing: this.hasOnlyResponsableRight(),
         },
         {
           name: this.namesMap.commentaire_admin_f.name,
           type: GenericTableCellType.TEXTAREA,
           code: this.namesMap.commentaire_admin_f.code,
-          disableEditing: this.hasOnlyResponsableRight(),
         },
         {
           name: this.namesMap.commentaire_resp_f.name,
@@ -620,19 +602,16 @@ export class FinancementsComponent implements OnInit, OnChanges {
           name: this.namesMap.numero_titre_f.name,
           type: GenericTableCellType.TEXT,
           code: this.namesMap.numero_titre_f.code,
-          disableEditing: this.hasOnlyResponsableRight(),
         },
         {
           name: this.namesMap.annee_titre_f.name,
           type: GenericTableCellType.TEXT,
           code: this.namesMap.annee_titre_f.code,
-          disableEditing: this.hasOnlyResponsableRight(),
         },
         {
           name: this.namesMap.imputation_f.name,
           type: GenericTableCellType.TEXT,
           code: this.namesMap.imputation_f.code,
-          disableEditing: this.hasOnlyResponsableRight(),
         },
         {
           name: this.namesMap.difference.name,
@@ -647,6 +626,8 @@ export class FinancementsComponent implements OnInit, OnChanges {
       sortName: this.defaultSortInfo?.headerName,
       sortDirection: this.defaultSortInfo?.sortInfo?.direction,
     };
+    this.updateTableActionWithUserRight();
+    this.updateEntityTypesWithUserRight();
   }
 
   private create(financement: Financement): void {
@@ -734,39 +715,82 @@ export class FinancementsComponent implements OnInit, OnChanges {
     };
   }
 
-  private disableAllEditingFieldsExceptCommentResponsableField(
-    entityTypes: EntityType[]
+  /**
+   * Désactive l'édition des colonnes qui ne correspondent pas aux colonnes passé en paramètre
+   * @param entityTypes
+   * @param editableFields
+   * @private
+   */
+  private disableAllEditingFieldsExcept(
+    entityTypes: EntityType[],
+    editableFields: string[]
   ): EntityType[] {
     return entityTypes.map((entityType) =>
-      entityType.code !== this.namesMap.commentaire_resp_f.code
+      editableFields.find(
+        (editableField) => editableField === entityType.code
+      ) != null
         ? {
+            ...entityType,
+            disableEditing: false,
+          }
+        : {
             ...entityType,
             disableEditing: true,
           }
-        : entityType
     );
-  }
-
-  private hasOnlyResponsableRight(): boolean {
-    return !this.isAdministrator && this.isResponsable;
   }
 
   /**
    * Met à jour les actions du tableau selon le role de l'utilisateur.
-   * Retourne vrai si l'utilisteur est un responsable.
    * @private
    */
-  private updateTableActionIfUserHasOnlyResponsableRight(): boolean {
-    const hasOnlyResponsableRight = this.hasOnlyResponsableRight();
-
-    if (hasOnlyResponsableRight) {
+  private updateTableActionWithUserRight(): void {
+    if (!this.isAdministrator && this.isResponsable) {
       this.showCreateAction = false;
       this.showDeleteAction = false;
     } else {
       this.showCreateAction = true;
       this.showDeleteAction = true;
     }
+  }
 
-    return hasOnlyResponsableRight;
+  private updateEntityTypesWithUserRight(): void {
+    let upEntityTypes: EntityType[];
+    if (this.isAdministrator && !this.isResponsable) {
+      const codes = this.options.entityTypes.map(
+        (entityType) => entityType.code
+      );
+      const editableRowsCode = codes.filter(
+        (code) =>
+          code !== this.namesMap.commentaire_resp_f.code &&
+          code !== this.namesMap.difference.code
+      );
+      upEntityTypes = this.disableAllEditingFieldsExcept(
+        this.options.entityTypes,
+        editableRowsCode
+      );
+    } else if (this.isAdministrator && this.isResponsable) {
+      const codes = this.options.entityTypes.map(
+        (entityType) => entityType.code
+      );
+      const editableRowsCode = codes.filter(
+        (code) => code !== this.namesMap.difference.code
+      );
+      upEntityTypes = this.disableAllEditingFieldsExcept(
+        this.options.entityTypes,
+        editableRowsCode
+      );
+    } else if (!this.isAdministrator && this.isResponsable) {
+      upEntityTypes = this.disableAllEditingFieldsExcept(
+        this.options.entityTypes,
+        [this.namesMap.commentaire_resp_f.code]
+      );
+    }
+    if (upEntityTypes) {
+      this.options = {
+        ...this.options,
+        entityTypes: upEntityTypes,
+      };
+    }
   }
 }
