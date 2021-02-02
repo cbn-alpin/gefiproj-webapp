@@ -85,7 +85,11 @@ export class GenericTableComponent<T>
 
   @Input() selectedRow: T;
 
-  @Input() onlyEditAction: boolean;
+  @Input() showCreateAction: boolean = true;
+
+  @Input() showEditAction: boolean = true;
+
+  @Input() showDeleteAction: boolean = true;
 
   @Output() editEvent: EventEmitter<
     GenericTableEntityEvent<T>
@@ -207,6 +211,7 @@ export class GenericTableComponent<T>
       changes.showActions.currentValue != null &&
       changes.showActions.previousValue != null
     ) {
+      this.resetTable();
       this.loadDisplayedColumns();
     }
   }
@@ -504,5 +509,10 @@ export class GenericTableComponent<T>
           .getDisplayedColumns(this.options)
           .concat(this.actionsHeaderColumnName)
       : this.genericTableService.getDisplayedColumns(this.options);
+  }
+
+  private resetTable(): void {
+    this.genericTableEntities = this.genericTableEntitiesCopy;
+    this.genericTableEntitiesCopy = getDeepCopy(this.genericTableEntities);
   }
 }
