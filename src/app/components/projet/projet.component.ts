@@ -15,7 +15,7 @@ import { SpinnerService } from '../../services/spinner.service';
 import { RecettesService } from '../../services/recettes.service';
 import { PopupService } from '../../shared/services/popup.service';
 import { UsersService } from '../../services/users.service';
-import { basicSort } from '../../shared/tools/utils';
+import { basicSort, getDeepCopy } from '../../shared/tools/utils';
 import { AuthService } from '../../services/authentication/auth.service';
 
 export interface DialogData {
@@ -84,7 +84,9 @@ export class ProjetComponent implements OnInit {
     return !!this.adminSrv.isAdministrator();
   }
 
-  public isResponsable: boolean;
+  public get isResponsable(): boolean {
+    return this.projet.responsable.id_u === this.authService.userAuth.id_u;
+  }
 
   constructor(
     public readonly dialog: MatDialog,
@@ -128,7 +130,7 @@ export class ProjetComponent implements OnInit {
         promiseUtilisateurs,
       ]);
       if (this.financements && this.financements.length > 0) {
-        this.projetToEdit = JSON.parse(JSON.stringify(this.projet));
+        this.projetToEdit = getDeepCopy(this.projet);
         this.manager = this.projet.responsable;
         this.selectedFinancement = this.financements[0];
         await this.loadRecettesFromFinancementId(this.selectedFinancement.id_f);
@@ -231,12 +233,19 @@ export class ProjetComponent implements OnInit {
       this.selectedRecette.montant_r - sumMontants;
   }
 
+  public displayProjet(): boolean {
+    return (
+      this.projet &&
+      this.manager &&
+      this.isAdministrator != null &&
+      this.isResponsable != null
+    );
+  }
+
   private async loadProjetDetailsFromProjetId(projetId: number): Promise<void> {
     try {
       if (projetId) {
         this.projet = await this.projetsService.get(projetId);
-        this.isResponsable =
-          this.projet.id_u === this.authService.userAuth.id_u;
       }
     } catch (error) {
       console.error(error);

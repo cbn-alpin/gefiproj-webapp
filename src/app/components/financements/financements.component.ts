@@ -13,7 +13,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Financement, Statut_F } from 'src/app/models/financement';
 import { Financeur } from 'src/app/models/financeur';
 import { FinancementsService } from 'src/app/services/financements.service';
-import { FinanceurService } from 'src/app/services/financeur.service';
+import { FinanceurService } from 'src/app/services/funders.service';
 import { GenericTableCellType } from 'src/app/shared/components/generic-table/globals/generic-table-cell-types';
 import { GenericTableEntityEvent } from 'src/app/shared/components/generic-table/models/generic-table-entity-event';
 import { GenericTableOptions } from 'src/app/shared/components/generic-table/models/generic-table-options';
@@ -28,6 +28,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { PopupService } from '../../shared/services/popup.service';
 import * as moment from 'moment';
 import { take } from 'rxjs/operators';
+import { SortInfo } from '../../shared/components/generic-table/models/sortInfo';
+import { basicSort } from '../../shared/tools/utils';
+import { DefaultSortInfo } from '../../models/projet';
+import { RecettesService } from '../../services/recettes.service';
 
 @Component({
   selector: 'app-financements',
@@ -42,6 +46,12 @@ export class FinancementsComponent implements OnInit, OnChanges {
   @Input() public financements: Financement[];
 
   @Input() public selectedFinancement: Financement;
+
+  @Input() public defaultSortInfo: DefaultSortInfo;
+
+  @Input() public iisAdministrator: boolean;
+
+  @Input() public iisResponsable: boolean;
 
   @Output()
   public selectEvent: EventEmitter<Financement> = new EventEmitter<Financement>();
@@ -154,6 +164,8 @@ export class FinancementsComponent implements OnInit, OnChanges {
     return !!this.adminSrv.isAdministrator();
   }
 
+  private sortInfo: SortInfo;
+
   /**
    * @param adminSrv
    * @param financementsService
@@ -170,7 +182,8 @@ export class FinancementsComponent implements OnInit, OnChanges {
     private route: ActivatedRoute,
     private router: Router,
     private popupService: PopupService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private recettesService: RecettesService
   ) {
     this.projectId = this.route.snapshot.params.id;
     if (!this.projectId) {
@@ -179,6 +192,8 @@ export class FinancementsComponent implements OnInit, OnChanges {
   }
 
   public async ngOnInit() {
+    console.log('IIS ADMIN: ', this.iisAdministrator);
+    console.log('IIS RESP: ', this.iisResponsable);
     this.initGenericTableOptions();
     try {
       this.pipe = new DatePipe('fr-FR');
@@ -193,11 +208,12 @@ export class FinancementsComponent implements OnInit, OnChanges {
    * Initialise le composant.
    */
   public async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    if (changes.financements && changes.financements.currentValue) {
-      this.options = {
-        ...this.options,
-        dataSource: this.financements,
-      };
+    if (
+      changes.financements &&
+      changes.financements.currentValue &&
+      changes.financements.previousValue
+    ) {
+      this.refreshDataTable();
     }
   }
 
@@ -222,7 +238,19 @@ export class FinancementsComponent implements OnInit, OnChanges {
         updatedFinancement = this.loadFinanceurInFinancement(
           updatedFinancement
         );
-        event.callBack(null);
+        // TODO: à supprimmer quand back renvoie la bonne différence
+        const recettes = await this.recettesService.getAll(
+          updatedFinancement.id_f
+        );
+        const sumRecettes = recettes.reduce((a, b) => a + b.montant_r, 0);
+        const difference = updatedFinancement.montant_arrete_f - sumRecettes;
+        updatedFinancement.difference = difference;
+        event.callBack(
+          null,
+          updatedFinancement.id_f === this.selectedFinancement.id_f
+            ? updatedFinancement
+            : null
+        );
         this.modify(updatedFinancement);
         this.editEvent.emit();
         this.popupService.success('Le financement a été modifié.');
@@ -341,27 +369,39 @@ export class FinancementsComponent implements OnInit, OnChanges {
       formErrors.push(error);
     }
 
-    if (financement.date_arrete_f && financement.date_limite_solde_f && moment(financement.date_arrete_f).isAfter(financement.date_limite_solde_f)) {
+    if (
+      financement.date_arrete_f &&
+      financement.date_limite_solde_f &&
+      moment(financement.date_arrete_f).isAfter(financement.date_limite_solde_f)
+    ) {
       const errord1 = {
         name: this.namesMap.date_arrete_f.code,
-        message: 'format date non respecté : la date arrêté ou commande est postérieure à la date limite de solde.',
+        message:
+          'format date non respecté : la date arrêté ou commande est postérieure à la date limite de solde.',
       };
       const errord2 = {
         name: this.namesMap.date_limite_solde_f.code,
-        message: 'format date non respecté : la date limite de solde est antérieur à la date arrêté ou commande.',
+        message:
+          'format date non respecté : la date limite de solde est antérieur à la date arrêté ou commande.',
       };
       formErrors.push(errord1);
       formErrors.push(errord2);
     }
 
-    if (financement.date_arrete_f && financement.date_solde_f && moment(financement.date_arrete_f).isAfter(financement.date_solde_f)) {
+    if (
+      financement.date_arrete_f &&
+      financement.date_solde_f &&
+      moment(financement.date_arrete_f).isAfter(financement.date_solde_f)
+    ) {
       const errord1 = {
         name: this.namesMap.date_arrete_f.code,
-        message: 'format date non respecté : la date arrêté ou commande est postérieure à la date de solde.',
+        message:
+          'format date non respecté : la date arrêté ou commande est postérieure à la date de solde.',
       };
       const errord2 = {
         name: this.namesMap.date_solde_f.code,
-        message: 'format date non respecté : la date de solde est antérieur à la date arrêté ou commande.',
+        message:
+          'format date non respecté : la date de solde est antérieur à la date arrêté ou commande.',
       };
       formErrors.push(errord1);
       formErrors.push(errord2);
@@ -389,7 +429,11 @@ export class FinancementsComponent implements OnInit, OnChanges {
         createdFinancement = this.loadFinanceurInFinancement(
           createdFinancement
         );
-        event.callBack(null); // Valide la modification dans le composant DataTable fils
+        // TODO: à supprimmer quand back renvoie la bonne différence
+        if (!createdFinancement.difference) {
+          createdFinancement.difference = createdFinancement.montant_arrete_f;
+        }
+        event.callBack(null, createdFinancement); // Valide la modification dans le composant DataTable fils
         this.create(createdFinancement);
         this.selectedFinancement = createdFinancement;
         this.popupService.success('Le financement a été crée.');
@@ -468,8 +512,28 @@ export class FinancementsComponent implements OnInit, OnChanges {
     this.selectEvent.emit(genericTableEntityEvent.entity);
   }
 
+  /**
+   * Le trie du tableau a changé.
+   * @param sort : défini le trie à appliquer.
+   */
+  public onSortChanged(sort: SortInfo): void {
+    try {
+      if (sort) {
+        this.sortInfo = sort;
+        this.refreshDataTable();
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   public onSelectedEntityChange(financement: Financement): void {
-    this.selectedFinancementChange.emit(financement);
+    this.selectedFinancement = financement;
+    this.emitSelectedFinancementChange();
+  }
+
+  private emitSelectedFinancementChange(): void {
+    this.selectedFinancementChange.emit(this.selectedFinancement);
   }
 
   /**
@@ -489,31 +553,38 @@ export class FinancementsComponent implements OnInit, OnChanges {
           name: this.namesMap.montant_arrete_f.name,
           type: GenericTableCellType.CURRENCY,
           code: this.namesMap.montant_arrete_f.code,
+          sortEnabled: true,
+          disableEditing: true,
         },
         {
           name: this.namesMap.date_arrete_f.name,
           type: GenericTableCellType.DATE,
           code: this.namesMap.date_arrete_f.code,
+          sortEnabled: true,
         },
         {
           name: this.namesMap.date_limite_solde_f.name,
           type: GenericTableCellType.DATE,
           code: this.namesMap.date_limite_solde_f.code,
+          sortEnabled: true,
         },
         {
           name: this.namesMap.financeur.name,
           type: GenericTableCellType.SELECTBOX,
           code: this.namesMap.financeur.code,
+          sortEnabled: true,
         },
         {
           name: this.namesMap.statut_f.name,
           type: GenericTableCellType.SELECTBOX,
           code: this.namesMap.statut_f.code,
+          sortEnabled: true,
         },
         {
           name: this.namesMap.date_solde_f.name,
           type: GenericTableCellType.DATE,
           code: this.namesMap.date_solde_f.code,
+          sortEnabled: true,
         },
         {
           name: this.namesMap.commentaire_admin_f.name,
@@ -544,10 +615,13 @@ export class FinancementsComponent implements OnInit, OnChanges {
           name: this.namesMap.difference.name,
           type: GenericTableCellType.CURRENCY,
           code: this.namesMap.difference.code,
+          sortEnabled: true,
         },
       ],
       entityPlaceHolders: [],
       entitySelectBoxOptions: [],
+      sortName: this.defaultSortInfo?.headerName,
+      sortDirection: this.defaultSortInfo?.sortInfo?.direction,
     };
   }
 
@@ -627,5 +701,12 @@ export class FinancementsComponent implements OnInit, OnChanges {
       dataSource,
       entitySelectBoxOptions,
     });
+  }
+
+  private refreshDataTable(): void {
+    this.options = {
+      ...this.options,
+      dataSource: basicSort(this.financements, this.sortInfo),
+    };
   }
 }

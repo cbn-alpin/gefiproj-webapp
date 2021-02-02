@@ -1,4 +1,4 @@
-<ng-container *ngIf="projet && manager">
+<ng-container *ngIf="displayProjet()">
   <div class="project-details">
     <span class="bold project-name">{{ projet.nom_p }}</span>
 
@@ -38,6 +38,8 @@
       [financements]="financements"
       [selectedFinancement]="selectedFinancement"
       [defaultSortInfo]="financementsDefaultSortInfo"
+      [iisAdministrator]="isAdministrator"
+      [iisResponsable]="isResponsable"
       (selectEvent)="onSelectFinancement($event)"
       (createEvent)="onCreateFinancement()"
       (editEvent)="onEditFinancement()"
