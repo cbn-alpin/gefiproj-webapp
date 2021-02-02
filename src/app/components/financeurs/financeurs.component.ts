@@ -29,7 +29,7 @@ export class FinanceursComponent implements OnInit {
   /**
    * Liste des financeurs.
    */
-  funders: Financeur[];
+  funders: Financeur[] = [];
 
   /**
    * Mapping pour les noms des attributs d'un financeur.
@@ -189,7 +189,7 @@ export class FinanceursComponent implements OnInit {
       }
 
       // RG
-      const fundings = (await this.fundersSrv.fundingsOf(funder)) || [];
+      const fundings = (await this.fundersSrv.getFundings(funder)) || [];
       const isEmpty = fundings.length === 0;
       if (!isEmpty) {
         event?.callBack({
