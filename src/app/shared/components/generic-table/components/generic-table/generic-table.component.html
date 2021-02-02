@@ -313,7 +313,7 @@
       <th mat-header-cell *matHeaderCellDef class="actions">
         <span>{{ actionsHeaderColumnName }}</span>
         <button
-          *ngIf="!isReadOnly && !onlyEditAction"
+          *ngIf="!isReadOnly && showCreateAction"
           mat-icon-button
           (click)="onCreate()"
           [disabled]="genericTableService.canCreate(genericTableEntities)"
@@ -335,7 +335,7 @@
             </button>
             <!-- Edit -->
             <button
-              *ngIf="!isReadOnly"
+              *ngIf="!isReadOnly && showEditAction"
               mat-icon-button
               (click)="onEdit($event, element)"
             >
@@ -343,7 +343,7 @@
             </button>
             <!-- Delete -->
             <button
-              *ngIf="!isReadOnly"
+              *ngIf="!isReadOnly && showDeleteAction"
               mat-icon-button
               (click)="delete($event, element)"
             >

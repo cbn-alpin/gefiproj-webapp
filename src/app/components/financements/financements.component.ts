@@ -95,6 +95,12 @@ export class FinancementsComponent implements OnInit, OnChanges {
     );
   }
 
+  public showCreateAction: boolean = true;
+
+  public showEditAction: boolean = true;
+
+  public showDeleteAction: boolean = true;
+
   /**
    * Représente un nouveau financement et définit les colonnes à afficher.
    */
@@ -179,6 +185,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
   }
 
   public async ngOnInit() {
+    this.updateTableActionIfUserHasOnlyResponsableRight();
     this.initGenericTableOptions();
     try {
       this.pipe = new DatePipe('fr-FR');
@@ -208,7 +215,8 @@ export class FinancementsComponent implements OnInit, OnChanges {
       changes.isResponsable.currentValue != null &&
       changes.isResponsable.previousValue != null
     ) {
-      if (this.hasOnlyResponsableRight()) {
+      const hasOnlyResponsableRight = this.updateTableActionIfUserHasOnlyResponsableRight();
+      if (hasOnlyResponsableRight) {
         const entityTypes = this.disableAllEditingFieldsExceptCommentResponsableField(
           this.options.entityTypes
         );
@@ -741,5 +749,24 @@ export class FinancementsComponent implements OnInit, OnChanges {
 
   private hasOnlyResponsableRight(): boolean {
     return !this.isAdministrator && this.isResponsable;
+  }
+
+  /**
+   * Met à jour les actions du tableau selon le role de l'utilisateur.
+   * Retourne vrai si l'utilisteur est un responsable.
+   * @private
+   */
+  private updateTableActionIfUserHasOnlyResponsableRight(): boolean {
+    const hasOnlyResponsableRight = this.hasOnlyResponsableRight();
+
+    if (hasOnlyResponsableRight) {
+      this.showCreateAction = false;
+      this.showDeleteAction = false;
+    } else {
+      this.showCreateAction = true;
+      this.showDeleteAction = true;
+    }
+
+    return hasOnlyResponsableRight;
   }
 }
