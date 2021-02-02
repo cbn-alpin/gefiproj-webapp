@@ -13,7 +13,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Financement, Statut_F } from 'src/app/models/financement';
 import { Financeur } from 'src/app/models/financeur';
 import { FinancementsService } from 'src/app/services/financements.service';
-import { FinanceurService } from 'src/app/services/financeur.service';
+import { FinanceurService } from 'src/app/services/funders.service';
 import { GenericTableCellType } from 'src/app/shared/components/generic-table/globals/generic-table-cell-types';
 import { GenericTableEntityEvent } from 'src/app/shared/components/generic-table/models/generic-table-entity-event';
 import { GenericTableOptions } from 'src/app/shared/components/generic-table/models/generic-table-options';
@@ -26,6 +26,7 @@ import {
 } from 'src/app/shared/components/generic-dialog/generic-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { PopupService } from '../../shared/services/popup.service';
+import * as moment from 'moment';
 import { take } from 'rxjs/operators';
 import { SortInfo } from '../../shared/components/generic-table/models/sortInfo';
 import { basicSort } from '../../shared/tools/utils';
@@ -265,6 +266,131 @@ export class FinancementsComponent implements OnInit, OnChanges {
   }
 
   /**
+   * transforme le format du formulaire
+   * @param financement
+   */
+  private transformFormat(financement: Financement): Financement {
+    if (financement?.financeur) delete financement?.financeur;
+    if (financement.hasOwnProperty('difference')) {
+      delete financement.difference;
+    }
+    if (financement.hasOwnProperty('solde')) delete financement.solde;
+    if (!financement.hasOwnProperty('id_p')) {
+      financement.id_p = Number(this.projectId);
+    }
+    // transform date
+    if (financement.date_arrete_f) {
+      financement.date_arrete_f = this.toTransformDateFormat(
+        financement.date_arrete_f
+      );
+    }
+    if (financement.date_limite_solde_f) {
+      financement.date_limite_solde_f = this.toTransformDateFormat(
+        financement.date_limite_solde_f
+      );
+    }
+    if (financement.date_solde_f) {
+      financement.date_solde_f = this.toTransformDateFormat(
+        financement.date_solde_f
+      );
+    }
+
+    return financement;
+  }
+
+  /**
+   * Vérifie la validité du financement en paramètre. Si le financement est invalide, le tableau générique en est notifié.
+   * @param gtEvent : encapsule un nouveau financement ou un financement modifié.
+   */
+  private validateForGenericTable(
+    gtEvent: GenericTableEntityEvent<Financement>
+  ): boolean {
+    if (!gtEvent) {
+      throw new Error("Le paramètre 'gtEvent' est invalide");
+    }
+
+    try {
+      const financement = gtEvent?.entity;
+      const formErrors: GenericTableFormError[] = [];
+
+      this.verifForms(financement, formErrors);
+      if (formErrors.length > 0) {
+        gtEvent.callBack({
+          formErrors,
+        });
+
+        this.popupService.error('Veuillez vérifier vos données');
+        return false;
+      } else {
+        return true;
+      }
+    } catch (error) {
+      console.error(error);
+      return true; // Problème inattendu : le serveur vérifiera les données
+    }
+  }
+
+  /**
+   * Vérifie le forms du financement.
+   * @param financement : financement à vérifier.
+   * @param formErrors : liste des erreurs de validation.
+   */
+  private verifForms(
+    financement: Financement,
+    formErrors: GenericTableFormError[]
+  ): void {
+    if (!financement.montant_arrete_f) {
+      const error = {
+        name: this.namesMap.montant_arrete_f.code,
+        message: 'Un montant de financement doit être défini et supérieur à 0.',
+      };
+      formErrors.push(error);
+    }
+
+    if (!financement.statut_f) {
+      const error = {
+        name: this.namesMap.statut_f.code,
+        message: 'Un statut de financement doit être défini.',
+      };
+      formErrors.push(error);
+    }
+
+    if (!financement.id_financeur) {
+      const error = {
+        name: this.namesMap.financeur.code,
+        message: 'Un financeur doit être défini.',
+      };
+      formErrors.push(error);
+    }
+
+    if (financement.date_arrete_f && financement.date_limite_solde_f && moment(financement.date_arrete_f).isAfter(financement.date_limite_solde_f)) {
+      const errord1 = {
+        name: this.namesMap.date_arrete_f.code,
+        message: 'format date non respecté : la date arrêté ou commande est postérieure à la date limite de solde.',
+      };
+      const errord2 = {
+        name: this.namesMap.date_limite_solde_f.code,
+        message: 'format date non respecté : la date limite de solde est antérieur à la date arrêté ou commande.',
+      };
+      formErrors.push(errord1);
+      formErrors.push(errord2);
+    }
+
+    if (financement.date_arrete_f && financement.date_solde_f && moment(financement.date_arrete_f).isAfter(financement.date_solde_f)) {
+      const errord1 = {
+        name: this.namesMap.date_arrete_f.code,
+        message: 'format date non respecté : la date arrêté ou commande est postérieure à la date de solde.',
+      };
+      const errord2 = {
+        name: this.namesMap.date_solde_f.code,
+        message: 'format date non respecté : la date de solde est antérieur à la date arrêté ou commande.',
+      };
+      formErrors.push(errord1);
+      formErrors.push(errord2);
+    }
+  }
+
+  /**
    * Un financements a été créé et initialisé dans le tableau.
    * @param event : encapsule le financement à modifier.
    */
@@ -326,7 +452,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
     const dialogRef = this.dialog.open(GenericDialogComponent, {
       data: {
         header: 'Suppression du financement',
-        content: `Voulez-vous supprimer ce financement d'un montant de ${financement.montant_arrete_f} provenant du financeur ${financement.financeur.nom_financeur} ?`,
+        content: `Les données reliées à ce financement seront supprimés suite à sa suppression.<br>Confirmez-vous la suppression de ce financement d'un montant de ${financement.montant_arrete_f} provenant du financeur ${financement.financeur.nom_financeur} ?`,
         type: 'warning',
         action: {
           name: 'Confirmer',
@@ -514,105 +640,6 @@ export class FinancementsComponent implements OnInit, OnChanges {
           ),
         }
       : financement;
-  }
-
-  /**
-   * transforme le format du formulaire
-   * @param financement
-   */
-  private transformFormat(financement: Financement): Financement {
-    if (financement?.financeur) delete financement?.financeur;
-    if (financement.hasOwnProperty('difference')) {
-      delete financement.difference;
-    }
-    if (financement.hasOwnProperty('solde')) delete financement.solde;
-    if (!financement.hasOwnProperty('id_p')) {
-      financement.id_p = Number(this.projectId);
-    }
-    // transform date
-    if (financement.date_arrete_f) {
-      financement.date_arrete_f = this.toTransformDateFormat(
-        financement.date_arrete_f
-      );
-    }
-    if (financement.date_limite_solde_f) {
-      financement.date_limite_solde_f = this.toTransformDateFormat(
-        financement.date_limite_solde_f
-      );
-    }
-    if (financement.date_solde_f) {
-      financement.date_solde_f = this.toTransformDateFormat(
-        financement.date_solde_f
-      );
-    }
-
-    return financement;
-  }
-
-  /**
-   * Vérifie la validité du financement en paramètre. Si le financement est invalide, le tableau générique en est notifié.
-   * @param gtEvent : encapsule un nouveau financement ou un financement modifié.
-   */
-  private validateForGenericTable(
-    gtEvent: GenericTableEntityEvent<Financement>
-  ): boolean {
-    if (!gtEvent) {
-      throw new Error("Le paramètre 'gtEvent' est invalide");
-    }
-
-    try {
-      const financement = gtEvent?.entity;
-      const formErrors: GenericTableFormError[] = [];
-
-      this.verifForms(financement, formErrors);
-      if (formErrors.length > 0) {
-        gtEvent.callBack({
-          formErrors,
-        });
-
-        this.popupService.error('Veuillez vérifier vos données');
-        return false;
-      } else {
-        return true;
-      }
-    } catch (error) {
-      console.error(error);
-      return true; // Problème inattendu : le serveur vérifiera les données
-    }
-  }
-
-  /**
-   * Vérifie le forms du financement.
-   * @param financement : financement à vérifier.
-   * @param formErrors : liste des erreurs de validation.
-   */
-  private verifForms(
-    financement: Financement,
-    formErrors: GenericTableFormError[]
-  ): void {
-    if (!financement.montant_arrete_f) {
-      const error = {
-        name: this.namesMap.montant_arrete_f.code,
-        message: 'Un montant de financement doit être défini.',
-      };
-      formErrors.push(error);
-    }
-
-    if (!financement.statut_f) {
-      const error = {
-        name: this.namesMap.statut_f.code,
-        message: 'Un statut de financement doit être défini.',
-      };
-      formErrors.push(error);
-    }
-
-    if (!financement.id_financeur) {
-      const error = {
-        name: this.namesMap.financeur.code,
-        message: 'Un financeur doit être défini.',
-      };
-      formErrors.push(error);
-    }
   }
 
   /**
