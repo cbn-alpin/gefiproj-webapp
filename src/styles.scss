@@ -43,3 +43,7 @@ a:hover, a:visited, a:focus, a:active {
 }
 
 
+.financements .table-generic, .recettes .table-generic, .montants-affectes .table-generic {
+    max-height: 300px;   
+}
+

@@ -4,12 +4,22 @@ import { GenericTableEntity } from '../models/generic-table-entity';
 import { SelectBoxOption } from '../models/SelectBoxOption';
 import { GenericTableOptions } from '../models/generic-table-options';
 import { GenericTableEntityState } from '../globals/generic-table-entity-states';
+import { IsAdministratorGuardService } from 'src/app/services/authentication/is-administrator-guard.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GenericTableService<T> {
-  constructor() {}
+  constructor(
+    private adminSrv: IsAdministratorGuardService,
+  ) {}
+
+  /**
+   * Indique si l'utilisateur est un administrateur.
+   */
+  public get isAdministrator(): boolean {
+    return !!this.adminSrv.isAdministrator();
+  }
 
   public getDisplayedName(options: GenericTableOptions<T>): string[] {
     return options.entityPlaceHolders.map((res) => res.name);
@@ -137,7 +147,11 @@ export class GenericTableService<T> {
     let disabled = false;
     // exception edition pour l'instance financement
     if (this.instanceOfFinancement(selectedEntity)) {
-      if (selectedEntity?.solde && entityName !== 'statut_f') {
+      if (selectedEntity?.solde && entityName !== 'statut_f' && entityName !== 'date_limite_solde_f') {
+        disabled = true;
+      } else if (!selectedEntity?.solde && entityName === 'date_limite_solde_f') {
+        disabled = true;
+      } else if (this.isAdministrator && entityName === 'commentaire_resp_f') {
         disabled = true;
       } else if (entityName === 'difference') {
         disabled = true;
