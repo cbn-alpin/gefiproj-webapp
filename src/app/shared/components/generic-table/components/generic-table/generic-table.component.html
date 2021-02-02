@@ -53,7 +53,7 @@
                 [disabled]="
                   this.genericTableService.disabledEditField(
                     element,
-                    columnName.code
+                    columnName
                   )
                 "
                 [matTooltip]="
@@ -113,7 +113,7 @@
               matInput
               [disabled]="
                 element.state === GenericTableEntityState.READ ||
-                genericTableService.disabledEditField(element, columnName.code)
+                genericTableService.disabledEditField(element, columnName)
               "
               matTooltipClass="tooltip-error"
               [matTooltip]="
@@ -147,7 +147,7 @@
               numeric
               [disabled]="
                 element.state === GenericTableEntityState.READ ||
-                genericTableService.disabledEditField(element, columnName.code)
+                genericTableService.disabledEditField(element, columnName)
               "
               matTooltipClass="tooltip-error"
               [matTooltip]="
@@ -181,7 +181,7 @@
               matInput
               [disabled]="
                 element.state === GenericTableEntityState.READ ||
-                genericTableService.disabledEditField(element, columnName.code)
+                genericTableService.disabledEditField(element, columnName)
               "
               [matDatepicker]="picker1"
               matTooltipClass="tooltip-error"
@@ -222,7 +222,7 @@
               decimals="4"
               [disabled]="
                 element.state === GenericTableEntityState.READ ||
-                genericTableService.disabledEditField(element, columnName.code)
+                genericTableService.disabledEditField(element, columnName)
               "
               matTooltipClass="tooltip-error"
               [matTooltip]="
@@ -252,7 +252,7 @@
             [(ngModel)]="element.data[columnName.code]"
             [disabled]="
               element.state === GenericTableEntityState.READ ||
-              genericTableService.disabledEditField(element, columnName.code)
+              genericTableService.disabledEditField(element, columnName)
             "
           >
           </mat-checkbox>
@@ -276,7 +276,7 @@
               [(ngModel)]="element.data[columnName.code]"
               [disabled]="
                 element.state === GenericTableEntityState.READ ||
-                genericTableService.disabledEditField(element, columnName.code)
+                genericTableService.disabledEditField(element, columnName)
               "
               matTooltipClass="tooltip-error"
               [matTooltip]="

@@ -16,6 +16,7 @@ import { RecettesService } from '../../services/recettes.service';
 import { PopupService } from '../../shared/services/popup.service';
 import { UsersService } from '../../services/users.service';
 import { basicSort } from '../../shared/tools/utils';
+import { AuthService } from '../../services/authentication/auth.service';
 
 export interface DialogData {
   project: Projet;
@@ -83,6 +84,8 @@ export class ProjetComponent implements OnInit {
     return !!this.adminSrv.isAdministrator();
   }
 
+  public isResponsable: boolean;
+
   constructor(
     public readonly dialog: MatDialog,
     private readonly adminSrv: IsAdministratorGuardService,
@@ -94,7 +97,8 @@ export class ProjetComponent implements OnInit {
     private readonly montantsAffectesService: MontantsAffectesService,
     private readonly financementsService: FinancementsService,
     private readonly spinnerSrv: SpinnerService,
-    private readonly usersSrv: UsersService
+    private readonly usersSrv: UsersService,
+    private readonly authService: AuthService
   ) {
     this.projetId = this.route.snapshot.params.id;
     if (!this.projetId) {
@@ -231,6 +235,8 @@ export class ProjetComponent implements OnInit {
     try {
       if (projetId) {
         this.projet = await this.projetsService.get(projetId);
+        this.isResponsable =
+          this.projet.id_u === this.authService.userAuth.id_u;
       }
     } catch (error) {
       console.error(error);

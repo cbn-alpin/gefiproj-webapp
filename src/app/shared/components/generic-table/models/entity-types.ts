@@ -20,4 +20,9 @@ export interface EntityType {
    * Indique si le trie doit être possible sur cet élément.
    */
   sortEnabled?: boolean;
+
+  /**
+   * Indique si la colonne n'est pas éditable
+   */
+  disableEditing?: boolean;
 }

@@ -4,6 +4,8 @@ import { GenericTableEntity } from '../models/generic-table-entity';
 import { SelectBoxOption } from '../models/SelectBoxOption';
 import { GenericTableOptions } from '../models/generic-table-options';
 import { GenericTableEntityState } from '../globals/generic-table-entity-states';
+import { getDeepCopy } from '../../../tools/utils';
+import { EntityType } from '../models/entity-types';
 
 @Injectable({
   providedIn: 'root',
@@ -108,7 +110,7 @@ export class GenericTableService<T> {
         const entityToCopy = genericTableEntitiesCopy.find(
           (entityCopy) => entityCopy.id === entity.id
         );
-        entity = this.getDeepCopy(entityToCopy);
+        entity = getDeepCopy(entityToCopy);
       }
 
       if (entity.state === GenericTableEntityState.NEW) {
@@ -120,31 +122,33 @@ export class GenericTableService<T> {
     return entities;
   }
 
-  public getDeepCopy(source: any): any {
-    return JSON.parse(JSON.stringify(source));
-  }
-
   /**
    * bloque la modification de certain champs
    * @param entity : l'object à modifié
-   * @param entityName : nom de l'entité de l'object
+   * @param entityType : données lié au type de l'entité
    */
   public disabledEditField(
     entity: GenericTableEntity<T>,
-    entityName: string
+    entityType: EntityType
   ): boolean {
     const selectedEntity = entity.data;
+    const entityName = entityType.name;
     let disabled = false;
-    // exception edition pour l'instance financement
-    if (this.instanceOfFinancement(selectedEntity)) {
-      if (selectedEntity?.solde && entityName !== 'statut_f') {
-        disabled = true;
-      } else if (entityName === 'difference') {
-        disabled = true;
-      } else {
-        disabled = false;
+    if (entityType.disableEditing) {
+      return true;
+    } else {
+      // exception edition pour l'instance financement
+      if (this.instanceOfFinancement(selectedEntity)) {
+        if (selectedEntity?.solde && entityName !== 'statut_f') {
+          disabled = true;
+        } else if (entityName === 'difference') {
+          disabled = true;
+        } else {
+          disabled = false;
+        }
       }
     }
+
     return disabled;
   }
 }
