@@ -1,7 +1,7 @@
 <app-generic-table
   [title]="title"
   [(options)]="options"
-  [showActions]="showActions"
+  [showActions]="canDoActions"
   (editEvent)="onEdit($event)"
   (createEvent)="onCreate($event)"
   (deleteEvent)="onDelete($event)"
