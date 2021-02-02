@@ -313,7 +313,7 @@
       <th mat-header-cell *matHeaderCellDef class="actions">
         <span>{{ actionsHeaderColumnName }}</span>
         <button
-          *ngIf="!isReadOnly"
+          *ngIf="!isReadOnly && !onlyEditAction"
           mat-icon-button
           (click)="onCreate()"
           [disabled]="genericTableService.canCreate(genericTableEntities)"

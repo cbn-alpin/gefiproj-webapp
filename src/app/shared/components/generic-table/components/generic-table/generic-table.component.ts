@@ -85,6 +85,8 @@ export class GenericTableComponent<T>
 
   @Input() selectedRow: T;
 
+  @Input() onlyEditAction: boolean;
+
   @Output() editEvent: EventEmitter<
     GenericTableEntityEvent<T>
   > = new EventEmitter<GenericTableEntityEvent<T>>();
