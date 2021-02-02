@@ -38,6 +38,7 @@ import { GenericTableService } from '../../services/generic-table.service';
 import { GenericTableErrorService } from '../../services/generic-table-error.service';
 import { GenericTableTypeService } from '../../services/generic-table-type.service';
 import { PopupService } from '../../../../services/popup.service';
+import { getDeepCopy } from '../../../../tools/utils';
 
 @Component({
   selector: 'app-generic-table[title][options]',
@@ -257,7 +258,7 @@ export class GenericTableComponent<T>
     const entityToCopy = this.genericTableEntitiesCopy.find(
       (dataCopy) => dataCopy.id === entity.id
     );
-    const entityCopied = this.genericTableService.getDeepCopy(entityToCopy);
+    const entityCopied = getDeepCopy(entityToCopy);
     this.genericTableEntities = this.genericTableEntities.map((entity) =>
       entity?.id === entityCopied?.id ? entityCopied : entity
     );
@@ -269,9 +270,7 @@ export class GenericTableComponent<T>
 
   public onCreate(): void {
     this.genericTableAction = GenericTableAction.NEW;
-    const defaultEntityCopied = this.genericTableService.getDeepCopy(
-      this.options.defaultEntity
-    );
+    const defaultEntityCopied = getDeepCopy(this.options.defaultEntity);
     const entity: GenericTableEntity<T> = {
       data: defaultEntityCopied,
       state: GenericTableEntityState.NEW,
@@ -463,9 +462,7 @@ export class GenericTableComponent<T>
             .getDisplayedColumns(this.options)
             .concat(this.actionsHeaderColumnName)
         : this.genericTableService.getDisplayedColumns(this.options);
-      this.genericTableEntitiesCopy = this.genericTableService.getDeepCopy(
-        this.genericTableEntities
-      );
+      this.genericTableEntitiesCopy = getDeepCopy(this.genericTableEntities);
       this.loadSelectedEntity();
     } catch (error) {
       console.error(error);
