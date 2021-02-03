@@ -715,7 +715,9 @@ export class FinancementsComponent implements OnInit, OnChanges {
     };
   }
 
-  private refreshDataTableWithHttpGet(): void {
+  private async refreshDataTableWithHttpGet(): void {
+    await this.loadFinancements(Number(this.projectId));
+
     this.options = {
       ...this.options,
       dataSource: basicSort(this.financements, this.sortInfo),
