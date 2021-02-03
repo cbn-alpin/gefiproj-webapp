@@ -613,6 +613,8 @@ export class FinancementsComponent implements OnInit, OnChanges {
           code: this.namesMap.difference.code,
           sortEnabled: true,
           disableEditing: true,
+          tooltipHeader:
+            'Indique la différence entre le montant du financement et de ses recettes.',
         },
       ],
       entityPlaceHolders: [],

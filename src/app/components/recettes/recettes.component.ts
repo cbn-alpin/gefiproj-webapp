@@ -118,6 +118,8 @@ export class RecettesComponent implements OnInit, OnChanges {
       code: this.namesMap.DIFFERENCE.code,
       sortEnabled: true,
       disableEditing: true,
+      tooltipHeader:
+        'Indique la différence entre le montant de la recette et de ses montants affectés.',
     },
   ];
 
