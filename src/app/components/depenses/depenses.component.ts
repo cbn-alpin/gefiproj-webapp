@@ -67,7 +67,7 @@ export class DepensesComponent implements OnInit {
       },
       {
         code: this.namesMap.amount.code,
-        type: GenericTableCellType.NUMBER,
+        type: GenericTableCellType.CURRENCY,
         name: this.namesMap.amount.name,
         sortEnabled: false,
       },
@@ -82,7 +82,7 @@ export class DepensesComponent implements OnInit {
    * Indique si l'utilisateur est un administrateur.
    */
   public get isAdministrator(): boolean {
-    return !!this.adminSrv.isAdministrator();
+    return this.adminSrv.isAdministrator();
   }
 
   /**
