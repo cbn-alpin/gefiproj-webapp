@@ -18,7 +18,7 @@ export class GenericTableService<T> {
    * Indique si l'utilisateur est un administrateur.
    */
   public get isAdministrator(): boolean {
-    return !!this.adminSrv.isAdministrator();
+    return this.adminSrv.isAdministrator();
   }
 
   public getDisplayedName(options: GenericTableOptions<T>): string[] {
@@ -144,7 +144,7 @@ export class GenericTableService<T> {
     const entityCodeIsStatutOrDateSoldeFinancement =
       entityType.code === 'statut_f' || entityType.code === 'date_solde_f';
     const userHasAdminRightAndFinancementIsBalance =
-      _entity.solde && !entityType.disableEditing;
+      this.isAdministrator && _entity.solde;
     if (userHasAdminRightAndFinancementIsBalance) {
       disabled = entityCodeIsStatutOrDateSoldeFinancement ? false : true;
     } else {
@@ -152,33 +152,5 @@ export class GenericTableService<T> {
     }
 
     return disabled;
-
-    // TODO: Utiliser la propriété disableEditing dans le paramétrage du tableau financement puis supprimer le code ci-dessous
-    // const selectedEntity = entity.data;
-    // const entityName = entityType.code;
-    // let disabled = false;
-    // // exception edition pour l'instance financement
-    // if (this.instanceOfFinancement(selectedEntity)) {
-    //   if (
-    //     selectedEntity?.solde &&
-    //     entityName !== 'statut_f' &&
-    //     entityName !== 'date_limite_solde_f'
-    //   ) {
-    //     disabled = true;
-    //   } else if (
-    //     !selectedEntity?.solde &&
-    //     entityName === 'date_limite_solde_f'
-    //   ) {
-    //     disabled = true;
-    //   } else if (this.isAdministrator && entityName === 'commentaire_resp_f') {
-    //     disabled = true;
-    //   } else if (entityName === 'difference') {
-    //     disabled = true;
-    //   } else {
-    //     disabled = false;
-    //   }
-    // }
-    //
-    // return disabled;
   }
 }
