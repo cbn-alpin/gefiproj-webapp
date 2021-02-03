@@ -33,12 +33,17 @@
       <br />
       Responsable :
       <mat-form-field>
-        <mat-select [(value)]="managerId">
+        <mat-select [(value)]="managerId" [disabled]="data.project.statut_p">
           <mat-option *ngFor="let option of data.users" [value]="option.id_u">
             {{ option.initiales_u }}
           </mat-option>
         </mat-select>
       </mat-form-field>
+      <br />
+      Soldé :
+      <span class="project-status">
+        <mat-checkbox formControlName="status"> </mat-checkbox>
+      </span>
     </div>
     <br />
     <div mat-dialog-actions class="edit-project-buttons">

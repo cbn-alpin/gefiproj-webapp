@@ -88,11 +88,6 @@ export class ProjetComponent implements OnInit {
   managers: Utilisateur[];
 
   /**
-   * Vrai si le projet n'est pas soldé et que l'utilisateur est une administrateur
-   */
-  public canEditDetails: boolean;
-
-  /**
    * Vrai si le projet est soldé
    */
   public isBalance: boolean;
@@ -100,7 +95,7 @@ export class ProjetComponent implements OnInit {
   public isResponsable: boolean;
 
   public get isAdministrator(): boolean {
-    return this.adminSrv.isAdministrator();
+    return !!this.adminSrv.isAdministrator();
   }
 
   constructor(
@@ -253,7 +248,6 @@ export class ProjetComponent implements OnInit {
       this.projet &&
       this.manager &&
       this.isAdministrator != null &&
-      this.canEditDetails != null &&
       this.isResponsable != null
     );
   }
@@ -264,7 +258,6 @@ export class ProjetComponent implements OnInit {
         this.projet = await this.projetsService.get(projetId);
         this.checkIfUserHasResponsableRight(this.projet);
         this.checkIfProjetIsBalance(this.projet);
-        this.checkIfUserCanEditProjetDetails();
       }
     } catch (error) {
       console.error(error);
@@ -351,10 +344,6 @@ export class ProjetComponent implements OnInit {
     this.isBalance = projet.statut_p;
   }
 
-  private checkIfUserCanEditProjetDetails(): void {
-    this.canEditDetails = this.isAdministrator && this.isBalance === false;
-  }
-
   // debug() {
   //   console.log('FINANCEMENTS: ', this.financements);
   //   console.log('RECETTES: ', this.recettes);
@@ -362,38 +351,6 @@ export class ProjetComponent implements OnInit {
   //   console.log('SELECTED FINANCEMENTS: ', this.selectedFinancement);
   //   console.log('SELECTED RECETTES: ', this.selectedRecette);
   // }
-
-  // TODO: créer le composant projet details
-  public async updateProjectStatus(event: MatCheckboxChange): Promise<void> {
-    this.projet.statut_p = event.checked;
-    this.projet.id_u = this.projet.responsable.id_u;
-    try {
-      this.spinnerSrv.show();
-      const updatedProjet = await this.projetsService.modify(this.projet);
-      this.projet.statut_p = updatedProjet.statut_p;
-      this.projetToEdit = getDeepCopy(this.projet);
-      this.checkIfProjetIsBalance(this.projet);
-      this.checkIfUserCanEditProjetDetails();
-      this.projet.responsable = this.manager;
-      this.spinnerSrv.hide();
-      if (this.projet.statut_p == true)
-        this.popupService.success(
-          'Le projet ' + this.projet.nom_p + ' est soldé ! '
-        );
-
-      if (this.projet.statut_p == false)
-        this.popupService.success(
-          'Le projet ' + this.projet.nom_p + ' est non soldé ! '
-        );
-    } catch (error) {
-      console.error(error);
-      for (const err of error.error.errors) {
-        this.popupService.error(
-          'Impossible de créer le montant affecté : ' + err.message
-        );
-      }
-    }
-  }
 
   public openEditProjectDialog(): void {
     let projectName = this.projet.nom_p;
@@ -430,6 +387,8 @@ export class ProjetComponent implements OnInit {
     try {
       this.projet = await this.projetsService.get(this.projet.id_p);
       this.manager = this.projet.responsable;
+      this.projetToEdit = getDeepCopy(this.projet);
+      this.checkIfProjetIsBalance(this.projet);
     } catch (error) {
       console.error(error);
     }
@@ -474,11 +433,21 @@ export class EditProjectDialogComponent implements OnInit {
 
   ngOnInit() {
     this.formGroup = this.fb.group({
-      nom: [this.data.project.nom_p, [Validators.required]],
+      nom: [
+        {
+          value: this.data.project.nom_p,
+          disabled: this.data.project.statut_p,
+        },
+        [Validators.required],
+      ],
       code: [
-        this.data.project.code_p,
+        {
+          value: this.data.project.code_p,
+          disabled: this.data.project.statut_p,
+        },
         [Validators.required, Validators.pattern(new RegExp(this.patternCode))],
       ],
+      status: [this.data.project.statut_p, [Validators.required]],
     });
     this.errorStateMatcher1 = new MyCustomErrorStateMatcher();
     this.errorStateMatcher2 = new MyCustomErrorStateMatcher();
@@ -495,6 +464,7 @@ export class EditProjectDialogComponent implements OnInit {
       ...this.data.project,
       nom_p: this.formGroup.get('nom').value,
       code_p: Number(this.formGroup.get('code').value),
+      statut_p: this.formGroup.get('status').value,
     };
     this.data.edited = true;
     this.data.project.responsable = this.data.users.find(
