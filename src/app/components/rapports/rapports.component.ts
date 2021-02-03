@@ -1,3 +1,4 @@
+import { ExportReceiptsService } from './../../services/export-receipts.service';
 import { Component, OnInit } from '@angular/core';
 import {
   FormBuilder,
@@ -27,14 +28,16 @@ export class RapportsComponent implements OnInit {
 
   /**
    * Crée et affiche des bilans.
-   * @param fb 
-   * @param popupService 
-   * @param exportSrv : crée les bilans de suivi des financements.
+   * @param fb : gère le formulaire.
+   * @param popupService : affiche des informations à l'utilisateur.
+   * @param exportFundingsSrv : crée les bilans de suivi des financements.
+   * @param exportFundingsSrv : crée les bilans financiers.
    */
   constructor(
     private readonly fb: FormBuilder,
-    private popupService: PopupService,
-    private readonly exportSrv: ExportFundingsService
+    private readonly popupService: PopupService,
+    private readonly exportFundingsSrv: ExportFundingsService,
+    private readonly exportReceiptsSrv: ExportReceiptsService
   ) {}
 
   ngOnInit(): void {
@@ -96,7 +99,7 @@ export class RapportsComponent implements OnInit {
   public async executeSuiviFinancementsVersion1(): Promise<void> {
     try {
       console.log('Suivi financements v1..');
-      const url = await this.exportSrv.createExportV1();
+      const url = await this.exportFundingsSrv.createExportV1();
       if (!url) {
         throw new Error('La réponse ne contient pas l\'URL du document');
       }
@@ -117,7 +120,7 @@ export class RapportsComponent implements OnInit {
       const minPeriod = parseInt(this.suiviFinancementsFormGroupVersion2.get('annee1')?.value, 10);
       const maxPeriod = parseInt(this.suiviFinancementsFormGroupVersion2.get('annee2')?.value, 10);
 
-      const url = await this.exportSrv.createExportV2(minPeriod, maxPeriod);
+      const url = await this.exportFundingsSrv.createExportV2(minPeriod, maxPeriod);
       if (!url) {
         throw new Error('La réponse ne contient pas l\'URL du document');
       }
@@ -129,9 +132,23 @@ export class RapportsComponent implements OnInit {
     }
   }
 
-  public executeBilanFinancier(): void {
-    if (this.bilanFinancierFormGroup.valid) {
-      console.log('Bilan financiers');
+  /**
+   * Crée et affiche un bilan financier.
+   */
+  public async executeBilanFinancier(): Promise<void> {
+    try {
+      console.log('Bilan fiancier..');
+      const year = parseInt(this.bilanFinancierFormGroup.get('annee')?.value, 10);
+
+      const url = await this.exportReceiptsSrv.createExport(year);
+      if (!url) {
+        throw new Error('La réponse ne contient pas l\'URL du document');
+      }
+
+      window.open(url, '_blank');
+    } catch (error) {
+      console.log(error);
+      this.popupService.error('Impossible d\'afficher le bilan');
     }
   }
 }
