@@ -5,6 +5,7 @@ import { FormBuilder } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ConnexionComponent } from '../connexion/connexion.component';
 import { RapportsComponent } from './rapports.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 describe('RapportsComponent', () => {
   let component: RapportsComponent;
@@ -17,7 +18,8 @@ describe('RapportsComponent', () => {
         RouterTestingModule.withRoutes(
           [{path: 'connexion', component: ConnexionComponent},
           {path: 'home', component: HomeComponent}]
-        )
+        ),
+        MatSnackBarModule
       ],
       providers: [
         FormBuilder
