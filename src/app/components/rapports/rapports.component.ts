@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { ErrorStateMatcher } from '@angular/material/core';
 import {
   FormBuilder,
   FormControl,
   FormGroup,
   FormGroupDirective,
   NgForm,
-  Validators,
+  Validators
 } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ErrorStateMatcher } from '@angular/material/core';
+import { ExportFundingsService } from 'src/app/services/export-fundings.service';
+import { PopupService } from 'src/app/shared/services/popup.service';
 
 @Component({
   selector: 'app-rapports',
@@ -24,13 +25,20 @@ export class RapportsComponent implements OnInit {
 
   private readonly patternYear = '^\\d{4}$';
 
+  /**
+   * Crée et affiche des bilans.
+   * @param fb 
+   * @param popupService 
+   * @param exportSrv : crée les bilans de suivi des financements.
+   */
   constructor(
-    private readonly _fb: FormBuilder,
-    private readonly _router: Router
+    private readonly fb: FormBuilder,
+    private popupService: PopupService,
+    private readonly exportSrv: ExportFundingsService
   ) {}
 
   ngOnInit(): void {
-    this.suiviFinancementsFormGroupVersion2 = this._fb.group({
+    this.suiviFinancementsFormGroupVersion2 = this.fb.group({
       annee1: [
         '',
         [Validators.required, Validators.pattern(new RegExp(this.patternYear))],
@@ -40,7 +48,7 @@ export class RapportsComponent implements OnInit {
         [Validators.required, Validators.pattern(new RegExp(this.patternYear))],
       ],
     });
-    this.bilanFinancierFormGroup = this._fb.group({
+    this.bilanFinancierFormGroup = this.fb.group({
       annee: [
         '',
         [Validators.required, Validators.pattern(new RegExp(this.patternYear))],
@@ -82,20 +90,42 @@ export class RapportsComponent implements OnInit {
     }
   }
 
-  public executeSuiviFinancementsVersion1(): void {
-    console.log('Suivi financements v1');
-    this._router.navigate(['/suivi-financements']);
+  /**
+   * Crée et affiche le bilan de suivi des financements v1.
+   */
+  public async executeSuiviFinancementsVersion1(): Promise<void> {
+    try {
+      console.log('Suivi financements v1..');
+      const url = await this.exportSrv.createExportV1();
+      if (!url) {
+        throw new Error('La réponse ne contient pas l\'URL du document');
+      }
+
+      window.open(url, '_blank');
+    } catch (error) {
+      console.log(error);
+      this.popupService.error('Impossible d\'afficher le bilan');
+    }
   }
 
-  public executeSuiviFinancementsVersion2(): void {
-    if (this.suiviFinancementsFormGroupVersion2.valid) {
-      console.log('Suivi financements v2');
-      this._router.navigate(['/suivi-financements'], {
-        queryParams: {
-          annee1: this.suiviFinancementsFormGroupVersion2.get('annee1').value,
-          annee2: this.suiviFinancementsFormGroupVersion2.get('annee2').value,
-        },
-      });
+  /**
+   * Crée et affiche le bilan de suivi des financements v2 (sur une période).
+   */
+  public async executeSuiviFinancementsVersion2(): Promise<void> {
+    try {
+      console.log('Suivi financements v2..');
+      const minPeriod = parseInt(this.suiviFinancementsFormGroupVersion2.get('annee1')?.value, 10);
+      const maxPeriod = parseInt(this.suiviFinancementsFormGroupVersion2.get('annee2')?.value, 10);
+
+      const url = await this.exportSrv.createExportV2(minPeriod, maxPeriod);
+      if (!url) {
+        throw new Error('La réponse ne contient pas l\'URL du document');
+      }
+
+      window.open(url, '_blank');
+    } catch (error) {
+      console.log(error);
+      this.popupService.error('Impossible d\'afficher le bilan');
     }
   }
 

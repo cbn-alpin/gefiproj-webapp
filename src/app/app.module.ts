@@ -6,11 +6,13 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -28,17 +30,13 @@ import { GenericTableDemoModule } from './components/generic-table-demo/generic-
 import { HeaderComponent } from './components/header/header.component';
 import { HomeComponent } from './components/home/home.component';
 import { MontantsAffectesComponent } from './components/montants-affectes/montants-affectes.component';
-import { ProjetComponent } from './components/projet/projet.component';
+import { EditProjectDialogComponent, ProjetComponent } from './components/projet/projet.component';
 import { RapportsComponent } from './components/rapports/rapports.component';
 import { RecettesComponent } from './components/recettes/recettes.component';
-import { SuiviFinancementsComponent } from './components/suivi-financements/suivi-financements.component';
 import { UtilisateursComponent } from './components/utilisateurs/utilisateurs.component';
 import { AuthService } from './services/authentication/auth.service';
 import { AuthenticationHttpInterceptorService } from './services/authentication/authentication-http-interceptor.service';
 import { SharedModule } from './shared/shared.module';
-import {EditProjectDialogComponent} from './components/projet/projet.component';
-import {MatDialogModule} from '@angular/material/dialog';
-import {MatSelectModule} from '@angular/material/select';
 
 /**
  * Retourne le token courant.
@@ -65,9 +63,9 @@ registerLocaleData(localeFr, 'fr-FR');
     HeaderComponent,
     FinancementsComponent,
     RecettesComponent,
+    FinanceursComponent,
     ProjetComponent,
     MontantsAffectesComponent,
-    SuiviFinancementsComponent,
     EditProjectDialogComponent,
   ],
   imports: [
