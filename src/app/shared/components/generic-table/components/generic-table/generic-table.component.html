@@ -29,9 +29,15 @@
         {{ columnName.name }}
         <mat-icon
           *ngIf="columnName.tooltipHeader != null"
-          class="icon-header"
+          class="icon-help-header"
           [matTooltip]="columnName.tooltipHeader"
           >help</mat-icon
+        >
+        <mat-icon
+          *ngIf="columnName.isMandatory && showMandatoryIcon"
+          class="icon-star-header"
+          [matTooltip]="'Obligatoire'"
+          >star</mat-icon
         >
       </th>
       <td mat-cell *matCellDef="let element">
