@@ -159,18 +159,12 @@ export class MontantsAffectesComponent implements OnChanges {
       }
 
       if (this.validateForGenericTable(event)) {
-        if (this.checkMontantEdit(montant))
-          this.popupService.error(
-            'La somme des montants est supérieur au montant de la recette !'
-          );
-        else {
           delete montant.recette;
           const updatedMontant = await this.montantsAffectesService.put(
             montant
           );
           event.callBack(null);
           this.modify(updatedMontant);
-        }
       }
     } catch (error) {
       console.log('er', error);
@@ -236,6 +230,14 @@ export class MontantsAffectesComponent implements OnChanges {
       };
       formErrors.push(error);
     }
+    if(this.checkMontantCreate(montant))
+    {
+      const error = {
+        name: this.namesMap.montant_ma.code,
+        message: 'La somme des montants est supérieur au montant de la recette !',
+      };
+      formErrors.push(error);
+    }
   }
 
   /**
@@ -252,18 +254,12 @@ export class MontantsAffectesComponent implements OnChanges {
       }
 
       if (this.validateForGenericTable(event)) {
-        if (this.checkMontantCreate(montant))
-          this.popupService.error(
-            'La somme des montants est supérieur au montant de la recette !'
-          );
-        else {
           const createdMontant = await this.montantsAffectesService.post(
             montant,
             Number(this.receipt.id_r)
           );
           event.callBack(null);
           this.create(createdMontant);
-        }
       }
     } catch (error) {
       console.error(error);

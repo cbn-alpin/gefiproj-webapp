@@ -128,11 +128,9 @@ export class ProjetComponent implements OnInit {
     try {
       const promiseDetails = this.loadProjetDetailsFromProjetId(projetId);
       const promiseFinancement = this.loadFinancementsFromProjetId(projetId);
-      const promiseUtilisateurs = this.loadAllUsers(projetId);
       await Promise.all([
         promiseDetails,
         promiseFinancement,
-        promiseUtilisateurs,
       ]);
       this.projetToEdit = getDeepCopy(this.projet);
       this.manager = this.projet.responsable;
@@ -361,9 +359,10 @@ export class ProjetComponent implements OnInit {
     }
   }
 
-  public openEditProjectDialog(): void {
+  public async openEditProjectDialog(): Promise<void> {
     let projectName = this.projet.nom_p;
     let edited = false;
+    await this.loadAllUsers(this.projetToEdit.id_p);
     const dialogRef = this.dialog.open(EditProjectDialogComponent, {
       width: '600px',
       data: {
