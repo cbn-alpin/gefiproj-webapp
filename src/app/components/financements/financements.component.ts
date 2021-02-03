@@ -756,10 +756,8 @@ export class FinancementsComponent implements OnInit, OnChanges {
 
   private updateEntityTypesWithUserRight(): void {
     let upEntityTypes: EntityType[];
+    const codes = this.options.entityTypes.map((entityType) => entityType.code);
     if (this.isAdministrator && !this.isResponsable) {
-      const codes = this.options.entityTypes.map(
-        (entityType) => entityType.code
-      );
       const editableRowsCode = codes.filter(
         (code) =>
           code !== this.namesMap.commentaire_resp_f.code &&
@@ -770,9 +768,6 @@ export class FinancementsComponent implements OnInit, OnChanges {
         editableRowsCode
       );
     } else if (this.isAdministrator && this.isResponsable) {
-      const codes = this.options.entityTypes.map(
-        (entityType) => entityType.code
-      );
       const editableRowsCode = codes.filter(
         (code) => code !== this.namesMap.difference.code
       );
