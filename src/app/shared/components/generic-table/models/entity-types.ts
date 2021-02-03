@@ -25,4 +25,6 @@ export interface EntityType {
    * Indique si la colonne n'est pas éditable
    */
   disableEditing?: boolean;
+
+  tooltipHeader?: string;
 }

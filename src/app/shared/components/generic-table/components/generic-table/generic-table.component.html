@@ -27,6 +27,12 @@
         "
       >
         {{ columnName.name }}
+        <mat-icon
+          *ngIf="columnName.tooltipHeader != null"
+          class="icon-header"
+          [matTooltip]="columnName.tooltipHeader"
+          >help</mat-icon
+        >
       </th>
       <td mat-cell *matCellDef="let element">
         <!-- Textarea -->

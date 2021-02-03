@@ -140,6 +140,9 @@
   .default-row:first-child {
     background: $light-grey !important;
   }
+  .icon-header {
+    font-size: 18px;
+  }
 }
 
 .mat-column-Actions.mat-table-sticky:last-child {
