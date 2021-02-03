@@ -11,7 +11,6 @@ import { Recette } from '../../models/recette';
 import { GenericTableOptions } from '../../shared/components/generic-table/models/generic-table-options';
 import { GenericTableCellType } from '../../shared/components/generic-table/globals/generic-table-cell-types';
 import { DatePipe } from '@angular/common';
-import { IsAdministratorGuardService } from '../../services/authentication/is-administrator-guard.service';
 import { MontantsAffectesService } from '../../services/montants-affectes.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
@@ -22,6 +21,8 @@ import {
   IMessage,
 } from '../../shared/components/generic-dialog/generic-dialog.component';
 import { PopupService } from '../../shared/services/popup.service';
+import { SortInfo } from '../../shared/components/generic-table/models/sortInfo';
+import { basicSort } from '../../shared/tools/utils';
 
 @Component({
   selector: 'app-montants-affectes',
@@ -39,6 +40,10 @@ export class MontantsAffectesComponent implements OnChanges {
    */
   @Input() public receipt: Recette;
 
+  @Input() public isAdministrator: boolean;
+
+  @Input() public projectIsBalance: boolean;
+
   /**
    * Données source du tableau générique
    * @private
@@ -49,6 +54,10 @@ export class MontantsAffectesComponent implements OnChanges {
   public montantsAffectesChange: EventEmitter<
     MontantAffecte[]
   > = new EventEmitter<MontantAffecte[]>();
+
+  public get showActions(): boolean {
+    return this.isAdministrator && !this.projectIsBalance;
+  }
 
   /**
    * Représente un nouveau montant affecté et définit les colonnes à afficher.
@@ -83,43 +92,29 @@ export class MontantsAffectesComponent implements OnChanges {
         name: this.namesMap.annee_ma.name,
         type: GenericTableCellType.NUMBER,
         code: this.namesMap.annee_ma.code,
+        sortEnabled: true,
       },
       {
         name: this.namesMap.montant_ma.name,
         type: GenericTableCellType.CURRENCY,
         code: this.namesMap.montant_ma.code,
+        sortEnabled: true,
       },
     ],
     entityPlaceHolders: [],
     entitySelectBoxOptions: [],
+    sortName: this.namesMap.annee_ma.name,
+    sortDirection: 'asc',
   };
-  /**
-   * Indique si le tableau peut-être modifié.
-   */
-  public get showActions(): boolean {
-    return !!this.adminSrv.isAdministrator();
-  }
+
   /**
    * Date Pipe
    */
   pipe: DatePipe;
 
-  /**
-   * Indique si le tableau est en lecture seule.
-   */
-  public get isReadOnly(): boolean {
-    return !this.isAdministrator;
-  }
-
-  /**
-   * Indique si l'utilisateur est un administrateur.
-   */
-  public get isAdministrator(): boolean {
-    return !!this.adminSrv.isAdministrator();
-  }
+  private sortInfo: SortInfo;
 
   constructor(
-    private readonly adminSrv: IsAdministratorGuardService,
     private readonly montantsAffectesService: MontantsAffectesService,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
@@ -132,10 +127,7 @@ export class MontantsAffectesComponent implements OnChanges {
    */
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes.montantsAffectes && changes.montantsAffectes.currentValue) {
-      this.options = {
-        ...this.options,
-        dataSource: this.montantsAffectes,
-      };
+      this.refreshDataTable();
     }
   }
 
@@ -331,6 +323,22 @@ export class MontantsAffectesComponent implements OnChanges {
       });
     }
   }
+
+  /**
+   * Le trie du tableau a changé.
+   * @param sort : défini le trie à appliquer.
+   */
+  public onSortChanged(sort: SortInfo): void {
+    try {
+      if (sort) {
+        this.sortInfo = sort;
+        this.refreshDataTable();
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   /**
    * Vérifier que la somme des montants est inférieur ou égale au montant de la recette lors de la mise à jour d'un montant
    * @param montant, montant affecté mis à jour
@@ -379,5 +387,12 @@ export class MontantsAffectesComponent implements OnChanges {
 
   public emitMontantsAffectesChange(): void {
     this.montantsAffectesChange.emit(this.montantsAffectes);
+  }
+
+  private refreshDataTable(): void {
+    this.options = {
+      ...this.options,
+      dataSource: basicSort(this.montantsAffectes, this.sortInfo),
+    };
   }
 }

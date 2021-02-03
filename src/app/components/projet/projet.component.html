@@ -1,36 +1,46 @@
-<ng-container  *ngIf="projet && manager">
+<ng-container *ngIf="displayProjet()">
   <div class="project-details">
-    <span class="bold project-name">{{projet.nom_p}}</span>
+    <span class="bold project-name">{{ projet.nom_p }}</span>
 
     <div class="project-edit">
       <!-- Edit -->
       <button
-        *ngIf="!isReadOnly && projet.statut_p==false"
+        *ngIf="canEditDetails"
         mat-icon-button
         (click)="openEditProjectDialog()"
       >
         <mat-icon>edit</mat-icon>
       </button>
     </div>
-    <br><br>
-    <span class="project-code-content"> <span class="bold"> code : </span>{{projet.code_p}} </span>
-    <span class="project-responsable-content"> <span class="bold"> responsable : </span>{{manager.initiales_u }} </span>
+    <br /><br />
+    <span class="project-code-content">
+      <span class="bold"> code : </span>{{ projet.code_p }}
+    </span>
+    <span class="project-responsable-content">
+      <span class="bold"> responsable : </span>{{ manager.initiales_u }}
+    </span>
     <span class="project-status">
-    <mat-checkbox
-      [checked]=projet.statut_p
-      [disabled]="!isAdministrator"
-      (change)="updateProjectStatus($event)"> <!-- disabled if not administrator  -->
-      Soldé
-    </mat-checkbox>
+      <mat-checkbox
+        [checked]="projet.statut_p"
+        [disabled]="!isAdministrator"
+        (change)="updateProjectStatus($event)"
+      >
+        <!-- disabled if not administrator  -->
+        Soldé
+      </mat-checkbox>
     </span>
   </div>
-<hr class="project-line">
+  <hr class="project-line" />
 
   <div class="financements">
     <app-financements
       *ngIf="financements"
       [financements]="financements"
       [selectedFinancement]="selectedFinancement"
+      [defaultSortInfo]="financementsDefaultSortInfo"
+      [isAdministrator]="isAdministrator"
+      [isResponsable]="isResponsable"
+      [projectIsBalance]="isBalance"
       (selectEvent)="onSelectFinancement($event)"
       (createEvent)="onCreateFinancement()"
       (editEvent)="onEditFinancement()"
@@ -51,7 +61,10 @@
         *ngIf="recettes"
         [recettes]="recettes"
         [financement]="selectedFinancement"
+        [defaultSortInfo]="recettesDefaultSortInfo"
         [selectedRecette]="selectedRecette"
+        [isAdministrator]="isAdministrator"
+        [projectIsBalance]="isBalance"
         (selectEvent)="onSelectRecette($event)"
         (createEvent)="onCreateRecette($event)"
         (editEvent)="onEditRecette()"
@@ -66,6 +79,8 @@
         *ngIf="montantsAffectes"
         [montantsAffectes]="montantsAffectes"
         [receipt]="selectedRecette"
+        [isAdministrator]="isAdministrator"
+        [projectIsBalance]="isBalance"
         (montantsAffectesChange)="onMontantsAffectesChange($event)"
       ></app-montants-affectes>
     </div>

@@ -1,4 +1,5 @@
 import { Utilisateur } from './utilisateur';
+import { SortInfo } from '../shared/components/generic-table/models/sortInfo';
 
 export interface Projet {
   id_p: number;
@@ -31,4 +32,9 @@ export interface Projet {
 
 export interface ProjetNavigationState {
   projectIsBalanced: boolean;
+}
+
+export interface DefaultSortInfo {
+  sortInfo: SortInfo;
+  headerName: string;
 }

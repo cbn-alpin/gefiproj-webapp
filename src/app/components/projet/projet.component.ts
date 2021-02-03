@@ -1,11 +1,11 @@
-import {Component, Inject, OnInit} from '@angular/core';
-import { Financement } from "../../models/financement";
-import { Recette } from "../../models/recette";
+import { Component, Inject, OnInit } from '@angular/core';
+import { Financement } from '../../models/financement';
+import { Recette } from '../../models/recette';
 import { IsAdministratorGuardService } from '../../services/authentication/is-administrator-guard.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import {MAT_DIALOG_DATA, MatDialog} from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { ProjetsService } from '../../services/projets.service';
-import { Projet } from '../../models/projet';
+import { DefaultSortInfo, Projet } from '../../models/projet';
 import { MontantsAffectesService } from '../../services/montants-affectes.service';
 import { MontantAffecte } from '../../models/montantAffecte';
 import { FinancementsService } from '../../services/financements.service';
@@ -14,15 +14,19 @@ import { Utilisateur } from '../../models/utilisateur';
 import { SpinnerService } from '../../services/spinner.service';
 import { RecettesService } from '../../services/recettes.service';
 import { PopupService } from '../../shared/services/popup.service';
-import { UsersService} from '../../services/users.service';
+import { UsersService } from '../../services/users.service';
+import { basicSort, getDeepCopy } from '../../shared/tools/utils';
+import { AuthService } from '../../services/authentication/auth.service';
+import { take } from 'rxjs/operators';
 
 export interface DialogData {
   project: Projet;
   users: Utilisateur[];
-  manager : Utilisateur;
-  projectName : string;
-  edited : boolean;
+  manager: Utilisateur;
+  projectName: string;
+  edited: boolean;
 }
+
 @Component({
   selector: 'app-projet',
   templateUrl: './projet.component.html',
@@ -30,12 +34,34 @@ export interface DialogData {
 })
 export class ProjetComponent implements OnInit {
   public financements: Financement[];
+
   public recettes: Recette[];
+
   public montantsAffectes: MontantAffecte[];
+
   public selectedFinancement: Financement;
+
   public selectedRecette: Recette;
+
   public projetId: string;
+
   public projet: Projet;
+
+  public financementsDefaultSortInfo: DefaultSortInfo = {
+    sortInfo: {
+      name: 'montant_arrete_f',
+      direction: 'asc',
+    },
+    headerName: 'Montant Arreté',
+  };
+
+  public recettesDefaultSortInfo: DefaultSortInfo = {
+    sortInfo: {
+      name: 'annee_r',
+      direction: 'asc',
+    },
+    headerName: 'Année recette',
+  };
 
   /**
    * /**
@@ -51,12 +77,20 @@ export class ProjetComponent implements OnInit {
    */
   managers: Utilisateur[];
 
-  public get isReadOnly(): boolean {
-    return !this.isAdministrator;
-  }
+  /**
+   * Vrai si le projet n'est pas soldé et que l'utilisateur est une administrateur
+   */
+  public canEditDetails: boolean;
+
+  /**
+   * Vrai si le projet est soldé
+   */
+  public isBalance: boolean;
+
+  public isResponsable: boolean;
 
   public get isAdministrator(): boolean {
-    return !!this.adminSrv.isAdministrator();
+    return this.adminSrv.isAdministrator();
   }
 
   constructor(
@@ -71,6 +105,7 @@ export class ProjetComponent implements OnInit {
     private readonly financementsService: FinancementsService,
     private readonly spinnerSrv: SpinnerService,
     private readonly usersSrv: UsersService,
+    private readonly authService: AuthService
   ) {
     this.projetId = this.route.snapshot.params.id;
     if (!this.projetId) {
@@ -94,10 +129,14 @@ export class ProjetComponent implements OnInit {
       const promiseDetails = this.loadProjetDetailsFromProjetId(projetId);
       const promiseFinancement = this.loadFinancementsFromProjetId(projetId);
       const promiseUtilisateurs = this.loadAllUsers(projetId);
-      await Promise.all([promiseDetails, promiseFinancement, promiseUtilisateurs]);
+      await Promise.all([
+        promiseDetails,
+        promiseFinancement,
+        promiseUtilisateurs,
+      ]);
       if (this.financements && this.financements.length > 0) {
-        this.projetToEdit = JSON.parse(JSON.stringify(this.projet));
-        this.manager= this.projet.responsable;
+        this.projetToEdit = getDeepCopy(this.projet);
+        this.manager = this.projet.responsable;
         this.selectedFinancement = this.financements[0];
         await this.loadRecettesFromFinancementId(this.selectedFinancement.id_f);
         if (this.recettes && this.recettes.length > 0) {
@@ -174,38 +213,48 @@ export class ProjetComponent implements OnInit {
     }
   }
 
-  public onEditRecette(): void {
-    if (!this.montantsAffectes && this.selectedRecette) {
-      this.loadMontantsFromRecetteId(this.selectedRecette.id_r);
-    }
-  }
-
-  public onRecettesChange(recettes: Recette[]): void {
-    this.recettes = [...recettes];
-  }
+  public onEditRecette(): void {}
 
   public onFinancementsChange(financements: Financement[]): void {
     this.financements = [...financements];
   }
 
+  public onRecettesChange(recettes: Recette[]): void {
+    this.recettes = [...recettes];
+    // Calcule de la différence pour le financement sélectionné
+    const sumRecettes = this.recettes.reduce((a, b) => a + b.montant_r, 0);
+    this.selectedFinancement.difference =
+      this.selectedFinancement.montant_arrete_f - sumRecettes;
+  }
+
   public onMontantsAffectesChange(montantAffectes: MontantAffecte[]): void {
     this.montantsAffectes = [...montantAffectes];
-    const recette = this.recettes.find(
-      (recette) => recette.id_r === this.selectedRecette.id_r
+    // Calcule de la différence pour la recette sélectionné
+    const sumMontants = this.montantsAffectes.reduce(
+      (a, b) => a + b.montant_ma,
+      0
     );
-    if (recette) {
-      const sumMontants = this.montantsAffectes.reduce(
-        (a, b) => a + b.montant_ma,
-        0
-      );
-      recette.difference = recette.montant_r - sumMontants;
-    }
+    this.selectedRecette.difference =
+      this.selectedRecette.montant_r - sumMontants;
+  }
+
+  public displayProjet(): boolean {
+    return (
+      this.projet &&
+      this.manager &&
+      this.isAdministrator != null &&
+      this.canEditDetails != null &&
+      this.isResponsable != null
+    );
   }
 
   private async loadProjetDetailsFromProjetId(projetId: number): Promise<void> {
     try {
       if (projetId) {
         this.projet = await this.projetsService.get(projetId);
+        this.checkIfUserHasResponsableRight(this.projet);
+        this.checkIfProjetIsBalance(this.projet);
+        this.checkIfUserCanEditProjetDetails();
       }
     } catch (error) {
       console.error(error);
@@ -226,13 +275,15 @@ export class ProjetComponent implements OnInit {
     }
   }
 
-
   private async loadFinancementsFromProjetId(projetId: number): Promise<void> {
     try {
       if (projetId) {
-        this.financements = await this.financementsService.getAll(projetId);
+        const financements = await this.financementsService.getAll(projetId);
+        this.financements = basicSort(
+          financements,
+          this.financementsDefaultSortInfo.sortInfo
+        );
       }
-      this.manager = this.projet.responsable;
     } catch (error) {
       console.error(error);
 
@@ -245,7 +296,11 @@ export class ProjetComponent implements OnInit {
   ): Promise<void> {
     try {
       if (financementId) {
-        this.recettes = await this.recettesService.getAll(financementId);
+        const recettes = await this.recettesService.getAll(financementId);
+        this.recettes = basicSort(
+          recettes,
+          this.recettesDefaultSortInfo.sortInfo
+        );
         // TODO:
         // Dans le back, si une recette n'a pas de financement alors sa difference = null
         // Il faut mieux set la difference = montant recette dans ce cas
@@ -280,108 +335,134 @@ export class ProjetComponent implements OnInit {
     this.projet.id_u = this.projet.responsable.id_u;
     try {
       this.spinnerSrv.show();
-      await this.projetsService.modify(this.projet);
+      const updatedProjet = await this.projetsService.modify(this.projet);
+      this.projet.statut_p = updatedProjet.statut_p;
+      this.projetToEdit = getDeepCopy(this.projet);
+      this.checkIfProjetIsBalance(this.projet);
+      this.checkIfUserCanEditProjetDetails();
       this.projet.responsable = this.manager;
       this.spinnerSrv.hide();
       if (this.projet.statut_p == true)
         this.popupService.success(
           'Le projet ' + this.projet.nom_p + ' est soldé ! '
         );
+
       if (this.projet.statut_p == false)
         this.popupService.success(
-          "Le projet " + this.projet.nom_p + " est non soldé ! ");
-
-    }
-
-  catch(error) {
-    console.error(error);
-    for (const err of error.error.errors) {
-      this.popupService.error(
-        'Impossible de créer le montant affecté : ' + err.message
-      );
+          'Le projet ' + this.projet.nom_p + ' est non soldé ! '
+        );
+    } catch (error) {
+      console.error(error);
+      for (const err of error.error.errors) {
+        this.popupService.error(
+          'Impossible de créer le montant affecté : ' + err.message
+        );
+      }
     }
   }
 
-
-  }
-
-  public openEditProjectDialog() : void {
+  public openEditProjectDialog(): void {
     let projectName = this.projet.nom_p;
     let edited = false;
     const dialogRef = this.dialog.open(EditProjectDialogComponent, {
       width: '600px',
-      data: {project : this.projetToEdit, users : this.managers, manager : this.manager , projectName : projectName ,edited :  edited},
+      data: {
+        project: this.projetToEdit,
+        users: this.managers,
+        manager: this.manager,
+        projectName: projectName,
+        edited: edited,
+      },
     });
 
-    dialogRef.afterClosed().subscribe(async result => {
-      if(result)
-      {
-        if(result.edited) {
-          console.log("result  : " , result);
-          await this.updateProjectInfos(result.project);
+    dialogRef
+      .afterClosed()
+      .pipe(take(1))
+      .subscribe(async (result) => {
+        if (result) {
+          if (result.edited) {
+            await this.updateProjectInfos(result.project);
 
-          await this.refreshProject();
+            await this.refreshProject();
+          }
         }
-      }
-    });
+      });
   }
 
   /**
    * Met à jour les données d'affichage.
    */
   private async refreshProject() {
-
     try {
       this.projet = await this.projetsService.get(this.projet.id_p);
-      this.manager=this.projet.responsable;
-
+      this.manager = this.projet.responsable;
     } catch (error) {
       console.error(error);
     }
   }
 
-  public async updateProjectInfos(editedProject : Projet): Promise<void> {
+  public async updateProjectInfos(editedProject: Projet): Promise<void> {
     editedProject.id_u = editedProject.responsable.id_u;
     try {
       this.spinnerSrv.show();
       await this.projetsService.modify(editedProject);
+      this.checkIfUserHasResponsableRight(editedProject);
       this.spinnerSrv.hide();
-      this.popupService.success(
-        "Le projet a bien été modifé ! ");
-
+      this.popupService.success('Le projet a bien été modifié ! ');
     } catch (error) {
       console.error(error);
       for (const err of error.error.errors) {
         this.popupService.error(
-          'Impossible de modifier le projet : ' + err.message);
+          'Impossible de modifier le projet : ' + err.message
+        );
       }
-
     }
   }
 
+  private checkIfUserHasResponsableRight(projet: Projet): void {
+    this.isResponsable =
+      this.authService.userAuth.id_u ===
+      (projet.responsable ? projet.responsable.id_u : projet.id_u);
+  }
 
+  private checkIfProjetIsBalance(projet: Projet): void {
+    this.isBalance = projet.statut_p;
+  }
+
+  private checkIfUserCanEditProjetDetails(): void {
+    this.canEditDetails = this.isAdministrator && this.isBalance === false;
+  }
+
+  // debug() {
+  //   console.log('FINANCEMENTS: ', this.financements);
+  //   console.log('RECETTES: ', this.recettes);
+  //   console.log('MONTANTS: ', this.montantsAffectes);
+  //   console.log('SELECTED FINANCEMENTS: ', this.selectedFinancement);
+  //   console.log('SELECTED RECETTES: ', this.selectedRecette);
+  // }
 }
-
 
 @Component({
   selector: 'edit-project-dialog',
   templateUrl: 'edit-project-popup.component.html',
-  styleUrls: ['./projet.component.scss']
+  styleUrls: ['./projet.component.scss'],
 })
 export class EditProjectDialogComponent {
   constructor(
     public dialogRef: MatDialog,
-    @Inject(MAT_DIALOG_DATA) public data : DialogData) {
-  }
+    @Inject(MAT_DIALOG_DATA) public data: DialogData
+  ) {}
 
   public managerId = this.data.manager.id_u;
 
   onNoClick(): void {
-    this.dialogRef.closeAll()
+    this.dialogRef.closeAll();
   }
 
   async onYesClick(): Promise<void> {
     this.data.edited = true;
-    this.data.project.responsable = this.data.users.find(responsable => responsable.id_u === this.managerId );
+    this.data.project.responsable = this.data.users.find(
+      (responsable) => responsable.id_u === this.managerId
+    );
   }
 }

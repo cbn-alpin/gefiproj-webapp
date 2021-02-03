@@ -38,6 +38,7 @@ import { GenericTableService } from '../../services/generic-table.service';
 import { GenericTableErrorService } from '../../services/generic-table-error.service';
 import { GenericTableTypeService } from '../../services/generic-table-type.service';
 import { PopupService } from '../../../../services/popup.service';
+import { getDeepCopy } from '../../../../tools/utils';
 
 @Component({
   selector: 'app-generic-table[title][options]',
@@ -83,6 +84,12 @@ export class GenericTableComponent<T>
   @Input() autoSelectFirstRow = false;
 
   @Input() selectedRow: T;
+
+  @Input() showCreateAction: boolean = true;
+
+  @Input() showEditAction: boolean = true;
+
+  @Input() showDeleteAction: boolean = true;
 
   @Output() editEvent: EventEmitter<
     GenericTableEntityEvent<T>
@@ -199,6 +206,14 @@ export class GenericTableComponent<T>
     if (changes.selectedRow && changes.selectedRow.currentValue) {
       this.loadSelectedEntity();
     }
+    if (
+      changes.showActions &&
+      changes.showActions.currentValue != null &&
+      changes.showActions.previousValue != null
+    ) {
+      this.resetTable();
+      this.loadDisplayedColumns();
+    }
   }
 
   public ngOnDestroy() {
@@ -257,7 +272,7 @@ export class GenericTableComponent<T>
     const entityToCopy = this.genericTableEntitiesCopy.find(
       (dataCopy) => dataCopy.id === entity.id
     );
-    const entityCopied = this.genericTableService.getDeepCopy(entityToCopy);
+    const entityCopied = getDeepCopy(entityToCopy);
     this.genericTableEntities = this.genericTableEntities.map((entity) =>
       entity?.id === entityCopied?.id ? entityCopied : entity
     );
@@ -269,9 +284,7 @@ export class GenericTableComponent<T>
 
   public onCreate(): void {
     this.genericTableAction = GenericTableAction.NEW;
-    const defaultEntityCopied = this.genericTableService.getDeepCopy(
-      this.options.defaultEntity
-    );
+    const defaultEntityCopied = getDeepCopy(this.options.defaultEntity);
     const entity: GenericTableEntity<T> = {
       data: defaultEntityCopied,
       state: GenericTableEntityState.NEW,
@@ -424,7 +437,6 @@ export class GenericTableComponent<T>
         name,
         direction: this.sort.direction,
       };
-
       this.sortEvent.emit(sort);
     } catch (error) {
       console.error(error);
@@ -459,14 +471,8 @@ export class GenericTableComponent<T>
         }
       );
       this.entityTypes = this.options.entityTypes;
-      this.displayedColumns = this.showActions
-        ? this.genericTableService
-            .getDisplayedColumns(this.options)
-            .concat(this.actionsHeaderColumnName)
-        : this.genericTableService.getDisplayedColumns(this.options);
-      this.genericTableEntitiesCopy = this.genericTableService.getDeepCopy(
-        this.genericTableEntities
-      );
+      this.loadDisplayedColumns();
+      this.genericTableEntitiesCopy = getDeepCopy(this.genericTableEntities);
       this.loadSelectedEntity();
     } catch (error) {
       console.error(error);
@@ -495,5 +501,18 @@ export class GenericTableComponent<T>
     } else {
       this.selectedEntity = null;
     }
+  }
+
+  private loadDisplayedColumns(): void {
+    this.displayedColumns = this.showActions
+      ? this.genericTableService
+          .getDisplayedColumns(this.options)
+          .concat(this.actionsHeaderColumnName)
+      : this.genericTableService.getDisplayedColumns(this.options);
+  }
+
+  private resetTable(): void {
+    this.genericTableEntities = this.genericTableEntitiesCopy;
+    this.genericTableEntitiesCopy = getDeepCopy(this.genericTableEntities);
   }
 }

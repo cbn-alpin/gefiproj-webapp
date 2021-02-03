@@ -16,7 +16,6 @@ import { EntityType } from '../../shared/components/generic-table/models/entity-
 import { GenericTableCellType } from '../../shared/components/generic-table/globals/generic-table-cell-types';
 import { EntityPlaceholder } from '../../shared/components/generic-table/models/entity-placeholder';
 import { GenericTableFormError } from '../../shared/components/generic-table/models/generic-table-entity';
-import { IsAdministratorGuardService } from 'src/app/services/authentication/is-administrator-guard.service';
 import { RecettesService } from '../../services/recettes.service';
 import { PopupService } from '../../shared/services/popup.service';
 import { Messages } from '../../models/messages';
@@ -26,6 +25,10 @@ import {
 } from '../../shared/components/generic-dialog/generic-dialog.component';
 import { take } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
+import { SortInfo } from '../../shared/components/generic-table/models/sortInfo';
+import { basicSort } from '../../shared/tools/utils';
+import { DefaultSortInfo } from '../../models/projet';
+import { MontantsAffectesService } from '../../services/montants-affectes.service';
 
 @Component({
   selector: 'app-recettes',
@@ -33,28 +36,26 @@ import { MatDialog } from '@angular/material/dialog';
   styleUrls: ['./recettes.component.scss'],
 })
 export class RecettesComponent implements OnInit, OnChanges {
-  /**
-   * Financement sélectionné
-   */
   @Input() public financement: Financement;
 
-  /**
-   * Recettes du financement sélectionné
-   */
   @Input() public recettes: Recette[];
 
   @Input() public selectedRecette: Recette;
 
-  /**
-   * Recette séléctioné event
-   */
+  @Input() public defaultSortInfo: DefaultSortInfo;
+
+  @Input() public isAdministrator: boolean;
+
+  @Input() public projectIsBalance: boolean;
+
   @Output()
   public selectEvent: EventEmitter<Recette> = new EventEmitter<Recette>();
 
   @Output()
   public createEvent: EventEmitter<Recette> = new EventEmitter<Recette>();
 
-  @Output() public editEvent: EventEmitter<void> = new EventEmitter<void>();
+  @Output()
+  public editEvent: EventEmitter<void> = new EventEmitter<void>();
 
   @Output() public deleteEvent: EventEmitter<void> = new EventEmitter<void>();
 
@@ -64,32 +65,12 @@ export class RecettesComponent implements OnInit, OnChanges {
   @Output()
   public recettesChange = new EventEmitter<Recette[]>();
 
-  /**
-   * Titre du tableau
-   */
   public title = 'Recettes';
 
-  /**
-   * Options du tableau
-   */
   public options: GenericTableOptions<Recette>;
 
-  /**
-   * Indique si le tableau est en lecture seule.
-   */
-  public get isReadOnly(): boolean {
-    return !this.isAdministrator;
-  }
-
-  /**
-   * Indique si l'utilisateur est un administrateur.
-   */
-  public get isAdministrator(): boolean {
-    return !!this.isAdministratorGuardService.isAdministrator();
-  }
-
-  public onSelectedEntityChange(recette: Recette): void {
-    this.selectedRecetteChangeEvent.emit(recette);
+  public get showActions(): boolean {
+    return this.isAdministrator && !this.projectIsBalance;
   }
 
   /**
@@ -103,14 +84,15 @@ export class RecettesComponent implements OnInit, OnChanges {
   };
 
   /**
-   * Extraire les noms de chaque propriétés du type Recette vers une énumération.
-   * Cette énumération facilite le paramétrage du tableau.
-   * @private
+   * Mapping pour les noms des attributs d'un projet.
    */
-  private EntityPropertyName = {
-    ANNEE_RECETTE: Object.keys(this.defaultEntity)[0],
-    MONTANT: Object.keys(this.defaultEntity)[1],
-    DIFFERENCE: Object.keys(this.defaultEntity)[2],
+  private readonly namesMap = {
+    ID: { code: 'id_r', name: 'Identifiant' },
+    FINANCEMENT: { code: 'financement', name: 'Financement' },
+    MONTANT: { code: 'montant_r', name: 'Montant' },
+    ANNEE: { code: 'annee_r', name: 'Année recette' },
+    ID_FINANCEUR: { code: 'id_f', name: 'Id financeur' },
+    DIFFERENCE: { code: 'difference', name: 'Différence' },
   };
 
   /**
@@ -119,19 +101,23 @@ export class RecettesComponent implements OnInit, OnChanges {
    */
   private entityTypes: EntityType[] = [
     {
-      name: 'Année recette',
+      name: this.namesMap.ANNEE.name,
       type: GenericTableCellType.NUMBER,
-      code: this.EntityPropertyName.ANNEE_RECETTE,
+      code: this.namesMap.ANNEE.code,
+      sortEnabled: true,
     },
     {
-      name: 'Montant',
+      name: this.namesMap.MONTANT.name,
       type: GenericTableCellType.CURRENCY,
-      code: this.EntityPropertyName.MONTANT,
+      code: this.namesMap.MONTANT.code,
+      sortEnabled: true,
     },
     {
-      name: 'Différence',
+      name: this.namesMap.DIFFERENCE.name,
       type: GenericTableCellType.CURRENCY,
-      code: this.EntityPropertyName.DIFFERENCE,
+      code: this.namesMap.DIFFERENCE.code,
+      sortEnabled: true,
+      disableEditing: true,
     },
   ];
 
@@ -140,15 +126,17 @@ export class RecettesComponent implements OnInit, OnChanges {
    * @private
    */
   private entityPlaceHolders: EntityPlaceholder[] = [
-    { name: this.EntityPropertyName.ANNEE_RECETTE, value: '2019' },
-    { name: this.EntityPropertyName.MONTANT, value: '25 000' },
+    { name: this.namesMap.ANNEE.code, value: '2019' },
+    { name: this.namesMap.MONTANT.code, value: '25 000' },
   ];
 
+  private sortInfo: SortInfo;
+
   constructor(
-    private readonly isAdministratorGuardService: IsAdministratorGuardService,
     private readonly recettesService: RecettesService,
     private readonly popupService: PopupService,
-    private readonly dialog: MatDialog
+    private readonly dialog: MatDialog,
+    private readonly montantsAffectesService: MontantsAffectesService
   ) {}
 
   public ngOnInit(): void {
@@ -156,11 +144,12 @@ export class RecettesComponent implements OnInit, OnChanges {
   }
 
   public ngOnChanges(changes: SimpleChanges): void {
-    if (changes.recettes && changes.recettes.currentValue) {
-      this.options = {
-        ...this.options,
-        dataSource: this.recettes,
-      };
+    if (
+      changes.recettes &&
+      changes.recettes.currentValue &&
+      changes.recettes.previousValue
+    ) {
+      this.refreshDataTable();
     }
   }
 
@@ -179,6 +168,7 @@ export class RecettesComponent implements OnInit, OnChanges {
           this.financement,
           this.recettes
         );
+        // TODO: à supprimmer quand back renvoie la bonne différence
         if (!createdRecette.difference) {
           createdRecette.difference = createdRecette.montant_r;
         }
@@ -195,17 +185,25 @@ export class RecettesComponent implements OnInit, OnChanges {
   }
 
   public async onEdit(event: GenericTableEntityEvent<Recette>): Promise<void> {
-    const formErrors = this.checkFormErrors(event.entity, true);
+    const recette = event.entity;
+    const formErrors = this.checkFormErrors(recette, true);
     if (formErrors) {
       this.popupService.error(Messages.ERROR_FORM);
       event.callBack({ formErrors });
     } else {
       try {
         const updatedRecette = await this.recettesService.modify(
-          event.entity,
+          recette,
           this.financement,
           this.recettes
         );
+        // TODO: à supprimmer quand back renvoie la bonne différence
+        const montants = await this.montantsAffectesService.getAll(
+          updatedRecette.id_r
+        );
+        const sumMontants = montants.reduce((a, b) => a + b.montant_ma, 0);
+        const difference = updatedRecette.montant_r - sumMontants;
+        updatedRecette.difference = difference;
         event.callBack(
           null,
           updatedRecette.id_r === this.selectedRecette.id_r
@@ -257,6 +255,17 @@ export class RecettesComponent implements OnInit, OnChanges {
       });
   }
 
+  public onSortChanged(sort: SortInfo): void {
+    try {
+      if (sort) {
+        this.sortInfo = sort;
+        this.refreshDataTable();
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   /**
    * Vérifier le format de chaque champs de la recette
    * @param recette
@@ -296,13 +305,13 @@ export class RecettesComponent implements OnInit, OnChanges {
       msg = 'Format année non respecté';
     } else if (this.hasDuplicateYear(recette)) {
       msg = 'Année doit être unique';
-    } else if (this.hasYearGreaterThanFounding(recette)) {
+    } else if (this.hasYearLowerThanFounding(recette)) {
       msg =
-        'Année de la recette doit être antérieur à la date de commande ou darrêté du financement';
+        'Année de la recette doit être postérieur ou égale à la date de commande ou darrêté du financement';
     }
     if (msg !== '') {
       genericTableFormErrors = genericTableFormErrors.concat({
-        name: this.EntityPropertyName.ANNEE_RECETTE,
+        name: this.namesMap.ANNEE.code,
         message: msg,
       });
     }
@@ -330,7 +339,7 @@ export class RecettesComponent implements OnInit, OnChanges {
     }
     if (msg !== '') {
       genericTableFormErrors = genericTableFormErrors.concat({
-        name: this.EntityPropertyName.MONTANT,
+        name: this.namesMap.MONTANT.code,
         message: msg,
       });
     }
@@ -348,6 +357,10 @@ export class RecettesComponent implements OnInit, OnChanges {
     this.selectEvent.emit(genericTableEntityEvent.entity);
   }
 
+  public onSelectedEntityChange(recette: Recette): void {
+    this.selectedRecetteChangeEvent.emit(recette);
+  }
+
   private initGenericTableOptions(): void {
     this.options = {
       dataSource: this.recettes,
@@ -355,6 +368,8 @@ export class RecettesComponent implements OnInit, OnChanges {
       entitySelectBoxOptions: [],
       entityTypes: this.entityTypes,
       entityPlaceHolders: this.entityPlaceHolders,
+      sortName: this.defaultSortInfo?.headerName,
+      sortDirection: this.defaultSortInfo?.sortInfo?.direction,
     };
   }
 
@@ -406,9 +421,16 @@ export class RecettesComponent implements OnInit, OnChanges {
     return sum > this.financement.montant_arrete_f;
   }
 
-  private hasYearGreaterThanFounding(recette: Recette): boolean {
+  private hasYearLowerThanFounding(recette: Recette): boolean {
     const yearFounding = new Date(this.financement.date_arrete_f).getFullYear();
 
-    return yearFounding ? recette.annee_r > yearFounding : true;
+    return yearFounding ? recette.annee_r < yearFounding : true;
+  }
+
+  private refreshDataTable(): void {
+    this.options = {
+      ...this.options,
+      dataSource: basicSort(this.recettes, this.sortInfo),
+    };
   }
 }

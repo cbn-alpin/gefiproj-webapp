@@ -53,7 +53,7 @@
                 [disabled]="
                   this.genericTableService.disabledEditField(
                     element,
-                    columnName.code
+                    columnName
                   )
                 "
                 [matTooltip]="
@@ -83,7 +83,13 @@
               >
                 <textarea
                   matInput
-                  [disabled]="element.state === GenericTableEntityState.READ"
+                  [disabled]="
+                    element.state === GenericTableEntityState.READ ||
+                    this.genericTableService.disabledEditField(
+                      element,
+                      columnName
+                    )
+                  "
                   [(ngModel)]="element.data[columnName.code]"
                   [placeholder]="
                     genericTableService.getPlaceHolder(options, columnName.code)
@@ -113,7 +119,7 @@
               matInput
               [disabled]="
                 element.state === GenericTableEntityState.READ ||
-                genericTableService.disabledEditField(element, columnName.code)
+                genericTableService.disabledEditField(element, columnName)
               "
               matTooltipClass="tooltip-error"
               [matTooltip]="
@@ -147,7 +153,7 @@
               numeric
               [disabled]="
                 element.state === GenericTableEntityState.READ ||
-                genericTableService.disabledEditField(element, columnName.code)
+                genericTableService.disabledEditField(element, columnName)
               "
               matTooltipClass="tooltip-error"
               [matTooltip]="
@@ -181,7 +187,7 @@
               matInput
               [disabled]="
                 element.state === GenericTableEntityState.READ ||
-                genericTableService.disabledEditField(element, columnName.code)
+                genericTableService.disabledEditField(element, columnName)
               "
               [matDatepicker]="picker1"
               matTooltipClass="tooltip-error"
@@ -222,7 +228,7 @@
               decimals="4"
               [disabled]="
                 element.state === GenericTableEntityState.READ ||
-                genericTableService.disabledEditField(element, columnName.code)
+                genericTableService.disabledEditField(element, columnName)
               "
               matTooltipClass="tooltip-error"
               [matTooltip]="
@@ -252,7 +258,7 @@
             [(ngModel)]="element.data[columnName.code]"
             [disabled]="
               element.state === GenericTableEntityState.READ ||
-              genericTableService.disabledEditField(element, columnName.code)
+              genericTableService.disabledEditField(element, columnName)
             "
           >
           </mat-checkbox>
@@ -276,7 +282,7 @@
               [(ngModel)]="element.data[columnName.code]"
               [disabled]="
                 element.state === GenericTableEntityState.READ ||
-                genericTableService.disabledEditField(element, columnName.code)
+                genericTableService.disabledEditField(element, columnName)
               "
               matTooltipClass="tooltip-error"
               [matTooltip]="
@@ -313,7 +319,7 @@
       <th mat-header-cell *matHeaderCellDef class="actions">
         <span>{{ actionsHeaderColumnName }}</span>
         <button
-          *ngIf="!isReadOnly"
+          *ngIf="!isReadOnly && showCreateAction"
           mat-icon-button
           (click)="onCreate()"
           [disabled]="genericTableService.canCreate(genericTableEntities)"
@@ -335,7 +341,7 @@
             </button>
             <!-- Edit -->
             <button
-              *ngIf="!isReadOnly"
+              *ngIf="!isReadOnly && showEditAction"
               mat-icon-button
               (click)="onEdit($event, element)"
             >
@@ -343,7 +349,7 @@
             </button>
             <!-- Delete -->
             <button
-              *ngIf="!isReadOnly"
+              *ngIf="!isReadOnly && showDeleteAction"
               mat-icon-button
               (click)="delete($event, element)"
             >

@@ -1,24 +1,24 @@
 import { Injectable } from '@angular/core';
-import { Financement } from '../../../../models/financement';
+import { Financement, Statut_F } from '../../../../models/financement';
 import { GenericTableEntity } from '../models/generic-table-entity';
 import { SelectBoxOption } from '../models/SelectBoxOption';
 import { GenericTableOptions } from '../models/generic-table-options';
 import { GenericTableEntityState } from '../globals/generic-table-entity-states';
 import { IsAdministratorGuardService } from 'src/app/services/authentication/is-administrator-guard.service';
+import { getDeepCopy } from '../../../tools/utils';
+import { EntityType } from '../models/entity-types';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GenericTableService<T> {
-  constructor(
-    private adminSrv: IsAdministratorGuardService,
-  ) {}
+  constructor(private adminSrv: IsAdministratorGuardService) {}
 
   /**
    * Indique si l'utilisateur est un administrateur.
    */
   public get isAdministrator(): boolean {
-    return !!this.adminSrv.isAdministrator();
+    return this.adminSrv.isAdministrator();
   }
 
   public getDisplayedName(options: GenericTableOptions<T>): string[] {
@@ -118,7 +118,7 @@ export class GenericTableService<T> {
         const entityToCopy = genericTableEntitiesCopy.find(
           (entityCopy) => entityCopy.id === entity.id
         );
-        entity = this.getDeepCopy(entityToCopy);
+        entity = getDeepCopy(entityToCopy);
       }
 
       if (entity.state === GenericTableEntityState.NEW) {
@@ -130,35 +130,27 @@ export class GenericTableService<T> {
     return entities;
   }
 
-  public getDeepCopy(source: any): any {
-    return JSON.parse(JSON.stringify(source));
-  }
-
   /**
    * bloque la modification de certain champs
    * @param entity : l'object à modifié
-   * @param entityName : nom de l'entité de l'object
+   * @param entityType : données lié au type de l'entité
    */
   public disabledEditField(
     entity: GenericTableEntity<T>,
-    entityName: string
+    entityType: EntityType
   ): boolean {
-    const selectedEntity = entity.data;
-    let disabled = false;
-    // exception edition pour l'instance financement
-    if (this.instanceOfFinancement(selectedEntity)) {
-      if (selectedEntity?.solde && entityName !== 'statut_f' && entityName !== 'date_limite_solde_f') {
-        disabled = true;
-      } else if (!selectedEntity?.solde && entityName === 'date_limite_solde_f') {
-        disabled = true;
-      } else if (this.isAdministrator && entityName === 'commentaire_resp_f') {
-        disabled = true;
-      } else if (entityName === 'difference') {
-        disabled = true;
-      } else {
-        disabled = false;
-      }
+    let disabled: boolean;
+    const _entity = entity.data as any;
+    const entityCodeIsStatutOrDateSoldeFinancement =
+      entityType.code === 'statut_f' || entityType.code === 'date_solde_f';
+    const userHasAdminRightAndFinancementIsBalance =
+      this.isAdministrator && _entity.solde;
+    if (userHasAdminRightAndFinancementIsBalance) {
+      disabled = entityCodeIsStatutOrDateSoldeFinancement ? false : true;
+    } else {
+      disabled = entityType.disableEditing;
     }
+
     return disabled;
   }
 }
