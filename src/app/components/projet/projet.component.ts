@@ -18,6 +18,16 @@ import { UsersService } from '../../services/users.service';
 import { basicSort, getDeepCopy } from '../../shared/tools/utils';
 import { AuthService } from '../../services/authentication/auth.service';
 import { take } from 'rxjs/operators';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  FormGroupDirective,
+  NgForm,
+  Validators,
+} from '@angular/forms';
+import { ErrorStateMatcher } from '@angular/material/core';
+import { MyErrorStateMatcher } from '../rapports/rapports.component';
 
 export interface DialogData {
   project: Projet;
@@ -330,6 +340,30 @@ export class ProjetComponent implements OnInit {
       this.popupService.error(error);
     }
   }
+
+  private checkIfUserHasResponsableRight(projet: Projet): void {
+    this.isResponsable =
+      this.authService.userAuth.id_u ===
+      (projet.responsable ? projet.responsable.id_u : projet.id_u);
+  }
+
+  private checkIfProjetIsBalance(projet: Projet): void {
+    this.isBalance = projet.statut_p;
+  }
+
+  private checkIfUserCanEditProjetDetails(): void {
+    this.canEditDetails = this.isAdministrator && this.isBalance === false;
+  }
+
+  // debug() {
+  //   console.log('FINANCEMENTS: ', this.financements);
+  //   console.log('RECETTES: ', this.recettes);
+  //   console.log('MONTANTS: ', this.montantsAffectes);
+  //   console.log('SELECTED FINANCEMENTS: ', this.selectedFinancement);
+  //   console.log('SELECTED RECETTES: ', this.selectedRecette);
+  // }
+
+  // TODO: créer le composant projet details
   public async updateProjectStatus(event: MatCheckboxChange): Promise<void> {
     this.projet.statut_p = event.checked;
     this.projet.id_u = this.projet.responsable.id_u;
@@ -418,28 +452,6 @@ export class ProjetComponent implements OnInit {
       }
     }
   }
-
-  private checkIfUserHasResponsableRight(projet: Projet): void {
-    this.isResponsable =
-      this.authService.userAuth.id_u ===
-      (projet.responsable ? projet.responsable.id_u : projet.id_u);
-  }
-
-  private checkIfProjetIsBalance(projet: Projet): void {
-    this.isBalance = projet.statut_p;
-  }
-
-  private checkIfUserCanEditProjetDetails(): void {
-    this.canEditDetails = this.isAdministrator && this.isBalance === false;
-  }
-
-  // debug() {
-  //   console.log('FINANCEMENTS: ', this.financements);
-  //   console.log('RECETTES: ', this.recettes);
-  //   console.log('MONTANTS: ', this.montantsAffectes);
-  //   console.log('SELECTED FINANCEMENTS: ', this.selectedFinancement);
-  //   console.log('SELECTED RECETTES: ', this.selectedRecette);
-  // }
 }
 
 @Component({
@@ -447,11 +459,30 @@ export class ProjetComponent implements OnInit {
   templateUrl: 'edit-project-popup.component.html',
   styleUrls: ['./projet.component.scss'],
 })
-export class EditProjectDialogComponent {
+export class EditProjectDialogComponent implements OnInit {
+  public formGroup: FormGroup;
+  public errorStateMatcher1: ErrorStateMatcher;
+  public errorStateMatcher2: ErrorStateMatcher;
+
+  private readonly patternCode = '^\\d{5}$';
+
   constructor(
     public dialogRef: MatDialog,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData
+    @Inject(MAT_DIALOG_DATA) public data: DialogData,
+    private readonly fb: FormBuilder
   ) {}
+
+  ngOnInit() {
+    this.formGroup = this.fb.group({
+      nom: [this.data.project.nom_p, [Validators.required]],
+      code: [
+        this.data.project.code_p,
+        [Validators.required, Validators.pattern(new RegExp(this.patternCode))],
+      ],
+    });
+    this.errorStateMatcher1 = new MyCustomErrorStateMatcher();
+    this.errorStateMatcher2 = new MyCustomErrorStateMatcher();
+  }
 
   public managerId = this.data.manager.id_u;
 
@@ -460,9 +491,24 @@ export class EditProjectDialogComponent {
   }
 
   async onYesClick(): Promise<void> {
+    this.data.project = {
+      ...this.data.project,
+      nom_p: this.formGroup.get('nom').value,
+      code_p: Number(this.formGroup.get('code').value),
+    };
     this.data.edited = true;
     this.data.project.responsable = this.data.users.find(
       (responsable) => responsable.id_u === this.managerId
     );
+  }
+}
+
+/** Error when invalid control -> affiche immédiatement s'il y a une erreur dans l'input */
+export class MyCustomErrorStateMatcher implements ErrorStateMatcher {
+  isErrorState(
+    control: FormControl | null,
+    form: FormGroupDirective | NgForm | null
+  ): boolean {
+    return !!(control && control.invalid);
   }
 }
