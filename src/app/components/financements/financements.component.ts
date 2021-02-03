@@ -205,7 +205,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
       changes.financements.currentValue &&
       changes.financements.previousValue
     ) {
-      this.refreshDataTable();
+      this.refreshDataTableWithHttpGet();
     }
     if (
       changes.isResponsable &&
@@ -715,13 +715,29 @@ export class FinancementsComponent implements OnInit, OnChanges {
     };
   }
 
-  private async refreshDataTableWithHttpGet(): void {
+  private async refreshDataTableWithHttpGet(): Promise<void> {
     await this.loadFinancements(Number(this.projectId));
 
     this.options = {
       ...this.options,
       dataSource: basicSort(this.financements, this.sortInfo),
     };
+  }
+
+  /**
+   * Charge les financements depuis le serveur.
+   */
+  private async loadFinancements(projetId: number): Promise<Financement[]> {
+    try {
+      this.financements =
+        (await this.financementsService.getAll(projetId)) || [];
+    } catch (error) {
+      console.error(error);
+      this.popupService.error(
+        'Impossible de charger les financements : ' + error.error
+      );
+      return Promise.reject(error);
+    }
   }
 
   /**
