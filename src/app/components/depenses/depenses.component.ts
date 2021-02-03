@@ -3,7 +3,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { first } from 'rxjs/operators';
 import { IsAdministratorGuardService } from 'src/app/services/authentication/is-administrator-guard.service';
 import { ExpensesService } from 'src/app/services/expenses.service';
-import { GenericDialogComponent, IMessage } from 'src/app/shared/components/generic-dialog/generic-dialog.component';
+import {
+  GenericDialogComponent,
+  IMessage,
+} from 'src/app/shared/components/generic-dialog/generic-dialog.component';
 import { GenericTableCellType } from 'src/app/shared/components/generic-table/globals/generic-table-cell-types';
 import { GenericTableFormError } from 'src/app/shared/components/generic-table/models/generic-table-entity';
 import { GenericTableEntityEvent } from 'src/app/shared/components/generic-table/models/generic-table-entity-event';
@@ -11,6 +14,7 @@ import { GenericTableOptions } from 'src/app/shared/components/generic-table/mod
 import { SortInfo } from 'src/app/shared/components/generic-table/models/sortInfo';
 import { PopupService } from 'src/app/shared/services/popup.service';
 import { Depense } from './../../models/depense';
+import { basicSort } from '../../shared/tools/utils';
 
 /**
  * Affiche les dépenses.
@@ -18,18 +22,18 @@ import { Depense } from './../../models/depense';
 @Component({
   selector: 'app-depenses',
   templateUrl: './depenses.component.html',
-  styleUrls: ['./depenses.component.scss']
+  styleUrls: ['./depenses.component.scss'],
 })
 export class DepensesComponent implements OnInit {
   /**
    * Titre du tableau générique.
    */
-  readonly title = 'Dépenses';
+  public readonly title = 'Dépenses';
 
   /**
    * Liste des dépenses.
    */
-  expenses: Depense[] = [];
+  public expenses: Depense[] = [];
 
   /**
    * Mapping pour les noms des attributs d'une dépense.
@@ -51,7 +55,7 @@ export class DepensesComponent implements OnInit {
   /**
    * Paramètres du tableau des dépenses.
    */
-  options: GenericTableOptions<Depense> = {
+  public options: GenericTableOptions<Depense> = {
     dataSource: [],
     defaultEntity: this.defaultEntity,
     entityTypes: [
@@ -63,35 +67,28 @@ export class DepensesComponent implements OnInit {
       },
       {
         code: this.namesMap.amount.code,
-        type: GenericTableCellType.NUMBER,
+        type: GenericTableCellType.CURRENCY,
         name: this.namesMap.amount.name,
         sortEnabled: false,
-      }
+      },
     ],
     entityPlaceHolders: [],
     entitySelectBoxOptions: [],
     sortName: this.namesMap.year.name,
-    sortDirection: 'desc'
+    sortDirection: 'desc',
   };
-
-  /**
-   * Indique si le tableau est en lecture seule.
-   */
-  public get isReadOnly(): boolean {
-    return !this.isAdministrator;
-  }
 
   /**
    * Indique si l'utilisateur est un administrateur.
    */
   public get isAdministrator(): boolean {
-    return !!this.adminSrv.isAdministrator();
+    return this.adminSrv.isAdministrator();
   }
 
   /**
    * Indique le trie courant.
    */
-  sortInfo: SortInfo;
+  public sortInfo: SortInfo;
 
   /**
    * Affiche les dépenses.
@@ -105,7 +102,7 @@ export class DepensesComponent implements OnInit {
     private dialog: MatDialog,
     private popupService: PopupService,
     private expensesSrv: ExpensesService
-  ) { }
+  ) {}
 
   /**
    * Initialise le composant.
@@ -127,7 +124,7 @@ export class DepensesComponent implements OnInit {
     try {
       let expense = event?.entity;
       if (!expense) {
-        throw new Error('La dépense n\'existe pas');
+        throw new Error("La dépense n'existe pas");
       }
 
       if (this.validateForGenericTable(event)) {
@@ -156,7 +153,7 @@ export class DepensesComponent implements OnInit {
     try {
       let expense = event?.entity;
       if (!expense) {
-        throw new Error('La dépense n\'existe pas');
+        throw new Error("La dépense n'existe pas");
       }
 
       if (this.validateForGenericTable(event)) {
@@ -185,7 +182,7 @@ export class DepensesComponent implements OnInit {
     try {
       const expense = event?.entity;
       if (!expense) {
-        throw new Error('La dépense n\'existe pas');
+        throw new Error("La dépense n'existe pas");
       }
 
       // Etes-vous sûr ?
@@ -206,7 +203,8 @@ export class DepensesComponent implements OnInit {
         .toPromise();
       const okToDelete = !!dialogResult;
 
-      if (okToDelete) { // Suppression
+      if (okToDelete) {
+        // Suppression
         await this.expensesSrv.delete(expense);
         event.callBack(null); // Valide la modification dans le composant DataTable fils
         this.deleteExpense(expense);
@@ -214,7 +212,8 @@ export class DepensesComponent implements OnInit {
         this.popupService.success(
           `La dépense de l'année ${expense.annee_d} a été supprimée.`
         );
-      } else { // Annulation
+      } else {
+        // Annulation
         event?.callBack({
           apiError: 'La suppression est annulée.',
         });
@@ -259,7 +258,7 @@ export class DepensesComponent implements OnInit {
     gtEvent: GenericTableEntityEvent<Depense>
   ): boolean {
     if (!gtEvent) {
-      throw new Error('Le paramètre \'gtEvent\' est invalide');
+      throw new Error("Le paramètre 'gtEvent' est invalide");
     }
 
     try {
@@ -277,20 +276,29 @@ export class DepensesComponent implements OnInit {
 
       const min = 2020;
       const max = new Date(Date.now()).getFullYear() + 10;
-      if (isNaN(expense.annee_d) || expense.annee_d < min || expense.annee_d > max) {
+      if (
+        isNaN(expense.annee_d) ||
+        expense.annee_d < min ||
+        expense.annee_d > max
+      ) {
         const error = {
           name: this.namesMap.year.code,
-          message: `L'année doit être un entier supérieure à ${min - 1} et inférieure à ${max + 1}`,
+          message: `L'année doit être un entier supérieure à ${
+            min - 1
+          } et inférieure à ${max + 1}`,
         };
 
         formErrors.push(error);
       }
 
-      const isSameExpense = this.expenses.findIndex(e => e.annee_d === expense.annee_d && e.id_d !== expense.id_d) >= 0;
+      const isSameExpense =
+        this.expenses.findIndex(
+          (e) => e.annee_d === expense.annee_d && e.id_d !== expense.id_d
+        ) >= 0;
       if (isSameExpense) {
         const error = {
           name: this.namesMap.year.code,
-          message: 'L\'année doit être unique',
+          message: "L'année doit être unique",
         };
 
         formErrors.push(error);
@@ -362,7 +370,7 @@ export class DepensesComponent implements OnInit {
    */
   private refreshDataTable(): void {
     try {
-      const dataSource = this.sort();
+      const dataSource = basicSort(this.expenses, this.sortInfo);
 
       this.options = Object.assign({}, this.options, {
         dataSource,
@@ -370,38 +378,5 @@ export class DepensesComponent implements OnInit {
     } catch (error) {
       console.error(error);
     }
-  }
-
-  /**
-   * Trie les dépenses en paramètre.
-   */
-  private sort(): Depense[] {
-    const { name, direction } = this.sortInfo || {
-      name: this.namesMap.year.code,
-      direction: 'desc',
-    };
-    const mult =
-      direction === 'asc' // Pour gérer le sens du trie
-        ? 1
-        : -1;
-
-    return this.expenses.sort((p1, p2) => {
-      let item1 = p1[name];
-      let item2 = p2[name];
-
-      if (typeof item1 === 'string') {
-        // Pour du texte
-        item1 = item1.toUpperCase();
-        item2 = item2.toUpperCase();
-      }
-
-      if (item1 < item2) {
-        return -1 * mult;
-      }
-      if (item1 > item2) {
-        return 1 * mult;
-      }
-      return 0;
-    });
   }
 }
