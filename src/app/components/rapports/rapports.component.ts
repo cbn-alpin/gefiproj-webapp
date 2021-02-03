@@ -116,16 +116,18 @@ export class RapportsComponent implements OnInit {
    */
   public async executeSuiviFinancementsVersion2(): Promise<void> {
     try {
-      console.log('Suivi financements v2..');
-      const minPeriod = parseInt(this.suiviFinancementsFormGroupVersion2.get('annee1')?.value, 10);
-      const maxPeriod = parseInt(this.suiviFinancementsFormGroupVersion2.get('annee2')?.value, 10);
+      if (this.suiviFinancementsFormGroupVersion2.valid) {
+        console.log('Suivi financements v2..');
+        const minPeriod = parseInt(this.suiviFinancementsFormGroupVersion2.get('annee1')?.value, 10);
+        const maxPeriod = parseInt(this.suiviFinancementsFormGroupVersion2.get('annee2')?.value, 10);
 
-      const url = await this.exportFundingsSrv.createExportV2(minPeriod, maxPeriod);
-      if (!url) {
-        throw new Error('La réponse ne contient pas l\'URL du document');
+        const url = await this.exportFundingsSrv.createExportV2(minPeriod, maxPeriod);
+        if (!url) {
+          throw new Error('La réponse ne contient pas l\'URL du document');
+        }
+
+        window.open(url, '_blank');
       }
-
-      window.open(url, '_blank');
     } catch (error) {
       console.log(error);
       this.popupService.error('Impossible d\'afficher le bilan');
@@ -137,15 +139,17 @@ export class RapportsComponent implements OnInit {
    */
   public async executeBilanFinancier(): Promise<void> {
     try {
-      console.log('Bilan fiancier..');
-      const year = parseInt(this.bilanFinancierFormGroup.get('annee')?.value, 10);
+      if (this.bilanFinancierFormGroup.valid) {
+        console.log('Bilan fiancier..');
+        const year = parseInt(this.bilanFinancierFormGroup.get('annee')?.value, 10);
 
-      const url = await this.exportReceiptsSrv.createExport(year);
-      if (!url) {
-        throw new Error('La réponse ne contient pas l\'URL du document');
+        const url = await this.exportReceiptsSrv.createExport(year);
+        if (!url) {
+          throw new Error('La réponse ne contient pas l\'URL du document');
+        }
+
+        window.open(url, '_blank');
       }
-
-      window.open(url, '_blank');
     } catch (error) {
       console.log(error);
       this.popupService.error('Impossible d\'afficher le bilan');
