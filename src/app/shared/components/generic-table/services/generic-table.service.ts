@@ -144,8 +144,7 @@ export class GenericTableService<T> {
     const entityCodeIsStatutOrDateSoldeFinancement =
       entityType.code === 'statut_f' || entityType.code === 'date_solde_f';
     const userHasAdminRightAndFinancementIsBalance =
-      (_entity.statut_f === Statut_F.SOLDE || _entity.solde === true) &&
-      !entityType.disableEditing;
+      _entity.solde && !entityType.disableEditing;
     if (userHasAdminRightAndFinancementIsBalance) {
       disabled = entityCodeIsStatutOrDateSoldeFinancement ? false : true;
     } else {
