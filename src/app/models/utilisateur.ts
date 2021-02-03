@@ -7,7 +7,7 @@ export interface Utilisateur {
     /**
      * Identifiant technique.
      */
-    id_u: number;
+    id_u?: number;
 
     nom_u: string;
     prenom_u: string;
@@ -18,5 +18,7 @@ export interface Utilisateur {
     /**
      * Rôles de l'utilisateur (ex : admin).
      */
-    roles: Roles[];
+    roles?: Roles[];
+    role?: Roles;
+    password_u?: string;
 }

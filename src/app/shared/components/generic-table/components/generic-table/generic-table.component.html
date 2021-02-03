@@ -361,6 +361,14 @@
             >
               <mat-icon>delete</mat-icon>
             </button>
+            <!-- Change Password -->
+            <button
+              *ngIf="!isReadOnly && showChangePwdAction"
+              mat-icon-button
+              (click)="changePwd($event, element)"
+            >
+              <mat-icon>vpn_key</mat-icon>
+            </button>
           </span>
           <!-- Actions pour le mode édition-->
           <span

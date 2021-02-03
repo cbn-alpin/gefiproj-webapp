@@ -79,17 +79,23 @@ export class GenericTableComponent<T>
 
   @Input() showActions = true;
 
+  @Input() showDeleteAction = true;
+
   @Input() canSelect = false;
 
   @Input() autoSelectFirstRow = false;
 
   @Input() selectedRow: T;
 
+  @Input() showChangePwdAction = false;
+
   @Input() showCreateAction: boolean = true;
 
   @Input() showEditAction: boolean = true;
 
-  @Input() showDeleteAction: boolean = true;
+  @Output() changePwdEvent: EventEmitter<
+    GenericTableEntityEvent<T>
+    > = new EventEmitter<GenericTableEntityEvent<T>>();
 
   @Output() editEvent: EventEmitter<
     GenericTableEntityEvent<T>
@@ -332,6 +338,15 @@ export class GenericTableComponent<T>
     if (this.selectedEntity && this.selectedEntity.id === entity.id) {
       this.updateSelectedEntity(null);
     }
+  }
+
+  public changePwd(event, entity: GenericTableEntity<T>): void {
+    event.stopPropagation();
+    this.genericTableAction = GenericTableAction.CHANGEPWD;
+    const genericTableEntityEvent: GenericTableEntityEvent<T> = {
+      entity: entity.data,
+    };
+    this.changePwdEvent.emit(genericTableEntityEvent);
   }
 
   /**

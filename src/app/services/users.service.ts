@@ -14,12 +14,20 @@ export class UsersService {
   /**
    * Url relative de l'API.
    */
-  private readonly endPoint = '/api/users';
+  private readonly endPointGet = '/api/users';
+  /**
+   * Url relative de l'API.
+   */
+  private readonly endPointPost = '/api/auth/register';
 
   /**
    * Effectue les appels au serveur d'API pour une entité donnée.
    */
   private readonly crudSrv: CrudService<Utilisateur>;
+  /**
+   * Effectue les appels au serveur d'API pour une entité donnée.
+   */
+  private readonly crudSrvPost: CrudService<Utilisateur>;
 
   /**
    * Effectue les appels au serveur d'API pour les utilisateurs.
@@ -29,11 +37,15 @@ export class UsersService {
   constructor(
     http: HttpClient,
     spinnerSrv: SpinnerService) {
-      this.crudSrv = new CrudService<Utilisateur>(
-        http,
-        spinnerSrv,
-        this.endPoint);
-    }
+    this.crudSrv = new CrudService<Utilisateur>(
+      http,
+      spinnerSrv,
+      this.endPointGet);
+    this.crudSrvPost = new CrudService<Utilisateur>(
+      http,
+      spinnerSrv,
+      this.endPointPost);
+  }
 
   /**
    * Retourne les utilisateurs depuis le serveur.
@@ -66,7 +78,7 @@ export class UsersService {
    */
   public async add(user: Utilisateur): Promise<Utilisateur> {
     try {
-      return await this.crudSrv.add(user);
+      return await this.crudSrvPost.add(user);
     } catch (error) {
       console.error(error);
       return Promise.reject(error);
