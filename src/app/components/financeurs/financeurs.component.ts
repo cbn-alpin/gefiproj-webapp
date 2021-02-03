@@ -3,7 +3,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { first } from 'rxjs/operators';
 import { IsAdministratorGuardService } from 'src/app/services/authentication/is-administrator-guard.service';
 import { FinanceurService as FundersService } from 'src/app/services/funders.service';
-import { GenericDialogComponent, IMessage } from 'src/app/shared/components/generic-dialog/generic-dialog.component';
+import {
+  GenericDialogComponent,
+  IMessage,
+} from 'src/app/shared/components/generic-dialog/generic-dialog.component';
 import { GenericTableCellType } from 'src/app/shared/components/generic-table/globals/generic-table-cell-types';
 import { GenericTableFormError } from 'src/app/shared/components/generic-table/models/generic-table-entity';
 import { GenericTableEntityEvent } from 'src/app/shared/components/generic-table/models/generic-table-entity-event';
@@ -11,6 +14,7 @@ import { GenericTableOptions } from 'src/app/shared/components/generic-table/mod
 import { SortInfo } from 'src/app/shared/components/generic-table/models/sortInfo';
 import { Financeur } from './../../models/financeur';
 import { PopupService } from './../../shared/services/popup.service';
+import { basicSort } from '../../shared/tools/utils';
 
 /**
  * Affiche les financeurs.
@@ -18,7 +22,7 @@ import { PopupService } from './../../shared/services/popup.service';
 @Component({
   selector: 'app-financeurs',
   templateUrl: './financeurs.component.html',
-  styleUrls: ['./financeurs.component.scss']
+  styleUrls: ['./financeurs.component.scss'],
 })
 export class FinanceursComponent implements OnInit {
   /**
@@ -37,7 +41,10 @@ export class FinanceursComponent implements OnInit {
   private readonly namesMap = {
     id: { code: 'id_d', name: 'Identifiant' },
     name: { code: 'nom_financeur', name: 'Nom' },
-    ref: { code: 'ref_arret_attributif_financeur', name: 'Ref de l\'arrêté attributif' },
+    ref: {
+      code: 'ref_arret_attributif_financeur',
+      name: "Ref de l'arrêté attributif",
+    },
   };
 
   /**
@@ -66,20 +73,13 @@ export class FinanceursComponent implements OnInit {
         type: GenericTableCellType.TEXT,
         name: this.namesMap.ref.name,
         sortEnabled: false,
-      }
+      },
     ],
     entityPlaceHolders: [],
     entitySelectBoxOptions: [],
     sortName: this.namesMap.name.name,
-    sortDirection: 'asc'
+    sortDirection: 'asc',
   };
-
-  /**
-   * Indique si le tableau est en lecture seule.
-   */
-  public get isReadOnly(): boolean {
-    return !this.isAdministrator;
-  }
 
   /**
    * Indique si l'utilisateur est un administrateur.
@@ -105,7 +105,7 @@ export class FinanceursComponent implements OnInit {
     private dialog: MatDialog,
     private popupService: PopupService,
     private fundersSrv: FundersService
-  ) { }
+  ) {}
 
   /**
    * Initialise le composant.
@@ -127,7 +127,7 @@ export class FinanceursComponent implements OnInit {
     try {
       let funder = event?.entity;
       if (!funder) {
-        throw new Error('Le financeur n\'existe pas');
+        throw new Error("Le financeur n'existe pas");
       }
 
       if (this.validateForGenericTable(event)) {
@@ -156,7 +156,7 @@ export class FinanceursComponent implements OnInit {
     try {
       let funder = event?.entity;
       if (!funder) {
-        throw new Error('Le financeur n\'existe pas');
+        throw new Error("Le financeur n'existe pas");
       }
 
       if (this.validateForGenericTable(event)) {
@@ -185,7 +185,7 @@ export class FinanceursComponent implements OnInit {
     try {
       const funder = event?.entity;
       if (!funder) {
-        throw new Error('Le financeur n\'existe pas');
+        throw new Error("Le financeur n'existe pas");
       }
 
       // RG
@@ -217,7 +217,8 @@ export class FinanceursComponent implements OnInit {
         .toPromise();
       const okToDelete = !!dialogResult;
 
-      if (okToDelete) { // Suppression
+      if (okToDelete) {
+        // Suppression
         await this.fundersSrv.delete(funder);
         event.callBack(null); // Valide la modification dans le composant DataTable fils
         this.deleteFunder(funder);
@@ -225,7 +226,8 @@ export class FinanceursComponent implements OnInit {
         this.popupService.success(
           `Le financeur \'${funder.nom_financeur}\' a été supprimé.`
         );
-      } else { // Annulation
+      } else {
+        // Annulation
         event?.callBack({
           apiError: 'La suppression est annulée.',
         });
@@ -243,7 +245,9 @@ export class FinanceursComponent implements OnInit {
    * @param funder : financeur à supprimer.
    */
   private deleteFunder(funder: Financeur): void {
-    const index = this.funders.findIndex((p) => p.id_financeur === funder.id_financeur);
+    const index = this.funders.findIndex(
+      (p) => p.id_financeur === funder.id_financeur
+    );
 
     if (index >= 0) {
       this.funders.splice(index, 1);
@@ -255,7 +259,9 @@ export class FinanceursComponent implements OnInit {
    * @param funder : version modifiée.
    */
   private updateFunder(funder: Financeur): void {
-    const index = this.funders.findIndex((p) => p.id_financeur === funder.id_financeur);
+    const index = this.funders.findIndex(
+      (p) => p.id_financeur === funder.id_financeur
+    );
 
     if (index >= 0) {
       this.funders[index] = funder;
@@ -270,7 +276,7 @@ export class FinanceursComponent implements OnInit {
     gtEvent: GenericTableEntityEvent<Financeur>
   ): boolean {
     if (!gtEvent) {
-      throw new Error('Le paramètre \'gtEvent\' est invalide');
+      throw new Error("Le paramètre 'gtEvent' est invalide");
     }
 
     try {
@@ -286,8 +292,12 @@ export class FinanceursComponent implements OnInit {
         formErrors.push(error);
       }
 
-      const isSameFunder = this.funders
-        .findIndex(f => f.nom_financeur === funder.nom_financeur && f.id_financeur !== funder.id_financeur) >= 0;
+      const isSameFunder =
+        this.funders.findIndex(
+          (f) =>
+            f.nom_financeur === funder.nom_financeur &&
+            f.id_financeur !== funder.id_financeur
+        ) >= 0;
       if (isSameFunder) {
         const error = {
           name: this.namesMap.name.code,
@@ -353,7 +363,7 @@ export class FinanceursComponent implements OnInit {
    */
   private refreshDataTable(): void {
     try {
-      const dataSource = this.sort();
+      const dataSource = basicSort(this.funders, this.sortInfo);
 
       this.options = Object.assign({}, this.options, {
         dataSource,
@@ -361,38 +371,5 @@ export class FinanceursComponent implements OnInit {
     } catch (error) {
       console.error(error);
     }
-  }
-
-  /**
-   * Trie les financeurs en paramètre.
-   */
-  private sort(): Financeur[] {
-    const { name, direction } = this.sortInfo || {
-      name: this.namesMap.name.code,
-      direction: 'asc',
-    };
-    const mult =
-      direction === 'asc' // Pour gérer le sens du trie
-        ? 1
-        : -1;
-
-    return this.funders.sort((p1, p2) => {
-      let item1 = p1[name];
-      let item2 = p2[name];
-
-      if (typeof item1 === 'string') {
-        // Pour du texte
-        item1 = item1.toUpperCase();
-        item2 = item2.toUpperCase();
-      }
-
-      if (item1 < item2) {
-        return -1 * mult;
-      }
-      if (item1 > item2) {
-        return 1 * mult;
-      }
-      return 0;
-    });
   }
 }
