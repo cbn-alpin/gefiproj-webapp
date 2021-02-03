@@ -715,6 +715,13 @@ export class FinancementsComponent implements OnInit, OnChanges {
     };
   }
 
+  private refreshDataTableWithHttpGet(): void {
+    this.options = {
+      ...this.options,
+      dataSource: basicSort(this.financements, this.sortInfo),
+    };
+  }
+
   /**
    * Désactive l'édition des colonnes qui ne correspondent pas aux colonnes passé en paramètre
    * @param entityTypes
