@@ -90,7 +90,7 @@ export class ProjetComponent implements OnInit {
   public isResponsable: boolean;
 
   public get isAdministrator(): boolean {
-    return this.adminSrv.isAdministrator();
+    return false;
   }
 
   constructor(
