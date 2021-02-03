@@ -34,10 +34,7 @@ export class ExportFundingsService {
       const params: ExportFundingsRequest = {
         version: 1,
         annee_ref: new Date(Date.now()).getFullYear(),
-        annee_max: 0,
-        partages: [ // TODO à supprimer dès que possible : sera géré en Back à partir de l'user courant
-          {email: 'tempor.05@gmail.com', type: 'user', permission: 'writer'}
-        ]
+        annee_max: 0
       };
 
       const observable = this.http.post<ExportFundingsResponse>(this.endPoint, params, {
@@ -72,10 +69,7 @@ export class ExportFundingsService {
       const params: ExportFundingsRequest = {
         version: 2,
         annee_ref: minPeriod,
-        annee_max: maxPeriod,
-        partages: [ // TODO à supprimer dès que possible : sera géré en Back à partir de l'user courant
-          {email: 'tempor.05@gmail.com', type: 'user', permission: 'writer'}
-        ]
+        annee_max: maxPeriod
       };
 
       const observable = this.http.post<ExportFundingsResponse>(this.endPoint, params, {
