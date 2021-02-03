@@ -551,6 +551,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
           type: GenericTableCellType.CURRENCY,
           code: this.namesMap.montant_arrete_f.code,
           sortEnabled: true,
+          isMandatory: true,
         },
         {
           name: this.namesMap.date_arrete_f.name,
@@ -569,12 +570,14 @@ export class FinancementsComponent implements OnInit, OnChanges {
           type: GenericTableCellType.SELECTBOX,
           code: this.namesMap.financeur.code,
           sortEnabled: true,
+          isMandatory: true,
         },
         {
           name: this.namesMap.statut_f.name,
           type: GenericTableCellType.SELECTBOX,
           code: this.namesMap.statut_f.code,
           sortEnabled: true,
+          isMandatory: true,
         },
         {
           name: this.namesMap.date_solde_f.name,

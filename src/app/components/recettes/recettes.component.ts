@@ -105,12 +105,14 @@ export class RecettesComponent implements OnInit, OnChanges {
       type: GenericTableCellType.NUMBER,
       code: this.namesMap.ANNEE.code,
       sortEnabled: true,
+      isMandatory: true,
     },
     {
       name: this.namesMap.MONTANT.name,
       type: GenericTableCellType.CURRENCY,
       code: this.namesMap.MONTANT.code,
       sortEnabled: true,
+      isMandatory: true,
     },
     {
       name: this.namesMap.DIFFERENCE.name,

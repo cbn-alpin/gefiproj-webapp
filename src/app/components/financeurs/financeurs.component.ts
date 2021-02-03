@@ -67,6 +67,7 @@ export class FinanceursComponent implements OnInit {
         type: GenericTableCellType.TEXT,
         name: this.namesMap.name.name,
         sortEnabled: true,
+        isMandatory: true,
       },
       {
         code: this.namesMap.ref.code,

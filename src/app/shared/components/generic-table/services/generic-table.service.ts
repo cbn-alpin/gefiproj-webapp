@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Financement, Statut_F } from '../../../../models/financement';
+import { Financement } from '../../../../models/financement';
 import { GenericTableEntity } from '../models/generic-table-entity';
 import { SelectBoxOption } from '../models/SelectBoxOption';
 import { GenericTableOptions } from '../models/generic-table-options';
@@ -56,8 +56,11 @@ export class GenericTableService<T> {
   /**
    * Retourne la taille des lignes du tableau
    */
-  public getResult(genericTableData: GenericTableEntity<T>[]): string {
-    const nbResults = genericTableData.length;
+  public getResult(genericTableEntities: GenericTableEntity<T>[]): string {
+    const nbResults = genericTableEntities.filter(
+      (genericTableEntity) =>
+        genericTableEntity.state !== GenericTableEntityState.NEW
+    ).length;
     return nbResults + (nbResults > 1 ? ' résultats' : ' résultat');
   }
 
