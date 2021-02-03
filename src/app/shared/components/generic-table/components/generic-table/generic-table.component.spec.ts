@@ -3,6 +3,9 @@ import {GenericTableComponent} from './generic-table.component';
 import {SharedModule} from '../../../../shared.module';
 import {mockGenericTable} from '../../mock/mockGenericTable';
 import { RouterTestingModule } from '@angular/router/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { ConnexionComponent } from 'src/app/components/connexion/connexion.component';
+import { HomeComponent } from 'src/app/components/home/home.component';
 
 
 describe('GenericTableComponent', () => {
@@ -12,6 +15,11 @@ describe('GenericTableComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
+        HttpClientTestingModule,
+        RouterTestingModule.withRoutes(
+          [{path: 'connexion', component: ConnexionComponent},
+          {path: 'home', component: HomeComponent}]
+        ),
         SharedModule,
         RouterTestingModule
       ]

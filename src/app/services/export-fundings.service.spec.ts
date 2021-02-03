@@ -5,9 +5,9 @@ import { TestBed, async, inject } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ConnexionComponent } from '../components/connexion/connexion.component';
 import { HomeComponent } from '../components/home/home.component';
-import { ExpensesService } from './expenses.service';
+import { ExportFundingsService } from './export-fundings.service';
 
-describe('Service: Expenses', () => {
+describe('Service: ExportFundings', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [
@@ -17,11 +17,11 @@ describe('Service: Expenses', () => {
           {path: 'home', component: HomeComponent}]
         )
       ],
-      providers: [ExpensesService]
+      providers: [ExportFundingsService]
     });
   });
 
-  it('should ...', inject([ExpensesService], (service: ExpensesService) => {
+  it('should ...', inject([ExportFundingsService], (service: ExportFundingsService) => {
     expect(service).toBeTruthy();
   }));
 });

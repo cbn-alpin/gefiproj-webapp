@@ -1,16 +1,14 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 import { ConnexionComponent } from './components/connexion/connexion.component';
 import { DepensesComponent } from './components/depenses/depenses.component';
 import { FinanceursComponent } from './components/financeurs/financeurs.component';
 import { HomeComponent } from './components/home/home.component';
+import { ProjetComponent } from './components/projet/projet.component';
 import { RapportsComponent } from './components/rapports/rapports.component';
 import { UtilisateursComponent } from './components/utilisateurs/utilisateurs.component';
 import { EnsureAuthenticatedService } from './services/authentication/ensure-authenticated.service';
 import { IsAdministratorGuardService } from './services/authentication/is-administrator-guard.service';
-import { GenericTableDemoComponent } from './components/generic-table-demo/containers/generic-table-demo/generic-table-demo.component';
-import { ProjetComponent } from './components/projet/projet.component';
-import { SuiviFinancementsComponent } from './components/suivi-financements/suivi-financements.component';
 
 const routes: Routes = [
   {
@@ -47,16 +45,11 @@ const routes: Routes = [
     component: UtilisateursComponent,
     canActivate: [IsAdministratorGuardService],
   },
-  {
-    path: 'suivi-financements',
-    component: SuiviFinancementsComponent,
-    canActivate: [IsAdministratorGuardService],
-  },
-  // TODO: Supprimer le chemin 'tabledemo'
+  /* TODO: Supprimer le chemin 'tabledemo'
   {
     path: 'tabledemo',
     component: GenericTableDemoComponent,
-  },
+  },*/
   {
     path: '',
     redirectTo: 'home',
