@@ -191,9 +191,6 @@ export class FinancementsComponent implements OnInit, OnChanges {
     } catch (error) {
       console.error(error);
     }
-    console.log('$IS RESPONSABLE: ', this.isResponsable);
-    console.log('$IS ADMINISTRATOR: ', this.isAdministrator);
-    console.log('$PROJECT IS BALANCED: ', this.projectIsBalance);
   }
 
   /**
@@ -215,9 +212,6 @@ export class FinancementsComponent implements OnInit, OnChanges {
       this.updateTableActionWithUserRight();
       this.updateEntityTypesWithUserRight();
     }
-    console.log('*IS RESPONSABLE: ', this.isResponsable);
-    console.log('*IS ADMINISTRATOR: ', this.isAdministrator);
-    console.log('*PROJECT IS BALANCED: ', this.projectIsBalance);
   }
 
   /**

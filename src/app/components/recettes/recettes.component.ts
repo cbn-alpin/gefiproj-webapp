@@ -305,9 +305,9 @@ export class RecettesComponent implements OnInit, OnChanges {
       msg = 'Format année non respecté';
     } else if (this.hasDuplicateYear(recette)) {
       msg = 'Année doit être unique';
-    } else if (this.hasYearGreaterThanFounding(recette)) {
+    } else if (this.hasYearLowerThanFounding(recette)) {
       msg =
-        'Année de la recette doit être antérieur à la date de commande ou darrêté du financement';
+        'Année de la recette doit être postérieur ou égale à la date de commande ou darrêté du financement';
     }
     if (msg !== '') {
       genericTableFormErrors = genericTableFormErrors.concat({
@@ -421,10 +421,10 @@ export class RecettesComponent implements OnInit, OnChanges {
     return sum > this.financement.montant_arrete_f;
   }
 
-  private hasYearGreaterThanFounding(recette: Recette): boolean {
+  private hasYearLowerThanFounding(recette: Recette): boolean {
     const yearFounding = new Date(this.financement.date_arrete_f).getFullYear();
 
-    return yearFounding ? recette.annee_r > yearFounding : true;
+    return yearFounding ? recette.annee_r < yearFounding : true;
   }
 
   private refreshDataTable(): void {
