@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Financement } from '../../../../models/financement';
+import { Financement, Statut_F } from '../../../../models/financement';
 import { GenericTableEntity } from '../models/generic-table-entity';
 import { SelectBoxOption } from '../models/SelectBoxOption';
 import { GenericTableOptions } from '../models/generic-table-options';
@@ -139,7 +139,20 @@ export class GenericTableService<T> {
     entity: GenericTableEntity<T>,
     entityType: EntityType
   ): boolean {
-    return entityType.disableEditing;
+    let disabled: boolean;
+    const _entity = entity.data as any;
+    const entityCodeIsStatutOrDateSoldeFinancement =
+      entityType.code === 'statut_f' || entityType.code === 'date_solde_f';
+    const userHasAdminRightAndFinancementIsBalance =
+      (_entity.statut_f === Statut_F.SOLDE || _entity.solde === true) &&
+      !entityType.disableEditing;
+    if (userHasAdminRightAndFinancementIsBalance) {
+      disabled = entityCodeIsStatutOrDateSoldeFinancement ? false : true;
+    } else {
+      disabled = entityType.disableEditing;
+    }
+
+    return disabled;
 
     // TODO: Utiliser la propriété disableEditing dans le paramétrage du tableau financement puis supprimer le code ci-dessous
     // const selectedEntity = entity.data;
