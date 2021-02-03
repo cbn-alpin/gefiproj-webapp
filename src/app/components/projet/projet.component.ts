@@ -134,9 +134,9 @@ export class ProjetComponent implements OnInit {
         promiseFinancement,
         promiseUtilisateurs,
       ]);
+      this.projetToEdit = getDeepCopy(this.projet);
+      this.manager = this.projet.responsable;
       if (this.financements && this.financements.length > 0) {
-        this.projetToEdit = getDeepCopy(this.projet);
-        this.manager = this.projet.responsable;
         this.selectedFinancement = this.financements[0];
         await this.loadRecettesFromFinancementId(this.selectedFinancement.id_f);
         if (this.recettes && this.recettes.length > 0) {
