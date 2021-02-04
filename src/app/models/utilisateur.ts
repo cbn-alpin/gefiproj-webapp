@@ -21,4 +21,5 @@ export interface Utilisateur {
     roles?: Roles[];
     role?: Roles;
     password_u?: string;
+    new_password?:string;
 }

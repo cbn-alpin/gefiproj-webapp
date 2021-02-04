@@ -252,6 +252,7 @@ export class UtilisateursComponent implements OnInit {
       if (!user)
         throw new Error("L'utilisateur n'existe pas");
         user.password_u = this.generatePassword();
+        user.new_password = user.password_u;
 
         const dialogRef = this.dialog.open(GenericDialogComponent, {
           data: {
@@ -395,7 +396,14 @@ export class UtilisateursComponent implements OnInit {
     if (!user.initiales_u) {
       const error = {
         name: this.namesMap.initiales_u.code,
-        message: 'Les initiales de l\'utilisateur doivent être défini.',
+        message: 'Les initiales de l\'utilisateur doivent être définis.',
+      };
+      formErrors.push(error);
+    }
+    if (!user.role) {
+      const error = {
+        name: this.namesMap.role.code,
+        message: 'Le rôle de l\'utilisateur doit être défini.',
       };
       formErrors.push(error);
     }

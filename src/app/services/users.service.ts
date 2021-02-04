@@ -87,8 +87,8 @@ export class UsersService {
     this.crudSrvChange = new CrudService<Utilisateur>(
       this.http,
       this.spinnerSrv,
-      this.endPointUser+'/change-password');
-    return this.crudSrvChange.modify(
+      this.endPointUser+'/'+user.id_u+'/change-password');
+    return this.crudSrvChange.modifyBis(
       user,
       user?.id_u);
   }
