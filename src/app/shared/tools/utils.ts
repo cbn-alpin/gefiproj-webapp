@@ -9,7 +9,7 @@ export function basicSort(array: any[], sortInfo: SortInfo): any[] {
   if (sortInfo == null) {
     return array;
   }
-  let { name, direction } = sortInfo;
+  const { name, direction } = sortInfo;
   const mult =
     direction === 'asc' // Pour gérer le sens du trie
       ? 1
