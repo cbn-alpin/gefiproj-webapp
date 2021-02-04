@@ -29,11 +29,19 @@
         <mat-error *ngIf="formGroup.get('code').hasError('pattern')">
           Le code projet doit avoir <strong>5 chiffres</strong>
         </mat-error>
+        <mat-error *ngIf="formGroup.get('code').hasError('duplicate')">
+          Le code est déjà <strong>utilisé</strong> par un autre projet
+        </mat-error>
+        <mat-error *ngIf="formGroup.get('code').hasError('range')">
+          Le code projet doit être une valeur comprise entre
+          <strong>{{ min }}000</strong> et
+          <strong>{{ max }}999</strong>
+        </mat-error>
       </mat-form-field>
       <br />
       Responsable :
       <mat-form-field>
-        <mat-select [(value)]="managerId" [disabled]="data.project.statut_p">
+        <mat-select [(value)]="managerId" [disabled]="isBalance()">
           <mat-option *ngFor="let option of data.users" [value]="option.id_u">
             {{ option.initiales_u }}
           </mat-option>
@@ -52,7 +60,6 @@
         mat-button
         (click)="onYesClick()"
         [disabled]="formGroup.get('code').errors || formGroup.get('nom').errors"
-        [mat-dialog-close]="data"
       >
         Valider
       </button>

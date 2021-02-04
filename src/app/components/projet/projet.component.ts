@@ -3,13 +3,16 @@ import { Financement } from '../../models/financement';
 import { Recette } from '../../models/recette';
 import { IsAdministratorGuardService } from '../../services/authentication/is-administrator-guard.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { ProjetsService } from '../../services/projets.service';
 import { DefaultSortInfo, Projet } from '../../models/projet';
 import { MontantsAffectesService } from '../../services/montants-affectes.service';
 import { MontantAffecte } from '../../models/montantAffecte';
 import { FinancementsService } from '../../services/financements.service';
-import { MatCheckboxChange } from '@angular/material/checkbox';
 import { Utilisateur } from '../../models/utilisateur';
 import { SpinnerService } from '../../services/spinner.service';
 import { RecettesService } from '../../services/recettes.service';
@@ -27,7 +30,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
-import { MyErrorStateMatcher } from '../rapports/rapports.component';
+import { GenericTableFormError } from '../../shared/components/generic-table/models/generic-table-entity';
+import { Messages } from '../../models/messages';
 
 export interface DialogData {
   project: Projet;
@@ -369,11 +373,11 @@ export class ProjetComponent implements OnInit {
     dialogRef
       .afterClosed()
       .pipe(take(1))
-      .subscribe(async (result) => {
+      .subscribe(async (object) => {
+        const result = object.data;
         if (result) {
           if (result.edited) {
             await this.updateProjectInfos(result.project);
-
             await this.refreshProject();
           }
         }
@@ -423,12 +427,24 @@ export class EditProjectDialogComponent implements OnInit {
   public errorStateMatcher1: ErrorStateMatcher;
   public errorStateMatcher2: ErrorStateMatcher;
 
+  public get min(): number {
+    const date = new Date(Date.now());
+    const year = date.getFullYear() % 100;
+    return Math.max(20, year - 10); // Démarrage en 2020
+  }
+  public get max(): number {
+    const date = new Date(Date.now());
+    return (date.getFullYear() % 100) + 10;
+  }
+
   private readonly patternCode = '^\\d{5}$';
 
   constructor(
-    public dialogRef: MatDialog,
+    public dialogRef: MatDialogRef<EditProjectDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: DialogData,
-    private readonly fb: FormBuilder
+    private readonly fb: FormBuilder,
+    private readonly projetsService: ProjetsService,
+    private readonly popupService: PopupService
   ) {}
 
   ngOnInit() {
@@ -456,7 +472,7 @@ export class EditProjectDialogComponent implements OnInit {
   public managerId = this.data.manager.id_u;
 
   onNoClick(): void {
-    this.dialogRef.closeAll();
+    this.dialogRef.close();
   }
 
   async onYesClick(): Promise<void> {
@@ -469,6 +485,56 @@ export class EditProjectDialogComponent implements OnInit {
     this.data.edited = true;
     this.data.project.responsable = this.data.users.find(
       (responsable) => responsable.id_u === this.managerId
+    );
+    if (!this.isBalance() && this.hasInvalidProjectCode(this.data.project)) {
+      this.formGroup.get('code').setErrors({ range: true });
+      this.popupService.error(Messages.ERROR_FORM);
+    } else if (
+      !this.isBalance() &&
+      (await this.hasDuplicateProjectCode(this.data.project))
+    ) {
+      this.formGroup.get('code').setErrors({ duplicate: true });
+      this.popupService.error(Messages.ERROR_FORM);
+    } else {
+      this.dialogRef.close({ data: this.data });
+    }
+  }
+
+  private async hasDuplicateProjectCode(projet: Projet): Promise<boolean> {
+    try {
+      const projets = await this.getProjets();
+      const projectCodes = projets.map((project) => project.code_p);
+      const tempArray =
+        projets.find(
+          (_projet) =>
+            _projet.id_p === projet.id_p && _projet.code_p === projet.code_p
+        ) != null
+          ? projectCodes
+          : projectCodes.concat(projet.code_p);
+      return tempArray.some(
+        (element, index) => tempArray.indexOf(element) !== index
+      );
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  private async getProjets(): Promise<Projet[]> {
+    try {
+      return await this.projetsService.getAll();
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  private hasInvalidProjectCode(projet: Projet): boolean {
+    const codeVal = projet.code_p || 0;
+    return codeVal / 1000 < this.min || Math.floor(codeVal / 1000) > this.max;
+  }
+
+  public isBalance(): boolean {
+    return (
+      this.formGroup.get('nom').disabled && this.formGroup.get('code').disabled
     );
   }
 }
