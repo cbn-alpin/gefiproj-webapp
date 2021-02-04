@@ -3,13 +3,16 @@ import { Financement } from '../../models/financement';
 import { Recette } from '../../models/recette';
 import { IsAdministratorGuardService } from '../../services/authentication/is-administrator-guard.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { ProjetsService } from '../../services/projets.service';
 import { DefaultSortInfo, Projet } from '../../models/projet';
 import { MontantsAffectesService } from '../../services/montants-affectes.service';
 import { MontantAffecte } from '../../models/montantAffecte';
 import { FinancementsService } from '../../services/financements.service';
-import { MatCheckboxChange } from '@angular/material/checkbox';
 import { Utilisateur } from '../../models/utilisateur';
 import { SpinnerService } from '../../services/spinner.service';
 import { RecettesService } from '../../services/recettes.service';
@@ -18,6 +21,17 @@ import { UsersService } from '../../services/users.service';
 import { basicSort, getDeepCopy } from '../../shared/tools/utils';
 import { AuthService } from '../../services/authentication/auth.service';
 import { take } from 'rxjs/operators';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  FormGroupDirective,
+  NgForm,
+  Validators,
+} from '@angular/forms';
+import { ErrorStateMatcher } from '@angular/material/core';
+import { GenericTableFormError } from '../../shared/components/generic-table/models/generic-table-entity';
+import { Messages } from '../../models/messages';
 
 export interface DialogData {
   project: Projet;
@@ -78,11 +92,6 @@ export class ProjetComponent implements OnInit {
   managers: Utilisateur[];
 
   /**
-   * Vrai si le projet n'est pas soldé et que l'utilisateur est une administrateur
-   */
-  public canEditDetails: boolean;
-
-  /**
    * Vrai si le projet est soldé
    */
   public isBalance: boolean;
@@ -90,7 +99,7 @@ export class ProjetComponent implements OnInit {
   public isResponsable: boolean;
 
   public get isAdministrator(): boolean {
-    return this.adminSrv.isAdministrator();
+    return !!this.adminSrv.isAdministrator();
   }
 
   constructor(
@@ -241,7 +250,6 @@ export class ProjetComponent implements OnInit {
       this.projet &&
       this.manager &&
       this.isAdministrator != null &&
-      this.canEditDetails != null &&
       this.isResponsable != null
     );
   }
@@ -252,7 +260,6 @@ export class ProjetComponent implements OnInit {
         this.projet = await this.projetsService.get(projetId);
         this.checkIfUserHasResponsableRight(this.projet);
         this.checkIfProjetIsBalance(this.projet);
-        this.checkIfUserCanEditProjetDetails();
       }
     } catch (error) {
       console.error(error);
@@ -328,36 +335,24 @@ export class ProjetComponent implements OnInit {
       this.popupService.error(error);
     }
   }
-  public async updateProjectStatus(event: MatCheckboxChange): Promise<void> {
-    this.projet.statut_p = event.checked;
-    this.projet.id_u = this.projet.responsable.id_u;
-    try {
-      this.spinnerSrv.show();
-      const updatedProjet = await this.projetsService.modify(this.projet);
-      this.projet.statut_p = updatedProjet.statut_p;
-      this.projetToEdit = getDeepCopy(this.projet);
-      this.checkIfProjetIsBalance(this.projet);
-      this.checkIfUserCanEditProjetDetails();
-      this.projet.responsable = this.manager;
-      this.spinnerSrv.hide();
-      if (this.projet.statut_p == true)
-        this.popupService.success(
-          'Le projet ' + this.projet.nom_p + ' est soldé ! '
-        );
 
-      if (this.projet.statut_p == false)
-        this.popupService.success(
-          'Le projet ' + this.projet.nom_p + ' est non soldé ! '
-        );
-    } catch (error) {
-      console.error(error);
-      for (const err of error.error.errors) {
-        this.popupService.error(
-          'Impossible de créer le montant affecté : ' + err.message
-        );
-      }
-    }
+  private checkIfUserHasResponsableRight(projet: Projet): void {
+    this.isResponsable =
+      this.authService.userAuth.id_u ===
+      (projet.responsable ? projet.responsable.id_u : projet.id_u);
   }
+
+  private checkIfProjetIsBalance(projet: Projet): void {
+    this.isBalance = projet.statut_p;
+  }
+
+  // debug() {
+  //   console.log('FINANCEMENTS: ', this.financements);
+  //   console.log('RECETTES: ', this.recettes);
+  //   console.log('MONTANTS: ', this.montantsAffectes);
+  //   console.log('SELECTED FINANCEMENTS: ', this.selectedFinancement);
+  //   console.log('SELECTED RECETTES: ', this.selectedRecette);
+  // }
 
   public async openEditProjectDialog(): Promise<void> {
     let projectName = this.projet.nom_p;
@@ -377,11 +372,11 @@ export class ProjetComponent implements OnInit {
     dialogRef
       .afterClosed()
       .pipe(take(1))
-      .subscribe(async (result) => {
+      .subscribe(async (object) => {
+        const result = object.data;
         if (result) {
           if (result.edited) {
             await this.updateProjectInfos(result.project);
-
             await this.refreshProject();
           }
         }
@@ -395,6 +390,8 @@ export class ProjetComponent implements OnInit {
     try {
       this.projet = await this.projetsService.get(this.projet.id_p);
       this.manager = this.projet.responsable;
+      this.projetToEdit = getDeepCopy(this.projet);
+      this.checkIfProjetIsBalance(this.projet);
     } catch (error) {
       console.error(error);
     }
@@ -417,28 +414,6 @@ export class ProjetComponent implements OnInit {
       }
     }
   }
-
-  private checkIfUserHasResponsableRight(projet: Projet): void {
-    this.isResponsable =
-      this.authService.userAuth.id_u ===
-      (projet.responsable ? projet.responsable.id_u : projet.id_u);
-  }
-
-  private checkIfProjetIsBalance(projet: Projet): void {
-    this.isBalance = projet.statut_p;
-  }
-
-  private checkIfUserCanEditProjetDetails(): void {
-    this.canEditDetails = this.isAdministrator && this.isBalance === false;
-  }
-
-  // debug() {
-  //   console.log('FINANCEMENTS: ', this.financements);
-  //   console.log('RECETTES: ', this.recettes);
-  //   console.log('MONTANTS: ', this.montantsAffectes);
-  //   console.log('SELECTED FINANCEMENTS: ', this.selectedFinancement);
-  //   console.log('SELECTED RECETTES: ', this.selectedRecette);
-  // }
 }
 
 @Component({
@@ -446,22 +421,129 @@ export class ProjetComponent implements OnInit {
   templateUrl: 'edit-project-popup.component.html',
   styleUrls: ['./projet.component.scss'],
 })
-export class EditProjectDialogComponent {
+export class EditProjectDialogComponent implements OnInit {
+  public formGroup: FormGroup;
+  public errorStateMatcher1: ErrorStateMatcher;
+  public errorStateMatcher2: ErrorStateMatcher;
+
+  public get min(): number {
+    const date = new Date(Date.now());
+    const year = date.getFullYear() % 100;
+    return Math.max(20, year - 10); // Démarrage en 2020
+  }
+  public get max(): number {
+    const date = new Date(Date.now());
+    return (date.getFullYear() % 100) + 10;
+  }
+
+  private readonly patternCode = '^\\d{5}$';
+
   constructor(
-    public dialogRef: MatDialog,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData
+    public dialogRef: MatDialogRef<EditProjectDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: DialogData,
+    private readonly fb: FormBuilder,
+    private readonly projetsService: ProjetsService,
+    private readonly popupService: PopupService
   ) {}
+
+  ngOnInit() {
+    this.formGroup = this.fb.group({
+      nom: [
+        {
+          value: this.data.project.nom_p,
+          disabled: this.data.project.statut_p,
+        },
+        [Validators.required],
+      ],
+      code: [
+        {
+          value: this.data.project.code_p,
+          disabled: this.data.project.statut_p,
+        },
+        [Validators.required, Validators.pattern(new RegExp(this.patternCode))],
+      ],
+      status: [this.data.project.statut_p, [Validators.required]],
+    });
+    this.errorStateMatcher1 = new MyCustomErrorStateMatcher();
+    this.errorStateMatcher2 = new MyCustomErrorStateMatcher();
+  }
 
   public managerId = this.data.manager.id_u;
 
   onNoClick(): void {
-    this.dialogRef.closeAll();
+    this.dialogRef.close();
   }
 
   async onYesClick(): Promise<void> {
+    this.data.project = {
+      ...this.data.project,
+      nom_p: this.formGroup.get('nom').value,
+      code_p: Number(this.formGroup.get('code').value),
+      statut_p: this.formGroup.get('status').value,
+    };
     this.data.edited = true;
     this.data.project.responsable = this.data.users.find(
       (responsable) => responsable.id_u === this.managerId
     );
+    if (!this.isBalance() && this.hasInvalidProjectCode(this.data.project)) {
+      this.formGroup.get('code').setErrors({ range: true });
+      this.popupService.error(Messages.ERROR_FORM);
+    } else if (
+      !this.isBalance() &&
+      (await this.hasDuplicateProjectCode(this.data.project))
+    ) {
+      this.formGroup.get('code').setErrors({ duplicate: true });
+      this.popupService.error(Messages.ERROR_FORM);
+    } else {
+      this.dialogRef.close({ data: this.data });
+    }
+  }
+
+  private async hasDuplicateProjectCode(projet: Projet): Promise<boolean> {
+    try {
+      const projets = await this.getProjets();
+      const projectCodes = projets.map((project) => project.code_p);
+      const tempArray =
+        projets.find(
+          (_projet) =>
+            _projet.id_p === projet.id_p && _projet.code_p === projet.code_p
+        ) != null
+          ? projectCodes
+          : projectCodes.concat(projet.code_p);
+      return tempArray.some(
+        (element, index) => tempArray.indexOf(element) !== index
+      );
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  private async getProjets(): Promise<Projet[]> {
+    try {
+      return await this.projetsService.getAll();
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  private hasInvalidProjectCode(projet: Projet): boolean {
+    const codeVal = projet.code_p || 0;
+    return codeVal / 1000 < this.min || Math.floor(codeVal / 1000) > this.max;
+  }
+
+  public isBalance(): boolean {
+    return (
+      this.formGroup.get('nom').disabled && this.formGroup.get('code').disabled
+    );
+  }
+}
+
+/** Error when invalid control -> affiche immédiatement s'il y a une erreur dans l'input */
+export class MyCustomErrorStateMatcher implements ErrorStateMatcher {
+  isErrorState(
+    control: FormControl | null,
+    form: FormGroupDirective | NgForm | null
+  ): boolean {
+    return !!(control && control.invalid);
   }
 }

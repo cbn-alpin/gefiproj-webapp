@@ -26,5 +26,13 @@ export interface EntityType {
    */
   disableEditing?: boolean;
 
+  /**
+   * Contenu du tooltip à afficher dans le header
+   */
   tooltipHeader?: string;
+
+  /**
+   * Ajoute une étoile rouge (icone) dans le header de la colonne lors de la modification d'une ligne du tableau
+   */
+  isMandatory?: boolean;
 }

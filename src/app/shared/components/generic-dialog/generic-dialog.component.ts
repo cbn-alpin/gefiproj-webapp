@@ -37,7 +37,6 @@ export class GenericDialogComponent implements OnInit {
   ) {
 
     this.message = {...this.message,...data};
-    console.log("This.message : " , this.message);
   }
 
   ngOnInit(): void {}
@@ -60,7 +59,6 @@ export class GenericDialogComponent implements OnInit {
    * Cancel and close popup
    */
   showCancel() : boolean{
-    console.log(this.message.showCancel);
      return this.message.showCancel;
   }
 

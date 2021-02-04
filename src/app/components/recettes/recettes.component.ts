@@ -29,6 +29,7 @@ import { SortInfo } from '../../shared/components/generic-table/models/sortInfo'
 import { basicSort } from '../../shared/tools/utils';
 import { DefaultSortInfo } from '../../models/projet';
 import { MontantsAffectesService } from '../../services/montants-affectes.service';
+import { MontantAffecte } from '../../models/montantAffecte';
 
 @Component({
   selector: 'app-recettes',
@@ -105,12 +106,14 @@ export class RecettesComponent implements OnInit, OnChanges {
       type: GenericTableCellType.NUMBER,
       code: this.namesMap.ANNEE.code,
       sortEnabled: true,
+      isMandatory: true,
     },
     {
       name: this.namesMap.MONTANT.name,
       type: GenericTableCellType.CURRENCY,
       code: this.namesMap.MONTANT.code,
       sortEnabled: true,
+      isMandatory: true,
     },
     {
       name: this.namesMap.DIFFERENCE.name,
@@ -159,7 +162,7 @@ export class RecettesComponent implements OnInit, OnChanges {
     event: GenericTableEntityEvent<Recette>
   ): Promise<void> {
     const recette: Recette = { ...event.entity, id_f: this.financement.id_f };
-    const formErrors = this.checkFormErrors(recette);
+    const formErrors = await this.checkFormErrors(recette);
     if (formErrors) {
       this.popupService.error(Messages.ERROR_FORM);
       event.callBack({ formErrors });
@@ -188,7 +191,7 @@ export class RecettesComponent implements OnInit, OnChanges {
 
   public async onEdit(event: GenericTableEntityEvent<Recette>): Promise<void> {
     const recette = event.entity;
-    const formErrors = this.checkFormErrors(recette, true);
+    const formErrors = await this.checkFormErrors(recette, true);
     if (formErrors) {
       this.popupService.error(Messages.ERROR_FORM);
       event.callBack({ formErrors });
@@ -272,10 +275,10 @@ export class RecettesComponent implements OnInit, OnChanges {
    * Vérifier le format de chaque champs de la recette
    * @param recette
    */
-  public checkFormErrors(
+  public async checkFormErrors(
     recette: Recette,
     edit?: boolean
-  ): GenericTableFormError[] {
+  ): Promise<GenericTableFormError[]> {
     let genericTableFormErrors: GenericTableFormError[] = [];
     genericTableFormErrors = this.getAnneeError(
       recette,
@@ -285,6 +288,18 @@ export class RecettesComponent implements OnInit, OnChanges {
       recette,
       genericTableFormErrors
     );
+
+    // Vérifie seulement si pas d'erreurs dans le form
+    // Évite de faire un appel API alors que le form n'est pas valide
+    if (!genericTableFormErrors.length) {
+      const recettes = await this.getMontantsAffectesFromRecette(recette);
+      await this.checkValidityOfRecetteAmountWithMontantAffecteAmounts(
+        recette,
+        recettes,
+        genericTableFormErrors
+      );
+    }
+
     return genericTableFormErrors.length > 0
       ? genericTableFormErrors
       : undefined;
@@ -424,9 +439,10 @@ export class RecettesComponent implements OnInit, OnChanges {
   }
 
   private hasYearLowerThanFounding(recette: Recette): boolean {
-    const yearFounding = new Date(this.financement.date_arrete_f).getFullYear();
-
-    return yearFounding ? recette.annee_r < yearFounding : true;
+    const yearFounding = !!this.financement.date_arrete_f
+      ? new Date(this.financement.date_arrete_f).getFullYear()
+      : null;
+    return yearFounding ? recette.annee_r < yearFounding : false;
   }
 
   private refreshDataTable(): void {
@@ -434,5 +450,48 @@ export class RecettesComponent implements OnInit, OnChanges {
       ...this.options,
       dataSource: basicSort(this.recettes, this.sortInfo),
     };
+  }
+
+  /**
+   * Vérifie que le montant de la recette est supérieur ou égale à la somme des montants de ses montants affectés
+   * @param recette
+   * @param montantAffectes
+   * @param formErrors
+   * @private
+   */
+  private async checkValidityOfRecetteAmountWithMontantAffecteAmounts(
+    recette: Recette,
+    montantAffectes: MontantAffecte[],
+    formErrors: GenericTableFormError[]
+  ): Promise<void> {
+    try {
+      const montantsAffectesAmounts = montantAffectes.map(
+        (montantAffecte) => montantAffecte.montant_ma
+      );
+      const sumMontantsAffectesAmounts = montantsAffectesAmounts.reduce(
+        (a, b) => a + b,
+        0
+      );
+      if (sumMontantsAffectesAmounts > recette.montant_r) {
+        const error = {
+          name: this.namesMap.MONTANT.code,
+          message:
+            'Doit être supérieur ou égale à la somme des montants de ses montants affectés',
+        };
+        formErrors.push(error);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  private async getMontantsAffectesFromRecette(
+    recette: Recette
+  ): Promise<MontantAffecte[]> {
+    try {
+      return await this.montantsAffectesService.getAll(recette.id_r);
+    } catch (e) {
+      console.error(e);
+    }
   }
 }

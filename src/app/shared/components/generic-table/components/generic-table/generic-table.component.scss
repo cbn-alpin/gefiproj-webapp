@@ -140,14 +140,26 @@
   .default-row:first-child {
     background: $light-grey !important;
   }
-  .icon-header {
+
+  .icon-help-header {
     font-size: 18px;
+    cursor: pointer;
+  }
+
+  .icon-star-header {
+    font-size: 14px;
+    color: $color-alert;
+    cursor: pointer;
+  }
+
+  .mat-sort-header-arrow {
+    color: $grey;
   }
 }
 
 .mat-column-Actions.mat-table-sticky:last-child {
   border-left: 0.5px solid #e0e0e0;
-  right: -1px!important;
+  right: -1px !important;
 }
 
 /* Chrome, Safari, Edge, Opera */

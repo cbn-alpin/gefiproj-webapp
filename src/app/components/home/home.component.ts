@@ -122,18 +122,21 @@ export class HomeComponent implements OnInit {
         type: GenericTableCellType.NUMBER,
         name: this.namesMap.code.name,
         sortEnabled: true,
+        isMandatory: true,
       },
       {
         code: this.namesMap.name.code,
         type: GenericTableCellType.TEXT,
         name: this.namesMap.name.name,
         sortEnabled: true,
+        isMandatory: true,
       },
       {
         code: this.namesMap.managerId.code,
         type: GenericTableCellType.SELECTBOX,
         name: this.namesMap.manager.name,
         sortEnabled: true,
+        isMandatory: true,
       },
       {
         code: this.namesMap.status.code,
@@ -317,7 +320,7 @@ export class HomeComponent implements OnInit {
     try {
       const project = event?.entity;
       if (!project) {
-        throw new Error('Le projet n\'existe pas');
+        throw new Error("Le projet n'existe pas");
       }
 
       this.injectManager(project);
@@ -361,7 +364,7 @@ export class HomeComponent implements OnInit {
     gtEvent: GenericTableEntityEvent<Projet>
   ): boolean {
     if (!gtEvent) {
-      throw new Error('Le paramètre \'gtEvent\' est invalide');
+      throw new Error("Le paramètre 'gtEvent' est invalide");
     }
 
     try {
@@ -485,7 +488,7 @@ export class HomeComponent implements OnInit {
     const codeVal = project.code_p || 0;
     const date = new Date(Date.now());
     const year = date.getFullYear() % 100;
-    const min = Math.max(20, year - 10); // Démarrage en 2020
+    const min = Math.max(10, year - 10); // Démarrage en 2010
     const max = year + 10;
     if (codeVal / 1000 < min || Math.floor(codeVal / 1000) > max) {
       const error = {
@@ -518,7 +521,7 @@ export class HomeComponent implements OnInit {
     try {
       let project = event?.entity;
       if (!project) {
-        throw new Error('Le projet n\'existe pas');
+        throw new Error("Le projet n'existe pas");
       }
 
       this.injectManager(project);
@@ -583,14 +586,15 @@ export class HomeComponent implements OnInit {
     try {
       const project = event?.entity;
       if (!project) {
-        throw new Error('Le projet n\'existe pas');
+        throw new Error("Le projet n'existe pas");
       }
 
       // Vérification des RG
       const fundings = (await this.projectsSrv.getFundings(project)) || [];
       const isEmpty = fundings.length === 0;
 
-      if (!isEmpty) { // RG : Ne pas supprimer un projet avec des financements
+      if (!isEmpty) {
+        // RG : Ne pas supprimer un projet avec des financements
         event?.callBack({
           apiError:
             'Impossible de supprimer le projet car il possède des financements.',
@@ -616,7 +620,8 @@ export class HomeComponent implements OnInit {
         .toPromise();
       const okToDelete = !!dialogResult;
 
-      if (okToDelete) { // Suppression
+      if (okToDelete) {
+        // Suppression
         await this.projectsSrv.delete(project);
         event.callBack(null); // Valide la modification dans le composant DataTable fils
         this.deleteProject(project);
@@ -624,7 +629,8 @@ export class HomeComponent implements OnInit {
         this.popupService.success(
           `Le projet \'${project.nom_p} (${project.code_p})\' a été supprimé.`
         );
-      } else { // Annulation
+      } else {
+        // Annulation
         event?.callBack({
           apiError: 'La suppression est annulée.',
         });

@@ -1,29 +1,68 @@
 <div class="edit-project-container">
-<h1 mat-dialog-title>Modification du projet :  {{data.projectName}}</h1>
-  <br>
-<div mat-dialog-content>
-  Nom :
-  <mat-form-field>
-    <input matInput [(ngModel)]="data.project.nom_p">
-  </mat-form-field>
-  <br>
-  Code :
-  <mat-form-field>
-    <input matInput [(ngModel)]="data.project.code_p">
-  </mat-form-field>
-  <br>
-  Responsable :
-  <mat-form-field>
-    <mat-select  [(value)] = "managerId">
-      <mat-option *ngFor="let option of data.users" [value]="option.id_u">
-        {{option.initiales_u}}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
-</div>
-  <br>
-<div mat-dialog-actions class="edit-project-buttons">
-  <button mat-button (click)="onNoClick()">Annuler</button>
-  <button mat-button (click)="onYesClick()" [mat-dialog-close]="data" cdkFocusInitial>Valider</button>
-</div>
+  <h1 mat-dialog-title>Modification du projet : {{ data.projectName }}</h1>
+  <br />
+  <form [formGroup]="formGroup">
+    <div mat-dialog-content>
+      Nom :
+      <mat-form-field>
+        <input
+          matInput
+          formControlName="nom"
+          [errorStateMatcher]="errorStateMatcher1"
+        />
+        <mat-error *ngIf="formGroup.get('nom').hasError('required')">
+          Le nom du projet est <strong>requis</strong>
+        </mat-error>
+      </mat-form-field>
+      <br />
+      Code :
+      <mat-form-field>
+        <input
+          matInput
+          numeric
+          formControlName="code"
+          [errorStateMatcher]="errorStateMatcher2"
+        />
+        <mat-error *ngIf="formGroup.get('code').hasError('required')">
+          Le code projet est <strong>requis</strong>
+        </mat-error>
+        <mat-error *ngIf="formGroup.get('code').hasError('pattern')">
+          Le code projet doit avoir <strong>5 chiffres</strong>
+        </mat-error>
+        <mat-error *ngIf="formGroup.get('code').hasError('duplicate')">
+          Le code est déjà <strong>utilisé</strong> par un autre projet
+        </mat-error>
+        <mat-error *ngIf="formGroup.get('code').hasError('range')">
+          Le code projet doit être une valeur comprise entre
+          <strong>{{ min }}000</strong> et
+          <strong>{{ max }}999</strong>
+        </mat-error>
+      </mat-form-field>
+      <br />
+      Responsable :
+      <mat-form-field>
+        <mat-select [(value)]="managerId" [disabled]="isBalance()">
+          <mat-option *ngFor="let option of data.users" [value]="option.id_u">
+            {{ option.initiales_u }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <br />
+      Soldé :
+      <span class="project-status">
+        <mat-checkbox formControlName="status"> </mat-checkbox>
+      </span>
+    </div>
+    <br />
+    <div mat-dialog-actions class="edit-project-buttons">
+      <button mat-button (click)="onNoClick()">Annuler</button>
+      <button
+        mat-button
+        (click)="onYesClick()"
+        [disabled]="formGroup.get('code').errors || formGroup.get('nom').errors"
+      >
+        Valider
+      </button>
+    </div>
+  </form>
 </div>

@@ -172,6 +172,8 @@ export class GenericTableComponent<T>
     return !!this._options?.navigationUrlFt;
   }
 
+  public showMandatoryIcon: boolean;
+
   /**
    * Copie du tableau.
    * Utile lors de l'annulation de l'édition d'une ligne.
@@ -244,6 +246,8 @@ export class GenericTableComponent<T>
 
   public onEdit(event, entity: GenericTableEntity<T>): void {
     event.stopPropagation();
+    this.genericTableAction = GenericTableAction.EDIT;
+    this.showMandatoryIcon = true;
     const cleanedGenericTableEntities = this.genericTableService.getOtherEntitiesReseted(
       this.genericTableEntities,
       this.genericTableEntitiesCopy,
@@ -261,6 +265,7 @@ export class GenericTableComponent<T>
   public edit(event, entity: GenericTableEntity<T>): void {
     event.stopPropagation();
     this.genericTableAction = GenericTableAction.EDIT;
+    this.showMandatoryIcon = true;
     const genericTableEntityEvent: GenericTableEntityEvent<T> = {
       entity: entity.data,
       updatedGenericTable: this.genericTableEntities.map((row) => row.data),
@@ -275,6 +280,7 @@ export class GenericTableComponent<T>
 
   public cancelEditing(event, entity: GenericTableEntity<T>): void {
     event.stopPropagation();
+    this.showMandatoryIcon = false;
     const entityToCopy = this.genericTableEntitiesCopy.find(
       (dataCopy) => dataCopy.id === entity.id
     );
@@ -290,6 +296,7 @@ export class GenericTableComponent<T>
 
   public onCreate(): void {
     this.genericTableAction = GenericTableAction.NEW;
+    this.showMandatoryIcon = true;
     const defaultEntityCopied = getDeepCopy(this.options.defaultEntity);
     const entity: GenericTableEntity<T> = {
       data: defaultEntityCopied,
@@ -307,6 +314,7 @@ export class GenericTableComponent<T>
   public create(event, entity: GenericTableEntity<T>): void {
     event.stopPropagation();
     this.genericTableAction = GenericTableAction.NEW;
+    this.showMandatoryIcon = true;
     const genericTableEntityEvent: GenericTableEntityEvent<T> = {
       entity: entity.data,
       updatedGenericTable: this.genericTableEntities.map((row) => row.data),
@@ -319,6 +327,7 @@ export class GenericTableComponent<T>
 
   public cancelCreation(event, entity: GenericTableEntity<T>): void {
     event.stopPropagation();
+    this.showMandatoryIcon = false;
     this.genericTableEntities = this.genericTableEntities?.filter(
       (data) => entity.data !== data.data
     );
@@ -434,6 +443,7 @@ export class GenericTableComponent<T>
       ) {
         this.setReadEntityState(entity);
       }
+      this.showMandatoryIcon = false;
     }
   }
 

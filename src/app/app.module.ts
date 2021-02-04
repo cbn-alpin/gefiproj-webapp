@@ -32,6 +32,7 @@ import { HomeComponent } from './components/home/home.component';
 import { MontantsAffectesComponent } from './components/montants-affectes/montants-affectes.component';
 import { EditProjectDialogComponent, ProjetComponent } from './components/projet/projet.component';
 import { RapportsComponent } from './components/rapports/rapports.component';
+import { RecettesComptablesComponent } from './components/recettes-comptables/recettes-comptables.component';
 import { RecettesComponent } from './components/recettes/recettes.component';
 import { UtilisateursComponent } from './components/utilisateurs/utilisateurs.component';
 import { AuthService } from './services/authentication/auth.service';
@@ -67,6 +68,7 @@ registerLocaleData(localeFr, 'fr-FR');
     ProjetComponent,
     MontantsAffectesComponent,
     EditProjectDialogComponent,
+    RecettesComptablesComponent
   ],
   imports: [
     BrowserModule,
