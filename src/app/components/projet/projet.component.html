@@ -5,7 +5,7 @@
     <div class="project-edit">
       <!-- Edit -->
       <button
-        *ngIf="canEditDetails"
+        *ngIf="isAdministrator"
         mat-icon-button
         (click)="openEditProjectDialog()"
         [matTooltip]="'Modifier'"
@@ -21,12 +21,7 @@
       <span class="bold"> responsable : </span>{{ manager.initiales_u }}
     </span>
     <span class="project-status">
-      <mat-checkbox
-        [checked]="projet.statut_p"
-        [disabled]="!isAdministrator"
-        (change)="updateProjectStatus($event)"
-      >
-        <!-- disabled if not administrator  -->
+      <mat-checkbox [checked]="projet.statut_p" [disabled]="true">
         Soldé
       </mat-checkbox>
     </span>
