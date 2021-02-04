@@ -130,7 +130,10 @@ export class RapportsComponent implements OnInit {
       }
     } catch (error) {
       console.log(error);
-      this.popupService.error('Impossible d\'afficher le bilan');
+      const message = error.message
+        ? ' Message : \'' + error.message + '\''
+        : '';
+      this.popupService.error(`Impossible d'afficher le bilan.${message}`);
     }
   }
 
@@ -152,7 +155,10 @@ export class RapportsComponent implements OnInit {
       }
     } catch (error) {
       console.log(error);
-      this.popupService.error('Impossible d\'afficher le bilan');
+      const message = error.message
+        ? ' Message : \'' + error.message + '\''
+        : '';
+      this.popupService.error(`Impossible d'afficher le bilan.${message}`);
     }
   }
 }

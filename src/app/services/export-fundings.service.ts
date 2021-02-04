@@ -60,7 +60,7 @@ export class ExportFundingsService {
     try {
       this.spinnerSrv.show();
 
-      const min = 2015;
+      const min = 2010;
       const max = (minPeriod || 0) + 100;
       if (isNaN(minPeriod) || isNaN(maxPeriod) || minPeriod > maxPeriod || minPeriod < min || maxPeriod > max) {
         throw new Error('La période définie est incorrecte');
