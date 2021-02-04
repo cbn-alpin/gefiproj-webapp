@@ -134,7 +134,9 @@ export class GenericTableService<T> {
   }
 
   /**
-   * bloque la modification de certain champs
+   * Bloque la modification de certain champs.
+   * Le bloquage sur la colonne est gérer par le parent.
+   * Le bloquage sur une cellule d'une ligne spécifique est à implémenter dans la fonction.
    * @param entity : l'object à modifié
    * @param entityType : données lié au type de l'entité
    */
@@ -144,12 +146,11 @@ export class GenericTableService<T> {
   ): boolean {
     let disabled: boolean;
     const _entity = entity.data as any;
-    const entityCodeIsStatutOrDateSoldeFinancement =
-      entityType.code === 'statut_f' || entityType.code === 'date_solde_f';
+    const entityCodeIsStatutFinancement = entityType.code === 'statut_f';
     const userHasAdminRightAndFinancementIsBalance =
       this.isAdministrator && _entity.solde;
     if (userHasAdminRightAndFinancementIsBalance) {
-      disabled = entityCodeIsStatutOrDateSoldeFinancement ? false : true;
+      disabled = entityCodeIsStatutFinancement ? false : true;
     } else {
       disabled = entityType.disableEditing;
     }
