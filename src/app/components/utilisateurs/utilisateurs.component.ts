@@ -13,6 +13,8 @@ import { GenericTableEntityEvent } from '../../shared/components/generic-table/m
 import { GenericTableOptions } from '../../shared/components/generic-table/models/generic-table-options';
 import { SelectBoxOption } from '../../shared/components/generic-table/models/SelectBoxOption';
 import { PopupService } from '../../shared/services/popup.service';
+import {SortInfo} from '../../shared/components/generic-table/models/sortInfo';
+import {basicSort} from '../../shared/tools/utils';
 
 @Component({
   selector: 'app-utilisateurs',
@@ -41,13 +43,14 @@ export class UtilisateursComponent implements OnInit {
    * Titre du tableau
    */
   public title = 'Utilisateurs';
-
   /**
    * Options du tableau
    */
   public options: GenericTableOptions<Utilisateur>;
-
-
+  /**
+   * Indique le trie courant.
+   */
+  private sortInfo: SortInfo;
   /**
    * Indique si le tableau est en lecture seule.
    */
@@ -72,7 +75,6 @@ export class UtilisateursComponent implements OnInit {
     active_u:true,
     role:Roles.Consultant,
   };
-
   /**
    * Mapping pour les noms des attributs d'un user.
    */
@@ -84,14 +86,12 @@ export class UtilisateursComponent implements OnInit {
     active_u: { code: 'active_u', name: 'Est actif' },
     role:{code:'role', name: 'Rôle'},
   };
-
   /**
    * Indique si le tableau peut-être modifié.
    */
   public get showActions(): boolean {
     return !!this.isAdministratorGuardService.isAdministrator();
   }
-
   constructor(
     private readonly isAdministratorGuardService: IsAdministratorGuardService,
     private readonly userService: UsersService,
@@ -99,7 +99,6 @@ export class UtilisateursComponent implements OnInit {
     private readonly dialog: MatDialog,
     private readonly spinnerSrv: SpinnerService
   ) { }
-
   public async ngOnInit() {
      try {
       this.initGenericTableOptions()
@@ -109,7 +108,6 @@ export class UtilisateursComponent implements OnInit {
       console.error(error);
     }
   }
-
   /**
    * Charge les utilisateurs depuis le serveur.
    */
@@ -130,12 +128,10 @@ export class UtilisateursComponent implements OnInit {
       this.spinnerSrv.hide();
     }
   }
-
   /**
    * Initialise les options de la table générique.
    */
   private initDtOptions(): void {
-    const dataSource = this.utilisateurs;
     const rolesSelectBoxOption: EntitySelectBoxOptions<any> = {
       name: this.namesMap.role.code,
       values: this.roles_user,
@@ -144,11 +140,13 @@ export class UtilisateursComponent implements OnInit {
       rolesSelectBoxOption,
     ];
     this.options = Object.assign({}, this.options, {
-      dataSource,
+      dataSource : basicSort(this.utilisateurs, this.sortInfo),
       entitySelectBoxOptions,
     });
   }
-
+  /**
+   * Initialise les options de la table générique.
+   */
   private initGenericTableOptions(): void {
     this.options = {
       dataSource: this.utilisateurs,
@@ -158,26 +156,31 @@ export class UtilisateursComponent implements OnInit {
           name: this.namesMap.nom_u.name,
           type: GenericTableCellType.TEXT,
           code: this.namesMap.nom_u.code,
+          sortEnabled: true,
         },
         {
           name: this.namesMap.prenom_u.name,
           type: GenericTableCellType.TEXT,
           code: this.namesMap.prenom_u.code,
+          sortEnabled: true,
         },
         {
           name: this.namesMap.email_u.name,
           type: GenericTableCellType.TEXT,
           code: this.namesMap.email_u.code,
+          sortEnabled: true,
         },
         {
           name: this.namesMap.initiales_u.name,
           type: GenericTableCellType.TEXT,
           code: this.namesMap.initiales_u.code,
+          sortEnabled: true,
         },
         {
           name: this.namesMap.active_u.name,
           type: GenericTableCellType.BOOLEAN,
           code: this.namesMap.active_u.code,
+          sortEnabled: true,
         },
         {
           name: this.namesMap.role.name,
@@ -187,27 +190,22 @@ export class UtilisateursComponent implements OnInit {
       ],
       entityPlaceHolders: [],
       entitySelectBoxOptions: [],
+      sortName: this.namesMap.initiales_u.name,
+      sortDirection: 'asc',
     };
   }
-
+  /**
+   * Un user a été ajouté dans le tableau.
+   * @param event : encapsule le user à ajouter.
+   */
   public async onCreate(event: GenericTableEntityEvent<Utilisateur>) {
     console.log("Call onCreate ! ");
-
+    let create = true;
     try {
       let user = event?.entity;
-      console.log("User to add : " , user);
       if (!user)
         throw new Error("L'utilisateur n'existe pas");
-      if (this.validateForGenericTable(event)) {
-        if(!this.checkUniqueEmail(user))
-          this.popupService.error(
-            'L\'email saisi existe déjà !');
-        else
-          if(!this.checkUniqueInitiales(user))
-            this.popupService.error(
-              'Les initiales saisis existent déjà !');
-          else
-            {
+      if (this.validateForGenericTable(event, create )) {
               user.roles = [];
               user.roles.push(user.role);
               delete user.role;
@@ -220,21 +218,20 @@ export class UtilisateursComponent implements OnInit {
               this.create(createdUser);
               const dialogRef = this.dialog.open(GenericDialogComponent, {
                 data: {
-                  header: 'Mot de passe du nouveau utilisateur',
+                  header: 'Mot de passe du nouvel utilisateur',
                   content: `Le mot de passe de l'utilisateur que vous venez de créer
-             avec l'email ${createdUser.email_u} est '${createdUser.password_u}' .`,
+                  avec l'email '${createdUser.email_u}' est '${user.password_u}' .`,
                   type: 'information',
                   action: {
-                    name: 'ok',
+                    name: 'Fermer',
                   },
+                  showCancel: false,
                 } as IMessage,
               });
               dialogRef
                 .afterClosed()
                 .subscribe(async (result) => {
                 });
-
-          }
       }
     } catch (error) {
       console.error(error);
@@ -244,21 +241,23 @@ export class UtilisateursComponent implements OnInit {
     }
 
   }
-
+  /**
+   * Le mot de passe d'un user a été modifié dans le tableau.
+   * @param event : encapsule le user à modifier.
+   */
   public async onChangePwd(event: GenericTableEntityEvent<Utilisateur>) {
     console.log("Call onChangePwd ! ");
-
     try {
       let user = event?.entity;
-      console.log("User to add : " , user);
       if (!user)
         throw new Error("L'utilisateur n'existe pas");
-      if (this.validateForGenericTable(event)) {
+        user.password_u = this.generatePassword();
+
         const dialogRef = this.dialog.open(GenericDialogComponent, {
           data: {
             header: 'Changer le mot de passe de l\'utilisateur',
             content: `Voulez vous changer le mot de passe de l'utilisateur
-             ${user.email_u} ? `,
+             ${user.email_u} à '${user.password_u}' ? `,
             type: 'warning',
             action: {
               name: 'Confirmer',
@@ -268,52 +267,45 @@ export class UtilisateursComponent implements OnInit {
         dialogRef
           .afterClosed()
           .subscribe(async (result) => {
-            console.log("Result " , result)
-            // user.roles = [];
-            // user.roles.push(user.role);
-            // delete user.role;
-            // user.password_u = this.generatePassword();
-            // const modifiedUser = await this.userService.modify(
-            //   user
-            // );
-            // user.role = user.roles[0];
-            // event.callBack(null);
-            // this.modify(modifiedUser);
-            // const dialogRef = this.dialog.open(GenericDialogComponent, {
-            //   data: {
-            //     header: 'Mot de passe du nouveau utilisateur',
-            //     content: `Le mot de passe de l'utilisateur que vous venez de créer
-            //  avec l'email ${modifiedUser.email_u} est '${modifiedUser.password_u}' .`,
-            //     type: 'information',
-            //     action: {
-            //       name: 'ok',
-            //     },
-            //   } as IMessage,
-            // });
-            // dialogRef
-            //   .afterClosed()
-            //   .subscribe(async (result) => {
-            //   });
+           if(result) {
+             user.roles = [];
+             user.roles.push(user.role);
+             delete user.role;
+             console.log("User to change pwd : " , user);
+             const modifiedUser = await this.userService.modifyPwd(
+               user
+             );
+             user.role = user.roles[0];
+             event.callBack(null);
+             this.modify(modifiedUser);
+             this.popupService.success(
+               'Le mot de passe de l\'utilisateur ' +
+               user.email_u +
+               ' a été modifié.'
+             );
+           }
           });
-
-      }
     } catch (error) {
       console.error(error);
       this.popupService.error(
-        'Impossible de créer l\'utilisateur : ' + error.message
+        'Impossible de générer un nouveau mot de passe : ' + error.message
       );
     }
 
   }
-
+  /**
+   * Un user a été modifié dans le tableau.
+   * @param event : encapsule le user à modifier.
+   */
   public async onEdit(event: GenericTableEntityEvent<Utilisateur>) {
+    let create = false;
     console.log("Call onEdit ! ");
     try {
       let user = event?.entity;
       console.log("User to modify : ", user);
       if (!user)
         throw new Error("L'utilisateur n'existe pas");
-      if (this.validateForGenericTable(event)) {
+      if (this.validateForGenericTable(event , create)) {
         user.roles = [];
         user.roles.push(user.role);
         delete user.role;
@@ -328,32 +320,36 @@ export class UtilisateursComponent implements OnInit {
     } catch (error) {
       console.error(error);
       this.popupService.error(
-        'Impossible de créer l\'utilisateur : ' + error.message
+        'Impossible de modifier l\'utilisateur : ' + error.message
       );
     }
   }
-
-
-  private generatePassword() : string{
-    return 'P@ssword'+Math.floor(Math.random()*Math.floor(999999));
-  }
-
   /**
-   * Vérifie la validité du montant affecté en paramètre. Si le montant affecté est invalide, le tableau générique en est notifié.
-   * @param gtEvent : encapsule un nouveau montant affecté ou un montant affecté modifié.
+   * Génère un mot de passe
+   */
+  private generatePassword() : string{
+    let passes = ['P@ssword' , 'P@assCode' , 'KeyWord@']
+    return passes[Math.floor(Math.random()*Math.floor(3))]+Math.floor(Math.random()*Math.floor(999999));
+  }
+  /**
+   * Vérifie la validité du user en paramètre. Si le user est invalide, le tableau générique en est notifié.
+   * @param gtEvent : encapsule un nouvel user ou un user modifié.
+   * @param create : savoir s'il s'agit d'une création ou d'une modification
    */
   private validateForGenericTable(
-    gtEvent: GenericTableEntityEvent<Utilisateur>
+    gtEvent: GenericTableEntityEvent<Utilisateur> ,
+    create: boolean
   ): boolean {
     if (!gtEvent) {
       throw new Error("Le paramètre 'gtEvent' est invalide");
     }
-
     try {
       const user = gtEvent?.entity;
       const formErrors: GenericTableFormError[] = [];
-
-      this.verifForms(user, formErrors);
+      console.log("User validate errors : " , user);
+      if(create)
+        this.verifFormsCreate(user, formErrors);
+      else this.verifFormsModify(user, formErrors);
       if (formErrors.length > 0) {
         gtEvent.callBack({
           formErrors,
@@ -369,13 +365,26 @@ export class UtilisateursComponent implements OnInit {
       return true; // Problème inattendu : le serveur vérifiera les données
     }
   }
-
   /**
-   * Vérifie le forms du montant affecté.
-   * @param montant affecté : montant affecté à vérifier.
+   * Vérifie le forms du user.
+   * @param user : user à vérifier.
    * @param formErrors : liste des erreurs de validation.
    */
   private verifForms(user: Utilisateur, formErrors: GenericTableFormError[]): void {
+    if (!user.nom_u) {
+      const error = {
+        name: this.namesMap.nom_u.code,
+        message: 'Le nom de l\'utilisateur doit être défini.',
+      };
+      formErrors.push(error);
+    }
+    if (!user.prenom_u) {
+      const error = {
+        name: this.namesMap.prenom_u.code,
+        message: 'Le prénom de l\'utilisateur doit être défini.',
+      };
+      formErrors.push(error);
+    }
     if (!user.email_u) {
       const error = {
         name: this.namesMap.email_u.code,
@@ -391,11 +400,62 @@ export class UtilisateursComponent implements OnInit {
       formErrors.push(error);
     }
   }
-
+  /**
+   * La vérification des champs du tableau lors d'une création
+   * @param user : l'utilisateur créé.
+   * @param formErrors : liste des erreurs de validation.
+   */
+  private verifFormsCreate(user: Utilisateur, formErrors: GenericTableFormError[]): void {
+    this.verifForms(user,formErrors);
+    if(!this.checkUniqueEmailCreate(user)){
+      const error = {
+        name: this.namesMap.email_u.code,
+        message: 'L\'email saisi existe déjà !',
+      };
+      formErrors.push(error);
+    }
+    if(!this.checkUniqueInitialesCreate(user)){
+      const error = {
+        name: this.namesMap.initiales_u.code,
+        message: 'Les initiales saisis existent déjà !',
+      };
+      formErrors.push(error);
+    }
+  }
+  /**
+   * La vérification des champs du tableau lors d'une modification
+   * @param user : l'utilisateur modifié.
+   * @param formErrors : liste des erreurs de validation.
+   */
+  private verifFormsModify(user: Utilisateur, formErrors: GenericTableFormError[]): void {
+    this.verifForms(user,formErrors);
+    if(!this.checkUniqueEmailModify(user)){
+      const error = {
+        name: this.namesMap.email_u.code,
+        message: 'L\'email saisi existe déjà !',
+      };
+      formErrors.push(error);
+    }
+    if(!this.checkUniqueInitialesModify(user)){
+      const error = {
+        name: this.namesMap.initiales_u.code,
+        message: 'Les initiales saisis existent déjà !',
+      };
+      formErrors.push(error);
+    }
+  }
+  /**
+   * L'ajout de l'utilisateur créé dans le tableau Utilisateur[]
+   * @param user : l'utilisateur crée.
+   */
   private create(user: Utilisateur): void {
     this.utilisateurs.push(user);
     this.emitUsersChange();
   }
+  /**
+   * La modification de l'utilisateur modifié dans le tableau Utilisateur[]
+   * @param user : l'utilisateur modifié.
+   */
   private modify(user: Utilisateur): void {
     const index = this.utilisateurs.findIndex((u) => u.id_u === user.id_u);
     if (index >= 0) {
@@ -405,12 +465,56 @@ export class UtilisateursComponent implements OnInit {
   public emitUsersChange(): void {
     this.usersChange.emit(this.utilisateurs);
   }
-
-  private checkUniqueEmail(newUser: Utilisateur) : boolean{
+  /**
+   * Vérifier l'unicité de l'email du user créé
+   * @param newUser : l'utilisateur crée.
+   */
+  private checkUniqueEmailCreate(newUser: Utilisateur) : boolean{
     return this.utilisateurs.find(user => user.email_u === newUser.email_u ) == null;
   }
-  private checkUniqueInitiales(newUser: Utilisateur) : boolean{
+  /**
+   * Vérifier l'unicité des initiales du user créé
+   * @param newUser : l'utilisateur crée.
+   */
+  private checkUniqueInitialesCreate(newUser: Utilisateur) : boolean{
     return this.utilisateurs.find(user => user.initiales_u === newUser.initiales_u ) == null;
+  }
+  /**
+   * Vérifier l'unicité de l'email du user modifié
+   * @param newUser : l'utilisateur modifié.
+   */
+  private checkUniqueEmailModify(newUser: Utilisateur) : boolean{
+    return this.utilisateurs.find(user => (user.id_u!= newUser.id_u && user.email_u === newUser.email_u) ) == null;
+  }
+  /**
+   * Vérifier l'unicité des initiales du user modifié
+   * @param newUser : l'utilisateur modifié.
+   */
+  private checkUniqueInitialesModify(newUser: Utilisateur) : boolean{
+    return this.utilisateurs.find(user => (user.id_u!= newUser.id_u && user.initiales_u === newUser.initiales_u) ) == null;
+  }
+
+  /**
+   * Le trie du tableau a changé.
+   * @param sort : défini le trie à appliquer.
+   */
+  public onSortChanged(sort: SortInfo): void {
+    try {
+      console.log("Sort changed");
+      if (sort) {
+        this.sortInfo = sort;
+        this.refreshDataTable();
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  private refreshDataTable(): void {
+    this.options = {
+      ...this.options,
+      dataSource: basicSort(this.utilisateurs, this.sortInfo),
+    };
   }
 
 

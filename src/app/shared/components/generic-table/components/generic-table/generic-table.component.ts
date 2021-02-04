@@ -345,6 +345,9 @@ export class GenericTableComponent<T>
     this.genericTableAction = GenericTableAction.CHANGEPWD;
     const genericTableEntityEvent: GenericTableEntityEvent<T> = {
       entity: entity.data,
+      updatedGenericTable: this.genericTableEntities.map((row) => row.data),
+      callBack: (genericTableEntityErrors?: GenericTableEntityErrors, up?: T) =>
+        this.handleAction(entity, genericTableEntityErrors, up),
     };
     this.changePwdEvent.emit(genericTableEntityEvent);
   }

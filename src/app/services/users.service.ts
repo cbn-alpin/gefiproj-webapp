@@ -1,8 +1,10 @@
-import { HttpClient } from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Utilisateur } from './../models/utilisateur';
 import { CrudService } from './crud.service';
 import { SpinnerService } from './spinner.service';
+import {AuthService} from './authentication/auth.service';
+import {environment} from '../../environments/environment';
 
 /**
  * Effectue les appels au serveur d'API pour les utilisateurs.
@@ -14,11 +16,11 @@ export class UsersService {
   /**
    * Url relative de l'API.
    */
-  private readonly endPointGet = '/api/users';
+  private readonly endPointUser = '/api/users';
   /**
    * Url relative de l'API.
    */
-  private readonly endPointPost = '/api/auth/register';
+  private readonly endPointAuth = `${environment.backendServer}/api/auth/register`;
 
   /**
    * Effectue les appels au serveur d'API pour une entité donnée.
@@ -28,6 +30,10 @@ export class UsersService {
    * Effectue les appels au serveur d'API pour une entité donnée.
    */
   private readonly crudSrvPost: CrudService<Utilisateur>;
+  /**
+   * Effectue les appels au serveur d'API pour une entité donnée.
+   */
+  private crudSrvChange: CrudService<Utilisateur>;
 
   /**
    * Effectue les appels au serveur d'API pour les utilisateurs.
@@ -35,16 +41,17 @@ export class UsersService {
    * @param spinnerSrv : gère le spinner/sablier.
    */
   constructor(
-    http: HttpClient,
-    spinnerSrv: SpinnerService) {
+     private readonly  spinnerSrv: SpinnerService,
+     private readonly authService: AuthService,
+     private readonly http: HttpClient,) {
     this.crudSrv = new CrudService<Utilisateur>(
       http,
       spinnerSrv,
-      this.endPointGet);
+      this.endPointUser);
     this.crudSrvPost = new CrudService<Utilisateur>(
       http,
       spinnerSrv,
-      this.endPointPost);
+      this.endPointAuth);
   }
 
   /**
@@ -73,15 +80,43 @@ export class UsersService {
   }
 
   /**
+   * Transmet le utilisateur avec son mot de passe modifié au serveur.
+   * @param user : utilisateur modifié.
+   */
+  public async modifyPwd(user: Utilisateur): Promise<Utilisateur> {
+    this.crudSrvChange = new CrudService<Utilisateur>(
+      this.http,
+      this.spinnerSrv,
+      this.endPointUser+'/change-password');
+    return this.crudSrvChange.modify(
+      user,
+      user?.id_u);
+  }
+
+  /**
    * Transmet le nouveau utilisateur au serveur.
    * @param user : utilisateur à créer.
    */
   public async add(user: Utilisateur): Promise<Utilisateur> {
     try {
-      return await this.crudSrvPost.add(user);
+      this.spinnerSrv.show();
+      const accessToken = this.authService.accessToken;
+      const headers = Object.assign({
+        Authorization: `Bearer ${accessToken}`
+      }, AuthService.headers);
+       return await this.http
+         .post(
+           this.endPointAuth,
+           user, {
+             headers: new HttpHeaders(headers)
+           })
+         .toPromise() as Utilisateur;
     } catch (error) {
       console.error(error);
       return Promise.reject(error);
+    }
+    finally {
+      this.spinnerSrv.hide();
     }
   }
 }

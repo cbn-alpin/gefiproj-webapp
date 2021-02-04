@@ -5,5 +5,5 @@
 </div>
 <div mat-dialog-actions class="button-to-right">
     <button mat-raised-button [color]="getConfirmColor()" (click)="onConfirmClick()">{{ message?.action?.name }}</button>
-    <button mat-raised-button (click)="onCancelClick()">Annuler</button>
+    <button mat-raised-button *ngIf="showCancel()" (click)="onCancelClick()">Annuler</button>
 </div>
