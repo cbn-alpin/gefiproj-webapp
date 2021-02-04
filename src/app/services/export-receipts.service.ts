@@ -32,6 +32,13 @@ export class ExportReceiptsService {
   public async createExport(year: number): Promise<string> {
     try {
       this.spinnerSrv.show();
+
+      const min = 2010;
+      const max = new Date(Date.now()).getFullYear() + 20;
+      if (isNaN(year) || year < min || year > max) {
+        throw new Error('La date définie est incorrecte');
+      }
+
       const params: ExportReceiptsRequest = {
         annee_ref: year
       };
