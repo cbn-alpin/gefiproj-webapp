@@ -1,4 +1,3 @@
-import { FinanceurService } from 'src/app/services/financeur.service';
 import { Recette } from './../../models/recette';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
@@ -26,6 +25,7 @@ import { GenericTableOptions } from './../../shared/components/generic-table/mod
 import { MontantAffecte } from 'src/app/models/montantAffecte';
 import { PopupService } from '../../shared/services/popup.service';
 import { FinancementsService } from 'src/app/services/financements.service';
+import { FinanceurService } from 'src/app/services/financeur.service';
 
 /**
  * Affiche les projets.
@@ -193,7 +193,8 @@ export class HomeComponent implements OnInit {
 
     // Pour entrer les données de tests
     private httpSrv: HttpClient,
-    private fSrv: FinancementsService
+    private fSrv: FinancementsService,
+    private feursSrv: FinanceurService
   ) {
   }
 
@@ -785,9 +786,13 @@ export class HomeComponent implements OnInit {
 
       // date_arrete_f: new Date(2017, 5, 2), date_limite_solde_f: new Date(2020, 9, 24)
       const projets: Projet[] = this.getProjetsForTests();
+      const user = (await this.usersSrv.getAll())
+        .filter(u => u.email_u === 'b.lienard@cbn-alpin.fr')[0];
+      const financeur = (await this.feursSrv.getAll())[0];
 
       for (let projet of projets) {
         const financements: Financement[] = (projet as any).financements || [];
+        projet.id_u = user.id_u;
         delete projet.id_p;
         delete (projet as any).financements;
 
@@ -797,6 +802,7 @@ export class HomeComponent implements OnInit {
           const recettes: Recette[] = (financement as any).recettes || [];
           financement.id_p = projet.id_p;
           financement.commentaire_admin_f = 'Données de tests !';
+          financement.id_financeur = financeur.id_financeur;
           delete financement.id_f;
           delete (financement as any).recettes;
           const fSrv = new CrudService<Financement>(
@@ -903,8 +909,8 @@ export class HomeComponent implements OnInit {
                 ]
               } as Recette,
               {
-                montant_r: 32964.24, annee_r: 2022, affectations: [
-                  { montant_ma: 32964.24, annee_ma: 2021 } as MontantAffecte
+                montant_r: 32964.23, annee_r: 2022, affectations: [
+                  { montant_ma: 32964.23, annee_ma: 2021 } as MontantAffecte
                 ]
               } as Recette
             ]
@@ -1003,8 +1009,8 @@ export class HomeComponent implements OnInit {
                 ]
               } as Recette,
               {
-                montant_r: 8661.03, annee_r: 2022, affectations: [
-                  { montant_ma: 8661.03, annee_ma: 2021 } as MontantAffecte
+                montant_r: 8661.02, annee_r: 2022, affectations: [
+                  { montant_ma: 8661.02, annee_ma: 2021 } as MontantAffecte
                 ]
               } as Recette
             ]
