@@ -6,6 +6,7 @@ import { FinanceursComponent } from './components/financeurs/financeurs.componen
 import { HomeComponent } from './components/home/home.component';
 import { ProjetComponent } from './components/projet/projet.component';
 import { RapportsComponent } from './components/rapports/rapports.component';
+import { RecettesComptablesComponent } from './components/recettes-comptables/recettes-comptables.component';
 import { UtilisateursComponent } from './components/utilisateurs/utilisateurs.component';
 import { EnsureAuthenticatedService } from './services/authentication/ensure-authenticated.service';
 import { IsAdministratorGuardService } from './services/authentication/is-administrator-guard.service';
@@ -21,13 +22,18 @@ const routes: Routes = [
     canActivate: [EnsureAuthenticatedService],
   },
   {
+    path: 'financeurs',
+    component: FinanceursComponent,
+    canActivate: [EnsureAuthenticatedService],
+  },
+  {
     path: 'depenses',
     component: DepensesComponent,
     canActivate: [EnsureAuthenticatedService],
   },
   {
-    path: 'financeurs',
-    component: FinanceursComponent,
+    path: 'recette-comptable',
+    component: RecettesComptablesComponent,
     canActivate: [EnsureAuthenticatedService],
   },
   {
