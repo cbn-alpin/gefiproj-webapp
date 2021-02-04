@@ -842,6 +842,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
   /**
    * Vérifie que la date arrête du financement est inférieur ou égale à l'année de toutes ses recettes
    * @param financement
+   * @param recettes
    * @param formErrors
    * @private
    */
