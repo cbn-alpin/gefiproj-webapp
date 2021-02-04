@@ -439,9 +439,10 @@ export class RecettesComponent implements OnInit, OnChanges {
   }
 
   private hasYearLowerThanFounding(recette: Recette): boolean {
-    const yearFounding = new Date(this.financement.date_arrete_f).getFullYear();
-
-    return yearFounding ? recette.annee_r < yearFounding : true;
+    const yearFounding = !!this.financement.date_arrete_f
+      ? new Date(this.financement.date_arrete_f).getFullYear()
+      : null;
+    return yearFounding ? recette.annee_r < yearFounding : false;
   }
 
   private refreshDataTable(): void {
