@@ -493,7 +493,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
     const dialogRef = this.dialog.open(GenericDialogComponent, {
       data: {
         header: 'Suppression du financement',
-        content: `Les données reliées à ce financement seront supprimés suite à sa suppression.<br>Confirmez-vous la suppression de ce financement d'un montant de ${financement.montant_arrete_f} provenant du financeur ${financement.financeur.nom_financeur} ?`,
+        content: `Les données reliées à ce financement (recettes et montants affectés incluent) seront supprimés suite à sa suppression<br> <br>Confirmez-vous la suppression de ce financement d'un montant de ${financement.montant_arrete_f} provenant du financeur ${financement.financeur.nom_financeur} ?`,
         type: 'warning',
         action: {
           name: 'Confirmer',
