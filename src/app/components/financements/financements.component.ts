@@ -32,6 +32,7 @@ import { basicSort } from '../../shared/tools/utils';
 import { DefaultSortInfo } from '../../models/projet';
 import { RecettesService } from '../../services/recettes.service';
 import { EntityType } from '../../shared/components/generic-table/models/entity-types';
+import { Recette } from '../../models/recette';
 
 @Component({
   selector: 'app-financements',
@@ -228,7 +229,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
       }
       financement = this.transformFormat(financement);
 
-      if (this.validateForGenericTable(event)) {
+      if (await this.validateForGenericTable(event)) {
         let updatedFinancement = await this.financementsService.put(
           financement
         );
@@ -305,9 +306,9 @@ export class FinancementsComponent implements OnInit, OnChanges {
    * Vérifie la validité du financement en paramètre. Si le financement est invalide, le tableau générique en est notifié.
    * @param gtEvent : encapsule un nouveau financement ou un financement modifié.
    */
-  private validateForGenericTable(
+  private async validateForGenericTable(
     gtEvent: GenericTableEntityEvent<Financement>
-  ): boolean {
+  ): Promise<boolean> {
     if (!gtEvent) {
       throw new Error("Le paramètre 'gtEvent' est invalide");
     }
@@ -317,6 +318,22 @@ export class FinancementsComponent implements OnInit, OnChanges {
       const formErrors: GenericTableFormError[] = [];
 
       this.verifForms(financement, formErrors);
+
+      // Vérifie seulement si pas d'erreurs dans le form
+      // Évite de faire un appel API alors que le form n'est pas valide
+      if (!formErrors.length) {
+        const recettes = await this.getRecettesFromFinancement(financement);
+        await this.checkValidityOfDateArreteFinancementWithRecetteYears(
+          financement,
+          recettes,
+          formErrors
+        );
+        await this.checkValidityOfAmountFinancementWithRecetteAmount(
+          financement,
+          recettes,
+          formErrors
+        );
+      }
       if (formErrors.length > 0) {
         gtEvent.callBack({
           formErrors,
@@ -819,6 +836,74 @@ export class FinancementsComponent implements OnInit, OnChanges {
         ...this.options,
         entityTypes: upEntityTypes,
       };
+    }
+  }
+
+  /**
+   * Vérifie que la date arrête du financement est inférieur ou égale à l'année de toutes ses recettes
+   * @param financement
+   * @param formErrors
+   * @private
+   */
+  private async checkValidityOfDateArreteFinancementWithRecetteYears(
+    financement: Financement,
+    recettes: Recette[],
+    formErrors: GenericTableFormError[]
+  ): Promise<void> {
+    try {
+      const recettesYears = recettes.map((recette) => recette.annee_r);
+      const yearArreteFinancement = new Date(
+        financement.date_arrete_f
+      ).getFullYear();
+      const validRecettesYears = recettesYears.filter(
+        (year) => year >= yearArreteFinancement
+      );
+      if (validRecettesYears.length !== recettesYears.length) {
+        const error = {
+          name: this.namesMap.date_arrete_f.code,
+          message: 'Doit être antérieure ou égale aux années de ses recettes',
+        };
+        formErrors.push(error);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  /**
+   * Vérifie que le montant du financement est supérieur ou égale à la somme des montants de ses recettes
+   * @param financement
+   * @param formErrors
+   * @private
+   */
+  private async checkValidityOfAmountFinancementWithRecetteAmount(
+    financement: Financement,
+    recettes: Recette[],
+    formErrors: GenericTableFormError[]
+  ): Promise<void> {
+    try {
+      const recettesAmounts = recettes.map((recette) => recette.montant_r);
+      const sumRecettesAmounts = recettesAmounts.reduce((a, b) => a + b, 0);
+      if (sumRecettesAmounts > financement.montant_arrete_f) {
+        const error = {
+          name: this.namesMap.montant_arrete_f.code,
+          message:
+            'Doit être supérieur ou égale à la somme des montants de ses recettes',
+        };
+        formErrors.push(error);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  private async getRecettesFromFinancement(
+    financement: Financement
+  ): Promise<Recette[]> {
+    try {
+      return await this.recettesService.getAll(financement.id_f);
+    } catch (e) {
+      console.error(e);
     }
   }
 }
