@@ -175,7 +175,7 @@ export class RecettesComponent implements OnInit, OnChanges {
 
   public async onEdit(event: GenericTableEntityEvent<Recette>): Promise<void> {
     const recette = event.entity;
-    const formErrors = await this.checkFormErrors(recette, true);
+    const formErrors = await this.checkFormErrors(recette);
     if (formErrors) {
       this.popupService.error(Messages.ERROR_FORM);
       event.callBack({ formErrors });
@@ -249,8 +249,7 @@ export class RecettesComponent implements OnInit, OnChanges {
    * @param recette
    */
   public async checkFormErrors(
-    recette: Recette,
-    edit?: boolean
+    recette: Recette
   ): Promise<GenericTableFormError[]> {
     let genericTableFormErrors: GenericTableFormError[] = [];
     genericTableFormErrors = this.getAnneeError(
@@ -264,7 +263,8 @@ export class RecettesComponent implements OnInit, OnChanges {
 
     // Vérifie seulement si pas d'erreurs dans le form
     // Évite de faire un appel API alors que le form n'est pas valide
-    if (!genericTableFormErrors.length) {
+    // Si id_r est null alors la recette est en cours de création => les règles ci-dessous ne s'appliquent pas dans ce cas de figure
+    if (!genericTableFormErrors.length && recette.id_r) {
       const recettes = await this.getMontantsAffectesFromRecette(recette);
       await this.checkValidityOfRecetteAmountWithMontantAffecteAmounts(
         recette,

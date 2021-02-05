@@ -304,7 +304,8 @@ export class FinancementsComponent implements OnInit, OnChanges {
 
       // Vérifie seulement si pas d'erreurs dans le form
       // Évite de faire un appel API alors que le form n'est pas valide
-      if (!formErrors.length) {
+      // Si id_f est null alors le financement est en cours de création => les règles ci-dessous ne s'appliquent pas dans ce cas de figure
+      if (!formErrors.length && financement.id_f) {
         const recettes = await this.getRecettesFromFinancement(financement);
         await this.checkValidityOfDateArreteFinancementWithRecetteYears(
           financement,
@@ -427,7 +428,6 @@ export class FinancementsComponent implements OnInit, OnChanges {
         throw new Error("Le financement n'existe pas");
       }
       financement = this.transformFormat(financement);
-
       if (await this.validateForGenericTable(event)) {
         let createdFinancement = await this.financementsService.post(
           financement
