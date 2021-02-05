@@ -369,15 +369,15 @@ export class ProjetComponent implements OnInit {
     this.isBalance = projet.statut_p;
   }
 
-  debug() {
-    console.log('FINANCEMENTS: ', this.financements);
-    console.log('RECETTES: ', this.recettes);
-    console.log('MONTANTS: ', this.montantsAffectes);
-    console.log('SELECTED FINANCEMENTS: ', this.selectedFinancement);
-    console.log('SELECTED FINANCEMENTS ID: ', this.selectedFinancementId);
-    console.log('SELECTED RECETTES: ', this.selectedRecette);
-    console.log('SELECTED RECETTES ID: ', this.selectedRecetteId);
-  }
+  // debug() {
+  //   console.log('FINANCEMENTS: ', this.financements);
+  //   console.log('RECETTES: ', this.recettes);
+  //   console.log('MONTANTS: ', this.montantsAffectes);
+  //   console.log('SELECTED FINANCEMENTS: ', this.selectedFinancement);
+  //   console.log('SELECTED FINANCEMENTS ID: ', this.selectedFinancementId);
+  //   console.log('SELECTED RECETTES: ', this.selectedRecette);
+  //   console.log('SELECTED RECETTES ID: ', this.selectedRecetteId);
+  // }
 
   //**
   // Gestion détails projet
