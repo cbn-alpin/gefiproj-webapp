@@ -28,7 +28,7 @@ import { PopupService } from '../../shared/services/popup.service';
 import * as moment from 'moment';
 import { take } from 'rxjs/operators';
 import { SortInfo } from '../../shared/components/generic-table/models/sortInfo';
-import { basicSort } from '../../shared/tools/utils';
+import { basicSort, getDeepCopy } from '../../shared/tools/utils';
 import { DefaultSortInfo, Projet, ProjetCallback } from '../../models/projet';
 import { RecettesService } from '../../services/recettes.service';
 import { EntityType } from '../../shared/components/generic-table/models/entity-types';
@@ -255,32 +255,34 @@ export class FinancementsComponent implements OnInit, OnChanges {
    * @param financement
    */
   private transformFormat(financement: Financement): Financement {
-    if (financement?.financeur) delete financement?.financeur;
-    if (financement.hasOwnProperty('difference')) {
-      delete financement.difference;
+    const copiedFinancement = getDeepCopy(financement);
+    if (copiedFinancement.hasOwnProperty('difference')) {
+      delete copiedFinancement.difference;
     }
-    if (financement.hasOwnProperty('solde')) delete financement.solde;
-    if (!financement.hasOwnProperty('id_p')) {
-      financement.id_p = Number(this.projectId);
+    if (copiedFinancement?.financeur) delete copiedFinancement?.financeur;
+    if (copiedFinancement.hasOwnProperty('solde'))
+      delete copiedFinancement.solde;
+    if (!copiedFinancement.hasOwnProperty('id_p')) {
+      copiedFinancement.id_p = Number(this.projectId);
     }
     // transform date
-    if (financement.date_arrete_f) {
-      financement.date_arrete_f = this.toTransformDateFormat(
-        financement.date_arrete_f
+    if (copiedFinancement.date_arrete_f) {
+      copiedFinancement.date_arrete_f = this.toTransformDateFormat(
+        copiedFinancement.date_arrete_f
       );
     }
-    if (financement.date_limite_solde_f) {
-      financement.date_limite_solde_f = this.toTransformDateFormat(
-        financement.date_limite_solde_f
+    if (copiedFinancement.date_limite_solde_f) {
+      copiedFinancement.date_limite_solde_f = this.toTransformDateFormat(
+        copiedFinancement.date_limite_solde_f
       );
     }
-    if (financement.date_solde_f) {
-      financement.date_solde_f = this.toTransformDateFormat(
-        financement.date_solde_f
+    if (copiedFinancement.date_solde_f) {
+      copiedFinancement.date_solde_f = this.toTransformDateFormat(
+        copiedFinancement.date_solde_f
       );
     }
 
-    return financement;
+    return copiedFinancement;
   }
 
   /**

@@ -158,11 +158,7 @@ export class RecettesComponent implements OnInit, OnChanges {
       event.callBack({ formErrors });
     } else {
       try {
-        const createdRecette = await this.recettesService.add(
-          recette,
-          this.financement,
-          this.recettes
-        );
+        const createdRecette = await this.recettesService.add(recette);
         this.popupService.success(Messages.SUCCESS_CREATE_RECETTE);
         const projetCallback: ProjetCallback = {
           cb: event.callBack,
@@ -185,11 +181,7 @@ export class RecettesComponent implements OnInit, OnChanges {
       event.callBack({ formErrors });
     } else {
       try {
-        const updatedRecette = await this.recettesService.modify(
-          recette,
-          this.financement,
-          this.recettes
-        );
+        const updatedRecette = await this.recettesService.modify(recette);
         this.popupService.success(Messages.SUCCESS_UPDATE_RECETTE);
         const projetCallback: ProjetCallback = {
           cb: event.callBack,
