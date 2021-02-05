@@ -43,4 +43,15 @@ export interface GenericTableOptions<T> {
    * Indique un lien de navigation. Il faut définir un callback retournant une URL.
    */
   navigationUrlFt?: (item: T) => string;
+
+  /**
+   * Indique si l'item est en lecture seule.
+   * Note : cela n'empêche pas la suppression.
+   */
+  readOnlyFt?: (item: T) => boolean;
+
+  /**
+   * Indique si la colonne (correspondante à la propriété en paramètre) de l'item est en lecture seule.
+   */
+  readOnlyPropertyFt?: (item: T, propertyName: string) => boolean;
 }
