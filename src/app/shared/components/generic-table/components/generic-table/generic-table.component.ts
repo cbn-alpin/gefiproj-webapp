@@ -118,8 +118,6 @@ export class GenericTableComponent<T>
    */
   @Output() sortEvent = new EventEmitter<SortInfo>();
 
-  @Output() selectedEntityUpdatedEvent = new EventEmitter<T>();
-
   @Output() startEditEvent = new EventEmitter<T>();
 
   /**
@@ -257,9 +255,6 @@ export class GenericTableComponent<T>
       (cleanedEntity) => cleanedEntity !== null
     );
     entity.state = GenericTableEntityState.EDIT;
-    if (!this.selectedEntity) {
-      this.updateSelectedEntity(null);
-    }
   }
 
   public edit(event, entity: GenericTableEntity<T>): void {
@@ -273,9 +268,6 @@ export class GenericTableComponent<T>
         this.handleAction(entity, genericTableEntityErrors, up),
     };
     this.editEvent.emit(genericTableEntityEvent);
-    if (!this.selectedEntity) {
-      this.updateSelectedEntity(null);
-    }
   }
 
   public cancelEditing(event, entity: GenericTableEntity<T>): void {
@@ -289,9 +281,6 @@ export class GenericTableComponent<T>
       entity?.id === entityCopied?.id ? entityCopied : entity
     );
     this.genericTableErrorService.cleanErrors(entity);
-    if (!this.selectedEntity) {
-      this.updateSelectedEntity(null);
-    }
   }
 
   public onCreate(): void {
@@ -308,7 +297,6 @@ export class GenericTableComponent<T>
       this.genericTableEntitiesCopy
     );
     this.genericTableEntities = [entity].concat(this.genericTableEntities);
-    this.updateSelectedEntity(null);
   }
 
   public create(event, entity: GenericTableEntity<T>): void {
@@ -322,7 +310,6 @@ export class GenericTableComponent<T>
         this.handleAction(entity, genericTableEntityErrors, up),
     };
     this.createEvent.emit(genericTableEntityEvent);
-    this.updateSelectedEntity(entity);
   }
 
   public cancelCreation(event, entity: GenericTableEntity<T>): void {
@@ -331,7 +318,6 @@ export class GenericTableComponent<T>
     this.genericTableEntities = this.genericTableEntities?.filter(
       (data) => entity.data !== data.data
     );
-    this.updateSelectedEntity(null);
   }
 
   public delete(event, entity: GenericTableEntity<T>): void {
@@ -344,9 +330,6 @@ export class GenericTableComponent<T>
         this.handleAction(entity, genericTableEntityErrors),
     };
     this.deleteEvent.emit(genericTableEntityEvent);
-    if (this.selectedEntity && this.selectedEntity.id === entity.id) {
-      this.updateSelectedEntity(null);
-    }
   }
 
   public changePwd(event, entity: GenericTableEntity<T>): void {
@@ -384,7 +367,6 @@ export class GenericTableComponent<T>
         );
       }
       this.selectEvent.emit(genericTableEntityEvent);
-      this.updateSelectedEntity(entity);
     }
   }
 
@@ -435,7 +417,6 @@ export class GenericTableComponent<T>
       if (up) {
         this.selectedRow = up;
         this.loadSelectedEntity();
-        this.updateSelectedEntity(this.selectedEntity);
       }
       if (
         this.genericTableAction === GenericTableAction.EDIT ||
@@ -507,28 +488,10 @@ export class GenericTableComponent<T>
     }
   }
 
-  private updateSelectedEntity(entity: GenericTableEntity<T>): void {
-    this.selectedEntity = entity;
-    this.selectedEntityUpdatedEvent.emit(
-      this.selectedEntity ? this.selectedEntity.data : null
-    );
-  }
-
   private loadSelectedEntity(): void {
-    let entity: GenericTableEntity<T>;
-    entity = this.genericTableEntities?.find(
+    this.selectedEntity = this.genericTableEntities?.find(
       (entity) => entity.data === this.selectedRow
     );
-    if (entity) {
-      this.selectedEntity = entity;
-    } else if (this.selectedEntity) {
-      this.selectedEntity = {
-        ...this.selectedEntity,
-        data: this.selectedRow,
-      };
-    } else {
-      this.selectedEntity = null;
-    }
   }
 
   private loadDisplayedColumns(): void {

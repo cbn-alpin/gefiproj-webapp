@@ -23,6 +23,7 @@ import {
 import { PopupService } from '../../shared/services/popup.service';
 import { SortInfo } from '../../shared/components/generic-table/models/sortInfo';
 import { basicSort } from '../../shared/tools/utils';
+import { ProjetCallback } from '../../models/projet';
 
 @Component({
   selector: 'app-montants-affectes',
@@ -50,10 +51,11 @@ export class MontantsAffectesComponent implements OnChanges {
    */
   @Input() public montantsAffectes: MontantAffecte[];
 
-  @Output()
-  public montantsAffectesChange: EventEmitter<
-    MontantAffecte[]
-  > = new EventEmitter<MontantAffecte[]>();
+  @Output() public createEvent = new EventEmitter<ProjetCallback>();
+
+  @Output() public editEvent = new EventEmitter<ProjetCallback>();
+
+  @Output() public deleteEvent = new EventEmitter<ProjetCallback>();
 
   public get showActions(): boolean {
     return this.isAdministrator && !this.projectIsBalance;
@@ -134,22 +136,6 @@ export class MontantsAffectesComponent implements OnChanges {
   }
 
   /**
-   * Charge les montants affectes depuis le serveur.
-   */
-  async loadMontantsAffectes(receiptId: number): Promise<MontantAffecte[]> {
-    try {
-      this.montantsAffectes =
-        (await this.montantsAffectesService.getAll(receiptId)) || [];
-    } catch (error) {
-      console.error(error);
-      this.popupService.error(
-        'Impossible de charger les montants affectés : ' + error.error
-      );
-      return Promise.reject(error);
-    }
-  }
-
-  /**
    * Un montant affecté a été modifié dans le tableau.
    * @param event : encapsule le montant affecté à modifier.
    */
@@ -161,13 +147,15 @@ export class MontantsAffectesComponent implements OnChanges {
         throw new Error("Le montant affecté n'existe pas");
       }
 
-      if (this.validateForGenericTable(event , create)) {
-          delete montant.recette;
-          const updatedMontant = await this.montantsAffectesService.put(
-            montant
-          );
-          event.callBack(null);
-          this.modify(updatedMontant);
+      if (this.validateForGenericTable(event, create)) {
+        delete montant.recette;
+        const updatedMontant = await this.montantsAffectesService.put(montant);
+        const projetCallback: ProjetCallback = {
+          cb: event.callBack,
+          id: updatedMontant.id_ma,
+          message: 'Le montant affecté a été modifié',
+        };
+        this.editEvent.emit(projetCallback);
       }
     } catch (error) {
       console.log('er', error);
@@ -182,7 +170,7 @@ export class MontantsAffectesComponent implements OnChanges {
    * @param gtEvent : encapsule un nouveau montant affecté ou un montant affecté modifié.
    */
   private validateForGenericTable(
-    gtEvent: GenericTableEntityEvent<MontantAffecte> ,
+    gtEvent: GenericTableEntityEvent<MontantAffecte>,
     create: boolean
   ): boolean {
     if (!gtEvent) {
@@ -235,19 +223,20 @@ export class MontantsAffectesComponent implements OnChanges {
       };
       formErrors.push(error);
     }
-    if(create) {
+    if (create) {
       if (this.checkMontantCreate(montant)) {
         const error = {
           name: this.namesMap.montant_ma.code,
-          message: 'La somme des montants est supérieur au montant de la recette !',
+          message:
+            'La somme des montants est supérieur au montant de la recette !',
         };
         formErrors.push(error);
       }
-    }
-    else if (this.checkMontantEdit(montant)) {
+    } else if (this.checkMontantEdit(montant)) {
       const error = {
         name: this.namesMap.montant_ma.code,
-        message: 'La somme des montants est supérieur au montant de la recette !',
+        message:
+          'La somme des montants est supérieur au montant de la recette !',
       };
       formErrors.push(error);
     }
@@ -268,12 +257,16 @@ export class MontantsAffectesComponent implements OnChanges {
       }
 
       if (this.validateForGenericTable(event, create)) {
-          const createdMontant = await this.montantsAffectesService.post(
-            montant,
-            Number(this.receipt.id_r)
-          );
-          event.callBack(null);
-          this.create(createdMontant);
+        const createdMontant = await this.montantsAffectesService.post(
+          montant,
+          Number(this.receipt.id_r)
+        );
+        const projetCallback: ProjetCallback = {
+          cb: event.callBack,
+          id: createdMontant.id_ma,
+          message: 'Le montant affecté a été créé',
+        };
+        this.createEvent.emit(projetCallback);
       }
     } catch (error) {
       console.error(error);
@@ -314,13 +307,15 @@ export class MontantsAffectesComponent implements OnChanges {
       dialogRef.afterClosed().subscribe(async (result) => {
         if (result) {
           await this.montantsAffectesService.delete(montant);
-          this.popupService.success(
-            'Le montant affecté de montant ' +
+          const projetCallback: ProjetCallback = {
+            cb: event.callBack,
+            id: montant.id_ma,
+            message:
+              'Le montant affecté de montant ' +
               montant.montant_ma +
-              ' €, a été supprimé du projet.'
-          );
-          event.callBack(null);
-          this.delete(montant);
+              ' €, a été supprimé du projet.',
+          };
+          this.deleteEvent.emit(projetCallback);
         }
       });
     } catch (error) {
@@ -373,30 +368,6 @@ export class MontantsAffectesComponent implements OnChanges {
       sumAmounts += +Number(amount.montant_ma);
     });
     return Number(montant.montant_ma) + sumAmounts > this.receipt.montant_r;
-  }
-
-  private create(montantAffecte: MontantAffecte): void {
-    this.montantsAffectes.push(montantAffecte);
-    this.emitMontantsAffectesChange();
-  }
-
-  private modify(montantAffecte: MontantAffecte): void {
-    const index = this.montantsAffectes.findIndex(
-      (_montantAffecte) => _montantAffecte.id_ma === montantAffecte.id_ma
-    );
-    this.montantsAffectes[index] = montantAffecte;
-    this.emitMontantsAffectesChange();
-  }
-
-  private delete(montantAffecte: MontantAffecte): void {
-    this.montantsAffectes = this.montantsAffectes.filter(
-      (_montantAffecte) => _montantAffecte.id_ma !== montantAffecte.id_ma
-    );
-    this.emitMontantsAffectesChange();
-  }
-
-  public emitMontantsAffectesChange(): void {
-    this.montantsAffectesChange.emit(this.montantsAffectes);
   }
 
   private refreshDataTable(): void {

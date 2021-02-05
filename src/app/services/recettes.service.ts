@@ -4,6 +4,7 @@ import { Recette } from '../models/recette';
 import { CrudService } from './crud.service';
 import { HttpClient } from '@angular/common/http';
 import { SpinnerService } from './spinner.service';
+import { getDeepCopy } from '../shared/tools/utils';
 
 @Injectable({
   providedIn: 'root',
@@ -35,15 +36,11 @@ export class RecettesService {
     }
   }
 
-  public async add(
-    recette: Recette,
-    financement: Financement,
-    recettes: Recette[]
-  ): Promise<Recette> {
-    this.cleanRecette(recette);
+  public async add(recette: Recette): Promise<Recette> {
+    const cleanRecette = this.cleanRecette(recette);
     try {
-      if (recette) {
-        return await this.crudSrv.add(recette);
+      if (cleanRecette) {
+        return await this.crudSrv.add(cleanRecette);
       }
     } catch (error) {
       console.error(error);
@@ -52,15 +49,11 @@ export class RecettesService {
     }
   }
 
-  public async modify(
-    recette: Recette,
-    financement: Financement,
-    recettes: Recette[]
-  ): Promise<Recette> {
-    this.cleanRecette(recette);
+  public async modify(recette: Recette): Promise<Recette> {
+    const cleanRecette = this.cleanRecette(recette);
     try {
-      if (recette && recette.id_r) {
-        return await this.crudSrv.modify(recette, recette.id_r);
+      if (cleanRecette && cleanRecette.id_r) {
+        return await this.crudSrv.modify(cleanRecette, cleanRecette.id_r);
       }
     } catch (error) {
       console.error(error);
@@ -70,10 +63,10 @@ export class RecettesService {
   }
 
   public async delete(recette: Recette): Promise<void> {
-    this.cleanRecette(recette);
+    const cleanRecette = this.cleanRecette(recette);
     try {
-      if (recette && recette.id_r) {
-        return await this.crudSrv.delete(recette.id_r);
+      if (cleanRecette && cleanRecette.id_r) {
+        return await this.crudSrv.delete(cleanRecette.id_r);
       }
     } catch (error) {
       console.error(error);
@@ -82,10 +75,13 @@ export class RecettesService {
     }
   }
 
-  public cleanRecette(recette: Recette): void {
+  public cleanRecette(recette: Recette): Recette {
     try {
-      delete recette.financement;
-      delete recette.difference;
+      const copiedRecette = getDeepCopy(recette);
+      delete copiedRecette.financement;
+      delete copiedRecette.difference;
+
+      return copiedRecette;
     } catch (error) {
       console.error(error);
     }

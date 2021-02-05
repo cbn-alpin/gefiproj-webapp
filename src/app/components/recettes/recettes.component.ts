@@ -27,7 +27,7 @@ import { take } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { SortInfo } from '../../shared/components/generic-table/models/sortInfo';
 import { basicSort } from '../../shared/tools/utils';
-import { DefaultSortInfo } from '../../models/projet';
+import { DefaultSortInfo, ProjetCallback } from '../../models/projet';
 import { MontantsAffectesService } from '../../services/montants-affectes.service';
 import { MontantAffecte } from '../../models/montantAffecte';
 
@@ -49,22 +49,13 @@ export class RecettesComponent implements OnInit, OnChanges {
 
   @Input() public projectIsBalance: boolean;
 
-  @Output()
-  public selectEvent: EventEmitter<Recette> = new EventEmitter<Recette>();
+  @Output() public selectEvent = new EventEmitter<Recette>();
 
-  @Output()
-  public createEvent: EventEmitter<Recette> = new EventEmitter<Recette>();
+  @Output() public createEvent = new EventEmitter<ProjetCallback>();
 
-  @Output()
-  public editEvent: EventEmitter<void> = new EventEmitter<void>();
+  @Output() public editEvent = new EventEmitter<ProjetCallback>();
 
-  @Output() public deleteEvent: EventEmitter<void> = new EventEmitter<void>();
-
-  @Output()
-  public selectedRecetteChangeEvent: EventEmitter<Recette> = new EventEmitter<Recette>();
-
-  @Output()
-  public recettesChange = new EventEmitter<Recette[]>();
+  @Output() public deleteEvent = new EventEmitter<ProjetCallback>();
 
   public title = 'Recettes';
 
@@ -81,7 +72,6 @@ export class RecettesComponent implements OnInit, OnChanges {
   private defaultEntity: Recette = {
     annee_r: null,
     montant_r: null,
-    difference: null,
   };
 
   /**
@@ -168,19 +158,13 @@ export class RecettesComponent implements OnInit, OnChanges {
       event.callBack({ formErrors });
     } else {
       try {
-        const createdRecette = await this.recettesService.add(
-          recette,
-          this.financement,
-          this.recettes
-        );
-        // TODO: à supprimmer quand back renvoie la bonne différence
-        if (!createdRecette.difference) {
-          createdRecette.difference = createdRecette.montant_r;
-        }
-        event.callBack(null, createdRecette);
-        this.create(createdRecette);
-        this.popupService.success(Messages.SUCCESS_CREATE_RECETTE);
-        this.createEvent.emit(createdRecette);
+        const createdRecette = await this.recettesService.add(recette);
+        const projetCallback: ProjetCallback = {
+          cb: event.callBack,
+          id: createdRecette.id_r,
+          message: Messages.SUCCESS_CREATE_RECETTE,
+        };
+        this.createEvent.emit(projetCallback);
       } catch (error) {
         event?.callBack({
           apiError: Messages.FAILURE_CREATE_RECETTE,
@@ -191,33 +175,19 @@ export class RecettesComponent implements OnInit, OnChanges {
 
   public async onEdit(event: GenericTableEntityEvent<Recette>): Promise<void> {
     const recette = event.entity;
-    const formErrors = await this.checkFormErrors(recette, true);
+    const formErrors = await this.checkFormErrors(recette);
     if (formErrors) {
       this.popupService.error(Messages.ERROR_FORM);
       event.callBack({ formErrors });
     } else {
       try {
-        const updatedRecette = await this.recettesService.modify(
-          recette,
-          this.financement,
-          this.recettes
-        );
-        // TODO: à supprimmer quand back renvoie la bonne différence
-        const montants = await this.montantsAffectesService.getAll(
-          updatedRecette.id_r
-        );
-        const sumMontants = montants.reduce((a, b) => a + b.montant_ma, 0);
-        const difference = updatedRecette.montant_r - sumMontants;
-        updatedRecette.difference = difference;
-        event.callBack(
-          null,
-          updatedRecette.id_r === this.selectedRecette.id_r
-            ? updatedRecette
-            : null
-        );
-        this.modify(updatedRecette);
-        this.popupService.success(Messages.SUCCESS_UPDATE_RECETTE);
-        this.editEvent.emit();
+        const updatedRecette = await this.recettesService.modify(recette);
+        const projetCallback: ProjetCallback = {
+          cb: event.callBack,
+          id: updatedRecette.id_r,
+          message: Messages.SUCCESS_UPDATE_RECETTE,
+        };
+        this.editEvent.emit(projetCallback);
       } catch (error) {
         event?.callBack({
           apiError: Messages.FAILURE_UPDATE_RECETTE,
@@ -248,9 +218,12 @@ export class RecettesComponent implements OnInit, OnChanges {
         if (result) {
           try {
             await this.recettesService.delete(recette);
-            event.callBack(null);
-            this.delete(recette);
-            this.popupService.success(Messages.SUCCESS_DELETE_RECETTE);
+            const projetCallback: ProjetCallback = {
+              cb: event.callBack,
+              id: recette.id_r,
+              message: Messages.SUCCESS_DELETE_RECETTE,
+            };
+            this.deleteEvent.emit(projetCallback);
           } catch (error) {
             event?.callBack({
               apiError: Messages.FAILURE_DELETE_RECETTE,
@@ -276,8 +249,7 @@ export class RecettesComponent implements OnInit, OnChanges {
    * @param recette
    */
   public async checkFormErrors(
-    recette: Recette,
-    edit?: boolean
+    recette: Recette
   ): Promise<GenericTableFormError[]> {
     let genericTableFormErrors: GenericTableFormError[] = [];
     genericTableFormErrors = this.getAnneeError(
@@ -291,7 +263,8 @@ export class RecettesComponent implements OnInit, OnChanges {
 
     // Vérifie seulement si pas d'erreurs dans le form
     // Évite de faire un appel API alors que le form n'est pas valide
-    if (!genericTableFormErrors.length) {
+    // Si id_r est null alors la recette est en cours de création => les règles ci-dessous ne s'appliquent pas dans ce cas de figure
+    if (!genericTableFormErrors.length && recette.id_r) {
       const recettes = await this.getMontantsAffectesFromRecette(recette);
       await this.checkValidityOfRecetteAmountWithMontantAffecteAmounts(
         recette,
@@ -374,10 +347,6 @@ export class RecettesComponent implements OnInit, OnChanges {
     this.selectEvent.emit(genericTableEntityEvent.entity);
   }
 
-  public onSelectedEntityChange(recette: Recette): void {
-    this.selectedRecetteChangeEvent.emit(recette);
-  }
-
   private initGenericTableOptions(): void {
     this.options = {
       dataSource: this.recettes,
@@ -388,30 +357,6 @@ export class RecettesComponent implements OnInit, OnChanges {
       sortName: this.defaultSortInfo?.headerName,
       sortDirection: this.defaultSortInfo?.sortInfo?.direction,
     };
-  }
-
-  private create(createdRecette: Recette): void {
-    this.recettes.push(createdRecette);
-    this.emitRecettesChange();
-  }
-
-  private modify(modifiedRecette: Recette): void {
-    const index = this.recettes.findIndex(
-      (recette) => modifiedRecette.id_r === recette.id_r
-    );
-    this.recettes[index] = modifiedRecette;
-    this.emitRecettesChange();
-  }
-
-  private delete(deletedRecette: Recette): void {
-    this.recettes = this.recettes.filter(
-      (recette) => recette.id_r !== deletedRecette.id_r
-    );
-    this.emitRecettesChange();
-  }
-
-  private emitRecettesChange(): void {
-    this.recettesChange.emit(this.recettes);
   }
 
   private hasDuplicateYear(recette: Recette): boolean {

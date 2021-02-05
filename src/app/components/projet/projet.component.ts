@@ -9,7 +9,7 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 import { ProjetsService } from '../../services/projets.service';
-import { DefaultSortInfo, Projet } from '../../models/projet';
+import { DefaultSortInfo, Projet, ProjetCallback } from '../../models/projet';
 import { MontantsAffectesService } from '../../services/montants-affectes.service';
 import { MontantAffecte } from '../../models/montantAffecte';
 import { FinancementsService } from '../../services/financements.service';
@@ -30,7 +30,6 @@ import {
   Validators,
 } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
-import { GenericTableFormError } from '../../shared/components/generic-table/models/generic-table-entity';
 import { Messages } from '../../models/messages';
 
 export interface DialogData {
@@ -57,7 +56,7 @@ export class ProjetComponent implements OnInit {
 
   public selectedRecette: Recette;
 
-  public projetId: string;
+  public projetId: number;
 
   public projet: Projet;
 
@@ -102,6 +101,10 @@ export class ProjetComponent implements OnInit {
     return !!this.adminSrv.isAdministrator();
   }
 
+  private selectedFinancementId: number;
+
+  private selectedRecetteId: number;
+
   constructor(
     public readonly dialog: MatDialog,
     private readonly adminSrv: IsAdministratorGuardService,
@@ -116,7 +119,7 @@ export class ProjetComponent implements OnInit {
     private readonly usersSrv: UsersService,
     private readonly authService: AuthService
   ) {
-    this.projetId = this.route.snapshot.params.id;
+    this.projetId = Number(this.route.snapshot.params.id);
     if (!this.projetId) {
       this.router.navigate(['home']);
     }
@@ -124,7 +127,7 @@ export class ProjetComponent implements OnInit {
 
   public async ngOnInit(): Promise<void> {
     try {
-      await this.loadData(Number(this.projetId));
+      await this.loadData(this.projetId);
     } catch (error) {
       console.error(error);
       this.popupService.error(
@@ -145,9 +148,11 @@ export class ProjetComponent implements OnInit {
       this.manager = this.projet.responsable;
       if (this.financements && this.financements.length > 0) {
         this.selectedFinancement = this.financements[0];
+        this.selectedFinancementId = this.financements[0].id_f;
         await this.loadRecettesFromFinancementId(this.selectedFinancement.id_f);
         if (this.recettes && this.recettes.length > 0) {
           this.selectedRecette = this.recettes[0];
+          this.selectedRecetteId = this.recettes[0].id_r;
           await this.loadMontantsFromRecetteId(this.selectedRecette.id_r);
         }
       }
@@ -158,91 +163,109 @@ export class ProjetComponent implements OnInit {
 
   public async onSelectFinancement(financement: Financement): Promise<void> {
     this.selectedFinancement = financement;
+    this.selectedFinancementId = financement.id_f;
     await this.loadRecettesFromFinancementId(financement.id_f);
     if (this.recettes && this.recettes.length > 0) {
       this.selectedRecette = this.recettes[0];
+      this.selectedRecetteId = this.recettes[0].id_r;
       this.loadMontantsFromRecetteId(this.selectedRecette.id_r);
     } else {
+      this.selectedRecette = null;
+      this.selectedRecetteId = null;
       this.montantsAffectes = null;
     }
   }
 
   public onSelectRecette(recette: Recette): void {
+    this.selectedRecette = recette;
+    this.selectedRecetteId = recette.id_r;
     this.loadMontantsFromRecetteId(recette.id_r);
   }
 
-  public onCreateFinancement(): void {
-    if (!this.recettes) {
-      this.recettes = [];
-    }
-    if (this.financements.length === 1) {
-      this.selectedFinancement = this.financements[0];
-    }
-  }
-
-  public onEditFinancement(): void {
-    if (!this.recettes) {
-      this.recettes = [];
-    }
-  }
-
-  public onDeleteFinancement(): void {
-    if (!this.selectedFinancement && this.recettes) {
+  public onDeleteFinancement(projetCallback: ProjetCallback): void {
+    if (this.selectedFinancementId === projetCallback.id) {
+      this.selectedFinancement = null;
+      this.selectedFinancementId = null;
+      this.selectedRecette = null;
+      this.selectedRecetteId = null;
       this.recettes = null;
       this.montantsAffectes = null;
     }
+    this.refreshFinancements(projetCallback);
   }
 
-  public onDeleteRecette(): void {
-    if (!this.selectedRecette && this.montantsAffectes) {
+  public onDeleteRecette(projetCallback: ProjetCallback): void {
+    if (this.selectedRecetteId === projetCallback.id) {
+      this.selectedRecette = null;
+      this.selectedRecetteId = null;
       this.montantsAffectes = null;
     }
+    this.refreshRecettes(projetCallback);
   }
 
-  public onSelectedRecetteChange(recette: Recette): void {
-    this.selectedRecette = recette;
-    if (this.selectedRecette == null) {
-      this.montantsAffectes = null;
+  public onDeleteMontantAffecte(projetCallback: ProjetCallback): void {
+    this.refreshMontantsAffectes(projetCallback);
+  }
+
+  public onCreateFinancement(projetCallback: ProjetCallback): void {
+    this.selectedFinancementId = projetCallback.id;
+    this.recettes = [];
+    this.montantsAffectes = null;
+    this.selectedRecette = null;
+    this.selectedRecetteId = null;
+    this.refreshFinancements(projetCallback);
+  }
+
+  public onCreateRecette(projetCallback: ProjetCallback): void {
+    this.selectedRecetteId = projetCallback.id;
+    this.montantsAffectes = [];
+    this.refreshRecettes(projetCallback);
+  }
+
+  public onCreateMontantAffecte(projetCallback: ProjetCallback): void {
+    this.refreshMontantsAffectes(projetCallback);
+  }
+
+  public onEditFinancement(projetCallback: ProjetCallback): void {
+    this.refreshFinancements(projetCallback);
+  }
+
+  public onEditRecette(projetCallback: ProjetCallback): void {
+    this.refreshRecettes(projetCallback);
+  }
+
+  public onEditMontantAffecte(projetCallback: ProjetCallback): void {
+    this.refreshMontantsAffectes(projetCallback);
+  }
+
+  public async refreshFinancements(
+    projetCallback: ProjetCallback
+  ): Promise<void> {
+    await this.loadFinancementsFromProjetId(this.projet.id_p);
+    projetCallback?.cb(); // -> Passer la ligne du tableau en mode lecture
+    if (projetCallback?.message) {
+      this.popupService.success(projetCallback.message);
     }
   }
 
-  public onSelectedFinancementChange(financement: Financement): void {
-    this.selectedFinancement = financement;
-    if (this.selectedFinancement == null) {
-      this.recettes = null;
-      this.montantsAffectes = null;
+  public async refreshRecettes(projetCallback: ProjetCallback): Promise<void> {
+    await this.loadFinancementsFromProjetId(this.projet.id_p);
+    await this.loadRecettesFromFinancementId(this.selectedFinancement.id_f);
+    projetCallback?.cb(); // -> Passer la ligne du tableau en mode lecture
+    if (projetCallback?.message) {
+      this.popupService.success(projetCallback.message);
     }
   }
 
-  public onCreateRecette(recette: Recette): void {
-    if (!this.montantsAffectes) {
-      this.montantsAffectes = [];
+  public async refreshMontantsAffectes(
+    projetCallback: ProjetCallback
+  ): Promise<void> {
+    await this.loadRecettesFromFinancementId(this.selectedFinancement.id_f);
+    await this.loadMontantsFromRecetteId(this.selectedRecette.id_r);
+    projetCallback?.cb(); // -> Passer la ligne du tableau en mode lecture
+    if (projetCallback?.message) {
+      this.popupService.success(projetCallback.message);
     }
-  }
-
-  public onEditRecette(): void {}
-
-  public onFinancementsChange(financements: Financement[]): void {
-    this.financements = [...financements];
-  }
-
-  public onRecettesChange(recettes: Recette[]): void {
-    this.recettes = [...recettes];
-    // Calcule de la différence pour le financement sélectionné
-    const sumRecettes = this.recettes.reduce((a, b) => a + b.montant_r, 0);
-    this.selectedFinancement.difference =
-      this.selectedFinancement.montant_arrete_f - sumRecettes;
-  }
-
-  public onMontantsAffectesChange(montantAffectes: MontantAffecte[]): void {
-    this.montantsAffectes = [...montantAffectes];
-    // Calcule de la différence pour la recette sélectionné
-    const sumMontants = this.montantsAffectes.reduce(
-      (a, b) => a + b.montant_ma,
-      0
-    );
-    this.selectedRecette.difference =
-      this.selectedRecette.montant_r - sumMontants;
   }
 
   public displayProjet(): boolean {
@@ -288,6 +311,9 @@ export class ProjetComponent implements OnInit {
           financements,
           this.financementsDefaultSortInfo.sortInfo
         );
+        this.selectedFinancement = this.financements.find(
+          (financement) => financement.id_f === this.selectedFinancementId
+        );
       }
     } catch (error) {
       console.error(error);
@@ -306,14 +332,9 @@ export class ProjetComponent implements OnInit {
           recettes,
           this.recettesDefaultSortInfo.sortInfo
         );
-        // TODO:
-        // Dans le back, si une recette n'a pas de financement alors sa difference = null
-        // Il faut mieux set la difference = montant recette dans ce cas
-        this.recettes.forEach((recette) => {
-          if (recette.difference == null) {
-            recette.difference = recette.montant_r;
-          }
-        });
+        this.selectedRecette = this.recettes.find(
+          (recette) => recette.id_r === this.selectedRecetteId
+        );
       }
     } catch (error) {
       console.error(error);
@@ -351,7 +372,9 @@ export class ProjetComponent implements OnInit {
   //   console.log('RECETTES: ', this.recettes);
   //   console.log('MONTANTS: ', this.montantsAffectes);
   //   console.log('SELECTED FINANCEMENTS: ', this.selectedFinancement);
+  //   console.log('SELECTED FINANCEMENTS ID: ', this.selectedFinancementId);
   //   console.log('SELECTED RECETTES: ', this.selectedRecette);
+  //   console.log('SELECTED RECETTES ID: ', this.selectedRecetteId);
   // }
 
   public async openEditProjectDialog(): Promise<void> {

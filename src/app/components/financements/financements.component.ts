@@ -28,8 +28,8 @@ import { PopupService } from '../../shared/services/popup.service';
 import * as moment from 'moment';
 import { take } from 'rxjs/operators';
 import { SortInfo } from '../../shared/components/generic-table/models/sortInfo';
-import { basicSort } from '../../shared/tools/utils';
-import { DefaultSortInfo } from '../../models/projet';
+import { basicSort, getDeepCopy } from '../../shared/tools/utils';
+import { DefaultSortInfo, Projet, ProjetCallback } from '../../models/projet';
 import { RecettesService } from '../../services/recettes.service';
 import { EntityType } from '../../shared/components/generic-table/models/entity-types';
 import { Recette } from '../../models/recette';
@@ -56,22 +56,13 @@ export class FinancementsComponent implements OnInit, OnChanges {
 
   @Input() public projectIsBalance: boolean;
 
-  @Output()
-  public selectEvent: EventEmitter<Financement> = new EventEmitter<Financement>();
+  @Output() public selectEvent = new EventEmitter<Financement>();
 
-  @Output() public createEvent: EventEmitter<void> = new EventEmitter<void>();
+  @Output() public createEvent = new EventEmitter<ProjetCallback>();
 
-  @Output() public editEvent: EventEmitter<void> = new EventEmitter<void>();
+  @Output() public editEvent = new EventEmitter<ProjetCallback>();
 
-  @Output() public deleteEvent: EventEmitter<void> = new EventEmitter<void>();
-
-  @Output()
-  public financementsChange: EventEmitter<Financement[]> = new EventEmitter<
-    Financement[]
-  >();
-
-  @Output()
-  public selectedFinancementChange: EventEmitter<Financement> = new EventEmitter<Financement>();
+  @Output() public deleteEvent = new EventEmitter<ProjetCallback>();
 
   /**
    * Titre du tableau générique
@@ -203,7 +194,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
       changes.financements.currentValue &&
       changes.financements.previousValue
     ) {
-      this.refreshDataTableWithHttpGet();
+      this.refreshDataTable();
     }
     if (
       changes.isResponsable &&
@@ -236,22 +227,12 @@ export class FinancementsComponent implements OnInit, OnChanges {
         updatedFinancement = this.loadFinanceurInFinancement(
           updatedFinancement
         );
-        // TODO: à supprimmer quand back renvoie la bonne différence
-        const recettes = await this.recettesService.getAll(
-          updatedFinancement.id_f
-        );
-        const sumRecettes = recettes.reduce((a, b) => a + b.montant_r, 0);
-        const difference = updatedFinancement.montant_arrete_f - sumRecettes;
-        updatedFinancement.difference = difference;
-        event.callBack(
-          null,
-          updatedFinancement.id_f === this.selectedFinancement.id_f
-            ? updatedFinancement
-            : null
-        );
-        this.modify(updatedFinancement);
-        this.editEvent.emit();
-        this.popupService.success('Le financement a été modifié.');
+        const projetCallback: ProjetCallback = {
+          cb: event.callBack,
+          id: updatedFinancement.id_f,
+          message: 'Le financement a été modifié',
+        };
+        this.editEvent.emit(projetCallback);
       }
     } catch (error) {
       console.error(error.error.errors);
@@ -274,32 +255,34 @@ export class FinancementsComponent implements OnInit, OnChanges {
    * @param financement
    */
   private transformFormat(financement: Financement): Financement {
-    if (financement?.financeur) delete financement?.financeur;
-    if (financement.hasOwnProperty('difference')) {
-      delete financement.difference;
+    const copiedFinancement = getDeepCopy(financement);
+    if (copiedFinancement.hasOwnProperty('difference')) {
+      delete copiedFinancement.difference;
     }
-    if (financement.hasOwnProperty('solde')) delete financement.solde;
-    if (!financement.hasOwnProperty('id_p')) {
-      financement.id_p = Number(this.projectId);
+    if (copiedFinancement?.financeur) delete copiedFinancement?.financeur;
+    if (copiedFinancement.hasOwnProperty('solde'))
+      delete copiedFinancement.solde;
+    if (!copiedFinancement.hasOwnProperty('id_p')) {
+      copiedFinancement.id_p = Number(this.projectId);
     }
     // transform date
-    if (financement.date_arrete_f) {
-      financement.date_arrete_f = this.toTransformDateFormat(
-        financement.date_arrete_f
+    if (copiedFinancement.date_arrete_f) {
+      copiedFinancement.date_arrete_f = this.toTransformDateFormat(
+        copiedFinancement.date_arrete_f
       );
     }
-    if (financement.date_limite_solde_f) {
-      financement.date_limite_solde_f = this.toTransformDateFormat(
-        financement.date_limite_solde_f
+    if (copiedFinancement.date_limite_solde_f) {
+      copiedFinancement.date_limite_solde_f = this.toTransformDateFormat(
+        copiedFinancement.date_limite_solde_f
       );
     }
-    if (financement.date_solde_f) {
-      financement.date_solde_f = this.toTransformDateFormat(
-        financement.date_solde_f
+    if (copiedFinancement.date_solde_f) {
+      copiedFinancement.date_solde_f = this.toTransformDateFormat(
+        copiedFinancement.date_solde_f
       );
     }
 
-    return financement;
+    return copiedFinancement;
   }
 
   /**
@@ -321,7 +304,8 @@ export class FinancementsComponent implements OnInit, OnChanges {
 
       // Vérifie seulement si pas d'erreurs dans le form
       // Évite de faire un appel API alors que le form n'est pas valide
-      if (!formErrors.length) {
+      // Si id_f est null alors le financement est en cours de création => les règles ci-dessous ne s'appliquent pas dans ce cas de figure
+      if (!formErrors.length && financement.id_f) {
         const recettes = await this.getRecettesFromFinancement(financement);
         await this.checkValidityOfDateArreteFinancementWithRecetteYears(
           financement,
@@ -444,23 +428,20 @@ export class FinancementsComponent implements OnInit, OnChanges {
         throw new Error("Le financement n'existe pas");
       }
       financement = this.transformFormat(financement);
-
-      if (this.validateForGenericTable(event)) {
+      if (await this.validateForGenericTable(event)) {
         let createdFinancement = await this.financementsService.post(
           financement
         );
         createdFinancement = this.loadFinanceurInFinancement(
           createdFinancement
         );
-        // TODO: à supprimmer quand back renvoie la bonne différence
-        if (!createdFinancement.difference) {
-          createdFinancement.difference = createdFinancement.montant_arrete_f;
-        }
-        event.callBack(null, createdFinancement); // Valide la modification dans le composant DataTable fils
-        this.create(createdFinancement);
         this.selectedFinancement = createdFinancement;
-        this.popupService.success('Le financement a été crée.');
-        this.createEvent.emit();
+        const projetCallback: ProjetCallback = {
+          cb: event.callBack,
+          id: createdFinancement.id_f,
+          message: 'Le financement a été crée',
+        };
+        this.createEvent.emit(projetCallback);
       }
     } catch (error) {
       console.error(error);
@@ -508,13 +489,15 @@ export class FinancementsComponent implements OnInit, OnChanges {
         if (result) {
           try {
             await this.financementsService.delete(financement);
-            event.callBack(null);
-            this.delete(financement);
-            this.popupService.success(
-              'Le financement de montant ' +
+            const projetCallback: ProjetCallback = {
+              cb: event.callBack,
+              id: financement.id_f,
+              message:
+                'Le financement de montant ' +
                 financement.montant_arrete_f +
-                '€, a été supprimé du projet.'
-            );
+                '€, a été supprimé du projet.',
+            };
+            this.deleteEvent.emit(projetCallback);
           } catch (error) {
             event?.callBack({
               apiError:
@@ -548,15 +531,6 @@ export class FinancementsComponent implements OnInit, OnChanges {
     } catch (error) {
       console.error(error);
     }
-  }
-
-  public onSelectedEntityChange(financement: Financement): void {
-    this.selectedFinancement = financement;
-    this.emitSelectedFinancementChange();
-  }
-
-  private emitSelectedFinancementChange(): void {
-    this.selectedFinancementChange.emit(this.selectedFinancement);
   }
 
   /**
@@ -655,30 +629,6 @@ export class FinancementsComponent implements OnInit, OnChanges {
     this.updateEntityTypesWithUserRight();
   }
 
-  private create(financement: Financement): void {
-    this.financements.push(financement);
-    this.emitFinancementsChange();
-  }
-
-  private modify(financement: Financement): void {
-    const index = this.financements.findIndex(
-      (_financement) => _financement.id_f === financement.id_f
-    );
-    this.financements[index] = financement;
-    this.emitFinancementsChange();
-  }
-
-  private delete(financement: Financement): void {
-    this.financements = this.financements.filter(
-      (_financement) => _financement.id_f !== financement.id_f
-    );
-    this.emitFinancementsChange();
-  }
-
-  private emitFinancementsChange(): void {
-    this.financementsChange.emit(this.financements);
-  }
-
   private loadFinanceurInFinancement(financement: Financement): Financement {
     return financement.id_financeur
       ? {
@@ -740,31 +690,6 @@ export class FinancementsComponent implements OnInit, OnChanges {
     };
   }
 
-  private async refreshDataTableWithHttpGet(): Promise<void> {
-    await this.loadFinancements(Number(this.projectId));
-
-    this.options = {
-      ...this.options,
-      dataSource: basicSort(this.financements, this.sortInfo),
-    };
-  }
-
-  /**
-   * Charge les financements depuis le serveur.
-   */
-  private async loadFinancements(projetId: number): Promise<Financement[]> {
-    try {
-      this.financements =
-        (await this.financementsService.getAll(projetId)) || [];
-    } catch (error) {
-      console.error(error);
-      this.popupService.error(
-        'Impossible de charger les financements : ' + error.error
-      );
-      return Promise.reject(error);
-    }
-  }
-
   /**
    * Désactive l'édition des colonnes qui ne correspondent pas aux colonnes passé en paramètre
    * @param entityTypes
@@ -804,6 +729,10 @@ export class FinancementsComponent implements OnInit, OnChanges {
     }
   }
 
+  /**
+   * Désactive l'édition de certaines colonnes selon les rôles de l'utilisateur
+   * @private
+   */
   private updateEntityTypesWithUserRight(): void {
     let upEntityTypes: EntityType[];
     const codes = this.options.entityTypes.map((entityType) => entityType.code);
