@@ -27,7 +27,7 @@ import { take } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { SortInfo } from '../../shared/components/generic-table/models/sortInfo';
 import { basicSort } from '../../shared/tools/utils';
-import { DefaultSortInfo } from '../../models/projet';
+import { DefaultSortInfo, ProjetCallback } from '../../models/projet';
 import { MontantsAffectesService } from '../../services/montants-affectes.service';
 import { MontantAffecte } from '../../models/montantAffecte';
 
@@ -51,11 +51,11 @@ export class RecettesComponent implements OnInit, OnChanges {
 
   @Output() public selectEvent = new EventEmitter<Recette>();
 
-  @Output() public createEvent = new EventEmitter<number>();
+  @Output() public createEvent = new EventEmitter<ProjetCallback>();
 
-  @Output() public editEvent = new EventEmitter<number>();
+  @Output() public editEvent = new EventEmitter<ProjetCallback>();
 
-  @Output() public deleteEvent = new EventEmitter<number>();
+  @Output() public deleteEvent = new EventEmitter<ProjetCallback>();
 
   public title = 'Recettes';
 
@@ -163,9 +163,12 @@ export class RecettesComponent implements OnInit, OnChanges {
           this.financement,
           this.recettes
         );
-        event.callBack(null);
         this.popupService.success(Messages.SUCCESS_CREATE_RECETTE);
-        this.createEvent.emit(createdRecette.id_r);
+        const projetCallback: ProjetCallback = {
+          cb: event.callBack,
+          id: createdRecette.id_r,
+        };
+        this.createEvent.emit(projetCallback);
       } catch (error) {
         event?.callBack({
           apiError: Messages.FAILURE_CREATE_RECETTE,
@@ -187,9 +190,12 @@ export class RecettesComponent implements OnInit, OnChanges {
           this.financement,
           this.recettes
         );
-        event.callBack(null);
         this.popupService.success(Messages.SUCCESS_UPDATE_RECETTE);
-        this.editEvent.emit(updatedRecette.id_r);
+        const projetCallback: ProjetCallback = {
+          cb: event.callBack,
+          id: updatedRecette.id_r,
+        };
+        this.editEvent.emit(projetCallback);
       } catch (error) {
         event?.callBack({
           apiError: Messages.FAILURE_UPDATE_RECETTE,
@@ -220,9 +226,12 @@ export class RecettesComponent implements OnInit, OnChanges {
         if (result) {
           try {
             await this.recettesService.delete(recette);
-            event.callBack(null);
-            this.deleteEvent.emit(recette.id_r);
             this.popupService.success(Messages.SUCCESS_DELETE_RECETTE);
+            const projetCallback: ProjetCallback = {
+              cb: event.callBack,
+              id: recette.id_r,
+            };
+            this.deleteEvent.emit(projetCallback);
           } catch (error) {
             event?.callBack({
               apiError: Messages.FAILURE_DELETE_RECETTE,

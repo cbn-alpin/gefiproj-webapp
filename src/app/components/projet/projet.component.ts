@@ -9,7 +9,7 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 import { ProjetsService } from '../../services/projets.service';
-import { DefaultSortInfo, Projet } from '../../models/projet';
+import { DefaultSortInfo, Projet, ProjetCallback } from '../../models/projet';
 import { MontantsAffectesService } from '../../services/montants-affectes.service';
 import { MontantAffecte } from '../../models/montantAffecte';
 import { FinancementsService } from '../../services/financements.service';
@@ -196,13 +196,13 @@ export class ProjetComponent implements OnInit {
     this.refreshFinancements();
   }
 
-  public onDeleteRecette(recetteId: number): void {
-    if (this.selectedRecetteId === recetteId) {
+  public onDeleteRecette(projetCallback: ProjetCallback): void {
+    if (this.selectedRecetteId === projetCallback.id) {
       this.selectedRecette = null;
       this.selectedRecetteId = null;
       this.montantsAffectes = null;
     }
-    this.refreshRecettes();
+    this.refreshRecettes(projetCallback);
   }
 
   public onDeleteMontantAffecte(): void {
@@ -216,10 +216,10 @@ export class ProjetComponent implements OnInit {
     this.refreshFinancements();
   }
 
-  public onCreateRecette(recetteId: number): void {
-    this.selectedRecetteId = recetteId;
+  public onCreateRecette(projetCallback: ProjetCallback): void {
+    this.selectedRecetteId = projetCallback.id;
     this.montantsAffectes = [];
-    this.refreshRecettes();
+    this.refreshRecettes(projetCallback);
   }
 
   public onCreateMontantAffecte(): void {
@@ -230,8 +230,8 @@ export class ProjetComponent implements OnInit {
     this.refreshFinancements();
   }
 
-  public onEditRecette(): void {
-    this.refreshRecettes();
+  public onEditRecette(projetCallback: ProjetCallback): void {
+    this.refreshRecettes(projetCallback);
   }
 
   public onEditMontantAffecte(): void {
@@ -242,9 +242,10 @@ export class ProjetComponent implements OnInit {
     await this.loadFinancementsFromProjetId(this.projet.id_p);
   }
 
-  public async refreshRecettes(): Promise<void> {
+  public async refreshRecettes(projetCallback: ProjetCallback): Promise<void> {
     await this.loadFinancementsFromProjetId(this.projet.id_p);
     await this.loadRecettesFromFinancementId(this.selectedFinancement.id_f);
+    projetCallback.cb();
   }
 
   public async refreshMontantsAffectes(): Promise<void> {
