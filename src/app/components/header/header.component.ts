@@ -33,6 +33,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
       link: '/depenses'
     },
     {
+      label: 'Entrées/Sorties',
+      link: '/entrees-sorties'
+    },
+    {
       label: 'Recettes comptables',
       link: '/recette-comptable'
     },

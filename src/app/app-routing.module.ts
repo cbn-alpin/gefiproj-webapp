@@ -10,6 +10,7 @@ import { RecettesComptablesComponent } from './components/recettes-comptables/re
 import { UtilisateursComponent } from './components/utilisateurs/utilisateurs.component';
 import { EnsureAuthenticatedService } from './services/authentication/ensure-authenticated.service';
 import { IsAdministratorGuardService } from './services/authentication/is-administrator-guard.service';
+import {EntreesSortiesComponent} from './components/entrees-sorties/entrees-sorties.component';
 
 const routes: Routes = [
   {
@@ -29,6 +30,11 @@ const routes: Routes = [
   {
     path: 'depenses',
     component: DepensesComponent,
+    canActivate: [EnsureAuthenticatedService],
+  },
+  {
+    path: 'entrees-sorties',
+    component: EntreesSortiesComponent,
     canActivate: [EnsureAuthenticatedService],
   },
   {
