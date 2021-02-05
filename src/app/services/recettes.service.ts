@@ -85,7 +85,6 @@ export class RecettesService {
   public cleanRecette(recette: Recette): void {
     try {
       delete recette.financement;
-      delete recette.difference;
     } catch (error) {
       console.error(error);
     }

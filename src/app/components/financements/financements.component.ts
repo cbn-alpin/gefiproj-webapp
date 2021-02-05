@@ -29,7 +29,7 @@ import * as moment from 'moment';
 import { take } from 'rxjs/operators';
 import { SortInfo } from '../../shared/components/generic-table/models/sortInfo';
 import { basicSort } from '../../shared/tools/utils';
-import { DefaultSortInfo } from '../../models/projet';
+import { DefaultSortInfo, Projet, ProjetCallback } from '../../models/projet';
 import { RecettesService } from '../../services/recettes.service';
 import { EntityType } from '../../shared/components/generic-table/models/entity-types';
 import { Recette } from '../../models/recette';
@@ -58,11 +58,11 @@ export class FinancementsComponent implements OnInit, OnChanges {
 
   @Output() public selectEvent = new EventEmitter<Financement>();
 
-  @Output() public createEvent = new EventEmitter<number>();
+  @Output() public createEvent = new EventEmitter<ProjetCallback>();
 
-  @Output() public editEvent = new EventEmitter<number>();
+  @Output() public editEvent = new EventEmitter<ProjetCallback>();
 
-  @Output() public deleteEvent = new EventEmitter<number>();
+  @Output() public deleteEvent = new EventEmitter<ProjetCallback>();
 
   /**
    * Titre du tableau générique
@@ -227,9 +227,12 @@ export class FinancementsComponent implements OnInit, OnChanges {
         updatedFinancement = this.loadFinanceurInFinancement(
           updatedFinancement
         );
-        event.callBack(null);
         this.popupService.success('Le financement a été modifié.');
-        this.editEvent.emit(updatedFinancement.id_f);
+        const projetCallback: ProjetCallback = {
+          cb: event.callBack,
+          id: financement.id_f,
+        };
+        this.editEvent.emit(projetCallback);
       }
     } catch (error) {
       console.error(error.error.errors);
@@ -430,10 +433,13 @@ export class FinancementsComponent implements OnInit, OnChanges {
         createdFinancement = this.loadFinanceurInFinancement(
           createdFinancement
         );
-        event.callBack(null); // Valide la modification dans le composant DataTable fils
         this.selectedFinancement = createdFinancement;
         this.popupService.success('Le financement a été crée.');
-        this.createEvent.emit(createdFinancement.id_f);
+        const projetCallback: ProjetCallback = {
+          cb: event.callBack,
+          id: financement.id_f,
+        };
+        this.createEvent.emit(projetCallback);
       }
     } catch (error) {
       console.error(error);
@@ -481,13 +487,16 @@ export class FinancementsComponent implements OnInit, OnChanges {
         if (result) {
           try {
             await this.financementsService.delete(financement);
-            event.callBack(null);
             this.popupService.success(
               'Le financement de montant ' +
                 financement.montant_arrete_f +
                 '€, a été supprimé du projet.'
             );
-            this.deleteEvent.emit(financement.id_f);
+            const projetCallback: ProjetCallback = {
+              cb: event.callBack,
+              id: financement.id_f,
+            };
+            this.deleteEvent.emit(projetCallback);
           } catch (error) {
             event?.callBack({
               apiError:

@@ -184,8 +184,8 @@ export class ProjetComponent implements OnInit {
     this.loadMontantsFromRecetteId(recette.id_r);
   }
 
-  public onDeleteFinancement(financementId: number): void {
-    if (this.selectedFinancementId === financementId) {
+  public onDeleteFinancement(projetCallback: ProjetCallback): void {
+    if (this.selectedFinancementId === projetCallback.id) {
       this.selectedFinancement = null;
       this.selectedFinancementId = null;
       this.selectedRecette = null;
@@ -193,7 +193,7 @@ export class ProjetComponent implements OnInit {
       this.recettes = null;
       this.montantsAffectes = null;
     }
-    this.refreshFinancements();
+    this.refreshFinancements(projetCallback);
   }
 
   public onDeleteRecette(projetCallback: ProjetCallback): void {
@@ -205,15 +205,15 @@ export class ProjetComponent implements OnInit {
     this.refreshRecettes(projetCallback);
   }
 
-  public onDeleteMontantAffecte(): void {
-    this.refreshMontantsAffectes();
+  public onDeleteMontantAffecte(projetCallback: ProjetCallback): void {
+    this.refreshMontantsAffectes(projetCallback);
   }
 
-  public onCreateFinancement(financementId: number): void {
-    this.selectedFinancementId = financementId;
+  public onCreateFinancement(projetCallback: ProjetCallback): void {
+    this.selectedFinancementId = projetCallback.id;
     this.recettes = [];
     this.montantsAffectes = null;
-    this.refreshFinancements();
+    this.refreshFinancements(projetCallback);
   }
 
   public onCreateRecette(projetCallback: ProjetCallback): void {
@@ -222,35 +222,41 @@ export class ProjetComponent implements OnInit {
     this.refreshRecettes(projetCallback);
   }
 
-  public onCreateMontantAffecte(): void {
-    this.refreshMontantsAffectes();
+  public onCreateMontantAffecte(projetCallback: ProjetCallback): void {
+    this.refreshMontantsAffectes(projetCallback);
   }
 
-  public onEditFinancement(): void {
-    this.refreshFinancements();
+  public onEditFinancement(projetCallback: ProjetCallback): void {
+    this.refreshFinancements(projetCallback);
   }
 
   public onEditRecette(projetCallback: ProjetCallback): void {
     this.refreshRecettes(projetCallback);
   }
 
-  public onEditMontantAffecte(): void {
-    this.refreshMontantsAffectes();
+  public onEditMontantAffecte(projetCallback: ProjetCallback): void {
+    this.refreshMontantsAffectes(projetCallback);
   }
 
-  public async refreshFinancements(): Promise<void> {
+  public async refreshFinancements(
+    projetCallback: ProjetCallback
+  ): Promise<void> {
     await this.loadFinancementsFromProjetId(this.projet.id_p);
+    projetCallback?.cb(); // -> Passer la ligne du tableau en mode lecture
   }
 
   public async refreshRecettes(projetCallback: ProjetCallback): Promise<void> {
     await this.loadFinancementsFromProjetId(this.projet.id_p);
     await this.loadRecettesFromFinancementId(this.selectedFinancement.id_f);
-    projetCallback.cb();
+    projetCallback?.cb(); // -> Passer la ligne du tableau en mode lecture
   }
 
-  public async refreshMontantsAffectes(): Promise<void> {
+  public async refreshMontantsAffectes(
+    projetCallback: ProjetCallback
+  ): Promise<void> {
     await this.loadRecettesFromFinancementId(this.selectedFinancement.id_f);
     await this.loadMontantsFromRecetteId(this.selectedRecette.id_r);
+    projetCallback?.cb(); // -> Passer la ligne du tableau en mode lecture
   }
 
   public displayProjet(): boolean {

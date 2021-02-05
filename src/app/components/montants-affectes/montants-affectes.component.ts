@@ -23,6 +23,7 @@ import {
 import { PopupService } from '../../shared/services/popup.service';
 import { SortInfo } from '../../shared/components/generic-table/models/sortInfo';
 import { basicSort } from '../../shared/tools/utils';
+import { ProjetCallback } from '../../models/projet';
 
 @Component({
   selector: 'app-montants-affectes',
@@ -50,11 +51,11 @@ export class MontantsAffectesComponent implements OnChanges {
    */
   @Input() public montantsAffectes: MontantAffecte[];
 
-  @Output() public createEvent = new EventEmitter<number>();
+  @Output() public createEvent = new EventEmitter<ProjetCallback>();
 
-  @Output() public editEvent = new EventEmitter<number>();
+  @Output() public editEvent = new EventEmitter<ProjetCallback>();
 
-  @Output() public deleteEvent = new EventEmitter<number>();
+  @Output() public deleteEvent = new EventEmitter<ProjetCallback>();
 
   public get showActions(): boolean {
     return this.isAdministrator && !this.projectIsBalance;
@@ -153,8 +154,11 @@ export class MontantsAffectesComponent implements OnChanges {
         else {
           delete montant.recette;
           await this.montantsAffectesService.put(montant);
-          event.callBack(null);
-          this.editEvent.emit();
+          const projetCallback: ProjetCallback = {
+            cb: event.callBack,
+            id: montant.id_ma,
+          };
+          this.editEvent.emit(projetCallback);
         }
       }
     } catch (error) {
@@ -246,8 +250,11 @@ export class MontantsAffectesComponent implements OnChanges {
             montant,
             Number(this.receipt.id_r)
           );
-          event.callBack(null);
-          this.createEvent.emit();
+          const projetCallback: ProjetCallback = {
+            cb: event.callBack,
+            id: montant.id_ma,
+          };
+          this.createEvent.emit(projetCallback);
         }
       }
     } catch (error) {
@@ -294,8 +301,11 @@ export class MontantsAffectesComponent implements OnChanges {
               montant.montant_ma +
               ' €, a été supprimé du projet.'
           );
-          event.callBack(null);
-          this.deleteEvent.emit();
+          const projetCallback: ProjetCallback = {
+            cb: event.callBack,
+            id: montant.id_ma,
+          };
+          this.deleteEvent.emit(projetCallback);
         }
       });
     } catch (error) {
