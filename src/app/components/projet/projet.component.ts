@@ -213,6 +213,8 @@ export class ProjetComponent implements OnInit {
     this.selectedFinancementId = projetCallback.id;
     this.recettes = [];
     this.montantsAffectes = null;
+    this.selectedRecette = null;
+    this.selectedRecetteId = null;
     this.refreshFinancements(projetCallback);
   }
 
@@ -243,12 +245,18 @@ export class ProjetComponent implements OnInit {
   ): Promise<void> {
     await this.loadFinancementsFromProjetId(this.projet.id_p);
     projetCallback?.cb(); // -> Passer la ligne du tableau en mode lecture
+    if (projetCallback?.message) {
+      this.popupService.success(projetCallback.message);
+    }
   }
 
   public async refreshRecettes(projetCallback: ProjetCallback): Promise<void> {
     await this.loadFinancementsFromProjetId(this.projet.id_p);
     await this.loadRecettesFromFinancementId(this.selectedFinancement.id_f);
     projetCallback?.cb(); // -> Passer la ligne du tableau en mode lecture
+    if (projetCallback?.message) {
+      this.popupService.success(projetCallback.message);
+    }
   }
 
   public async refreshMontantsAffectes(
@@ -257,6 +265,9 @@ export class ProjetComponent implements OnInit {
     await this.loadRecettesFromFinancementId(this.selectedFinancement.id_f);
     await this.loadMontantsFromRecetteId(this.selectedRecette.id_r);
     projetCallback?.cb(); // -> Passer la ligne du tableau en mode lecture
+    if (projetCallback?.message) {
+      this.popupService.success(projetCallback.message);
+    }
   }
 
   public displayProjet(): boolean {
@@ -363,7 +374,7 @@ export class ProjetComponent implements OnInit {
     console.log('RECETTES: ', this.recettes);
     console.log('MONTANTS: ', this.montantsAffectes);
     console.log('SELECTED FINANCEMENTS: ', this.selectedFinancement);
-    console.log('SELECTED FINANCEMENTS ID: ', this.selectedFinancement.id_f);
+    console.log('SELECTED FINANCEMENTS ID: ', this.selectedFinancementId);
     console.log('SELECTED RECETTES: ', this.selectedRecette);
     console.log('SELECTED RECETTES ID: ', this.selectedRecetteId);
   }

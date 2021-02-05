@@ -227,10 +227,10 @@ export class FinancementsComponent implements OnInit, OnChanges {
         updatedFinancement = this.loadFinanceurInFinancement(
           updatedFinancement
         );
-        this.popupService.success('Le financement a été modifié.');
         const projetCallback: ProjetCallback = {
           cb: event.callBack,
-          id: financement.id_f,
+          id: updatedFinancement.id_f,
+          message: 'Le financement a été modifié',
         };
         this.editEvent.emit(projetCallback);
       }
@@ -436,10 +436,10 @@ export class FinancementsComponent implements OnInit, OnChanges {
           createdFinancement
         );
         this.selectedFinancement = createdFinancement;
-        this.popupService.success('Le financement a été crée.');
         const projetCallback: ProjetCallback = {
           cb: event.callBack,
-          id: financement.id_f,
+          id: createdFinancement.id_f,
+          message: 'Le financement a été crée',
         };
         this.createEvent.emit(projetCallback);
       }
@@ -489,14 +489,13 @@ export class FinancementsComponent implements OnInit, OnChanges {
         if (result) {
           try {
             await this.financementsService.delete(financement);
-            this.popupService.success(
-              'Le financement de montant ' +
-                financement.montant_arrete_f +
-                '€, a été supprimé du projet.'
-            );
             const projetCallback: ProjetCallback = {
               cb: event.callBack,
               id: financement.id_f,
+              message:
+                'Le financement de montant ' +
+                financement.montant_arrete_f +
+                '€, a été supprimé du projet.',
             };
             this.deleteEvent.emit(projetCallback);
           } catch (error) {

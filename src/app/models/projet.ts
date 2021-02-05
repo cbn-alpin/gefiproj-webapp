@@ -43,4 +43,5 @@ export interface DefaultSortInfo {
 export interface ProjetCallback {
   cb: () => any; // Passer la ligne du tableau en mode lecture
   id: number;
+  message?: string;
 }

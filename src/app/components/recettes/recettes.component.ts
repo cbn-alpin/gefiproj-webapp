@@ -159,10 +159,10 @@ export class RecettesComponent implements OnInit, OnChanges {
     } else {
       try {
         const createdRecette = await this.recettesService.add(recette);
-        this.popupService.success(Messages.SUCCESS_CREATE_RECETTE);
         const projetCallback: ProjetCallback = {
           cb: event.callBack,
           id: createdRecette.id_r,
+          message: Messages.SUCCESS_CREATE_RECETTE,
         };
         this.createEvent.emit(projetCallback);
       } catch (error) {
@@ -182,10 +182,10 @@ export class RecettesComponent implements OnInit, OnChanges {
     } else {
       try {
         const updatedRecette = await this.recettesService.modify(recette);
-        this.popupService.success(Messages.SUCCESS_UPDATE_RECETTE);
         const projetCallback: ProjetCallback = {
           cb: event.callBack,
           id: updatedRecette.id_r,
+          message: Messages.SUCCESS_UPDATE_RECETTE,
         };
         this.editEvent.emit(projetCallback);
       } catch (error) {
@@ -218,10 +218,10 @@ export class RecettesComponent implements OnInit, OnChanges {
         if (result) {
           try {
             await this.recettesService.delete(recette);
-            this.popupService.success(Messages.SUCCESS_DELETE_RECETTE);
             const projetCallback: ProjetCallback = {
               cb: event.callBack,
               id: recette.id_r,
+              message: Messages.SUCCESS_DELETE_RECETTE,
             };
             this.deleteEvent.emit(projetCallback);
           } catch (error) {

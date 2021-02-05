@@ -153,10 +153,13 @@ export class MontantsAffectesComponent implements OnChanges {
           );
         else {
           delete montant.recette;
-          await this.montantsAffectesService.put(montant);
+          const updatedMontant = await this.montantsAffectesService.put(
+            montant
+          );
           const projetCallback: ProjetCallback = {
             cb: event.callBack,
-            id: montant.id_ma,
+            id: updatedMontant.id_ma,
+            message: 'Le montant affecté a été modifié',
           };
           this.editEvent.emit(projetCallback);
         }
@@ -246,13 +249,14 @@ export class MontantsAffectesComponent implements OnChanges {
             'La somme des montants est supérieur au montant de la recette !'
           );
         else {
-          await this.montantsAffectesService.post(
+          const createdMontant = await this.montantsAffectesService.post(
             montant,
             Number(this.receipt.id_r)
           );
           const projetCallback: ProjetCallback = {
             cb: event.callBack,
-            id: montant.id_ma,
+            id: createdMontant.id_ma,
+            message: 'Le montant affecté a été créé',
           };
           this.createEvent.emit(projetCallback);
         }
@@ -296,14 +300,13 @@ export class MontantsAffectesComponent implements OnChanges {
       dialogRef.afterClosed().subscribe(async (result) => {
         if (result) {
           await this.montantsAffectesService.delete(montant);
-          this.popupService.success(
-            'Le montant affecté de montant ' +
-              montant.montant_ma +
-              ' €, a été supprimé du projet.'
-          );
           const projetCallback: ProjetCallback = {
             cb: event.callBack,
             id: montant.id_ma,
+            message:
+              'Le montant affecté de montant ' +
+              montant.montant_ma +
+              ' €, a été supprimé du projet.',
           };
           this.deleteEvent.emit(projetCallback);
         }
