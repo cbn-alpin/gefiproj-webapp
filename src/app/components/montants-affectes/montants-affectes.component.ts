@@ -50,8 +50,11 @@ export class MontantsAffectesComponent implements OnChanges {
    */
   @Input() public montantsAffectes: MontantAffecte[];
 
-  @Output()
-  public montantsAffectesChange = new EventEmitter<void>();
+  @Output() public createEvent = new EventEmitter<number>();
+
+  @Output() public editEvent = new EventEmitter<number>();
+
+  @Output() public deleteEvent = new EventEmitter<number>();
 
   public get showActions(): boolean {
     return this.isAdministrator && !this.projectIsBalance;
@@ -132,22 +135,6 @@ export class MontantsAffectesComponent implements OnChanges {
   }
 
   /**
-   * Charge les montants affectes depuis le serveur.
-   */
-  async loadMontantsAffectes(receiptId: number): Promise<MontantAffecte[]> {
-    try {
-      this.montantsAffectes =
-        (await this.montantsAffectesService.getAll(receiptId)) || [];
-    } catch (error) {
-      console.error(error);
-      this.popupService.error(
-        'Impossible de charger les montants affectés : ' + error.error
-      );
-      return Promise.reject(error);
-    }
-  }
-
-  /**
    * Un montant affecté a été modifié dans le tableau.
    * @param event : encapsule le montant affecté à modifier.
    */
@@ -167,7 +154,7 @@ export class MontantsAffectesComponent implements OnChanges {
           delete montant.recette;
           await this.montantsAffectesService.put(montant);
           event.callBack(null);
-          this.montantsAffectesChange.emit();
+          this.editEvent.emit();
         }
       }
     } catch (error) {
@@ -260,7 +247,7 @@ export class MontantsAffectesComponent implements OnChanges {
             Number(this.receipt.id_r)
           );
           event.callBack(null);
-          this.montantsAffectesChange.emit();
+          this.createEvent.emit();
         }
       }
     } catch (error) {
@@ -308,7 +295,7 @@ export class MontantsAffectesComponent implements OnChanges {
               ' €, a été supprimé du projet.'
           );
           event.callBack(null);
-          this.montantsAffectesChange.emit();
+          this.deleteEvent.emit();
         }
       });
     } catch (error) {

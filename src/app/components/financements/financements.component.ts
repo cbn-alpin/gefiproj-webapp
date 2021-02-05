@@ -58,15 +58,11 @@ export class FinancementsComponent implements OnInit, OnChanges {
 
   @Output() public selectEvent = new EventEmitter<Financement>();
 
-  @Output() public createEvent = new EventEmitter<void>();
+  @Output() public createEvent = new EventEmitter<number>();
 
-  @Output() public editEvent = new EventEmitter<void>();
+  @Output() public editEvent = new EventEmitter<number>();
 
-  @Output() public deleteEvent = new EventEmitter<void>();
-
-  @Output() public financementsChange = new EventEmitter<void>();
-
-  @Output() public selectedFinancementChange = new EventEmitter<Financement>();
+  @Output() public deleteEvent = new EventEmitter<number>();
 
   /**
    * Titre du tableau générique
@@ -232,9 +228,8 @@ export class FinancementsComponent implements OnInit, OnChanges {
           updatedFinancement
         );
         event.callBack(null);
-        this.financementsChange.emit();
-        this.editEvent.emit();
         this.popupService.success('Le financement a été modifié.');
+        this.editEvent.emit(updatedFinancement.id_f);
       }
     } catch (error) {
       console.error(error.error.errors);
@@ -436,10 +431,9 @@ export class FinancementsComponent implements OnInit, OnChanges {
           createdFinancement
         );
         event.callBack(null); // Valide la modification dans le composant DataTable fils
-        this.financementsChange.emit();
         this.selectedFinancement = createdFinancement;
         this.popupService.success('Le financement a été crée.');
-        this.createEvent.emit();
+        this.createEvent.emit(createdFinancement.id_f);
       }
     } catch (error) {
       console.error(error);
@@ -488,12 +482,12 @@ export class FinancementsComponent implements OnInit, OnChanges {
           try {
             await this.financementsService.delete(financement);
             event.callBack(null);
-            this.financementsChange.emit();
             this.popupService.success(
               'Le financement de montant ' +
                 financement.montant_arrete_f +
                 '€, a été supprimé du projet.'
             );
+            this.deleteEvent.emit(financement.id_f);
           } catch (error) {
             event?.callBack({
               apiError:
@@ -527,15 +521,6 @@ export class FinancementsComponent implements OnInit, OnChanges {
     } catch (error) {
       console.error(error);
     }
-  }
-
-  public onSelectedEntityChange(financement: Financement): void {
-    this.selectedFinancement = financement;
-    this.emitSelectedFinancementChange();
-  }
-
-  private emitSelectedFinancementChange(): void {
-    this.selectedFinancementChange.emit(this.selectedFinancement);
   }
 
   /**

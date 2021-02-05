@@ -102,6 +102,8 @@ export class ProjetComponent implements OnInit {
     return !!this.adminSrv.isAdministrator();
   }
 
+  private selectedFinancementId: number;
+
   private selectedRecetteId: number;
 
   constructor(
@@ -149,6 +151,7 @@ export class ProjetComponent implements OnInit {
       this.manager = this.projet.responsable;
       if (this.financements && this.financements.length > 0) {
         this.selectedFinancement = this.financements[0];
+        this.selectedFinancementId = this.financements[0].id_f;
         await this.loadRecettesFromFinancementId(this.selectedFinancement.id_f);
         if (this.recettes && this.recettes.length > 0) {
           this.selectedRecette = this.recettes[0];
@@ -163,6 +166,7 @@ export class ProjetComponent implements OnInit {
 
   public async onSelectFinancement(financement: Financement): Promise<void> {
     this.selectedFinancement = financement;
+    this.selectedFinancementId = financement.id_f;
     await this.loadRecettesFromFinancementId(financement.id_f);
     if (this.recettes && this.recettes.length > 0) {
       this.selectedRecette = this.recettes[0];
@@ -173,37 +177,22 @@ export class ProjetComponent implements OnInit {
     }
   }
 
-  public onCreateFinancement(): void {
-    console.log('FIN: ', this.financements);
-    if (!this.recettes) {
-      this.recettes = [];
-    }
-    if (this.financements.length === 1) {
-      this.selectedFinancement = this.financements[0];
-    }
-  }
-
-  public onEditFinancement(): void {
-    if (!this.recettes) {
-      this.recettes = [];
-    }
-  }
-
-  public onDeleteFinancement(): void {
-    if (!this.selectedFinancement && this.recettes) {
-      this.recettes = null;
-      this.montantsAffectes = null;
-    }
-  }
-
-  //***
-  // Recettes
-  //***
-
   public onSelectRecette(recette: Recette): void {
     this.selectedRecette = recette;
     this.selectedRecetteId = recette.id_r;
     this.loadMontantsFromRecetteId(recette.id_r);
+  }
+
+  public onDeleteFinancement(financementId: number): void {
+    if (this.selectedFinancementId === financementId) {
+      this.selectedFinancement = null;
+      this.selectedFinancementId = null;
+      this.selectedRecette = null;
+      this.selectedRecetteId = null;
+      this.recettes = null;
+      this.montantsAffectes = null;
+    }
+    this.refreshFinancements();
   }
 
   public onDeleteRecette(recetteId: number): void {
@@ -212,17 +201,40 @@ export class ProjetComponent implements OnInit {
       this.selectedRecetteId = null;
       this.montantsAffectes = null;
     }
-    this.onRecettesChange();
+    this.refreshRecettes();
+  }
+
+  public onDeleteMontantAffecte(): void {
+    this.refreshMontantsAffectes();
+  }
+
+  public onCreateFinancement(financementId: number): void {
+    this.selectedFinancementId = financementId;
+    this.recettes = [];
+    this.montantsAffectes = null;
+    this.refreshFinancements();
   }
 
   public onCreateRecette(recetteId: number): void {
     this.selectedRecetteId = recetteId;
     this.montantsAffectes = [];
-    this.onRecettesChange();
+    this.refreshRecettes();
+  }
+
+  public onCreateMontantAffecte(): void {
+    this.refreshMontantsAffectes();
+  }
+
+  public onEditFinancement(): void {
+    this.refreshFinancements();
   }
 
   public onEditRecette(): void {
-    this.onRecettesChange();
+    this.refreshRecettes();
+  }
+
+  public onEditMontantAffecte(): void {
+    this.refreshMontantsAffectes();
   }
 
   public onSelectedFinancementChange(financement: Financement): void {
@@ -233,21 +245,31 @@ export class ProjetComponent implements OnInit {
     }
   }
 
-  public async onFinancementsChange(): Promise<void> {
+  public async refreshFinancements(): Promise<void> {
     await this.loadFinancementsFromProjetId(this.projet.id_p);
+    this.selectedFinancement = this.financements.find(
+      (financement) => financement.id_f === this.selectedFinancementId
+    );
+    console.log('RF: ', this.selectedFinancement);
   }
 
-  public async onRecettesChange(): Promise<void> {
+  public async refreshRecettes(): Promise<void> {
     await this.loadFinancementsFromProjetId(this.projet.id_p);
     await this.loadRecettesFromFinancementId(this.selectedFinancement.id_f);
+    this.selectedFinancement = this.financements.find(
+      (financement) => financement.id_f === this.selectedFinancementId
+    );
     this.selectedRecette = this.recettes.find(
       (recette) => recette.id_r === this.selectedRecetteId
     );
   }
 
-  public async onMontantsAffectesChange(): Promise<void> {
+  public async refreshMontantsAffectes(): Promise<void> {
     await this.loadRecettesFromFinancementId(this.selectedFinancement.id_f);
     await this.loadMontantsFromRecetteId(this.selectedRecette.id_r);
+    this.selectedRecette = this.recettes.find(
+      (recette) => recette.id_r === this.selectedRecetteId
+    );
   }
 
   public displayProjet(): boolean {
@@ -348,6 +370,7 @@ export class ProjetComponent implements OnInit {
     console.log('RECETTES: ', this.recettes);
     console.log('MONTANTS: ', this.montantsAffectes);
     console.log('SELECTED FINANCEMENTS: ', this.selectedFinancement);
+    console.log('SELECTED FINANCEMENTS ID: ', this.selectedFinancement.id_f);
     console.log('SELECTED RECETTES: ', this.selectedRecette);
     console.log('SELECTED RECETTES ID: ', this.selectedRecetteId);
   }

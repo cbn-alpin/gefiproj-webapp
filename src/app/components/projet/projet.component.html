@@ -38,11 +38,9 @@
       [isResponsable]="isResponsable"
       [projectIsBalance]="isBalance"
       (selectEvent)="onSelectFinancement($event)"
-      (createEvent)="onCreateFinancement()"
+      (createEvent)="onCreateFinancement($event)"
       (editEvent)="onEditFinancement()"
-      (deleteEvent)="onDeleteFinancement()"
-      (financementsChange)="onFinancementsChange()"
-      (selectedFinancementChange)="onSelectedFinancementChange($event)"
+      (deleteEvent)="onDeleteFinancement($event)"
     ></app-financements>
   </div>
 
@@ -75,7 +73,9 @@
         [receipt]="selectedRecette"
         [isAdministrator]="isAdministrator"
         [projectIsBalance]="isBalance"
-        (montantsAffectesChange)="onMontantsAffectesChange()"
+        (createEvent)="onCreateMontantAffecte()"
+        (editEvent)="onEditMontantAffecte()"
+        (deleteEvent)="onDeleteMontantAffecte()"
       ></app-montants-affectes>
     </div>
   </div>
