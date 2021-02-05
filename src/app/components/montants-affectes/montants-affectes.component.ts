@@ -51,9 +51,7 @@ export class MontantsAffectesComponent implements OnChanges {
   @Input() public montantsAffectes: MontantAffecte[];
 
   @Output()
-  public montantsAffectesChange: EventEmitter<
-    MontantAffecte[]
-  > = new EventEmitter<MontantAffecte[]>();
+  public montantsAffectesChange = new EventEmitter<void>();
 
   public get showActions(): boolean {
     return this.isAdministrator && !this.projectIsBalance;
@@ -167,11 +165,9 @@ export class MontantsAffectesComponent implements OnChanges {
           );
         else {
           delete montant.recette;
-          const updatedMontant = await this.montantsAffectesService.put(
-            montant
-          );
+          await this.montantsAffectesService.put(montant);
           event.callBack(null);
-          this.modify(updatedMontant);
+          this.montantsAffectesChange.emit();
         }
       }
     } catch (error) {
@@ -259,12 +255,12 @@ export class MontantsAffectesComponent implements OnChanges {
             'La somme des montants est supérieur au montant de la recette !'
           );
         else {
-          const createdMontant = await this.montantsAffectesService.post(
+          await this.montantsAffectesService.post(
             montant,
             Number(this.receipt.id_r)
           );
           event.callBack(null);
-          this.create(createdMontant);
+          this.montantsAffectesChange.emit();
         }
       }
     } catch (error) {
@@ -312,7 +308,7 @@ export class MontantsAffectesComponent implements OnChanges {
               ' €, a été supprimé du projet.'
           );
           event.callBack(null);
-          this.delete(montant);
+          this.montantsAffectesChange.emit();
         }
       });
     } catch (error) {
@@ -365,30 +361,6 @@ export class MontantsAffectesComponent implements OnChanges {
       sumAmounts += +Number(amount.montant_ma);
     });
     return Number(montant.montant_ma) + sumAmounts > this.receipt.montant_r;
-  }
-
-  private create(montantAffecte: MontantAffecte): void {
-    this.montantsAffectes.push(montantAffecte);
-    this.emitMontantsAffectesChange();
-  }
-
-  private modify(montantAffecte: MontantAffecte): void {
-    const index = this.montantsAffectes.findIndex(
-      (_montantAffecte) => _montantAffecte.id_ma === montantAffecte.id_ma
-    );
-    this.montantsAffectes[index] = montantAffecte;
-    this.emitMontantsAffectesChange();
-  }
-
-  private delete(montantAffecte: MontantAffecte): void {
-    this.montantsAffectes = this.montantsAffectes.filter(
-      (_montantAffecte) => _montantAffecte.id_ma !== montantAffecte.id_ma
-    );
-    this.emitMontantsAffectesChange();
-  }
-
-  public emitMontantsAffectesChange(): void {
-    this.montantsAffectesChange.emit(this.montantsAffectes);
   }
 
   private refreshDataTable(): void {

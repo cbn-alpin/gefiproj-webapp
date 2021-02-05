@@ -41,7 +41,7 @@
       (createEvent)="onCreateFinancement()"
       (editEvent)="onEditFinancement()"
       (deleteEvent)="onDeleteFinancement()"
-      (financementsChange)="onFinancementsChange($event)"
+      (financementsChange)="onFinancementsChange()"
       (selectedFinancementChange)="onSelectedFinancementChange($event)"
     ></app-financements>
   </div>
@@ -64,9 +64,7 @@
         (selectEvent)="onSelectRecette($event)"
         (createEvent)="onCreateRecette($event)"
         (editEvent)="onEditRecette()"
-        (deleteEvent)="onDeleteRecette()"
-        (recettesChange)="onRecettesChange($event)"
-        (selectedRecetteChangeEvent)="onSelectedRecetteChange($event)"
+        (deleteEvent)="onDeleteRecette($event)"
       ></app-recettes>
     </div>
 
@@ -77,8 +75,9 @@
         [receipt]="selectedRecette"
         [isAdministrator]="isAdministrator"
         [projectIsBalance]="isBalance"
-        (montantsAffectesChange)="onMontantsAffectesChange($event)"
+        (montantsAffectesChange)="onMontantsAffectesChange()"
       ></app-montants-affectes>
     </div>
   </div>
 </ng-container>
+<button (click)="debug()">DEBUG</button>

@@ -56,22 +56,17 @@ export class FinancementsComponent implements OnInit, OnChanges {
 
   @Input() public projectIsBalance: boolean;
 
-  @Output()
-  public selectEvent: EventEmitter<Financement> = new EventEmitter<Financement>();
+  @Output() public selectEvent = new EventEmitter<Financement>();
 
-  @Output() public createEvent: EventEmitter<void> = new EventEmitter<void>();
+  @Output() public createEvent = new EventEmitter<void>();
 
-  @Output() public editEvent: EventEmitter<void> = new EventEmitter<void>();
+  @Output() public editEvent = new EventEmitter<void>();
 
-  @Output() public deleteEvent: EventEmitter<void> = new EventEmitter<void>();
+  @Output() public deleteEvent = new EventEmitter<void>();
 
-  @Output()
-  public financementsChange: EventEmitter<Financement[]> = new EventEmitter<
-    Financement[]
-  >();
+  @Output() public financementsChange = new EventEmitter<void>();
 
-  @Output()
-  public selectedFinancementChange: EventEmitter<Financement> = new EventEmitter<Financement>();
+  @Output() public selectedFinancementChange = new EventEmitter<Financement>();
 
   /**
    * Titre du tableau générique
@@ -203,7 +198,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
       changes.financements.currentValue &&
       changes.financements.previousValue
     ) {
-      this.refreshDataTableWithHttpGet();
+      this.refreshDataTable();
     }
     if (
       changes.isResponsable &&
@@ -236,20 +231,8 @@ export class FinancementsComponent implements OnInit, OnChanges {
         updatedFinancement = this.loadFinanceurInFinancement(
           updatedFinancement
         );
-        // TODO: à supprimmer quand back renvoie la bonne différence
-        const recettes = await this.recettesService.getAll(
-          updatedFinancement.id_f
-        );
-        const sumRecettes = recettes.reduce((a, b) => a + b.montant_r, 0);
-        const difference = updatedFinancement.montant_arrete_f - sumRecettes;
-        updatedFinancement.difference = difference;
-        event.callBack(
-          null,
-          updatedFinancement.id_f === this.selectedFinancement.id_f
-            ? updatedFinancement
-            : null
-        );
-        this.modify(updatedFinancement);
+        event.callBack(null);
+        this.financementsChange.emit();
         this.editEvent.emit();
         this.popupService.success('Le financement a été modifié.');
       }
@@ -445,19 +428,15 @@ export class FinancementsComponent implements OnInit, OnChanges {
       }
       financement = this.transformFormat(financement);
 
-      if (this.validateForGenericTable(event)) {
+      if (await this.validateForGenericTable(event)) {
         let createdFinancement = await this.financementsService.post(
           financement
         );
         createdFinancement = this.loadFinanceurInFinancement(
           createdFinancement
         );
-        // TODO: à supprimmer quand back renvoie la bonne différence
-        if (!createdFinancement.difference) {
-          createdFinancement.difference = createdFinancement.montant_arrete_f;
-        }
-        event.callBack(null, createdFinancement); // Valide la modification dans le composant DataTable fils
-        this.create(createdFinancement);
+        event.callBack(null); // Valide la modification dans le composant DataTable fils
+        this.financementsChange.emit();
         this.selectedFinancement = createdFinancement;
         this.popupService.success('Le financement a été crée.');
         this.createEvent.emit();
@@ -509,7 +488,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
           try {
             await this.financementsService.delete(financement);
             event.callBack(null);
-            this.delete(financement);
+            this.financementsChange.emit();
             this.popupService.success(
               'Le financement de montant ' +
                 financement.montant_arrete_f +
@@ -655,30 +634,6 @@ export class FinancementsComponent implements OnInit, OnChanges {
     this.updateEntityTypesWithUserRight();
   }
 
-  private create(financement: Financement): void {
-    this.financements.push(financement);
-    this.emitFinancementsChange();
-  }
-
-  private modify(financement: Financement): void {
-    const index = this.financements.findIndex(
-      (_financement) => _financement.id_f === financement.id_f
-    );
-    this.financements[index] = financement;
-    this.emitFinancementsChange();
-  }
-
-  private delete(financement: Financement): void {
-    this.financements = this.financements.filter(
-      (_financement) => _financement.id_f !== financement.id_f
-    );
-    this.emitFinancementsChange();
-  }
-
-  private emitFinancementsChange(): void {
-    this.financementsChange.emit(this.financements);
-  }
-
   private loadFinanceurInFinancement(financement: Financement): Financement {
     return financement.id_financeur
       ? {
@@ -740,31 +695,6 @@ export class FinancementsComponent implements OnInit, OnChanges {
     };
   }
 
-  private async refreshDataTableWithHttpGet(): Promise<void> {
-    await this.loadFinancements(Number(this.projectId));
-
-    this.options = {
-      ...this.options,
-      dataSource: basicSort(this.financements, this.sortInfo),
-    };
-  }
-
-  /**
-   * Charge les financements depuis le serveur.
-   */
-  private async loadFinancements(projetId: number): Promise<Financement[]> {
-    try {
-      this.financements =
-        (await this.financementsService.getAll(projetId)) || [];
-    } catch (error) {
-      console.error(error);
-      this.popupService.error(
-        'Impossible de charger les financements : ' + error.error
-      );
-      return Promise.reject(error);
-    }
-  }
-
   /**
    * Désactive l'édition des colonnes qui ne correspondent pas aux colonnes passé en paramètre
    * @param entityTypes
@@ -804,6 +734,10 @@ export class FinancementsComponent implements OnInit, OnChanges {
     }
   }
 
+  /**
+   * Désactive l'édition de certaines colonnes selon les rôles de l'utilisateur
+   * @private
+   */
   private updateEntityTypesWithUserRight(): void {
     let upEntityTypes: EntityType[];
     const codes = this.options.entityTypes.map((entityType) => entityType.code);
