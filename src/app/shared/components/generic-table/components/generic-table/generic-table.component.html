@@ -131,7 +131,8 @@
               matInput
               [disabled]="
                 element.state === GenericTableEntityState.READ ||
-                genericTableService.disabledEditField(element, columnName)
+                genericTableService.disabledEditField(element, columnName) ||
+                isReadOnlyProperty(element.data, columnName.code)
               "
               matTooltipClass="tooltip-error"
               [matTooltip]="
@@ -165,7 +166,8 @@
               numeric
               [disabled]="
                 element.state === GenericTableEntityState.READ ||
-                genericTableService.disabledEditField(element, columnName)
+                genericTableService.disabledEditField(element, columnName) ||
+                isReadOnlyProperty(element.data, columnName.code)
               "
               matTooltipClass="tooltip-error"
               [matTooltip]="
@@ -199,7 +201,8 @@
               matInput
               [disabled]="
                 element.state === GenericTableEntityState.READ ||
-                genericTableService.disabledEditField(element, columnName)
+                genericTableService.disabledEditField(element, columnName) ||
+                isReadOnlyProperty(element.data, columnName.code)
               "
               [matDatepicker]="picker1"
               matTooltipClass="tooltip-error"
@@ -240,7 +243,8 @@
               decimals="4"
               [disabled]="
                 element.state === GenericTableEntityState.READ ||
-                genericTableService.disabledEditField(element, columnName)
+                genericTableService.disabledEditField(element, columnName) ||
+                isReadOnlyProperty(element.data, columnName.code)
               "
               matTooltipClass="tooltip-error"
               [matTooltip]="
@@ -294,7 +298,8 @@
               [(ngModel)]="element.data[columnName.code]"
               [disabled]="
                 element.state === GenericTableEntityState.READ ||
-                genericTableService.disabledEditField(element, columnName)
+                genericTableService.disabledEditField(element, columnName) ||
+                isReadOnlyProperty(element.data, columnName.code)
               "
               matTooltipClass="tooltip-error"
               [matTooltip]="
@@ -355,7 +360,7 @@
             </button>
             <!-- Edit -->
             <button
-              *ngIf="!isReadOnly && showEditAction"
+              *ngIf="!isReadOnly && showEditAction && !isReadOnlyItem(element.data)"
               mat-icon-button
               (click)="onEdit($event, element)"
               [matTooltip]="'Modifier'"
@@ -370,6 +375,14 @@
               [matTooltip]="'Supprimer'"
             >
               <mat-icon>delete</mat-icon>
+            </button>
+            <!-- Change Password -->
+            <button
+              *ngIf="!isReadOnly && showChangePwdAction"
+              mat-icon-button
+              (click)="changePwd($event, element)"
+            >
+              <mat-icon>vpn_key</mat-icon>
             </button>
           </span>
           <!-- Actions pour le mode édition-->

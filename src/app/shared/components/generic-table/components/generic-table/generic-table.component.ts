@@ -79,17 +79,23 @@ export class GenericTableComponent<T>
 
   @Input() showActions = true;
 
+  @Input() showDeleteAction = true;
+
   @Input() canSelect = false;
 
   @Input() autoSelectFirstRow = false;
 
   @Input() selectedRow: T;
 
+  @Input() showChangePwdAction = false;
+
   @Input() showCreateAction: boolean = true;
 
   @Input() showEditAction: boolean = true;
 
-  @Input() showDeleteAction: boolean = true;
+  @Output() changePwdEvent: EventEmitter<
+    GenericTableEntityEvent<T>
+    > = new EventEmitter<GenericTableEntityEvent<T>>();
 
   @Output() editEvent: EventEmitter<
     GenericTableEntityEvent<T>
@@ -326,6 +332,18 @@ export class GenericTableComponent<T>
     this.deleteEvent.emit(genericTableEntityEvent);
   }
 
+  public changePwd(event, entity: GenericTableEntity<T>): void {
+    event.stopPropagation();
+    this.genericTableAction = GenericTableAction.CHANGEPWD;
+    const genericTableEntityEvent: GenericTableEntityEvent<T> = {
+      entity: entity.data,
+      updatedGenericTable: this.genericTableEntities.map((row) => row.data),
+      callBack: (genericTableEntityErrors?: GenericTableEntityErrors, up?: T) =>
+        this.handleAction(entity, genericTableEntityErrors, up),
+    };
+    this.changePwdEvent.emit(genericTableEntityEvent);
+  }
+
   /**
    * Lorsqu'une entité est sélectionné dans le tableau, on émet un événement avec l'entité en paramètre
    * @param entity : l'élément sélectionné.
@@ -487,5 +505,36 @@ export class GenericTableComponent<T>
   private resetTable(): void {
     this.genericTableEntities = this.genericTableEntitiesCopy;
     this.genericTableEntitiesCopy = getDeepCopy(this.genericTableEntities);
+  }
+
+  /**
+   * Indique si l'élément est en lecture seule. Note : cela n'empêche pas la suppression.
+   * @param item : élément ciblé.
+   */
+  public isReadOnlyItem(item: T): boolean {
+    try {
+      return !!this._options.readOnlyFt
+        && this._options.readOnlyFt(item);
+    } catch (error) {
+      console.error(error);
+    }
+
+    return true; // Note : ce n'est pas critique
+  }
+
+  /**
+   * Indique si l'élément est en lecture seule.
+   * @param item : élément ciblé.
+   * @param propertyName : nom de la propriété dans l'élément..
+   */
+  public isReadOnlyProperty(item: T, propertyName: string): boolean {
+    try {
+      return !!this._options.readOnlyPropertyFt
+        && this._options.readOnlyPropertyFt(item, propertyName);
+    } catch (error) {
+      console.error(error);
+    }
+
+    return true; // Note : ce n'est pas critique
   }
 }

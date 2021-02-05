@@ -10,6 +10,7 @@ export interface IMessage {
     name: string;
     color?: string;
   };
+  showCancel?: boolean;
 }
 
 @Component({
@@ -21,13 +22,21 @@ export class GenericDialogComponent implements OnInit {
   /**
    * message data
    */
-  message: IMessage;
+  message: IMessage = {
+    header: null,
+    content: null,
+    action: {
+      name: null,
+    },
+    showCancel: true,
+  }
 
   constructor(
     public dialogRef: MatDialogRef<GenericDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: IMessage
   ) {
-    this.message = data;
+
+    this.message = {...this.message,...data};
   }
 
   ngOnInit(): void {}
@@ -44,6 +53,13 @@ export class GenericDialogComponent implements OnInit {
    */
   onCancelClick() {
     this.dialogRef.close();
+  }
+
+  /**
+   * Cancel and close popup
+   */
+  showCancel() : boolean{
+     return this.message.showCancel;
   }
 
   /**

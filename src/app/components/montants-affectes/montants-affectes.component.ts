@@ -140,18 +140,14 @@ export class MontantsAffectesComponent implements OnChanges {
    * @param event : encapsule le montant affecté à modifier.
    */
   async onEdit(event: GenericTableEntityEvent<MontantAffecte>): Promise<void> {
+    let create = false;
     try {
       let montant = event?.entity;
       if (!montant) {
         throw new Error("Le montant affecté n'existe pas");
       }
 
-      if (this.validateForGenericTable(event)) {
-        if (this.checkMontantEdit(montant))
-          this.popupService.error(
-            'La somme des montants est supérieur au montant de la recette !'
-          );
-        else {
+      if (this.validateForGenericTable(event , create)) {
           delete montant.recette;
           const updatedMontant = await this.montantsAffectesService.put(
             montant
@@ -177,7 +173,8 @@ export class MontantsAffectesComponent implements OnChanges {
    * @param gtEvent : encapsule un nouveau montant affecté ou un montant affecté modifié.
    */
   private validateForGenericTable(
-    gtEvent: GenericTableEntityEvent<MontantAffecte>
+    gtEvent: GenericTableEntityEvent<MontantAffecte> ,
+    create: boolean
   ): boolean {
     if (!gtEvent) {
       throw new Error("Le paramètre 'gtEvent' est invalide");
@@ -187,7 +184,7 @@ export class MontantsAffectesComponent implements OnChanges {
       const montant = gtEvent?.entity;
       const formErrors: GenericTableFormError[] = [];
 
-      this.verifForms(montant, formErrors);
+      this.verifForms(montant, formErrors, create);
       if (formErrors.length > 0) {
         gtEvent.callBack({
           formErrors,
@@ -211,7 +208,8 @@ export class MontantsAffectesComponent implements OnChanges {
    */
   private verifForms(
     montant: MontantAffecte,
-    formErrors: GenericTableFormError[]
+    formErrors: GenericTableFormError[],
+    create: boolean
   ): void {
     if (!montant.montant_ma) {
       const error = {
@@ -228,6 +226,22 @@ export class MontantsAffectesComponent implements OnChanges {
       };
       formErrors.push(error);
     }
+    if(create) {
+      if (this.checkMontantCreate(montant)) {
+        const error = {
+          name: this.namesMap.montant_ma.code,
+          message: 'La somme des montants est supérieur au montant de la recette !',
+        };
+        formErrors.push(error);
+      }
+    }
+    else if (this.checkMontantEdit(montant)) {
+      const error = {
+        name: this.namesMap.montant_ma.code,
+        message: 'La somme des montants est supérieur au montant de la recette !',
+      };
+      formErrors.push(error);
+    }
   }
 
   /**
@@ -237,18 +251,14 @@ export class MontantsAffectesComponent implements OnChanges {
   async onCreate(
     event: GenericTableEntityEvent<MontantAffecte>
   ): Promise<void> {
+    let create = true;
     try {
       let montant = event.entity;
       if (!montant) {
         throw new Error("Le montant affecté n'existe pas");
       }
 
-      if (this.validateForGenericTable(event)) {
-        if (this.checkMontantCreate(montant))
-          this.popupService.error(
-            'La somme des montants est supérieur au montant de la recette !'
-          );
-        else {
+      if (this.validateForGenericTable(event, create)) {
           const createdMontant = await this.montantsAffectesService.post(
             montant,
             Number(this.receipt.id_r)
