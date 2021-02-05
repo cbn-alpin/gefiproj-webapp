@@ -147,18 +147,15 @@ export class MontantsAffectesComponent implements OnChanges {
         throw new Error("Le montant affecté n'existe pas");
       }
 
-      if (this.validateForGenericTable(event , create)) {
-          delete montant.recette;
-          const updatedMontant = await this.montantsAffectesService.put(
-            montant
-          );
-          const projetCallback: ProjetCallback = {
-            cb: event.callBack,
-            id: updatedMontant.id_ma,
-            message: 'Le montant affecté a été modifié',
-          };
-          this.editEvent.emit(projetCallback);
-        }
+      if (this.validateForGenericTable(event, create)) {
+        delete montant.recette;
+        const updatedMontant = await this.montantsAffectesService.put(montant);
+        const projetCallback: ProjetCallback = {
+          cb: event.callBack,
+          id: updatedMontant.id_ma,
+          message: 'Le montant affecté a été modifié',
+        };
+        this.editEvent.emit(projetCallback);
       }
     } catch (error) {
       console.log('er', error);
@@ -173,7 +170,7 @@ export class MontantsAffectesComponent implements OnChanges {
    * @param gtEvent : encapsule un nouveau montant affecté ou un montant affecté modifié.
    */
   private validateForGenericTable(
-    gtEvent: GenericTableEntityEvent<MontantAffecte> ,
+    gtEvent: GenericTableEntityEvent<MontantAffecte>,
     create: boolean
   ): boolean {
     if (!gtEvent) {
@@ -226,19 +223,20 @@ export class MontantsAffectesComponent implements OnChanges {
       };
       formErrors.push(error);
     }
-    if(create) {
+    if (create) {
       if (this.checkMontantCreate(montant)) {
         const error = {
           name: this.namesMap.montant_ma.code,
-          message: 'La somme des montants est supérieur au montant de la recette !',
+          message:
+            'La somme des montants est supérieur au montant de la recette !',
         };
         formErrors.push(error);
       }
-    }
-    else if (this.checkMontantEdit(montant)) {
+    } else if (this.checkMontantEdit(montant)) {
       const error = {
         name: this.namesMap.montant_ma.code,
-        message: 'La somme des montants est supérieur au montant de la recette !',
+        message:
+          'La somme des montants est supérieur au montant de la recette !',
       };
       formErrors.push(error);
     }
@@ -259,17 +257,16 @@ export class MontantsAffectesComponent implements OnChanges {
       }
 
       if (this.validateForGenericTable(event, create)) {
-          const createdMontant = await this.montantsAffectesService.post(
-            montant,
-            Number(this.receipt.id_r)
-          );
-          const projetCallback: ProjetCallback = {
-            cb: event.callBack,
-            id: createdMontant.id_ma,
-            message: 'Le montant affecté a été créé',
-          };
-          this.createEvent.emit(projetCallback);
-        }
+        const createdMontant = await this.montantsAffectesService.post(
+          montant,
+          Number(this.receipt.id_r)
+        );
+        const projetCallback: ProjetCallback = {
+          cb: event.callBack,
+          id: createdMontant.id_ma,
+          message: 'Le montant affecté a été créé',
+        };
+        this.createEvent.emit(projetCallback);
       }
     } catch (error) {
       console.error(error);
