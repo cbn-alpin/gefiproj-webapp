@@ -543,4 +543,35 @@ export class GenericTableComponent<T>
     this.genericTableEntities = this.genericTableEntitiesCopy;
     this.genericTableEntitiesCopy = getDeepCopy(this.genericTableEntities);
   }
+
+  /**
+   * Indique si l'élément est en lecture seule. Note : cela n'empêche pas la suppression.
+   * @param item : élément ciblé.
+   */
+  public isReadOnlyItem(item: T): boolean {
+    try {
+      return !!this._options.readOnlyFt
+        && this._options.readOnlyFt(item);
+    } catch (error) {
+      console.error(error);
+    }
+
+    return true; // Note : ce n'est pas critique
+  }
+
+  /**
+   * Indique si l'élément est en lecture seule.
+   * @param item : élément ciblé.
+   * @param propertyName : nom de la propriété dans l'élément..
+   */
+  public isReadOnlyProperty(item: T, propertyName: string): boolean {
+    try {
+      return !!this._options.readOnlyPropertyFt
+        && this._options.readOnlyPropertyFt(item, propertyName);
+    } catch (error) {
+      console.error(error);
+    }
+
+    return true; // Note : ce n'est pas critique
+  }
 }

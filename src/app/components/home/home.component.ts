@@ -150,6 +150,9 @@ export class HomeComponent implements OnInit {
     sortName: this.namesMap.code.name,
     sortDirection: 'asc',
     navigationUrlFt: (project) => `projet/${project?.id_p || 0}`,
+    readOnlyPropertyFt: (project, propertyName) => !!project
+      && !!project.statut_p
+      && propertyName !== this.namesMap.status.code
   };
 
   /**
