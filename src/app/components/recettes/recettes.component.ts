@@ -356,6 +356,7 @@ export class RecettesComponent implements OnInit, OnChanges {
       entityPlaceHolders: this.entityPlaceHolders,
       sortName: this.defaultSortInfo?.headerName,
       sortDirection: this.defaultSortInfo?.sortInfo?.direction,
+      idPropertyName: this.namesMap.ID.code,
     };
   }
 

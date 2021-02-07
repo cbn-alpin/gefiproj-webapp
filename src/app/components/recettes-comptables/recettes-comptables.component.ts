@@ -8,7 +8,10 @@ import { SortInfo } from 'src/app/shared/components/generic-table/models/sortInf
 import { IsAdministratorGuardService } from 'src/app/services/authentication/is-administrator-guard.service';
 import { MatDialog } from '@angular/material/dialog';
 import { GenericTableEntityEvent } from 'src/app/shared/components/generic-table/models/generic-table-entity-event';
-import { GenericDialogComponent, IMessage } from 'src/app/shared/components/generic-dialog/generic-dialog.component';
+import {
+  GenericDialogComponent,
+  IMessage,
+} from 'src/app/shared/components/generic-dialog/generic-dialog.component';
 import { first } from 'rxjs/operators';
 import { GenericTableFormError } from 'src/app/shared/components/generic-table/models/generic-table-entity';
 import { basicSort } from 'src/app/shared/tools/utils';
@@ -19,7 +22,7 @@ import { basicSort } from 'src/app/shared/tools/utils';
 @Component({
   selector: 'app-recettes-comptables',
   templateUrl: './recettes-comptables.component.html',
-  styleUrls: ['./recettes-comptables.component.scss']
+  styleUrls: ['./recettes-comptables.component.scss'],
 })
 export class RecettesComptablesComponent implements OnInit {
   /**
@@ -75,6 +78,7 @@ export class RecettesComptablesComponent implements OnInit {
     entitySelectBoxOptions: [],
     sortName: this.namesMap.year.name,
     sortDirection: 'desc',
+    idPropertyName: this.namesMap.id.code,
   };
 
   /**
@@ -119,11 +123,13 @@ export class RecettesComptablesComponent implements OnInit {
    * Une recette comptable a été créé et initialisé dans le tableau.
    * @param event : encapsule la recette comptable à ajouter.
    */
-  async onCreate(event: GenericTableEntityEvent<RecetteComptable>): Promise<void> {
+  async onCreate(
+    event: GenericTableEntityEvent<RecetteComptable>
+  ): Promise<void> {
     try {
       let accounting = event?.entity;
       if (!accounting) {
-        throw new Error('La recette comptable n\'existe pas');
+        throw new Error("La recette comptable n'existe pas");
       }
 
       if (this.validateForGenericTable(event)) {
@@ -148,11 +154,13 @@ export class RecettesComptablesComponent implements OnInit {
    * Une recette comptable a été modifiée dans le tableau.
    * @param event : encapsule la recette comptable à modifier.
    */
-  async onEdit(event: GenericTableEntityEvent<RecetteComptable>): Promise<void> {
+  async onEdit(
+    event: GenericTableEntityEvent<RecetteComptable>
+  ): Promise<void> {
     try {
       let accounting = event?.entity;
       if (!accounting) {
-        throw new Error('La recette comptable n\'existe pas');
+        throw new Error("La recette comptable n'existe pas");
       }
 
       if (this.validateForGenericTable(event)) {
@@ -177,11 +185,13 @@ export class RecettesComptablesComponent implements OnInit {
    * Une recette comptable a été supprimée du tableau.
    * @param event : encapsule la recette comptable à supprimer.
    */
-  async onDelete(event: GenericTableEntityEvent<RecetteComptable>): Promise<void> {
+  async onDelete(
+    event: GenericTableEntityEvent<RecetteComptable>
+  ): Promise<void> {
     try {
       const accounting = event?.entity;
       if (!accounting) {
-        throw new Error('La recette comptable n\'existe pas');
+        throw new Error("La recette comptable n'existe pas");
       }
 
       // Etes-vous sûr ?
@@ -230,7 +240,9 @@ export class RecettesComptablesComponent implements OnInit {
    * @param accounting : recette comptable à supprimer.
    */
   private deleteAccounting(accounting: RecetteComptable): void {
-    const index = this.accountings.findIndex((p) => p.id_rc === accounting.id_rc);
+    const index = this.accountings.findIndex(
+      (p) => p.id_rc === accounting.id_rc
+    );
 
     if (index >= 0) {
       this.accountings.splice(index, 1);
@@ -242,7 +254,9 @@ export class RecettesComptablesComponent implements OnInit {
    * @param accounting : version modifiée.
    */
   private updateAccounting(accounting: RecetteComptable): void {
-    const index = this.accountings.findIndex((p) => p.id_rc === accounting.id_rc);
+    const index = this.accountings.findIndex(
+      (p) => p.id_rc === accounting.id_rc
+    );
 
     if (index >= 0) {
       this.accountings[index] = accounting;
@@ -257,7 +271,7 @@ export class RecettesComptablesComponent implements OnInit {
     gtEvent: GenericTableEntityEvent<RecetteComptable>
   ): boolean {
     if (!gtEvent) {
-      throw new Error('Le paramètre \'gtEvent\' est invalide');
+      throw new Error("Le paramètre 'gtEvent' est invalide");
     }
 
     try {
@@ -292,12 +306,13 @@ export class RecettesComptablesComponent implements OnInit {
 
       const isSameAccounting =
         this.accountings.findIndex(
-          (e) => e.annee_rc === accounting.annee_rc && e.id_rc !== accounting.id_rc
+          (e) =>
+            e.annee_rc === accounting.annee_rc && e.id_rc !== accounting.id_rc
         ) >= 0;
       if (isSameAccounting) {
         const error = {
           name: this.namesMap.year.code,
-          message: 'L\'année doit être unique',
+          message: "L'année doit être unique",
         };
 
         formErrors.push(error);

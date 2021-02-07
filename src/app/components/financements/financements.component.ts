@@ -624,6 +624,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
       entitySelectBoxOptions: [],
       sortName: this.defaultSortInfo?.headerName,
       sortDirection: this.defaultSortInfo?.sortInfo?.direction,
+      idPropertyName: this.namesMap.id_f.code,
     };
     this.updateTableActionWithUserRight();
     this.updateEntityTypesWithUserRight();

@@ -38,6 +38,14 @@ export function basicSort(array: any[], sortInfo: SortInfo): any[] {
   });
 }
 
+/**
+ * Retourne l'objet avec une nouvelle référence.
+ * @param object
+ */
 export function getDeepCopy(object: any): any {
-  return JSON.parse(JSON.stringify(object));
+  try {
+    return JSON.parse(JSON.stringify(object));
+  } catch (e) {
+    console.error(e);
+  }
 }

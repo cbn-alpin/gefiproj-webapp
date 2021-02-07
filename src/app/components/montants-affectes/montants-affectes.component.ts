@@ -109,6 +109,7 @@ export class MontantsAffectesComponent implements OnChanges {
     entitySelectBoxOptions: [],
     sortName: this.namesMap.annee_ma.name,
     sortDirection: 'asc',
+    idPropertyName: this.namesMap.id_ma.code,
   };
 
   /**

@@ -149,10 +149,12 @@ export class HomeComponent implements OnInit {
     entitySelectBoxOptions: [],
     sortName: this.namesMap.code.name,
     sortDirection: 'asc',
+    idPropertyName: this.namesMap.id.code,
     navigationUrlFt: (project) => `projet/${project?.id_p || 0}`,
-    readOnlyPropertyFt: (project, propertyName) => !!project
-      && !!project.statut_p
-      && propertyName !== this.namesMap.status.code
+    readOnlyPropertyFt: (project, propertyName) =>
+      !!project &&
+      !!project.statut_p &&
+      propertyName !== this.namesMap.status.code,
   };
 
   /**

@@ -95,7 +95,7 @@ export class GenericTableComponent<T>
 
   @Output() changePwdEvent: EventEmitter<
     GenericTableEntityEvent<T>
-    > = new EventEmitter<GenericTableEntityEvent<T>>();
+  > = new EventEmitter<GenericTableEntityEvent<T>>();
 
   @Output() editEvent: EventEmitter<
     GenericTableEntityEvent<T>
@@ -149,6 +149,8 @@ export class GenericTableComponent<T>
   public genericTableEntities: GenericTableEntity<T>[];
 
   public entityTypes: EntityType[];
+
+  public idPropertyName: string;
 
   public displayedColumns: string[];
 
@@ -473,13 +475,14 @@ export class GenericTableComponent<T>
       this.genericTableEntities = this.options.dataSource.map(
         (entity, index) => {
           return {
-            data: entity,
+            data: getDeepCopy(entity),
             state: GenericTableEntityState.READ,
             id: index,
           };
         }
       );
       this.entityTypes = this.options.entityTypes;
+      this.idPropertyName = this.options.idPropertyName;
       this.loadDisplayedColumns();
       this.genericTableEntitiesCopy = getDeepCopy(this.genericTableEntities);
       this.loadSelectedEntity();
@@ -489,9 +492,17 @@ export class GenericTableComponent<T>
   }
 
   private loadSelectedEntity(): void {
-    this.selectedEntity = this.genericTableEntities?.find(
-      (entity) => entity.data === this.selectedRow
-    );
+    try {
+      if (this.selectedRow && this.idPropertyName) {
+        this.selectedEntity = this.genericTableEntities?.find(
+          (entity) =>
+            entity.data[this.idPropertyName] ===
+            this.selectedRow[this.idPropertyName]
+        );
+      }
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   private loadDisplayedColumns(): void {
@@ -513,8 +524,7 @@ export class GenericTableComponent<T>
    */
   public isReadOnlyItem(item: T): boolean {
     try {
-      return !!this._options.readOnlyFt
-        && this._options.readOnlyFt(item);
+      return !!this._options.readOnlyFt && this._options.readOnlyFt(item);
     } catch (error) {
       console.error(error);
     }
@@ -529,8 +539,10 @@ export class GenericTableComponent<T>
    */
   public isReadOnlyProperty(item: T, propertyName: string): boolean {
     try {
-      return !!this._options.readOnlyPropertyFt
-        && this._options.readOnlyPropertyFt(item, propertyName);
+      return (
+        !!this._options.readOnlyPropertyFt &&
+        this._options.readOnlyPropertyFt(item, propertyName)
+      );
     } catch (error) {
       console.error(error);
     }
