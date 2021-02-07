@@ -345,6 +345,7 @@
             disableCreateAction
           "
           [matTooltip]="'Créer'"
+          [matTooltipDisabled]="disableCreateAction"
         >
           <mat-icon>add_circle</mat-icon>
         </button>
@@ -360,6 +361,7 @@
               (click)="onNavigate(element)"
               [matTooltip]="'Détails'"
               [disabled]="disableNavigateAction"
+              [matTooltipDisabled]="disableNavigateAction"
             >
               <mat-icon>open_in_browser</mat-icon>
             </button>
@@ -372,6 +374,7 @@
               (click)="onEdit($event, element)"
               [matTooltip]="'Modifier'"
               [disabled]="disableEditAction"
+              [matTooltipDisabled]="disableEditAction"
             >
               <mat-icon>edit</mat-icon>
             </button>
@@ -382,6 +385,7 @@
               (click)="delete($event, element)"
               [matTooltip]="'Supprimer'"
               [disabled]="disableDeleteAction"
+              [matTooltipDisabled]="disableDeleteAction"
             >
               <mat-icon>delete</mat-icon>
             </button>
@@ -391,6 +395,8 @@
               mat-icon-button
               (click)="changePwd($event, element)"
               [disabled]="disablePwdAction"
+              [matTooltip]="'Changer mot de passe'"
+              [matTooltipDisabled]="disablePwdAction"
             >
               <mat-icon>vpn_key</mat-icon>
             </button>
