@@ -472,6 +472,7 @@ export class GenericTableComponent<T>
    */
   private initTable(): void {
     try {
+      this.showMandatoryIcon = false;
       this.genericTableEntities = this.options.dataSource.map(
         (entity, index) => {
           return {
