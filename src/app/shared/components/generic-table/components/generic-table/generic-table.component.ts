@@ -184,6 +184,18 @@ export class GenericTableComponent<T>
 
   public selectedEntity: GenericTableEntity<T>;
 
+  public disableEditAction: boolean;
+
+  public disableCreateAction: boolean;
+
+  public disableDeleteAction: boolean;
+
+  public disableNavigateAction: boolean;
+
+  public disablePwdAction: boolean;
+
+  public disableSortAction: boolean;
+
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
 
   // tslint:disable-next-line: variable-name
@@ -246,6 +258,7 @@ export class GenericTableComponent<T>
 
   public onEdit(event, entity: GenericTableEntity<T>): void {
     event.stopPropagation();
+    this.setDisableActionsValue(true);
     this.genericTableAction = GenericTableAction.EDIT;
     this.showMandatoryIcon = true;
     const cleanedGenericTableEntities = this.genericTableService.getOtherEntitiesReseted(
@@ -261,6 +274,7 @@ export class GenericTableComponent<T>
 
   public edit(event, entity: GenericTableEntity<T>): void {
     event.stopPropagation();
+    this.setDisableActionsValue(false);
     this.genericTableAction = GenericTableAction.EDIT;
     this.showMandatoryIcon = true;
     const genericTableEntityEvent: GenericTableEntityEvent<T> = {
@@ -274,6 +288,7 @@ export class GenericTableComponent<T>
 
   public cancelEditing(event, entity: GenericTableEntity<T>): void {
     event.stopPropagation();
+    this.setDisableActionsValue(false);
     this.showMandatoryIcon = false;
     const entityToCopy = this.genericTableEntitiesCopy.find(
       (dataCopy) => dataCopy.id === entity.id
@@ -286,6 +301,7 @@ export class GenericTableComponent<T>
   }
 
   public onCreate(): void {
+    this.setDisableActionsValue(true);
     this.genericTableAction = GenericTableAction.NEW;
     this.showMandatoryIcon = true;
     const defaultEntityCopied = getDeepCopy(this.options.defaultEntity);
@@ -303,6 +319,7 @@ export class GenericTableComponent<T>
 
   public create(event, entity: GenericTableEntity<T>): void {
     event.stopPropagation();
+    this.setDisableActionsValue(false);
     this.genericTableAction = GenericTableAction.NEW;
     this.showMandatoryIcon = true;
     const genericTableEntityEvent: GenericTableEntityEvent<T> = {
@@ -316,6 +333,7 @@ export class GenericTableComponent<T>
 
   public cancelCreation(event, entity: GenericTableEntity<T>): void {
     event.stopPropagation();
+    this.setDisableActionsValue(false);
     this.showMandatoryIcon = false;
     this.genericTableEntities = this.genericTableEntities?.filter(
       (data) => entity.data !== data.data
@@ -472,6 +490,7 @@ export class GenericTableComponent<T>
    */
   private initTable(): void {
     try {
+      this.setDisableActionsValue(false);
       this.showMandatoryIcon = false;
       this.genericTableEntities = this.options.dataSource.map(
         (entity, index) => {
@@ -549,5 +568,14 @@ export class GenericTableComponent<T>
     }
 
     return true; // Note : ce n'est pas critique
+  }
+
+  private setDisableActionsValue(value: boolean): void {
+    this.disableEditAction = value;
+    this.disableCreateAction = value;
+    this.disableDeleteAction = value;
+    this.disableNavigateAction = value;
+    this.disablePwdAction = value;
+    this.disableSortAction = value;
   }
 }

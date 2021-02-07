@@ -23,7 +23,8 @@
         *matHeaderCellDef
         mat-sort-header
         [disabled]="
-          genericTableService.isSortDisabled(options, columnName.code)
+          genericTableService.isSortDisabled(options, columnName.code) ||
+          disableSortAction
         "
       >
         {{ columnName.name }}
@@ -339,7 +340,10 @@
           *ngIf="!isReadOnly && showCreateAction"
           mat-icon-button
           (click)="onCreate()"
-          [disabled]="genericTableService.canCreate(genericTableEntities)"
+          [disabled]="
+            genericTableService.canCreate(genericTableEntities) ||
+            disableCreateAction
+          "
           [matTooltip]="'Créer'"
         >
           <mat-icon>add_circle</mat-icon>
@@ -355,15 +359,19 @@
               mat-icon-button
               (click)="onNavigate(element)"
               [matTooltip]="'Détails'"
+              [disabled]="disableNavigateAction"
             >
               <mat-icon>open_in_browser</mat-icon>
             </button>
             <!-- Edit -->
             <button
-              *ngIf="!isReadOnly && showEditAction && !isReadOnlyItem(element.data)"
+              *ngIf="
+                !isReadOnly && showEditAction && !isReadOnlyItem(element.data)
+              "
               mat-icon-button
               (click)="onEdit($event, element)"
               [matTooltip]="'Modifier'"
+              [disabled]="disableEditAction"
             >
               <mat-icon>edit</mat-icon>
             </button>
@@ -373,6 +381,7 @@
               mat-icon-button
               (click)="delete($event, element)"
               [matTooltip]="'Supprimer'"
+              [disabled]="disableDeleteAction"
             >
               <mat-icon>delete</mat-icon>
             </button>
@@ -381,6 +390,7 @@
               *ngIf="!isReadOnly && showChangePwdAction"
               mat-icon-button
               (click)="changePwd($event, element)"
+              [disabled]="disablePwdAction"
             >
               <mat-icon>vpn_key</mat-icon>
             </button>
