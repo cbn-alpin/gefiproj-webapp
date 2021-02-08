@@ -281,7 +281,6 @@ export class GenericTableComponent<T>
   public edit(event, entity: GenericTableEntity<T>): void {
     event.stopPropagation();
     this.genericTableAction = GenericTableAction.EDIT;
-    this.showMandatoryIcon = true;
     const genericTableEntityEvent: GenericTableEntityEvent<T> = {
       entity: entity.data,
       updatedGenericTable: this.genericTableEntities.map((row) => row.data),
@@ -327,7 +326,6 @@ export class GenericTableComponent<T>
   public create(event, entity: GenericTableEntity<T>): void {
     event.stopPropagation();
     this.genericTableAction = GenericTableAction.NEW;
-    this.showMandatoryIcon = true;
     const genericTableEntityEvent: GenericTableEntityEvent<T> = {
       entity: entity.data,
       updatedGenericTable: this.genericTableEntities.map((row) => row.data),
