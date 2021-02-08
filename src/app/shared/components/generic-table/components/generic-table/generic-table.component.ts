@@ -259,6 +259,7 @@ export class GenericTableComponent<T>
   public onEdit(event, entity: GenericTableEntity<T>): void {
     event.stopPropagation();
     this.setDisableActionsValue(true);
+    this.genericTableEntitiesCopy = getDeepCopy(this.genericTableEntities);
     this.genericTableAction = GenericTableAction.EDIT;
     this.showMandatoryIcon = true;
     const cleanedGenericTableEntities = this.genericTableService.getOtherEntitiesReseted(
