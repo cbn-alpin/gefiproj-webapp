@@ -157,35 +157,42 @@ export class UtilisateursComponent implements OnInit {
           type: GenericTableCellType.TEXT,
           code: this.namesMap.nom_u.code,
           sortEnabled: true,
+          isMandatory: true,
         },
         {
           name: this.namesMap.prenom_u.name,
           type: GenericTableCellType.TEXT,
           code: this.namesMap.prenom_u.code,
           sortEnabled: true,
+          isMandatory: true,
         },
         {
           name: this.namesMap.email_u.name,
           type: GenericTableCellType.TEXT,
           code: this.namesMap.email_u.code,
           sortEnabled: true,
+          isMandatory: true,
         },
         {
           name: this.namesMap.initiales_u.name,
           type: GenericTableCellType.TEXT,
           code: this.namesMap.initiales_u.code,
           sortEnabled: true,
+          isMandatory: true,
         },
         {
           name: this.namesMap.active_u.name,
           type: GenericTableCellType.BOOLEAN,
           code: this.namesMap.active_u.code,
           sortEnabled: true,
+          isMandatory: true,
         },
         {
           name: this.namesMap.role.name,
           type: GenericTableCellType.SELECTBOX,
           code: this.namesMap.role.code,
+          sortEnabled: true,
+          isMandatory: true,
         },
       ],
       entityPlaceHolders: [],
@@ -210,17 +217,17 @@ export class UtilisateursComponent implements OnInit {
               user.roles.push(user.role);
               delete user.role;
               user.password_u = this.generatePassword();
-              const createdUser = await this.userService.add(
+              let createdUser = await this.userService.add(
                 user
               );
-              user.role = user.roles[0];
+              createdUser.role = createdUser.roles[0];
               event.callBack(null);
               this.create(createdUser);
               const dialogRef = this.dialog.open(GenericDialogComponent, {
                 data: {
-                  header: 'Mot de passe du nouvel utilisateur',
+                  header: `Mot de passe du nouvel utilisateur ${user.email_u}`,
                   content: `Le mot de passe de l'utilisateur que vous venez de créer
-                  avec l'email '${createdUser.email_u}' est '${user.password_u}' .`,
+                  avec l'email <strong>${user.email_u}</strong> est : <strong>${user.password_u}</strong> .`,
                   type: 'information',
                   action: {
                     name: 'Fermer',
@@ -232,6 +239,7 @@ export class UtilisateursComponent implements OnInit {
                 .afterClosed()
                 .subscribe(async (result) => {
                 });
+        this.refreshDataTable();
       }
     } catch (error) {
       console.error(error);
@@ -256,9 +264,9 @@ export class UtilisateursComponent implements OnInit {
 
         const dialogRef = this.dialog.open(GenericDialogComponent, {
           data: {
-            header: 'Changer le mot de passe de l\'utilisateur',
+            header: `Changer le mot de passe de l'utilisateur ${user.email_u}`,
             content: `Voulez vous changer le mot de passe de l'utilisateur
-             ${user.email_u} à '${user.password_u}' ? `,
+             <strong>${user.email_u}</strong> à <strong> ${user.password_u} </strong> ? `,
             type: 'warning',
             action: {
               name: 'Confirmer',
@@ -273,12 +281,12 @@ export class UtilisateursComponent implements OnInit {
              user.roles.push(user.role);
              delete user.role;
              console.log("User to change pwd : " , user);
-             const modifiedUser = await this.userService.modifyPwd(
+             user = await this.userService.modifyPwd(
                user
              );
              user.role = user.roles[0];
              event.callBack(null);
-             this.modify(modifiedUser);
+             this.modify(user);
              this.popupService.success(
                'Le mot de passe de l\'utilisateur ' +
                user.email_u +
@@ -303,19 +311,19 @@ export class UtilisateursComponent implements OnInit {
     console.log("Call onEdit ! ");
     try {
       let user = event?.entity;
-      console.log("User to modify : ", user);
       if (!user)
         throw new Error("L'utilisateur n'existe pas");
       if (this.validateForGenericTable(event , create)) {
         user.roles = [];
         user.roles.push(user.role);
         delete user.role;
-        const modifiedUser = await this.userService.modify(
+        let modifiedUser = await this.userService.modify(
           user
         );
-        user.role = user.roles[0];
+        modifiedUser.role = modifiedUser.roles[0];
         event.callBack(null);
         this.modify(modifiedUser);
+        this.refreshDataTable();
 
       }
     } catch (error) {
@@ -347,7 +355,6 @@ export class UtilisateursComponent implements OnInit {
     try {
       const user = gtEvent?.entity;
       const formErrors: GenericTableFormError[] = [];
-      console.log("User validate errors : " , user);
       if(create)
         this.verifFormsCreate(user, formErrors);
       else this.verifFormsModify(user, formErrors);

@@ -63,18 +63,21 @@ export class EntreesSortiesComponent implements OnInit {
         type: GenericTableCellType.NUMBER,
         name: this.namesMap.annee_recette_es.name,
         sortEnabled: true,
+        isMandatory: true,
       },
       {
         code: this.namesMap.annee_affectation_es.code,
         type: GenericTableCellType.NUMBER,
         name: this.namesMap.annee_affectation_es.name,
         sortEnabled: true,
+        isMandatory: true,
       },
       {
         code: this.namesMap.montant_es.code,
         type: GenericTableCellType.CURRENCY,
         name: this.namesMap.montant_es.name,
         sortEnabled: false,
+        isMandatory: true,
       }
     ],
     entityPlaceHolders: [],
