@@ -280,7 +280,6 @@ export class GenericTableComponent<T>
 
   public edit(event, entity: GenericTableEntity<T>): void {
     event.stopPropagation();
-    this.setDisableActionsValue(false);
     this.genericTableAction = GenericTableAction.EDIT;
     this.showMandatoryIcon = true;
     const genericTableEntityEvent: GenericTableEntityEvent<T> = {
@@ -327,7 +326,6 @@ export class GenericTableComponent<T>
 
   public create(event, entity: GenericTableEntity<T>): void {
     event.stopPropagation();
-    this.setDisableActionsValue(false);
     this.genericTableAction = GenericTableAction.NEW;
     this.showMandatoryIcon = true;
     const genericTableEntityEvent: GenericTableEntityEvent<T> = {
@@ -453,6 +451,7 @@ export class GenericTableComponent<T>
       ) {
         this.setReadEntityState(entity);
       }
+      this.setDisableActionsValue(false);
       this.showMandatoryIcon = false;
       this.endAction.emit();
     }
