@@ -97,6 +97,8 @@ export class ProjetComponent implements OnInit {
 
   public isResponsable: boolean;
 
+  public disableEditProjetButton: boolean = false;
+
   public get isAdministrator(): boolean {
     return !!this.adminSrv.isAdministrator();
   }
@@ -140,10 +142,7 @@ export class ProjetComponent implements OnInit {
     try {
       const promiseDetails = this.loadProjetDetailsFromProjetId(projetId);
       const promiseFinancement = this.loadFinancementsFromProjetId(projetId);
-      await Promise.all([
-        promiseDetails,
-        promiseFinancement,
-      ]);
+      await Promise.all([promiseDetails, promiseFinancement]);
       this.projetToEdit = getDeepCopy(this.projet);
       this.manager = this.projet.responsable;
       if (this.financements && this.financements.length > 0) {
@@ -376,6 +375,14 @@ export class ProjetComponent implements OnInit {
   //   console.log('SELECTED RECETTES: ', this.selectedRecette);
   //   console.log('SELECTED RECETTES ID: ', this.selectedRecetteId);
   // }
+
+  public onStartAction(): void {
+    this.disableEditProjetButton = true;
+  }
+
+  public onEndAction(): void {
+    this.disableEditProjetButton = false;
+  }
 
   public async openEditProjectDialog(): Promise<void> {
     let projectName = this.projet.nom_p;

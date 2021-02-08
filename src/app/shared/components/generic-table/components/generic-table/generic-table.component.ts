@@ -120,6 +120,10 @@ export class GenericTableComponent<T>
 
   @Output() startEditEvent = new EventEmitter<T>();
 
+  @Output() startAction = new EventEmitter();
+
+  @Output() endAction = new EventEmitter();
+
   /**
    * Récupère le trie courant.
    */
@@ -258,6 +262,7 @@ export class GenericTableComponent<T>
 
   public onEdit(event, entity: GenericTableEntity<T>): void {
     event.stopPropagation();
+    this.startAction.emit();
     this.setDisableActionsValue(true);
     this.genericTableEntitiesCopy = getDeepCopy(this.genericTableEntities);
     this.genericTableAction = GenericTableAction.EDIT;
@@ -289,6 +294,7 @@ export class GenericTableComponent<T>
 
   public cancelEditing(event, entity: GenericTableEntity<T>): void {
     event.stopPropagation();
+    this.endAction.emit();
     this.setDisableActionsValue(false);
     this.showMandatoryIcon = false;
     const entityToCopy = this.genericTableEntitiesCopy.find(
@@ -303,6 +309,7 @@ export class GenericTableComponent<T>
 
   public onCreate(): void {
     this.setDisableActionsValue(true);
+    this.startAction.emit();
     this.genericTableAction = GenericTableAction.NEW;
     this.showMandatoryIcon = true;
     const defaultEntityCopied = getDeepCopy(this.options.defaultEntity);
@@ -334,6 +341,7 @@ export class GenericTableComponent<T>
 
   public cancelCreation(event, entity: GenericTableEntity<T>): void {
     event.stopPropagation();
+    this.endAction.emit();
     this.setDisableActionsValue(false);
     this.showMandatoryIcon = false;
     this.genericTableEntities = this.genericTableEntities?.filter(
@@ -446,6 +454,7 @@ export class GenericTableComponent<T>
         this.setReadEntityState(entity);
       }
       this.showMandatoryIcon = false;
+      this.endAction.emit();
     }
   }
 

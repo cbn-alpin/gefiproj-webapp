@@ -176,6 +176,8 @@ export class HomeComponent implements OnInit {
    */
   sortInfo: SortInfo;
 
+  public disableToggleButton: boolean = false;
+
   /**
    * Affiche les projets.
    * @param adminSrv : permet de vérifier si l'utilisateur est un administrateur.
@@ -713,5 +715,13 @@ export class HomeComponent implements OnInit {
       }
       return 0;
     });
+  }
+
+  public onStartAction(): void {
+    this.disableToggleButton = true;
+  }
+
+  public onEndAction(): void {
+    this.disableToggleButton = false;
   }
 }

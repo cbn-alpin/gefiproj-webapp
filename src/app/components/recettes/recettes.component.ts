@@ -57,6 +57,10 @@ export class RecettesComponent implements OnInit, OnChanges {
 
   @Output() public deleteEvent = new EventEmitter<ProjetCallback>();
 
+  @Output() public startAction = new EventEmitter<void>();
+
+  @Output() public endAction = new EventEmitter<void>();
+
   public title = 'Recettes';
 
   public options: GenericTableOptions<Recette>;
@@ -345,6 +349,14 @@ export class RecettesComponent implements OnInit, OnChanges {
     genericTableEntityEvent: GenericTableEntityEvent<Recette>
   ): void {
     this.selectEvent.emit(genericTableEntityEvent.entity);
+  }
+
+  public onStartAction(): void {
+    this.startAction.emit();
+  }
+
+  public onEndAction(): void {
+    this.endAction.emit();
   }
 
   private initGenericTableOptions(): void {

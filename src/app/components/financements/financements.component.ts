@@ -64,6 +64,10 @@ export class FinancementsComponent implements OnInit, OnChanges {
 
   @Output() public deleteEvent = new EventEmitter<ProjetCallback>();
 
+  @Output() public startAction = new EventEmitter<void>();
+
+  @Output() public endAction = new EventEmitter<void>();
+
   /**
    * Titre du tableau générique
    */
@@ -531,6 +535,14 @@ export class FinancementsComponent implements OnInit, OnChanges {
     } catch (error) {
       console.error(error);
     }
+  }
+
+  public onStartAction(): void {
+    this.startAction.emit();
+  }
+
+  public onEndAction(): void {
+    this.endAction.emit();
   }
 
   /**

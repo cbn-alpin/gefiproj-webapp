@@ -9,6 +9,8 @@
         mat-icon-button
         (click)="openEditProjectDialog()"
         [matTooltip]="'Modifier'"
+        [disabled]="disableEditProjetButton"
+        [matTooltipDisabled]="disableEditProjetButton"
       >
         <mat-icon>edit</mat-icon>
       </button>
@@ -41,6 +43,8 @@
       (createEvent)="onCreateFinancement($event)"
       (editEvent)="onEditFinancement($event)"
       (deleteEvent)="onDeleteFinancement($event)"
+      (startAction)="onStartAction()"
+      (endAction)="onEndAction()"
     ></app-financements>
   </div>
 
@@ -63,6 +67,8 @@
         (createEvent)="onCreateRecette($event)"
         (editEvent)="onEditRecette($event)"
         (deleteEvent)="onDeleteRecette($event)"
+        (startAction)="onStartAction()"
+        (endAction)="onEndAction()"
       ></app-recettes>
     </div>
 
@@ -76,6 +82,8 @@
         (createEvent)="onCreateMontantAffecte($event)"
         (editEvent)="onEditMontantAffecte($event)"
         (deleteEvent)="onDeleteMontantAffecte($event)"
+        (startAction)="onStartAction()"
+        (endAction)="onEndAction()"
       ></app-montants-affectes>
     </div>
   </div>
