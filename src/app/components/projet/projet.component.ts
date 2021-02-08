@@ -140,10 +140,7 @@ export class ProjetComponent implements OnInit {
     try {
       const promiseDetails = this.loadProjetDetailsFromProjetId(projetId);
       const promiseFinancement = this.loadFinancementsFromProjetId(projetId);
-      await Promise.all([
-        promiseDetails,
-        promiseFinancement,
-      ]);
+      await Promise.all([promiseDetails, promiseFinancement]);
       this.projetToEdit = getDeepCopy(this.projet);
       this.manager = this.projet.responsable;
       if (this.financements && this.financements.length > 0) {
@@ -184,20 +181,29 @@ export class ProjetComponent implements OnInit {
 
   public onDeleteFinancement(projetCallback: ProjetCallback): void {
     if (this.selectedFinancementId === projetCallback.id) {
+      const nextIndex =
+        this.financements.findIndex(
+          (financement) => financement.id_f === this.selectedFinancementId
+        ) + 1;
+      this.selectedFinancementId = this.financements[nextIndex]?.id_f;
       this.selectedFinancement = null;
-      this.selectedFinancementId = null;
       this.selectedRecette = null;
       this.selectedRecetteId = null;
       this.recettes = null;
       this.montantsAffectes = null;
     }
+
     this.refreshFinancements(projetCallback);
   }
 
   public onDeleteRecette(projetCallback: ProjetCallback): void {
     if (this.selectedRecetteId === projetCallback.id) {
+      const nextIndex =
+        this.recettes.findIndex(
+          (recette) => recette.id_r === this.selectedRecetteId
+        ) + 1;
+      this.selectedRecetteId = this.recettes[nextIndex]?.id_r;
       this.selectedRecette = null;
-      this.selectedRecetteId = null;
       this.montantsAffectes = null;
     }
     this.refreshRecettes(projetCallback);
@@ -241,7 +247,7 @@ export class ProjetComponent implements OnInit {
   public async refreshFinancements(
     projetCallback: ProjetCallback
   ): Promise<void> {
-    await this.loadFinancementsFromProjetId(this.projet.id_p);
+    this.refreshAll();
     projetCallback?.cb(); // -> Passer la ligne du tableau en mode lecture
     if (projetCallback?.message) {
       this.popupService.success(projetCallback.message);
@@ -249,8 +255,7 @@ export class ProjetComponent implements OnInit {
   }
 
   public async refreshRecettes(projetCallback: ProjetCallback): Promise<void> {
-    await this.loadFinancementsFromProjetId(this.projet.id_p);
-    await this.loadRecettesFromFinancementId(this.selectedFinancement.id_f);
+    this.refreshAll();
     projetCallback?.cb(); // -> Passer la ligne du tableau en mode lecture
     if (projetCallback?.message) {
       this.popupService.success(projetCallback.message);
@@ -260,11 +265,30 @@ export class ProjetComponent implements OnInit {
   public async refreshMontantsAffectes(
     projetCallback: ProjetCallback
   ): Promise<void> {
-    await this.loadRecettesFromFinancementId(this.selectedFinancement.id_f);
-    await this.loadMontantsFromRecetteId(this.selectedRecette.id_r);
+    this.refreshAll();
     projetCallback?.cb(); // -> Passer la ligne du tableau en mode lecture
     if (projetCallback?.message) {
       this.popupService.success(projetCallback.message);
+    }
+  }
+
+  public async refreshAll() {
+    console.log('REFRESH ALL');
+    await this.loadFinancementsFromProjetId(this.projet.id_p);
+    if (this.selectedFinancementId) {
+      await this.loadRecettesFromFinancementId(this.selectedFinancementId);
+    } else if (this.financements?.length) {
+      await this.loadRecettesFromFinancementId(this.financements[0].id_f);
+    } else {
+      this.recettes = null;
+    }
+
+    if (this.selectedRecetteId) {
+      await this.loadMontantsFromRecetteId(this.selectedRecetteId);
+    } else if (this.recettes?.length) {
+      await this.loadMontantsFromRecetteId(this.recettes[0].id_r);
+    } else {
+      this.montantsAffectes = null;
     }
   }
 
@@ -396,7 +420,7 @@ export class ProjetComponent implements OnInit {
       .afterClosed()
       .pipe(take(1))
       .subscribe(async (object) => {
-        const result = object.data;
+        const result = object?.data;
         if (result) {
           if (result.edited) {
             await this.updateProjectInfos(result.project);
@@ -423,10 +447,8 @@ export class ProjetComponent implements OnInit {
   public async updateProjectInfos(editedProject: Projet): Promise<void> {
     editedProject.id_u = editedProject.responsable.id_u;
     try {
-      this.spinnerSrv.show();
       await this.projetsService.modify(editedProject);
       this.checkIfUserHasResponsableRight(editedProject);
-      this.spinnerSrv.hide();
       this.popupService.success('Le projet a bien été modifié ! ');
     } catch (error) {
       console.error(error);
@@ -452,7 +474,7 @@ export class EditProjectDialogComponent implements OnInit {
   public get min(): number {
     const date = new Date(Date.now());
     const year = date.getFullYear() % 100;
-    return Math.max(20, year - 10); // Démarrage en 2020
+    return Math.max(10, year - 10); // Démarrage en 2010
   }
   public get max(): number {
     const date = new Date(Date.now());
@@ -476,7 +498,7 @@ export class EditProjectDialogComponent implements OnInit {
           value: this.data.project.nom_p,
           disabled: this.data.project.statut_p,
         },
-        [Validators.required],
+        [Validators.required, Validators.minLength(3)],
       ],
       code: [
         {
@@ -511,20 +533,30 @@ export class EditProjectDialogComponent implements OnInit {
     if (!this.isBalance() && this.hasInvalidProjectCode(this.data.project)) {
       this.formGroup.get('code').setErrors({ range: true });
       this.popupService.error(Messages.ERROR_FORM);
-    } else if (
-      !this.isBalance() &&
-      (await this.hasDuplicateProjectCode(this.data.project))
-    ) {
-      this.formGroup.get('code').setErrors({ duplicate: true });
-      this.popupService.error(Messages.ERROR_FORM);
     } else {
+      const projets = await this.getProjets();
+      if (await this.hasDuplicateProjectCode(this.data.project, projets)) {
+        this.formGroup.get('code').setErrors({ duplicate: true });
+        this.popupService.error(Messages.ERROR_FORM);
+      }
+      if (await this.hasDuplicateProjectName(this.data.project, projets)) {
+        this.formGroup.get('nom').setErrors({ duplicate: true });
+        this.popupService.error(Messages.ERROR_FORM);
+      }
+    }
+    if (
+      !this.formGroup.get('code').errors &&
+      !this.formGroup.get('nom').errors
+    ) {
       this.dialogRef.close({ data: this.data });
     }
   }
 
-  private async hasDuplicateProjectCode(projet: Projet): Promise<boolean> {
+  private async hasDuplicateProjectCode(
+    projet: Projet,
+    projets: Projet[]
+  ): Promise<boolean> {
     try {
-      const projets = await this.getProjets();
       const projectCodes = projets.map((project) => project.code_p);
       const tempArray =
         projets.find(
@@ -533,6 +565,27 @@ export class EditProjectDialogComponent implements OnInit {
         ) != null
           ? projectCodes
           : projectCodes.concat(projet.code_p);
+      return tempArray.some(
+        (element, index) => tempArray.indexOf(element) !== index
+      );
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  private async hasDuplicateProjectName(
+    projet: Projet,
+    projets: Projet[]
+  ): Promise<boolean> {
+    try {
+      const projectNames = projets.map((project) => project.nom_p);
+      const tempArray =
+        projets.find(
+          (_projet) =>
+            _projet.id_p === projet.id_p && _projet.nom_p === projet.nom_p
+        ) != null
+          ? projectNames
+          : projectNames.concat(projet.nom_p);
       return tempArray.some(
         (element, index) => tempArray.indexOf(element) !== index
       );

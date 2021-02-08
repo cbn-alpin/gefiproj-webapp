@@ -13,6 +13,12 @@
         <mat-error *ngIf="formGroup.get('nom').hasError('required')">
           Le nom du projet est <strong>requis</strong>
         </mat-error>
+        <mat-error *ngIf="formGroup.get('nom').hasError('minlength')">
+          Le nom du projet doit avoir au moins <strong>3 caractères</strong>
+        </mat-error>
+        <mat-error *ngIf="formGroup.get('nom').hasError('duplicate')">
+          Le nom du projet est déjà <strong>utilisé</strong> par un autre projet
+        </mat-error>
       </mat-form-field>
       <br />
       Code :
