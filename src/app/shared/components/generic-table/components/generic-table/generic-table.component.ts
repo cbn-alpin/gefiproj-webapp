@@ -95,7 +95,7 @@ export class GenericTableComponent<T>
 
   @Output() changePwdEvent: EventEmitter<
     GenericTableEntityEvent<T>
-    > = new EventEmitter<GenericTableEntityEvent<T>>();
+  > = new EventEmitter<GenericTableEntityEvent<T>>();
 
   @Output() editEvent: EventEmitter<
     GenericTableEntityEvent<T>
@@ -119,6 +119,10 @@ export class GenericTableComponent<T>
   @Output() sortEvent = new EventEmitter<SortInfo>();
 
   @Output() startEditEvent = new EventEmitter<T>();
+
+  @Output() startAction = new EventEmitter();
+
+  @Output() endAction = new EventEmitter();
 
   /**
    * Récupère le trie courant.
@@ -149,6 +153,8 @@ export class GenericTableComponent<T>
   public genericTableEntities: GenericTableEntity<T>[];
 
   public entityTypes: EntityType[];
+
+  public idPropertyName: string;
 
   public displayedColumns: string[];
 
@@ -181,6 +187,18 @@ export class GenericTableComponent<T>
   public actionsHeaderColumnName: string = 'Actions';
 
   public selectedEntity: GenericTableEntity<T>;
+
+  public disableEditAction: boolean;
+
+  public disableCreateAction: boolean;
+
+  public disableDeleteAction: boolean;
+
+  public disableNavigateAction: boolean;
+
+  public disablePwdAction: boolean;
+
+  public disableSortAction: boolean;
 
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
 
@@ -244,6 +262,9 @@ export class GenericTableComponent<T>
 
   public onEdit(event, entity: GenericTableEntity<T>): void {
     event.stopPropagation();
+    this.startAction.emit();
+    this.setDisableActionsValue(true);
+    this.genericTableEntitiesCopy = getDeepCopy(this.genericTableEntities);
     this.genericTableAction = GenericTableAction.EDIT;
     this.showMandatoryIcon = true;
     const cleanedGenericTableEntities = this.genericTableService.getOtherEntitiesReseted(
@@ -260,7 +281,6 @@ export class GenericTableComponent<T>
   public edit(event, entity: GenericTableEntity<T>): void {
     event.stopPropagation();
     this.genericTableAction = GenericTableAction.EDIT;
-    this.showMandatoryIcon = true;
     const genericTableEntityEvent: GenericTableEntityEvent<T> = {
       entity: entity.data,
       updatedGenericTable: this.genericTableEntities.map((row) => row.data),
@@ -272,6 +292,8 @@ export class GenericTableComponent<T>
 
   public cancelEditing(event, entity: GenericTableEntity<T>): void {
     event.stopPropagation();
+    this.endAction.emit();
+    this.setDisableActionsValue(false);
     this.showMandatoryIcon = false;
     const entityToCopy = this.genericTableEntitiesCopy.find(
       (dataCopy) => dataCopy.id === entity.id
@@ -284,6 +306,8 @@ export class GenericTableComponent<T>
   }
 
   public onCreate(): void {
+    this.setDisableActionsValue(true);
+    this.startAction.emit();
     this.genericTableAction = GenericTableAction.NEW;
     this.showMandatoryIcon = true;
     const defaultEntityCopied = getDeepCopy(this.options.defaultEntity);
@@ -302,7 +326,6 @@ export class GenericTableComponent<T>
   public create(event, entity: GenericTableEntity<T>): void {
     event.stopPropagation();
     this.genericTableAction = GenericTableAction.NEW;
-    this.showMandatoryIcon = true;
     const genericTableEntityEvent: GenericTableEntityEvent<T> = {
       entity: entity.data,
       updatedGenericTable: this.genericTableEntities.map((row) => row.data),
@@ -314,6 +337,8 @@ export class GenericTableComponent<T>
 
   public cancelCreation(event, entity: GenericTableEntity<T>): void {
     event.stopPropagation();
+    this.endAction.emit();
+    this.setDisableActionsValue(false);
     this.showMandatoryIcon = false;
     this.genericTableEntities = this.genericTableEntities?.filter(
       (data) => entity.data !== data.data
@@ -424,7 +449,9 @@ export class GenericTableComponent<T>
       ) {
         this.setReadEntityState(entity);
       }
+      this.setDisableActionsValue(false);
       this.showMandatoryIcon = false;
+      this.endAction.emit();
     }
   }
 
@@ -470,16 +497,19 @@ export class GenericTableComponent<T>
    */
   private initTable(): void {
     try {
+      this.setDisableActionsValue(false);
+      this.showMandatoryIcon = false;
       this.genericTableEntities = this.options.dataSource.map(
         (entity, index) => {
           return {
-            data: entity,
+            data: getDeepCopy(entity),
             state: GenericTableEntityState.READ,
             id: index,
           };
         }
       );
       this.entityTypes = this.options.entityTypes;
+      this.idPropertyName = this.options.idPropertyName;
       this.loadDisplayedColumns();
       this.genericTableEntitiesCopy = getDeepCopy(this.genericTableEntities);
       this.loadSelectedEntity();
@@ -489,9 +519,17 @@ export class GenericTableComponent<T>
   }
 
   private loadSelectedEntity(): void {
-    this.selectedEntity = this.genericTableEntities?.find(
-      (entity) => entity.data === this.selectedRow
-    );
+    try {
+      if (this.selectedRow && this.idPropertyName) {
+        this.selectedEntity = this.genericTableEntities?.find(
+          (entity) =>
+            entity.data[this.idPropertyName] ===
+            this.selectedRow[this.idPropertyName]
+        );
+      }
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   private loadDisplayedColumns(): void {
@@ -513,8 +551,7 @@ export class GenericTableComponent<T>
    */
   public isReadOnlyItem(item: T): boolean {
     try {
-      return !!this._options.readOnlyFt
-        && this._options.readOnlyFt(item);
+      return !!this._options.readOnlyFt && this._options.readOnlyFt(item);
     } catch (error) {
       console.error(error);
     }
@@ -529,12 +566,23 @@ export class GenericTableComponent<T>
    */
   public isReadOnlyProperty(item: T, propertyName: string): boolean {
     try {
-      return !!this._options.readOnlyPropertyFt
-        && this._options.readOnlyPropertyFt(item, propertyName);
+      return (
+        !!this._options.readOnlyPropertyFt &&
+        this._options.readOnlyPropertyFt(item, propertyName)
+      );
     } catch (error) {
       console.error(error);
     }
 
     return true; // Note : ce n'est pas critique
+  }
+
+  private setDisableActionsValue(value: boolean): void {
+    this.disableEditAction = value;
+    this.disableCreateAction = value;
+    this.disableDeleteAction = value;
+    this.disableNavigateAction = value;
+    this.disablePwdAction = value;
+    this.disableSortAction = value;
   }
 }

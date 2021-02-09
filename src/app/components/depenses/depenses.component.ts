@@ -78,6 +78,7 @@ export class DepensesComponent implements OnInit {
     entitySelectBoxOptions: [],
     sortName: this.namesMap.year.name,
     sortDirection: 'desc',
+    idPropertyName: this.namesMap.id.code,
   };
 
   /**

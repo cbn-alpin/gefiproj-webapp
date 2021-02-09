@@ -64,6 +64,10 @@ export class FinancementsComponent implements OnInit, OnChanges {
 
   @Output() public deleteEvent = new EventEmitter<ProjetCallback>();
 
+  @Output() public startAction = new EventEmitter<void>();
+
+  @Output() public endAction = new EventEmitter<void>();
+
   /**
    * Titre du tableau générique
    */
@@ -474,7 +478,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
     const dialogRef = this.dialog.open(GenericDialogComponent, {
       data: {
         header: 'Suppression du financement',
-        content: `Les données reliées à ce financement (recettes et montants affectés incluent) seront supprimés suite à sa suppression<br> <br>Confirmez-vous la suppression de ce financement d'un montant de ${financement.montant_arrete_f} provenant du financeur ${financement.financeur.nom_financeur} ?`,
+        content: `Les données reliées à ce financement (recettes et montants affectés inclus) seront également supprimées.<br> <br>Confirmez-vous la suppression de ce financement d'un montant de ${financement.montant_arrete_f} provenant du financeur ${financement.financeur.nom_financeur} ?`,
         type: 'warning',
         action: {
           name: 'Confirmer',
@@ -531,6 +535,14 @@ export class FinancementsComponent implements OnInit, OnChanges {
     } catch (error) {
       console.error(error);
     }
+  }
+
+  public onStartAction(): void {
+    this.startAction.emit();
+  }
+
+  public onEndAction(): void {
+    this.endAction.emit();
   }
 
   /**
@@ -624,6 +636,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
       entitySelectBoxOptions: [],
       sortName: this.defaultSortInfo?.headerName,
       sortDirection: this.defaultSortInfo?.sortInfo?.direction,
+      idPropertyName: this.namesMap.id_f.code,
     };
     this.updateTableActionWithUserRight();
     this.updateEntityTypesWithUserRight();
