@@ -323,7 +323,6 @@ export class EntreesSortiesComponent implements OnInit {
    * @param create : s'il s'agit d'une création ou d'une modification
    */
   private verifUniqueYears(inOut: EntreeSortie, create: boolean): boolean {
-    console.log('Create : ', create);
     if (create) {
       const index = this.entreesSorties.findIndex(
         (p) =>
