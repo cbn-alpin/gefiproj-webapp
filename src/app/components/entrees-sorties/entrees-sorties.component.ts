@@ -309,6 +309,13 @@ export class EntreesSortiesComponent implements OnInit {
       };
       formErrors.push(error);
     }
+    if (this.verifUniqueYears(inout, create)) {
+      const error = {
+        name: this.namesMap.annee_affectation_es.code,
+        message: 'Le couple (année recette, année affectation) existe déjà.',
+      };
+      formErrors.push(error);
+    }
   }
   /**
    * Vérifie l'unicité du couple (anner_r,annee_a) d'une entrée/sortie
