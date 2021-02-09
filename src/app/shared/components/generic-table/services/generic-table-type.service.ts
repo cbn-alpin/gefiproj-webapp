@@ -49,6 +49,12 @@ export class GenericTableTypeService<T> {
       GenericTableCellType.CURRENCY
     );
   }
+  public isNegativeCurrency(options: GenericTableOptions<T>, entityName: any): boolean {
+    return (
+      options.entityTypes?.find((entity) => entity.code === entityName).type ===
+      GenericTableCellType.NEGATIVECURRENCY
+    );
+  }
 
   public isSelectBox(
     options: GenericTableOptions<T>,

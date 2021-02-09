@@ -3,6 +3,7 @@ export enum GenericTableCellType {
   TEXT = 'string',
   DATE = 'date',
   CURRENCY = 'currency',
+  NEGATIVECURRENCY = 'negative-currency',
   BOOLEAN = 'boolean',
   SELECTBOX = 'selectbox',
   TEXTAREA = 'textarea'

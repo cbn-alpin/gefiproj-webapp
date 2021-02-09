@@ -1,14 +1,17 @@
 import { NgModule } from '@angular/core';
 import { NumericDirective } from './numeric-directive';
+import { NegativeNumericDirective } from './negative-numeric.directive';
 
 
 
 @NgModule({
   declarations: [
-    NumericDirective
+    NumericDirective,
+    NegativeNumericDirective
   ],
   exports: [
-    NumericDirective
+    NumericDirective,
+    NegativeNumericDirective
   ],
 })
 export class DirectivesModule { }
