@@ -51,7 +51,7 @@ export class ConnexionComponent implements OnInit {
         const isAuth = this.authSrv.isAuthenticated();
         if (!isAuth) {
           this.popupService.error(
-            "Ce login n'est pas valide : utilisateur inactif ou sans rôle."
+            'Ce compte n\'est pas valide : utilisateur inactif ou sans rôle.'
           );
         }
       }

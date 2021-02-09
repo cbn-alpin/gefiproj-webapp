@@ -1,4 +1,3 @@
-import { environment } from './../../../environments/environment';
 import { Location } from '@angular/common';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
@@ -6,6 +5,7 @@ import { Router } from '@angular/router';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Utilisateur } from '../../models/utilisateur';
+import { environment } from './../../../environments/environment';
 import { RefreshTokenResponse } from './refreshTokenResponse';
 import { UserLogin as UserLogin } from './user-login';
 import { UtilisateurToken } from './utilisateurToken';
@@ -169,7 +169,7 @@ export class AuthService {
         const headers = Object.assign({
           Authorization: `Bearer ${accessToken}`
         }, AuthService.headers);
-      
+
         await this.http
           .post(
             url,
@@ -177,7 +177,7 @@ export class AuthService {
             headers: new HttpHeaders(headers)
           })
           .toPromise();
-      }      
+      }
     } catch (error) {
       console.error(error);
       return Promise.reject(error);
