@@ -80,6 +80,7 @@ export class FinanceursComponent implements OnInit {
     entitySelectBoxOptions: [],
     sortName: this.namesMap.name.name,
     sortDirection: 'asc',
+    idPropertyName: this.namesMap.id.code,
   };
 
   /**

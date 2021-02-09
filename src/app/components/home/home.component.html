@@ -1,7 +1,19 @@
 <div>
-    <h1>{{title}}</h1>
-    <mat-slide-toggle [(ngModel)]="withClosed">Soldés</mat-slide-toggle>
-    <app-generic-table [title]="" [(options)]="options" [showActions]="true" [isReadOnly]="isReadOnly" (editEvent)="onEdit($event)"
-        (createEvent)="onCreate($event)" (deleteEvent)="onDelete($event)" (sortEvent)="onSortChanged($event)">
-    </app-generic-table>
+  <h1>{{ title }}</h1>
+  <mat-slide-toggle [(ngModel)]="withClosed" [disabled]="disableToggleButton"
+    >Soldés</mat-slide-toggle
+  >
+  <app-generic-table
+    [title]=""
+    [(options)]="options"
+    [showActions]="true"
+    [isReadOnly]="isReadOnly"
+    (editEvent)="onEdit($event)"
+    (createEvent)="onCreate($event)"
+    (deleteEvent)="onDelete($event)"
+    (sortEvent)="onSortChanged($event)"
+    (startAction)="onStartAction()"
+    (endAction)="onEndAction()"
+  >
+  </app-generic-table>
 </div>

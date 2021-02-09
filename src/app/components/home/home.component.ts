@@ -149,10 +149,12 @@ export class HomeComponent implements OnInit {
     entitySelectBoxOptions: [],
     sortName: this.namesMap.code.name,
     sortDirection: 'asc',
+    idPropertyName: this.namesMap.id.code,
     navigationUrlFt: (project) => `projet/${project?.id_p || 0}`,
-    readOnlyPropertyFt: (project, propertyName) => !!project
-      && !!project.statut_p
-      && propertyName !== this.namesMap.status.code
+    readOnlyPropertyFt: (project, propertyName) =>
+      !!project &&
+      !!project.statut_p &&
+      propertyName !== this.namesMap.status.code,
   };
 
   /**
@@ -173,6 +175,8 @@ export class HomeComponent implements OnInit {
    * Indique le trie courant.
    */
   sortInfo: SortInfo;
+
+  public disableToggleButton: boolean = false;
 
   /**
    * Affiche les projets.
@@ -711,5 +715,13 @@ export class HomeComponent implements OnInit {
       }
       return 0;
     });
+  }
+
+  public onStartAction(): void {
+    this.disableToggleButton = true;
+  }
+
+  public onEndAction(): void {
+    this.disableToggleButton = false;
   }
 }

@@ -97,6 +97,8 @@ export class ProjetComponent implements OnInit {
 
   public isResponsable: boolean;
 
+  public disableEditProjetButton: boolean = false;
+
   public get isAdministrator(): boolean {
     return !!this.adminSrv.isAdministrator();
   }
@@ -424,6 +426,14 @@ export class ProjetComponent implements OnInit {
   //   console.log('SELECTED RECETTES: ', this.selectedRecette);
   //   console.log('SELECTED RECETTES ID: ', this.selectedRecetteId);
   // }
+
+  public onStartAction(): void {
+    this.disableEditProjetButton = true;
+  }
+
+  public onEndAction(): void {
+    this.disableEditProjetButton = false;
+  }
 
   public async openEditProjectDialog(): Promise<void> {
     let projectName = this.projet.nom_p;
