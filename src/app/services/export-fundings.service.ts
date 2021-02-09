@@ -42,7 +42,13 @@ export class ExportFundingsService {
         observe: 'response',
       });
       const response = await observable.toPromise();
-      return response.body?.url || null;
+      const body = response.body;
+
+      if (body?.message && !body.url) { // Il y a un message d'erreur
+        return Promise.reject(new Error(body.message));
+      }
+
+      return body?.url || null;
     } catch (error) {
       console.log(error);
       return Promise.reject(error);
@@ -77,7 +83,13 @@ export class ExportFundingsService {
         observe: 'response',
       });
       const response = await observable.toPromise();
-      return response.body?.url || null;
+      const body = response.body;
+
+      if (body?.message && !body.url) { // Il y a un message d'erreur
+        return Promise.reject(new Error(body.message));
+      }
+
+      return body?.url || null;
     } catch (error) {
       console.log(error);
       return Promise.reject(error);
