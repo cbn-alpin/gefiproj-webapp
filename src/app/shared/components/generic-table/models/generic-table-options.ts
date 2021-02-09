@@ -23,7 +23,7 @@ export interface GenericTableOptions<T> {
    * Indique le nom de la propriété correspondant à l'id de l'objet
    * Nécessaire pour trouver l'entité qui doit être sélectionnée dans le tableau
    */
-  idPropertyName: string;
+  idPropertyName?: string;
 
   /**
    * Tableau des options pour chaque select box de l'entité T.
