@@ -10,7 +10,7 @@ import { RecettesComptablesComponent } from './components/recettes-comptables/re
 import { UtilisateursComponent } from './components/utilisateurs/utilisateurs.component';
 import { EnsureAuthenticatedService } from './services/authentication/ensure-authenticated.service';
 import { IsAdministratorGuardService } from './services/authentication/is-administrator-guard.service';
-import {EntreesSortiesComponent} from './components/entrees-sorties/entrees-sorties.component';
+import { EntreesSortiesComponent } from './components/entrees-sorties/entrees-sorties.component';
 
 const routes: Routes = [
   {
@@ -57,11 +57,6 @@ const routes: Routes = [
     component: UtilisateursComponent,
     canActivate: [IsAdministratorGuardService],
   },
-  /* TODO: Supprimer le chemin 'tabledemo'
-  {
-    path: 'tabledemo',
-    component: GenericTableDemoComponent,
-  },*/
   {
     path: '',
     redirectTo: 'home',

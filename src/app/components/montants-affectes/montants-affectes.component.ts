@@ -57,6 +57,10 @@ export class MontantsAffectesComponent implements OnChanges {
 
   @Output() public deleteEvent = new EventEmitter<ProjetCallback>();
 
+  @Output() public startAction = new EventEmitter<void>();
+
+  @Output() public endAction = new EventEmitter<void>();
+
   public get showActions(): boolean {
     return this.isAdministrator && !this.projectIsBalance;
   }
@@ -109,6 +113,7 @@ export class MontantsAffectesComponent implements OnChanges {
     entitySelectBoxOptions: [],
     sortName: this.namesMap.annee_ma.name,
     sortDirection: 'asc',
+    idPropertyName: this.namesMap.id_ma.code,
   };
 
   /**
@@ -342,6 +347,14 @@ export class MontantsAffectesComponent implements OnChanges {
     } catch (error) {
       console.error(error);
     }
+  }
+
+  public onStartAction(): void {
+    this.startAction.emit();
+  }
+
+  public onEndAction(): void {
+    this.endAction.emit();
   }
 
   /**

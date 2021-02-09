@@ -64,6 +64,10 @@ export class FinancementsComponent implements OnInit, OnChanges {
 
   @Output() public deleteEvent = new EventEmitter<ProjetCallback>();
 
+  @Output() public startAction = new EventEmitter<void>();
+
+  @Output() public endAction = new EventEmitter<void>();
+
   /**
    * Titre du tableau générique
    */
@@ -533,6 +537,14 @@ export class FinancementsComponent implements OnInit, OnChanges {
     }
   }
 
+  public onStartAction(): void {
+    this.startAction.emit();
+  }
+
+  public onEndAction(): void {
+    this.endAction.emit();
+  }
+
   /**
    * transform date format to yyyy-MM-dd
    * @param date
@@ -624,6 +636,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
       entitySelectBoxOptions: [],
       sortName: this.defaultSortInfo?.headerName,
       sortDirection: this.defaultSortInfo?.sortInfo?.direction,
+      idPropertyName: this.namesMap.id_f.code,
     };
     this.updateTableActionWithUserRight();
     this.updateEntityTypesWithUserRight();
