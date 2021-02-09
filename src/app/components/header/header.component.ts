@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
 import { Utilisateur } from '../../models/utilisateur';
 import { AuthService } from '../../services/authentication/auth.service';
+import {IsAdministratorGuardService} from '../../services/authentication/is-administrator-guard.service';
 
 export interface MenuItem {
   label: string;
@@ -18,7 +19,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   public user$: Observable<Utilisateur>;
   public user: Utilisateur;
 
-  public readonly menuItems: MenuItem[] = [
+  public menuItems: MenuItem[] = [
     {
       label: 'Accueil',
       link: '/home',
@@ -43,27 +44,29 @@ export class HeaderComponent implements OnInit, OnDestroy {
     {
       label: 'Rapports',
       link: '/rapports'
-    },
-    {
-      label: 'Utilisateurs',
-      link: '/utilisateurs'
-    }/*,
-    {
-      label: 'Démo table (dév)',
-      link: '/tabledemo'
-    }*/
+    }
   ];
 
   private subscription: Subscription;
 
   constructor(
-    private readonly auth: AuthService
+    private readonly auth: AuthService,
+    private readonly isAdministratorGuardService: IsAdministratorGuardService,
   ) { }
 
   public ngOnInit(): void {
     this.user$ = this.auth.userObservable;
     this.subscription = this.user$.subscribe((user) => {
       this.user = user;
+      if(user){
+      if(this.isAdministrator){
+        let menu = {
+          label: 'Utilisateurs',
+          link: '/utilisateurs'
+        };
+        this.menuItems.push(menu);
+      }
+      }
     });
   }
 
@@ -73,5 +76,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   public logout(): void {
     this.auth.logout();
+    let menu = {
+      label: 'Utilisateurs',
+      link: '/utilisateurs'
+    };
+    const index = this.menuItems.findIndex((p) => p.label === menu.label);
+    if (index >= 0) {
+      this.menuItems.splice(index, 1);
+    }
+  }
+
+  /**
+   * Indique si l'utilisateur est un administrateur.
+   */
+  public get isAdministrator(): boolean {
+    return !!this.isAdministratorGuardService.isAdministrator();
   }
 }

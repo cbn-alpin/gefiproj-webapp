@@ -107,7 +107,7 @@ export class RapportsComponent implements OnInit {
       window.open(url, '_blank');
     } catch (error) {
       console.log(error);
-      this.popupService.error('Impossible d\'afficher le bilan');
+      this.popupService.error(error, 'Impossible d\'afficher le bilan de suivi des financements (v1)');
     }
   }
 
@@ -130,10 +130,7 @@ export class RapportsComponent implements OnInit {
       }
     } catch (error) {
       console.log(error);
-      const message = error.message
-        ? ' Message : \'' + error.message + '\''
-        : '';
-      this.popupService.error(`Impossible d'afficher le bilan.${message}`);
+      this.popupService.error(error, 'Impossible d\'afficher le bilan de suivi des financements (v2)');
     }
   }
 
@@ -155,10 +152,7 @@ export class RapportsComponent implements OnInit {
       }
     } catch (error) {
       console.log(error);
-      const message = error.message
-        ? ' Message : \'' + error.message + '\''
-        : '';
-      this.popupService.error(`Impossible d'afficher le bilan.${message}`);
+      this.popupService.error(error, 'Impossible d\'afficher le bilan financier (tentez de changer l\'année de référence)');
     }
   }
 }
