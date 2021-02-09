@@ -1,6 +1,7 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ConnexionComponent } from '../connexion/connexion.component';
 import { HomeComponent } from '../home/home.component';
@@ -21,7 +22,8 @@ describe('HeaderComponent', () => {
           [{path: 'connexion', component: ConnexionComponent},
           {path: 'home', component: HomeComponent}]
         ),
-        MatMenuModule
+        MatMenuModule,
+        MatSnackBarModule
       ]
     })
       .compileComponents();

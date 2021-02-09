@@ -55,7 +55,7 @@ export class CrudService<T> {
       this.spinnerSrv.show();
 
       if (isNaN(id) || id <= 0) {
-        throw new Error("Pas d'identifiant valide.");
+        throw new Error('Pas d\'identifiant valide.');
       }
 
       const url = `${this.endPoint}/${id}`;
@@ -95,41 +95,7 @@ export class CrudService<T> {
       });
       const response = await observable.toPromise();
 
-      return response?.body || null;
-    } catch (error) {
-      console.error(error);
-      return Promise.reject(error);
-    } finally {
-      this.spinnerSrv.hide();
-    }
-  }
-
-  /**
-   * Transmet l'entité modifiée au serveur.
-   * Utilisé pour le changement du mot de passe d'un utilisateur
-   * @param item : entité modifiée.
-   * @param id : identifiant de l'entité modifiée.
-   */
-  public async modifyBis(item: T, id: number): Promise<T> {
-    try {
-      this.spinnerSrv.show();
-
-      if (!item) {
-        throw new Error('Pas de données en paramètre.');
-      }
-
-      if (isNaN(id) || id <= 0) {
-        throw new Error('Pas d\'identifiant valide.');
-      }
-
-      const url = `${this.endPoint}`;
-      const observable = this.http.post<T>(url, item, {
-        headers: new HttpHeaders(AuthService.headers),
-        observe: 'response',
-      });
-      const response = await observable.toPromise();
-
-      return response?.body || null;
+      return response?.body || item;
     } catch (error) {
       console.error(error);
       return Promise.reject(error);
@@ -174,7 +140,7 @@ export class CrudService<T> {
       this.spinnerSrv.show();
 
       if (isNaN(id) || id <= 0) {
-        throw new Error("Pas d'indentifiant valide.");
+        throw new Error('Pas d\'indentifiant valide.');
       }
 
       const url = `${this.endPoint}/${id}`;
