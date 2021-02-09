@@ -377,6 +377,7 @@ export class UtilisateursComponent implements OnInit {
     user: Utilisateur,
     formErrors: GenericTableFormError[]
   ): void {
+    const emailRegex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$';
     if (!user.nom_u) {
       const error = {
         name: this.namesMap.nom_u.code,
@@ -397,6 +398,15 @@ export class UtilisateursComponent implements OnInit {
         message: "L'email de l'utilisateur doit être défini.",
       };
       formErrors.push(error);
+    }
+    else{
+      if (!new RegExp(emailRegex).test(user.email_u)) {
+        const error = {
+          name: this.namesMap.email_u.code,
+          message: "L'email de l'utilisateur n'est pas valide.",
+        };
+        formErrors.push(error);
+      }
     }
     if (!user.initiales_u) {
       const error = {
