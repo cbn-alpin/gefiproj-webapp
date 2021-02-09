@@ -255,14 +255,13 @@ export class UtilisateursComponent implements OnInit {
     try {
       let user = event?.entity;
       if (!user) throw new Error("L'utilisateur n'existe pas");
-      user.password_u = this.generatePassword();
-      user.new_password = user.password_u;
+      user.new_password = this.generatePassword();;
 
         const dialogRef = this.dialog.open(GenericDialogComponent, {
           data: {
             header: `Changer le mot de passe de l'utilisateur ${user.email_u}`,
             content: `Voulez vous changer le mot de passe de l'utilisateur
-             <strong>${user.email_u}</strong> à <strong> ${user.password_u} </strong> ? `,
+             <strong>${user.email_u}</strong> à <strong> ${user.new_password} </strong> ? `,
             type: 'warning',
             action: {
               name: 'Confirmer',
@@ -276,13 +275,12 @@ export class UtilisateursComponent implements OnInit {
              user.roles = [];
              user.roles.push(user.role);
              delete user.role;
-             console.log("User to change pwd : " , user);
-             user = await this.userService.modifyPwd(
+             delete user.password_u;
+             await this.userService.modifyPwd(
                user
              );
              user.role = user.roles[0];
              event.callBack(null);
-             this.modify(user);
              this.popupService.success(
                'Le mot de passe de l\'utilisateur ' +
                user.email_u +
