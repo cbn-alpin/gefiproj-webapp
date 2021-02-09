@@ -183,20 +183,36 @@ export class ProjetComponent implements OnInit {
 
   public onDeleteFinancement(projetCallback: ProjetCallback): void {
     if (this.selectedFinancementId === projetCallback.id) {
-      this.selectedFinancement = null;
-      this.selectedFinancementId = null;
+      const index = this.financements.findIndex(
+        (financement) => financement.id_f === this.selectedFinancementId
+      );
+      let nextIndex: number;
+      if (index !== -1 && index < this.financements.length - 1) {
+        nextIndex = index + 1;
+      }
+      this.selectedFinancementId =
+        nextIndex != null ? this.financements[nextIndex]?.id_f : null;
       this.selectedRecette = null;
       this.selectedRecetteId = null;
       this.recettes = null;
       this.montantsAffectes = null;
     }
+
     this.refreshFinancements(projetCallback);
   }
 
   public onDeleteRecette(projetCallback: ProjetCallback): void {
     if (this.selectedRecetteId === projetCallback.id) {
-      this.selectedRecette = null;
-      this.selectedRecetteId = null;
+      const index = this.recettes.findIndex(
+        (recette) => recette.id_r === this.selectedRecetteId
+      );
+      let nextIndex: number;
+      if (index !== -1 && index < this.recettes.length - 1) {
+        nextIndex = index + 1;
+      }
+      this.selectedRecetteId = nextIndex
+        ? this.recettes[nextIndex]?.id_r
+        : null;
       this.montantsAffectes = null;
     }
     this.refreshRecettes(projetCallback);
@@ -240,17 +256,16 @@ export class ProjetComponent implements OnInit {
   public async refreshFinancements(
     projetCallback: ProjetCallback
   ): Promise<void> {
-    await this.loadFinancementsFromProjetId(this.projet.id_p);
-    projetCallback?.cb(); // -> Passer la ligne du tableau en mode lecture
+    await this.refreshAll();
+    projetCallback?.cb(); // -> Valide la modification de la ligne du tableau
     if (projetCallback?.message) {
       this.popupService.success(projetCallback.message);
     }
   }
 
   public async refreshRecettes(projetCallback: ProjetCallback): Promise<void> {
-    await this.loadFinancementsFromProjetId(this.projet.id_p);
-    await this.loadRecettesFromFinancementId(this.selectedFinancement.id_f);
-    projetCallback?.cb(); // -> Passer la ligne du tableau en mode lecture
+    await this.refreshAll();
+    projetCallback?.cb(); // -> Valide la modification de la ligne du tableau
     if (projetCallback?.message) {
       this.popupService.success(projetCallback.message);
     }
@@ -259,11 +274,47 @@ export class ProjetComponent implements OnInit {
   public async refreshMontantsAffectes(
     projetCallback: ProjetCallback
   ): Promise<void> {
-    await this.loadRecettesFromFinancementId(this.selectedFinancement.id_f);
-    await this.loadMontantsFromRecetteId(this.selectedRecette.id_r);
-    projetCallback?.cb(); // -> Passer la ligne du tableau en mode lecture
+    await this.refreshAll();
+    projetCallback?.cb(); // -> Valide la modification de la ligne du tableau
     if (projetCallback?.message) {
       this.popupService.success(projetCallback.message);
+    }
+  }
+
+  public async refreshAll() {
+    await this.loadFinancementsFromProjetId(this.projet.id_p);
+    if (this.selectedFinancement?.id_f) {
+      // Le financement id match avec les nouveaux financements => on le sélectionne
+      await this.loadRecettesFromFinancementId(this.selectedFinancement?.id_f);
+    } else if (this.financements?.length) {
+      // Le financement id  ne match pas avec les nouveaux financements => on sélectionne le 1er
+      this.selectedFinancementId = this.financements[0]?.id_f;
+      this.selectedFinancement = this.financements[0];
+      await this.loadRecettesFromFinancementId(this.selectedFinancementId);
+    } else {
+      // Les financements sont vides => on met tout à null
+      this.selectedFinancementId = null;
+      this.selectedFinancement = null;
+      this.selectedRecetteId = null;
+      this.selectedRecette = null;
+      this.recettes = null;
+    }
+
+    if (this.selectedFinancement) {
+      if (this.selectedRecette?.id_r) {
+        // La recette id match avec les nouvelles recettes => on la sélectionne
+        await this.loadMontantsFromRecetteId(this.selectedRecette?.id_r);
+      } else if (this.recettes?.length) {
+        // La recette id ne match pas avec les nouvelles recettes => on sélectionne la 1ère
+        this.selectedRecetteId = this.recettes[0]?.id_r;
+        this.selectedRecette = this.recettes[0];
+        await this.loadMontantsFromRecetteId(this.selectedRecetteId);
+      } else {
+        // Les recettes sont vides => on met tout à null
+        this.selectedRecetteId = null;
+        this.selectedRecette = null;
+        this.montantsAffectes = null;
+      }
     }
   }
 
@@ -403,7 +454,7 @@ export class ProjetComponent implements OnInit {
       .afterClosed()
       .pipe(take(1))
       .subscribe(async (object) => {
-        const result = object.data;
+        const result = object?.data;
         if (result) {
           if (result.edited) {
             await this.updateProjectInfos(result.project);
@@ -430,10 +481,8 @@ export class ProjetComponent implements OnInit {
   public async updateProjectInfos(editedProject: Projet): Promise<void> {
     editedProject.id_u = editedProject.responsable.id_u;
     try {
-      this.spinnerSrv.show();
       await this.projetsService.modify(editedProject);
       this.checkIfUserHasResponsableRight(editedProject);
-      this.spinnerSrv.hide();
       this.popupService.success('Le projet a bien été modifié ! ');
     } catch (error) {
       console.error(error);
@@ -459,7 +508,7 @@ export class EditProjectDialogComponent implements OnInit {
   public get min(): number {
     const date = new Date(Date.now());
     const year = date.getFullYear() % 100;
-    return Math.max(20, year - 10); // Démarrage en 2020
+    return Math.max(10, year - 10); // Démarrage en 2010
   }
   public get max(): number {
     const date = new Date(Date.now());
@@ -483,7 +532,7 @@ export class EditProjectDialogComponent implements OnInit {
           value: this.data.project.nom_p,
           disabled: this.data.project.statut_p,
         },
-        [Validators.required],
+        [Validators.required, Validators.minLength(3)],
       ],
       code: [
         {
@@ -518,20 +567,30 @@ export class EditProjectDialogComponent implements OnInit {
     if (!this.isBalance() && this.hasInvalidProjectCode(this.data.project)) {
       this.formGroup.get('code').setErrors({ range: true });
       this.popupService.error(Messages.ERROR_FORM);
-    } else if (
-      !this.isBalance() &&
-      (await this.hasDuplicateProjectCode(this.data.project))
-    ) {
-      this.formGroup.get('code').setErrors({ duplicate: true });
-      this.popupService.error(Messages.ERROR_FORM);
     } else {
+      const projets = await this.getProjets();
+      if (await this.hasDuplicateProjectCode(this.data.project, projets)) {
+        this.formGroup.get('code').setErrors({ duplicate: true });
+        this.popupService.error(Messages.ERROR_FORM);
+      }
+      if (await this.hasDuplicateProjectName(this.data.project, projets)) {
+        this.formGroup.get('nom').setErrors({ duplicate: true });
+        this.popupService.error(Messages.ERROR_FORM);
+      }
+    }
+    if (
+      !this.formGroup.get('code').errors &&
+      !this.formGroup.get('nom').errors
+    ) {
       this.dialogRef.close({ data: this.data });
     }
   }
 
-  private async hasDuplicateProjectCode(projet: Projet): Promise<boolean> {
+  private async hasDuplicateProjectCode(
+    projet: Projet,
+    projets: Projet[]
+  ): Promise<boolean> {
     try {
-      const projets = await this.getProjets();
       const projectCodes = projets.map((project) => project.code_p);
       const tempArray =
         projets.find(
@@ -540,6 +599,27 @@ export class EditProjectDialogComponent implements OnInit {
         ) != null
           ? projectCodes
           : projectCodes.concat(projet.code_p);
+      return tempArray.some(
+        (element, index) => tempArray.indexOf(element) !== index
+      );
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  private async hasDuplicateProjectName(
+    projet: Projet,
+    projets: Projet[]
+  ): Promise<boolean> {
+    try {
+      const projectNames = projets.map((project) => project.nom_p);
+      const tempArray =
+        projets.find(
+          (_projet) =>
+            _projet.id_p === projet.id_p && _projet.nom_p === projet.nom_p
+        ) != null
+          ? projectNames
+          : projectNames.concat(projet.nom_p);
       return tempArray.some(
         (element, index) => tempArray.indexOf(element) !== index
       );
