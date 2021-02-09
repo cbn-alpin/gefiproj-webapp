@@ -410,12 +410,18 @@ export class FinancementsComponent implements OnInit, OnChanges {
     }
 
     if (financement.statut_f === Statut_F.SOLDE && !financement.date_solde_f) {
-      const error = {
+      const error1 = {
         name: this.namesMap.statut_f.code,
         message:
-          'Impossible de solder le projet car la date de solde doit être défini.',
+          'Impossible de solder le financement car la date de solde doit être défini.',
       };
-      formErrors.push(error);
+      const error2 = {
+        name: this.namesMap.date_solde_f.code,
+        message:
+          'La date de solde doit être défini pour solder le financement.',
+      };
+      formErrors.push(error1);
+      formErrors.push(error2);
     }
   }
 
