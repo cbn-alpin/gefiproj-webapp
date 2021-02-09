@@ -34,6 +34,7 @@ export class EnsureAuthenticatedService {
           await this.authSrv.refreshTokenOrLogout();
           isAuth = this.authSrv.isAuthenticated();
         } else {
+          this.popupService.error('Action non autorisée !');
           this.authSrv.logout();
         }
       }
@@ -45,7 +46,6 @@ export class EnsureAuthenticatedService {
       console.error(error);
     }
 
-    this.popupService.error('Action non autorisée !');
     return false;
   }
 }
