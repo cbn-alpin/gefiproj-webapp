@@ -181,12 +181,15 @@ export class ProjetComponent implements OnInit {
 
   public onDeleteFinancement(projetCallback: ProjetCallback): void {
     if (this.selectedFinancementId === projetCallback.id) {
-      const nextIndex =
-        this.financements.findIndex(
-          (financement) => financement.id_f === this.selectedFinancementId
-        ) + 1;
-      this.selectedFinancementId = this.financements[nextIndex]?.id_f;
-      this.selectedFinancement = null;
+      const index = this.financements.findIndex(
+        (financement) => financement.id_f === this.selectedFinancementId
+      );
+      let nextIndex: number;
+      if (index !== -1 && index < this.financements.length - 1) {
+        nextIndex = index + 1;
+      }
+      this.selectedFinancementId =
+        nextIndex != null ? this.financements[nextIndex]?.id_f : null;
       this.selectedRecette = null;
       this.selectedRecetteId = null;
       this.recettes = null;
@@ -198,12 +201,16 @@ export class ProjetComponent implements OnInit {
 
   public onDeleteRecette(projetCallback: ProjetCallback): void {
     if (this.selectedRecetteId === projetCallback.id) {
-      const nextIndex =
-        this.recettes.findIndex(
-          (recette) => recette.id_r === this.selectedRecetteId
-        ) + 1;
-      this.selectedRecetteId = this.recettes[nextIndex]?.id_r;
-      this.selectedRecette = null;
+      const index = this.recettes.findIndex(
+        (recette) => recette.id_r === this.selectedRecetteId
+      );
+      let nextIndex: number;
+      if (index !== -1 && index < this.recettes.length - 1) {
+        nextIndex = index + 1;
+      }
+      this.selectedRecetteId = nextIndex
+        ? this.recettes[nextIndex]?.id_r
+        : null;
       this.montantsAffectes = null;
     }
     this.refreshRecettes(projetCallback);
@@ -247,16 +254,16 @@ export class ProjetComponent implements OnInit {
   public async refreshFinancements(
     projetCallback: ProjetCallback
   ): Promise<void> {
-    this.refreshAll();
-    projetCallback?.cb(); // -> Passer la ligne du tableau en mode lecture
+    await this.refreshAll();
+    projetCallback?.cb(); // -> Valide la modification de la ligne du tableau
     if (projetCallback?.message) {
       this.popupService.success(projetCallback.message);
     }
   }
 
   public async refreshRecettes(projetCallback: ProjetCallback): Promise<void> {
-    this.refreshAll();
-    projetCallback?.cb(); // -> Passer la ligne du tableau en mode lecture
+    await this.refreshAll();
+    projetCallback?.cb(); // -> Valide la modification de la ligne du tableau
     if (projetCallback?.message) {
       this.popupService.success(projetCallback.message);
     }
@@ -265,30 +272,47 @@ export class ProjetComponent implements OnInit {
   public async refreshMontantsAffectes(
     projetCallback: ProjetCallback
   ): Promise<void> {
-    this.refreshAll();
-    projetCallback?.cb(); // -> Passer la ligne du tableau en mode lecture
+    await this.refreshAll();
+    projetCallback?.cb(); // -> Valide la modification de la ligne du tableau
     if (projetCallback?.message) {
       this.popupService.success(projetCallback.message);
     }
   }
 
   public async refreshAll() {
-    console.log('REFRESH ALL');
     await this.loadFinancementsFromProjetId(this.projet.id_p);
-    if (this.selectedFinancementId) {
-      await this.loadRecettesFromFinancementId(this.selectedFinancementId);
+    if (this.selectedFinancement?.id_f) {
+      // Le financement id match avec les nouveaux financements => on le sélectionne
+      await this.loadRecettesFromFinancementId(this.selectedFinancement?.id_f);
     } else if (this.financements?.length) {
-      await this.loadRecettesFromFinancementId(this.financements[0].id_f);
+      // Le financement id  ne match pas avec les nouveaux financements => on sélectionne le 1er
+      this.selectedFinancementId = this.financements[0]?.id_f;
+      this.selectedFinancement = this.financements[0];
+      await this.loadRecettesFromFinancementId(this.selectedFinancementId);
     } else {
+      // Les financements sont vides => on met tout à null
+      this.selectedFinancementId = null;
+      this.selectedFinancement = null;
+      this.selectedRecetteId = null;
+      this.selectedRecette = null;
       this.recettes = null;
     }
 
-    if (this.selectedRecetteId) {
-      await this.loadMontantsFromRecetteId(this.selectedRecetteId);
-    } else if (this.recettes?.length) {
-      await this.loadMontantsFromRecetteId(this.recettes[0].id_r);
-    } else {
-      this.montantsAffectes = null;
+    if (this.selectedFinancement) {
+      if (this.selectedRecette?.id_r) {
+        // La recette id match avec les nouvelles recettes => on la sélectionne
+        await this.loadMontantsFromRecetteId(this.selectedRecette?.id_r);
+      } else if (this.recettes?.length) {
+        // La recette id ne match pas avec les nouvelles recettes => on sélectionne la 1ère
+        this.selectedRecetteId = this.recettes[0]?.id_r;
+        this.selectedRecette = this.recettes[0];
+        await this.loadMontantsFromRecetteId(this.selectedRecetteId);
+      } else {
+        // Les recettes sont vides => on met tout à null
+        this.selectedRecetteId = null;
+        this.selectedRecette = null;
+        this.montantsAffectes = null;
+      }
     }
   }
 
