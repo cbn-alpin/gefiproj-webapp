@@ -82,7 +82,7 @@ export class MontantsAffectesComponent implements OnChanges {
     id_ma: { code: 'id_ma', name: 'Identifiant Montant Affecté' },
     recette: { code: 'id_r', name: 'Recette' },
     montant_ma: { code: 'montant_ma', name: 'Montant' },
-    annee_ma: { code: 'annee_ma', name: "Année d'affectation" },
+    annee_ma: { code: 'annee_ma', name: 'Année d\'affectation' },
     id_r: { code: 'id_r', name: 'id de la recette' },
   };
 
@@ -146,7 +146,7 @@ export class MontantsAffectesComponent implements OnChanges {
     try {
       const montant = event?.entity;
       if (!montant) {
-        throw new Error("Le montant affecté n'existe pas");
+        throw new Error('Le montant affecté n\'existe pas');
       }
 
       if (this.validateForGenericTable(event, create)) {
@@ -176,7 +176,7 @@ export class MontantsAffectesComponent implements OnChanges {
     create: boolean
   ): boolean {
     if (!gtEvent) {
-      throw new Error("Le paramètre 'gtEvent' est invalide");
+      throw new Error('Le paramètre \'gtEvent\' est invalide');
     }
 
     try {
@@ -221,7 +221,7 @@ export class MontantsAffectesComponent implements OnChanges {
     if (!montant.annee_ma) {
       const error = {
         name: this.namesMap.annee_ma.code,
-        message: "Une année d 'affectation doit être définie.",
+        message: 'Une année d \'affectation doit être définie.',
       };
       formErrors.push(error);
     }
@@ -255,7 +255,7 @@ export class MontantsAffectesComponent implements OnChanges {
     try {
       const montant = event.entity;
       if (!montant) {
-        throw new Error("Le montant affecté n'existe pas");
+        throw new Error('Le montant affecté n\'existe pas');
       }
 
       if (this.validateForGenericTable(event, create)) {
@@ -288,7 +288,7 @@ export class MontantsAffectesComponent implements OnChanges {
     try {
       const montant = event?.entity;
       if (!montant) {
-        throw new Error("Le montant affecté n'existe pas");
+        throw new Error('Le montant affecté n\'existe pas');
       }
       const dialogRef = this.dialog.open(GenericDialogComponent, {
         data: {
@@ -296,7 +296,7 @@ export class MontantsAffectesComponent implements OnChanges {
           content:
             'Voulez-vous supprimer ce montant affecté de montant ' +
             montant.montant_ma +
-            " de l'année " +
+            ' de l\'année ' +
             montant.annee_ma +
             '?',
           type: 'warning',
@@ -358,7 +358,7 @@ export class MontantsAffectesComponent implements OnChanges {
    * Vérifier que la somme des montants est inférieur ou égale au montant de la recette lors de la mise à jour d'un montant
    * @param montant, montant affecté mis à jour
    */
-  private checkMontantEdit(montant: MontantAffecte): Boolean {
+  private checkMontantEdit(montant: MontantAffecte): boolean {
     let sumAmounts = 0;
     this.montantsAffectes.forEach((amount) => {
       if (amount.id_ma !== montant.id_ma) {
@@ -372,7 +372,7 @@ export class MontantsAffectesComponent implements OnChanges {
    * Vérifier que la somme des montants est inférieur ou égale au montant de la recette lors de la mise à jour d'un montant
    * @param montant, montant affecté mis à jour
    */
-  private checkMontantCreate(montant: MontantAffecte): Boolean {
+  private checkMontantCreate(montant: MontantAffecte): boolean {
     let sumAmounts = 0;
     this.montantsAffectes.forEach((amount) => {
       sumAmounts += +Number(amount.montant_ma);

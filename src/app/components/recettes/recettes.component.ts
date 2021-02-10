@@ -138,7 +138,7 @@ export class RecettesComponent implements OnInit, OnChanges {
     private readonly amountsService: AmountsService
   ) {}
 
-  public ngOnInit(): void {ReceiptsService
+  public ngOnInit(): void {
     this.initGenericTableOptions();
   }
 
@@ -374,10 +374,9 @@ export class RecettesComponent implements OnInit, OnChanges {
 
   private hasDuplicateYear(recette: Recette): boolean {
     const year = recette.annee_r;
-    const years = this.recettes.map((_recette) => +_recette.annee_r);
-    const tempArray = this.recettes.find(
-      (_recette) =>
-        _recette.id_r === recette.id_r && _recette.annee_r === recette.annee_r
+    const years = this.recettes.map(r => +r.annee_r);
+    const tempArray = this.recettes.find(r =>
+        r.id_r === recette.id_r && r.annee_r === recette.annee_r
     )
       ? years
       : [...years, +year];
@@ -389,8 +388,8 @@ export class RecettesComponent implements OnInit, OnChanges {
 
   private hasAmountGreaterThanFounding(recette: Recette): boolean {
     const amounts = this.recettes
-      .filter((_recette) => _recette.id_r !== recette.id_r)
-      .map((_recette) => _recette.montant_r);
+      .filter(r => r.id_r !== recette.id_r)
+      .map(r => r.montant_r);
     const sum = amounts.reduce((a, b) => a + b, 0) + recette.montant_r;
 
     return sum > this.financement.montant_arrete_f;

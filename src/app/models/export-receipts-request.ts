@@ -1,4 +1,4 @@
-import { GoogleSheetsPermission } from "./google-sheets-permission";
+import { GoogleSheetsPermission } from './google-sheets-permission';
 
 /**
  * Paramètres de la requête de création d'un bilan financier.
