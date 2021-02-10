@@ -13,7 +13,7 @@ import { EntitySelectBoxOptions } from 'src/app/shared/components/generic-table/
 import { GenericTableFormError } from 'src/app/shared/components/generic-table/models/generic-table-entity';
 import { SelectBoxOption } from 'src/app/shared/components/generic-table/models/SelectBoxOption';
 import { SortInfo } from 'src/app/shared/components/generic-table/models/sortInfo';
-import { ProjetsService } from '../../services/projets.service';
+import { ProjectsService } from '../../services/projects.service';
 import { Projet } from './../../models/projet';
 import { Utilisateur } from './../../models/utilisateur';
 import { GenericTableEntityEvent } from './../../shared/components/generic-table/models/generic-table-entity-event';
@@ -191,7 +191,7 @@ export class HomeComponent implements OnInit {
     private adminSrv: IsAdministratorGuardService,
     private dialog: MatDialog,
     private popupService: PopupService,
-    private projectsSrv: ProjetsService,
+    private projectsSrv: ProjectsService,
     private usersSrv: UsersService,
     private spinnerSrv: SpinnerService
   ) {}

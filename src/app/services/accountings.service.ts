@@ -26,7 +26,9 @@ export class AccountingsService {
    * @param http : permet d'effectuer les appels au serveur d'API.
    * @param spinnerSrv : gère le spinner/sablier.
    */
-  constructor(http: HttpClient, spinnerSrv: SpinnerService) {
+  constructor(
+    http: HttpClient,
+    spinnerSrv: SpinnerService) {
     this.crudSrv = new CrudService<RecetteComptable>(http, spinnerSrv, this.endPoint);
   }
 

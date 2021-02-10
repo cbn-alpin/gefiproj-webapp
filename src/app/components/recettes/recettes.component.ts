@@ -5,31 +5,31 @@ import {
   OnChanges,
   OnInit,
   Output,
-  SimpleChanges,
+  SimpleChanges
 } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { isNotNullOrUndefined } from 'codelyzer/util/isNotNullOrUndefined';
+import { take } from 'rxjs/operators';
 import { Financement } from '../../models/financement';
-import { Recette } from '../../models/recette';
-import { GenericTableOptions } from '../../shared/components/generic-table/models/generic-table-options';
-import { GenericTableEntityEvent } from '../../shared/components/generic-table/models/generic-table-entity-event';
-import { EntityType } from '../../shared/components/generic-table/models/entity-types';
-import { GenericTableCellType } from '../../shared/components/generic-table/globals/generic-table-cell-types';
-import { EntityPlaceholder } from '../../shared/components/generic-table/models/entity-placeholder';
-import { GenericTableFormError } from '../../shared/components/generic-table/models/generic-table-entity';
-import { RecettesService } from '../../services/recettes.service';
-import { PopupService } from '../../shared/services/popup.service';
 import { Messages } from '../../models/messages';
+import { MontantAffecte } from '../../models/montantAffecte';
+import { DefaultSortInfo, ProjetCallback } from '../../models/projet';
+import { Recette } from '../../models/recette';
+import { AmountsService } from '../../services/amounts.service';
+import { ReceiptsService } from '../../services/receipts.service';
 import {
   GenericDialogComponent,
-  IMessage,
+  IMessage
 } from '../../shared/components/generic-dialog/generic-dialog.component';
-import { take } from 'rxjs/operators';
-import { MatDialog } from '@angular/material/dialog';
+import { GenericTableCellType } from '../../shared/components/generic-table/globals/generic-table-cell-types';
+import { EntityPlaceholder } from '../../shared/components/generic-table/models/entity-placeholder';
+import { EntityType } from '../../shared/components/generic-table/models/entity-types';
+import { GenericTableFormError } from '../../shared/components/generic-table/models/generic-table-entity';
+import { GenericTableEntityEvent } from '../../shared/components/generic-table/models/generic-table-entity-event';
+import { GenericTableOptions } from '../../shared/components/generic-table/models/generic-table-options';
 import { SortInfo } from '../../shared/components/generic-table/models/sortInfo';
+import { PopupService } from '../../shared/services/popup.service';
 import { basicSort } from '../../shared/tools/utils';
-import { DefaultSortInfo, ProjetCallback } from '../../models/projet';
-import { MontantsAffectesService } from '../../services/montants-affectes.service';
-import { MontantAffecte } from '../../models/montantAffecte';
 
 @Component({
   selector: 'app-recettes',
@@ -132,13 +132,13 @@ export class RecettesComponent implements OnInit, OnChanges {
   private sortInfo: SortInfo;
 
   constructor(
-    private readonly recettesService: RecettesService,
+    private readonly receiptsService: ReceiptsService,
     private readonly popupService: PopupService,
     private readonly dialog: MatDialog,
-    private readonly montantsAffectesService: MontantsAffectesService
+    private readonly amountsService: AmountsService
   ) {}
 
-  public ngOnInit(): void {
+  public ngOnInit(): void {ReceiptsService
     this.initGenericTableOptions();
   }
 
@@ -162,7 +162,7 @@ export class RecettesComponent implements OnInit, OnChanges {
       event.callBack({ formErrors });
     } else {
       try {
-        const createdRecette = await this.recettesService.add(recette);
+        const createdRecette = await this.receiptsService.add(recette);
         const projetCallback: ProjetCallback = {
           cb: event.callBack,
           id: createdRecette.id_r,
@@ -185,7 +185,7 @@ export class RecettesComponent implements OnInit, OnChanges {
       event.callBack({ formErrors });
     } else {
       try {
-        const updatedRecette = await this.recettesService.modify(recette);
+        const updatedRecette = await this.receiptsService.modify(recette);
         const projetCallback: ProjetCallback = {
           cb: event.callBack,
           id: updatedRecette.id_r,
@@ -221,7 +221,7 @@ export class RecettesComponent implements OnInit, OnChanges {
       .subscribe(async (result) => {
         if (result) {
           try {
-            await this.recettesService.delete(recette);
+            await this.receiptsService.delete(recette);
             const projetCallback: ProjetCallback = {
               cb: event.callBack,
               id: recette.id_r,
@@ -447,7 +447,7 @@ export class RecettesComponent implements OnInit, OnChanges {
     recette: Recette
   ): Promise<MontantAffecte[]> {
     try {
-      return await this.montantsAffectesService.getAll(recette.id_r);
+      return await this.amountsService.getAll(recette.id_r);
     } catch (e) {
       console.error(e);
     }

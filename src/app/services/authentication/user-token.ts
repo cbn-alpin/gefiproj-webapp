@@ -4,5 +4,5 @@ import { RefreshTokenResponse } from './refreshTokenResponse';
 /**
  * Représente un utilisateur authentifié et fournit son Token de connexion.
  */
-export interface UtilisateurToken extends Utilisateur, RefreshTokenResponse {
+export interface UserToken extends Utilisateur, RefreshTokenResponse {
 }

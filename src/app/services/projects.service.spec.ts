@@ -1,12 +1,14 @@
+/* tslint:disable:no-unused-variable */
+
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { RouterTestingModule } from '@angular/router/testing';
 import { TestBed } from '@angular/core/testing';
-import { SuiviFinancementsService } from './suivi-financements.service';
+import { RouterTestingModule } from '@angular/router/testing';
 import { ConnexionComponent } from '../components/connexion/connexion.component';
 import { HomeComponent } from '../components/home/home.component';
+import { ProjectsService } from './projects.service';
 
-describe('SuiviFinancementsService', () => {
-  let service: SuiviFinancementsService;
+describe('Service: Projets', () => {
+  let service: ProjectsService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -18,10 +20,10 @@ describe('SuiviFinancementsService', () => {
         )
       ]
     });
-    service = TestBed.inject(SuiviFinancementsService);
+    service = TestBed.inject(ProjectsService);
   });
 
-  it('should be created', () => {
+  it('should ...', () => {
     expect(service).toBeTruthy();
   });
 });

@@ -1,4 +1,3 @@
-import { HomeComponent } from './../../components/home/home.component';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -7,9 +6,10 @@ import { ConnexionComponent } from 'src/app/components/connexion/connexion.compo
 import { Roles } from 'src/app/models/roles';
 import { tokenGetter } from '../../app.module';
 import { Utilisateur } from '../../models/utilisateur';
+import { HomeComponent } from './../../components/home/home.component';
 import { AuthService } from './auth.service';
 import { UserLogin } from './user-login';
-import { UtilisateurToken } from './utilisateurToken';
+import { UserToken } from './user-token';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -94,7 +94,7 @@ describe('AuthService', () => {
       login: '',
       password: ''
     };
-    const user: UtilisateurToken = {
+    const user: UserToken = {
       id_u: 5,
       nom_u: '',
       prenom_u: '',
@@ -120,7 +120,7 @@ describe('AuthService', () => {
       login: '',
       password: ''
     };
-    const user: UtilisateurToken = {
+    const user: UserToken = {
       id_u: 5,
       nom_u: '',
       prenom_u: '',

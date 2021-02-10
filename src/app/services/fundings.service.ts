@@ -3,13 +3,16 @@ import { Injectable } from '@angular/core';
 import { Financement } from '../models/financement';
 import { Projet } from '../models/projet';
 import { CrudService } from './crud.service';
-import { ProjetsService } from './projets.service';
+import { ProjectsService } from './projects.service';
 import { SpinnerService } from './spinner.service';
 
+/**
+ * Gère les financements avec l'API.
+ */
 @Injectable({
   providedIn: 'root'
 })
-export class FinancementsService {
+export class FundingsService {
   /**
    * Url relative de l'API.
    */
@@ -24,11 +27,12 @@ export class FinancementsService {
    * Effectue les appels au serveur d'API pour les financements.
    * @param http : permet d'effectuer les appels au serveur d'API.
    * @param spinnerSrv : gère le spinner/sablier.
+   * @param projectSrv : gère les projets.
    */
   constructor(
     http: HttpClient,
     spinnerSrv: SpinnerService,
-    private projectSrv: ProjetsService) {
+    private projectSrv: ProjectsService) {
       this.crudSrv = new CrudService<Financement>(
         http,
         spinnerSrv,
@@ -59,7 +63,7 @@ export class FinancementsService {
    * Transmet le financement d'un projet modifié au serveur.
    * @param financement : le financement modifié
    */
-  public async put(financement: Financement): Promise<Financement> {
+  public async modify(financement: Financement): Promise<Financement> {
     return this.crudSrv.modify(
       financement,
       financement?.id_f);
@@ -69,7 +73,7 @@ export class FinancementsService {
    * Transmet le financement d'un projet au serveur.
    * @param financement : le financement à créer
    */
-  public async post(financement: Financement): Promise<Financement> {
+  public async add(financement: Financement): Promise<Financement> {
     try {
       return this.crudSrv.add(financement);
     } catch (error) {

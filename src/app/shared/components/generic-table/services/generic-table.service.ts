@@ -96,43 +96,6 @@ export class GenericTableService<T> {
     );
   }
 
-  public getDateValue(dateString: string): Date {
-    return new Date(dateString);
-  }
-
-  /**
-   *
-   * @param genericTableEntities
-   * @param genericTableEntitiesCopy
-   * @param entityKeep
-   */
-  public getOtherEntitiesReseted(
-    genericTableEntities: GenericTableEntity<T>[],
-    genericTableEntitiesCopy: GenericTableEntity<T>[],
-    entityKeep?: GenericTableEntity<T>
-  ): GenericTableEntity<T>[] {
-    const entities = genericTableEntities.map((entity) => {
-      if (
-        (entityKeep &&
-          entity.id !== entityKeep.id &&
-          entity.state === GenericTableEntityState.EDIT) ||
-        (!entityKeep && entity.state === GenericTableEntityState.EDIT)
-      ) {
-        const entityToCopy = genericTableEntitiesCopy.find(
-          (entityCopy) => entityCopy.id === entity.id
-        );
-        entity = getDeepCopy(entityToCopy);
-      }
-
-      if (entity.state === GenericTableEntityState.NEW) {
-        entity = null;
-      }
-      return entity;
-    });
-
-    return entities;
-  }
-
   /**
    * Bloque la modification de certain champs.
    * Le bloquage sur la colonne est gérer par le parent.

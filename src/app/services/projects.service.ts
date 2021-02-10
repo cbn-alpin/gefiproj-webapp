@@ -11,11 +11,11 @@ import { SpinnerService } from './spinner.service';
 @Injectable({
   providedIn: 'root'
 })
-export class ProjetsService {
+export class ProjectsService {
   /**
    * Url relative de l'API.
    */
-  private readonly endPoint = '/api/projects';
+  public static readonly endPoint = '/api/projects';
 
   /**
    * Effectue les appels au serveur d'API pour une entité donnée.
@@ -33,7 +33,7 @@ export class ProjetsService {
       this.crudSrv = new CrudService<Projet>(
         http,
         spinnerSrv,
-        this.endPoint);
+        ProjectsService.endPoint);
     }
 
   /**
@@ -116,7 +116,7 @@ export class ProjetsService {
       const fundingsSrv = new CrudService<Financement>(
         this.http,
         this.spinnerSrv,
-        `${this.endPoint}/${id}/fundings`);
+        `${ProjectsService.endPoint}/${id}/fundings`);
 
       return fundingsSrv.getAll();
     } catch (error) {

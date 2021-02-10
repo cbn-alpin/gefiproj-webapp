@@ -6,7 +6,7 @@
   <app-generic-table
     [title]=""
     [(options)]="options"
-    [showActions]="true"
+    [showActions]="isAdministrator"
     [isReadOnly]="isReadOnly"
     (editEvent)="onEdit($event)"
     (createEvent)="onCreate($event)"

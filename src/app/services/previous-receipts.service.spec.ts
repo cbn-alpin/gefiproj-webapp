@@ -1,15 +1,12 @@
-import { HomeComponent } from './../components/home/home.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ConnexionComponent } from '../components/connexion/connexion.component';
+import { HomeComponent } from '../components/home/home.component';
+import { PreviousReceiptsService } from './previous-receipts.service';
 
-import { MontantsAffectesService } from './montants-affectes.service';
-
-describe('MontantsAffectesService', () => {
-  let service: MontantsAffectesService;
+describe('EntreesSortiesService', () => {
+  let service: PreviousReceiptsService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -18,12 +15,10 @@ describe('MontantsAffectesService', () => {
         RouterTestingModule.withRoutes(
           [{path: 'connexion', component: ConnexionComponent},
           {path: 'home', component: HomeComponent}]
-        ),
-        MatSnackBarModule,
-        MatDialogModule
+        )
       ]
     });
-    service = TestBed.inject(MontantsAffectesService);
+    service = TestBed.inject(PreviousReceiptsService);
   });
 
   it('should be created', () => {

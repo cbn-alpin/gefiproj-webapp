@@ -11,6 +11,7 @@ import { UtilisateursComponent } from './components/utilisateurs/utilisateurs.co
 import { EnsureAuthenticatedService } from './services/authentication/ensure-authenticated.service';
 import { IsAdministratorGuardService } from './services/authentication/is-administrator-guard.service';
 import { EntreesSortiesComponent } from './components/entrees-sorties/entrees-sorties.component';
+import { HistoriqueComponent } from './components/historique/historique.component';
 
 const routes: Routes = [
   {
@@ -45,6 +46,11 @@ const routes: Routes = [
   {
     path: 'projet/:id',
     component: ProjetComponent,
+    canActivate: [EnsureAuthenticatedService],
+  },
+  {
+    path: 'historiques',
+    component: HistoriqueComponent,
     canActivate: [EnsureAuthenticatedService],
   },
   {

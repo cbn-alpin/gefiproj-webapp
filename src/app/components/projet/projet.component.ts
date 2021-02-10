@@ -1,36 +1,34 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { Financement } from '../../models/financement';
-import { Recette } from '../../models/recette';
-import { IsAdministratorGuardService } from '../../services/authentication/is-administrator-guard.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import {
-  MAT_DIALOG_DATA,
-  MatDialog,
-  MatDialogRef,
-} from '@angular/material/dialog';
-import { ProjetsService } from '../../services/projets.service';
-import { DefaultSortInfo, Projet, ProjetCallback } from '../../models/projet';
-import { MontantsAffectesService } from '../../services/montants-affectes.service';
-import { MontantAffecte } from '../../models/montantAffecte';
-import { FinancementsService } from '../../services/financements.service';
-import { Utilisateur } from '../../models/utilisateur';
-import { SpinnerService } from '../../services/spinner.service';
-import { RecettesService } from '../../services/recettes.service';
-import { PopupService } from '../../shared/services/popup.service';
-import { UsersService } from '../../services/users.service';
-import { basicSort, getDeepCopy } from '../../shared/tools/utils';
-import { AuthService } from '../../services/authentication/auth.service';
-import { take } from 'rxjs/operators';
 import {
   FormBuilder,
   FormControl,
   FormGroup,
   FormGroupDirective,
   NgForm,
-  Validators,
+  Validators
 } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
+import {
+  MatDialog,
+  MatDialogRef, MAT_DIALOG_DATA
+} from '@angular/material/dialog';
+import { ActivatedRoute, Router } from '@angular/router';
+import { take } from 'rxjs/operators';
+import { Financement } from '../../models/financement';
 import { Messages } from '../../models/messages';
+import { MontantAffecte } from '../../models/montantAffecte';
+import { DefaultSortInfo, Projet, ProjetCallback } from '../../models/projet';
+import { Recette } from '../../models/recette';
+import { Utilisateur } from '../../models/utilisateur';
+import { AmountsService } from '../../services/amounts.service';
+import { AuthService } from '../../services/authentication/auth.service';
+import { IsAdministratorGuardService } from '../../services/authentication/is-administrator-guard.service';
+import { FundingsService } from '../../services/fundings.service';
+import { ProjectsService } from '../../services/projects.service';
+import { ReceiptsService } from '../../services/receipts.service';
+import { UsersService } from '../../services/users.service';
+import { PopupService } from '../../shared/services/popup.service';
+import { basicSort, getDeepCopy } from '../../shared/tools/utils';
 
 export interface DialogData {
   project: Projet;
@@ -107,11 +105,10 @@ export class ProjetComponent implements OnInit {
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly popupService: PopupService,
-    private readonly projetsService: ProjetsService,
-    private readonly recettesService: RecettesService,
-    private readonly montantsAffectesService: MontantsAffectesService,
-    private readonly financementsService: FinancementsService,
-    private readonly spinnerSrv: SpinnerService,
+    private readonly projetsService: ProjectsService,
+    private readonly recettesService: ReceiptsService,
+    private readonly amountsService: AmountsService,
+    private readonly financementsService: FundingsService,
     private readonly usersSrv: UsersService,
     private readonly authService: AuthService
   ) {
@@ -371,7 +368,7 @@ export class ProjetComponent implements OnInit {
   ): Promise<void> {
     try {
       if (financementId) {
-        const recettes = await this.recettesService.getAll(financementId);
+        const recettes = await this.recettesService.getAllFromFunding(financementId);
         this.recettes = basicSort(
           recettes,
           this.recettesDefaultSortInfo?.sortInfo
@@ -390,7 +387,7 @@ export class ProjetComponent implements OnInit {
   private async loadMontantsFromRecetteId(recetteId: number): Promise<void> {
     try {
       if (recetteId) {
-        this.montantsAffectes = await this.montantsAffectesService.getAll(
+        this.montantsAffectes = await this.amountsService.getAll(
           recetteId
         );
       }
@@ -515,7 +512,7 @@ export class EditProjectDialogComponent implements OnInit {
     public dialogRef: MatDialogRef<EditProjectDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: DialogData,
     private readonly fb: FormBuilder,
-    private readonly projetsService: ProjetsService,
+    private readonly projectsService: ProjectsService,
     private readonly popupService: PopupService
   ) {}
 
@@ -624,7 +621,7 @@ export class EditProjectDialogComponent implements OnInit {
 
   private async getProjets(): Promise<Projet[]> {
     try {
-      return await this.projetsService.getAll();
+      return await this.projectsService.getAll();
     } catch (e) {
       console.error(e);
     }

@@ -1,13 +1,13 @@
+/* tslint:disable:no-unused-variable */
+
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { TestBed } from '@angular/core/testing';
+import { inject, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ConnexionComponent } from '../components/connexion/connexion.component';
 import { HomeComponent } from '../components/home/home.component';
-import { EntreesSortiesService } from './entrees-sorties.service';
+import { HistoricalService } from './historical.service';
 
-describe('EntreesSortiesService', () => {
-  let service: EntreesSortiesService;
-
+describe('Service: Historical', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [
@@ -16,12 +16,12 @@ describe('EntreesSortiesService', () => {
           [{path: 'connexion', component: ConnexionComponent},
           {path: 'home', component: HomeComponent}]
         )
-      ]
+      ],
+      providers: [HistoricalService]
     });
-    service = TestBed.inject(EntreesSortiesService);
   });
 
-  it('should be created', () => {
+  it('should ...', inject([HistoricalService], (service: HistoricalService) => {
     expect(service).toBeTruthy();
-  });
+  }));
 });

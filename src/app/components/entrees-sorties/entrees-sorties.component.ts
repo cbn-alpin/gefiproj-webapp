@@ -5,7 +5,7 @@ import { GenericTableCellType } from '../../shared/components/generic-table/glob
 import { IsAdministratorGuardService } from '../../services/authentication/is-administrator-guard.service';
 import { MatDialog } from '@angular/material/dialog';
 import { PopupService } from '../../shared/services/popup.service';
-import { EntreesSortiesService } from '../../services/entrees-sorties.service';
+import { PreviousReceiptsService } from '../../services/previous-receipts.service';
 import { GenericTableEntityEvent } from '../../shared/components/generic-table/models/generic-table-entity-event';
 import { GenericTableFormError } from '../../shared/components/generic-table/models/generic-table-entity';
 import { SortInfo } from '../../shared/components/generic-table/models/sortInfo';
@@ -109,7 +109,7 @@ export class EntreesSortiesComponent implements OnInit {
     private adminSrv: IsAdministratorGuardService,
     private dialog: MatDialog,
     private popupService: PopupService,
-    private entreesSortiesService: EntreesSortiesService
+    private previousReceiptsService: PreviousReceiptsService
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -126,7 +126,7 @@ export class EntreesSortiesComponent implements OnInit {
    */
   private async loadData(): Promise<void> {
     try {
-      this.entreesSorties = await this.entreesSortiesService.getAll();
+      this.entreesSorties = await this.previousReceiptsService.getAll();
     } catch (error) {
       console.error(error);
       return Promise.reject(error);
@@ -145,7 +145,7 @@ export class EntreesSortiesComponent implements OnInit {
         throw new Error("L'entrée/sortie n'existe pas");
       }
       if (this.validateForGenericTable(event, false)) {
-        inOut = await this.entreesSortiesService.add(inOut);
+        inOut = await this.previousReceiptsService.add(inOut);
         event.callBack(null); // Valide la modification dans le composant DataTable fils
 
         this.addInOut(inOut);
@@ -174,7 +174,7 @@ export class EntreesSortiesComponent implements OnInit {
         throw new Error("L'entrée/sortie n'existe pas");
       }
       if (this.validateForGenericTable(event, false)) {
-        inOut = await this.entreesSortiesService.modify(inOut);
+        inOut = await this.previousReceiptsService.modify(inOut);
         this.updateInOut(inOut);
         this.refreshDataTable(); // Pour le trie
         this.popupService.success(
@@ -184,7 +184,7 @@ export class EntreesSortiesComponent implements OnInit {
     } catch (error) {
       console.error(error);
       this.popupService.error(
-        "Impossible de modifier l'entrée/sortie : " + error.message
+        `Impossible de modifier l'entrée/sortie : ${error.message}`
       );
     }
   }
@@ -219,7 +219,7 @@ export class EntreesSortiesComponent implements OnInit {
 
       if (okToDelete) {
         // Suppression
-        await this.entreesSortiesService.delete(inOut);
+        await this.previousReceiptsService.delete(inOut);
         event.callBack(null); // Valide la modification dans le composant DataTable fils
         this.deleteInOut(inOut);
         this.refreshDataTable();
