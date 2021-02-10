@@ -1,7 +1,7 @@
-<div class="edit-project-container">
+<div>
   <h1 mat-dialog-title>Modification du projet : {{ data.projectName }}</h1>
   <br />
-  <form [formGroup]="formGroup">
+  <form [formGroup]="formGroup" class="edit-project-container">
     <div mat-dialog-content>
       <div class="ligne">
         <div class="libelle">Nom :</div>
@@ -64,9 +64,9 @@
         </span>
       </div>
     </div>
-    <div mat-dialog-actions class="edit-project-buttons">
+    <div mat-dialog-actions class="edit-project-buttons button-to-right">
       <button
-        mat-raised-button
+        mat-raised-button color="success"
         (click)="onYesClick()"
         [disabled]="formGroup.get('code').errors || formGroup.get('nom').errors"
         >
