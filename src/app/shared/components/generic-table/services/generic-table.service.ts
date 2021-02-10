@@ -97,43 +97,6 @@ export class GenericTableService<T> {
   }
 
   /**
-   *
-   * @param genericTableEntities
-   * @param genericTableEntitiesCopy
-   * @param entityKeep
-   */
-  public getOtherEntitiesReseted(
-    genericTableEntities: GenericTableEntity<T>[],
-    genericTableEntitiesCopy: GenericTableEntity<T>[],
-    entityKeep?: GenericTableEntity<T>
-  ): GenericTableEntity<T>[] {
-    try {
-      const entities = genericTableEntities.map((entity) => {
-        if (
-          (entityKeep &&
-            entity.id !== entityKeep.id &&
-            entity.state === GenericTableEntityState.EDIT) ||
-          (!entityKeep && entity.state === GenericTableEntityState.EDIT)
-        ) {
-          const entityToCopy = genericTableEntitiesCopy.find(
-            (entityCopy) => entityCopy.id === entity.id
-          );
-          entity = getDeepCopy(entityToCopy);
-        }
-
-        if (entity.state === GenericTableEntityState.NEW) {
-          entity = null;
-        }
-        return entity;
-      });
-
-      return entities;
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
-  /**
    * Bloque la modification de certain champs.
    * Le bloquage sur la colonne est gérer par le parent.
    * Le bloquage sur une cellule d'une ligne spécifique est à implémenter dans la fonction.

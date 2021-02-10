@@ -200,6 +200,8 @@ export class GenericTableComponent<T>
 
   public disableSortAction: boolean;
 
+  public disableSelectAction: boolean;
+
   private destroyed$: ReplaySubject<boolean> = new ReplaySubject(1);
 
   // tslint:disable-next-line: variable-name
@@ -359,6 +361,7 @@ export class GenericTableComponent<T>
    */
   public select(entity: GenericTableEntity<T>): void {
     if (
+      !this.disableSelectAction &&
       entity.state === GenericTableEntityState.READ &&
       (!this.selectedEntity || this.selectedEntity.id !== entity.id)
     ) {
@@ -366,16 +369,10 @@ export class GenericTableComponent<T>
         entity: entity.data,
       };
       if (this.canSelect) {
-        const cleanedGenericTableEntities = this.genericTableService.getOtherEntitiesReseted(
-          this.genericTableEntities,
-          this.genericTableEntitiesCopy,
-          entity
-        );
-        this.genericTableEntities = cleanedGenericTableEntities.filter(
-          (cleanedEntity) => cleanedEntity !== null
-        );
+        this.setDisableActionsValue(false);
+        this.endAction.emit();
+        this.selectEvent.emit(genericTableEntityEvent);
       }
-      this.selectEvent.emit(genericTableEntityEvent);
     }
   }
 
@@ -410,7 +407,9 @@ export class GenericTableComponent<T>
   }
 
   public withHover(entity: GenericTableEntity<T>): boolean {
-    return entity.state === GenericTableEntityState.READ;
+    return (
+      !this.disableSelectAction && entity.state === GenericTableEntityState.READ
+    );
   }
 
   private handleAction(
@@ -563,5 +562,6 @@ export class GenericTableComponent<T>
     this.disableNavigateAction = value;
     this.disablePwdAction = value;
     this.disableSortAction = value;
+    this.disableSelectAction = value;
   }
 }
