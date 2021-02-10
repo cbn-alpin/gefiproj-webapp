@@ -11,6 +11,9 @@ import { CrudService } from './crud.service';
   providedIn: 'root'
 })
 export class HistoricalService {
+  /**
+   * Adresse relative de l'end-point.
+   */
   private endPoint = `/api/modifications `;
 
   /**

@@ -1,10 +1,10 @@
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { environment } from '../../environments/environment';
 import { Utilisateur } from './../models/utilisateur';
+import { AuthService } from './authentication/auth.service';
 import { CrudService } from './crud.service';
 import { SpinnerService } from './spinner.service';
-import {AuthService} from './authentication/auth.service';
-import {environment} from '../../environments/environment';
 
 /**
  * Effectue les appels au serveur d'API pour les utilisateurs.
@@ -17,6 +17,7 @@ export class UsersService {
    * Url relative de l'API.
    */
   private readonly endPointUser = '/api/users';
+
   /**
    * Url relative de l'API.
    */
@@ -26,10 +27,12 @@ export class UsersService {
    * Effectue les appels au serveur d'API pour une entité donnée.
    */
   private readonly crudSrv: CrudService<Utilisateur>;
+
   /**
    * Effectue les appels au serveur d'API pour une entité donnée.
    */
   private readonly crudSrvPost: CrudService<Utilisateur>;
+
   /**
    * Effectue les appels au serveur d'API pour une entité donnée.
    */
@@ -37,13 +40,14 @@ export class UsersService {
 
   /**
    * Effectue les appels au serveur d'API pour les utilisateurs.
-   * @param http : permet d'effectuer les appels au serveur d'API.
    * @param spinnerSrv : gère le spinner/sablier.
+   * @param authSrv : gère l'authentification.
+   * @param http : permet d'effectuer les appels au serveur d'API.
    */
   constructor(
-     private readonly  spinnerSrv: SpinnerService,
-     private readonly authService: AuthService,
-     private readonly http: HttpClient,) {
+     private readonly spinnerSrv: SpinnerService,
+     private readonly authSrv: AuthService,
+     private readonly http: HttpClient) {
     this.crudSrv = new CrudService<Utilisateur>(
       http,
       spinnerSrv,
@@ -100,11 +104,12 @@ export class UsersService {
   public async add(user: Utilisateur): Promise<Utilisateur> {
     try {
       this.spinnerSrv.show();
-      const accessToken = this.authService.accessToken;
+      const accessToken = this.authSrv.accessToken;
       const headers = Object.assign({
         Authorization: `Bearer ${accessToken}`
       }, AuthService.headers);
-       return await this.http
+
+      return await this.http
          .post(
            this.endPointAuth,
            user, {

@@ -12,7 +12,7 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { Financement, Statut_F } from 'src/app/models/financement';
 import { Financeur } from 'src/app/models/financeur';
-import { FinancementsService } from 'src/app/services/financements.service';
+import { FundingsService } from 'src/app/services/fundings.service';
 import { FinanceurService } from 'src/app/services/funders.service';
 import { GenericTableCellType } from 'src/app/shared/components/generic-table/globals/generic-table-cell-types';
 import { GenericTableEntityEvent } from 'src/app/shared/components/generic-table/models/generic-table-entity-event';
@@ -30,7 +30,7 @@ import { take } from 'rxjs/operators';
 import { SortInfo } from '../../shared/components/generic-table/models/sortInfo';
 import { basicSort, getDeepCopy } from '../../shared/tools/utils';
 import { DefaultSortInfo, Projet, ProjetCallback } from '../../models/projet';
-import { RecettesService } from '../../services/recettes.service';
+import { ReceiptsService } from '../../services/receipts.service';
 import { EntityType } from '../../shared/components/generic-table/models/entity-types';
 import { Recette } from '../../models/recette';
 
@@ -156,7 +156,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
 
   /**
    * @param adminSrv
-   * @param financementsService
+   * @param fundingsService
    * @param financeurService
    * @param route
    * @param router
@@ -164,13 +164,13 @@ export class FinancementsComponent implements OnInit, OnChanges {
    * @param dialog
    */
   constructor(
-    private financementsService: FinancementsService,
+    private fundingsService: FundingsService,
     private financeurService: FinanceurService,
     private route: ActivatedRoute,
     private router: Router,
     private popupService: PopupService,
     private dialog: MatDialog,
-    private recettesService: RecettesService
+    private receiptsService: ReceiptsService
   ) {
     this.projectId = this.route.snapshot.params.id;
     if (!this.projectId) {
@@ -225,7 +225,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
       financement = this.transformFormat(financement);
 
       if (await this.validateForGenericTable(event)) {
-        let updatedFinancement = await this.financementsService.put(
+        let updatedFinancement = await this.fundingsService.modify(
           financement
         );
         updatedFinancement = this.loadFinanceurInFinancement(
@@ -439,7 +439,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
       }
       financement = this.transformFormat(financement);
       if (await this.validateForGenericTable(event)) {
-        let createdFinancement = await this.financementsService.post(
+        let createdFinancement = await this.fundingsService.add(
           financement
         );
         createdFinancement = this.loadFinanceurInFinancement(
@@ -498,7 +498,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
       .subscribe(async (result) => {
         if (result) {
           try {
-            await this.financementsService.delete(financement);
+            await this.fundingsService.delete(financement);
             const projetCallback: ProjetCallback = {
               cb: event.callBack,
               id: financement.id_f,
@@ -850,7 +850,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
     financement: Financement
   ): Promise<Recette[]> {
     try {
-      return await this.recettesService.getAll(financement.id_f);
+      return await this.receiptsService.getAllFromFunding(financement.id_f);
     } catch (e) {
       console.error(e);
     }

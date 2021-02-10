@@ -8,7 +8,7 @@ import { Utilisateur } from '../../models/utilisateur';
 import { environment } from './../../../environments/environment';
 import { RefreshTokenResponse } from './refreshTokenResponse';
 import { UserLogin as UserLogin } from './user-login';
-import { UtilisateurToken } from './utilisateurToken';
+import { UserToken } from './user-token';
 
 /**
  * URL de base des requêtes.
@@ -142,7 +142,7 @@ export class AuthService {
       const url = AuthService.LOGIN_URL;
 
       const user = await this.http
-        .post<UtilisateurToken>(
+        .post<UserToken>(
           url,
           userLogin, {
           headers: new HttpHeaders(AuthService.headers)
@@ -302,7 +302,7 @@ export class AuthService {
    * et navigue vers le home (ou autre) si connecté sinon vers connexion.
    * @param userWithToken : utilisateur authentifié. Si null, alors supprime la session et navigue jusqu'à la page de connexion.
    */
-  private next(userWithToken?: UtilisateurToken): Utilisateur {
+  private next(userWithToken?: UserToken): Utilisateur {
     try {
       userWithToken = userWithToken || null;
       let token: string = null;
@@ -361,7 +361,7 @@ export class AuthService {
       ({ user, token, refreshToken } = this.getFromStorage());
 
       if (user && token) {
-        const userWithToken: UtilisateurToken = Object.assign({
+        const userWithToken: UserToken = Object.assign({
           access_token: token,
           refresh_token: refreshToken
         },
@@ -411,7 +411,7 @@ export class AuthService {
    * ou null en cas de problème. Le Token est retiré de l'objet.
    * @param utilisateur : utilisateur authentifié.
    */
-  private extractToken(utilisateur: UtilisateurToken): { token: string, refreshToken: string } {
+  private extractToken(utilisateur: UserToken): { token: string, refreshToken: string } {
     try {
       const token = utilisateur?.access_token || null;
       const refreshToken = utilisateur?.refresh_token || null;

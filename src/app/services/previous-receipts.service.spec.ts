@@ -3,10 +3,10 @@ import { TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ConnexionComponent } from '../components/connexion/connexion.component';
 import { HomeComponent } from '../components/home/home.component';
-import { EntreesSortiesService } from './entrees-sorties.service';
+import { PreviousReceiptsService } from './previous-receipts.service';
 
 describe('EntreesSortiesService', () => {
-  let service: EntreesSortiesService;
+  let service: PreviousReceiptsService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -18,7 +18,7 @@ describe('EntreesSortiesService', () => {
         )
       ]
     });
-    service = TestBed.inject(EntreesSortiesService);
+    service = TestBed.inject(PreviousReceiptsService);
   });
 
   it('should be created', () => {

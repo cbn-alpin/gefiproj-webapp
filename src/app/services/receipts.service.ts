@@ -1,26 +1,46 @@
-import { Injectable } from '@angular/core';
-import { Financement } from '../models/financement';
-import { Recette } from '../models/recette';
-import { CrudService } from './crud.service';
 import { HttpClient } from '@angular/common/http';
-import { SpinnerService } from './spinner.service';
+import { Injectable } from '@angular/core';
+import { Recette } from '../models/recette';
 import { getDeepCopy } from '../shared/tools/utils';
+import { CrudService } from './crud.service';
+import { SpinnerService } from './spinner.service';
 
+/**
+ * Gère les recettes avec le serveur d'API.
+ */
 @Injectable({
   providedIn: 'root',
 })
-export class RecettesService {
+export class ReceiptsService {
+  /**
+   * End-point.
+   */
   private readonly endPoint = '/api/receipts';
+
+  /**
+   * Gère les requêtes.
+   */
   private readonly crudSrv: CrudService<Recette>;
 
-  constructor(private http: HttpClient, private spinnerSrv: SpinnerService) {
+  /**
+   * Gère les recettes avec le serveur d'API.
+   * @param http : permet d'effectuer les appels au serveur d'API.
+   * @param spinnerSrv : gère le spinner/sablier.
+   */
+  constructor(
+    private readonly http: HttpClient,
+    private readonly spinnerSrv: SpinnerService) {
     this.crudSrv = new CrudService<Recette>(http, spinnerSrv, this.endPoint);
   }
 
-  public getAll(financementId: number): Promise<Recette[]> {
+  /**
+   * Retourne les recettes du financment indiqué.
+   * @param idFunding : identifiant du financement ciblé.
+   */
+  public getAllFromFunding(idFunding: number): Promise<Recette[]> {
     try {
-      if (financementId) {
-        const endPoint = `/api/fundings/${financementId}/receipts`;
+      if (idFunding) {
+        const endPoint = `/api/fundings/${idFunding}/receipts`;
         const crudSrv = new CrudService<Recette>(
           this.http,
           this.spinnerSrv,
@@ -36,8 +56,12 @@ export class RecettesService {
     }
   }
 
-  public async add(recette: Recette): Promise<Recette> {
-    const cleanRecette = this.cleanRecette(recette);
+  /**
+   * Ajoute une recette.
+   * @param receipt : recette à ajouter.
+   */
+  public async add(receipt: Recette): Promise<Recette> {
+    const cleanRecette = this.cleanReceipt(receipt);
     try {
       if (cleanRecette) {
         return await this.crudSrv.add(cleanRecette);
@@ -49,8 +73,12 @@ export class RecettesService {
     }
   }
 
-  public async modify(recette: Recette): Promise<Recette> {
-    const cleanRecette = this.cleanRecette(recette);
+  /**
+   * Modifie une recette.
+   * @param receipt : recette à modifier.
+   */
+  public async modify(receipt: Recette): Promise<Recette> {
+    const cleanRecette = this.cleanReceipt(receipt);
     try {
       if (cleanRecette && cleanRecette.id_r) {
         return await this.crudSrv.modify(cleanRecette, cleanRecette.id_r);
@@ -62,8 +90,12 @@ export class RecettesService {
     }
   }
 
-  public async delete(recette: Recette): Promise<void> {
-    const cleanRecette = this.cleanRecette(recette);
+  /**
+   * Supprime une recette.
+   * @param receipt : recette à supprimer.
+   */
+  public async delete(receipt: Recette): Promise<void> {
+    const cleanRecette = this.cleanReceipt(receipt);
     try {
       if (cleanRecette && cleanRecette.id_r) {
         return await this.crudSrv.delete(cleanRecette.id_r);
@@ -75,9 +107,13 @@ export class RecettesService {
     }
   }
 
-  public cleanRecette(recette: Recette): Recette {
+  /**
+   * Supprime les propriétés supplémentaires.
+   * @param receipt : recette à nettoyer.
+   */
+  public cleanReceipt(receipt: Recette): Recette {
     try {
-      const copiedRecette = getDeepCopy(recette);
+      const copiedRecette = getDeepCopy(receipt);
       delete copiedRecette.financement;
       delete copiedRecette.difference;
 

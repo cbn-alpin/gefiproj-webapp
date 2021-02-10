@@ -1,29 +1,28 @@
+import { DatePipe } from '@angular/common';
 import {
   Component,
   EventEmitter,
   Input,
   OnChanges,
   Output,
-  SimpleChanges,
+  SimpleChanges
 } from '@angular/core';
-import { MontantAffecte } from '../../models/montantAffecte';
-import { Recette } from '../../models/recette';
-import { GenericTableOptions } from '../../shared/components/generic-table/models/generic-table-options';
-import { GenericTableCellType } from '../../shared/components/generic-table/globals/generic-table-cell-types';
-import { DatePipe } from '@angular/common';
-import { MontantsAffectesService } from '../../services/montants-affectes.service';
-import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { GenericTableEntityEvent } from '../../shared/components/generic-table/models/generic-table-entity-event';
-import { GenericTableFormError } from '../../shared/components/generic-table/models/generic-table-entity';
+import { MontantAffecte } from '../../models/montantAffecte';
+import { ProjetCallback } from '../../models/projet';
+import { Recette } from '../../models/recette';
+import { AmountsService } from '../../services/amounts.service';
 import {
   GenericDialogComponent,
-  IMessage,
+  IMessage
 } from '../../shared/components/generic-dialog/generic-dialog.component';
-import { PopupService } from '../../shared/services/popup.service';
+import { GenericTableCellType } from '../../shared/components/generic-table/globals/generic-table-cell-types';
+import { GenericTableFormError } from '../../shared/components/generic-table/models/generic-table-entity';
+import { GenericTableEntityEvent } from '../../shared/components/generic-table/models/generic-table-entity-event';
+import { GenericTableOptions } from '../../shared/components/generic-table/models/generic-table-options';
 import { SortInfo } from '../../shared/components/generic-table/models/sortInfo';
+import { PopupService } from '../../shared/services/popup.service';
 import { basicSort } from '../../shared/tools/utils';
-import { ProjetCallback } from '../../models/projet';
 
 @Component({
   selector: 'app-montants-affectes',
@@ -117,16 +116,14 @@ export class MontantsAffectesComponent implements OnChanges {
   };
 
   /**
-   * Date Pipe
+   * Date PipeAmountsService
    */
   pipe: DatePipe;
 
   private sortInfo: SortInfo;
 
   constructor(
-    private readonly montantsAffectesService: MontantsAffectesService,
-    private readonly route: ActivatedRoute,
-    private readonly router: Router,
+    private readonly amountsService: AmountsService,
     private readonly popupService: PopupService,
     public dialog: MatDialog
   ) {}
@@ -145,16 +142,16 @@ export class MontantsAffectesComponent implements OnChanges {
    * @param event : encapsule le montant affecté à modifier.
    */
   async onEdit(event: GenericTableEntityEvent<MontantAffecte>): Promise<void> {
-    let create = false;
+    const create = false;
     try {
-      let montant = event?.entity;
+      const montant = event?.entity;
       if (!montant) {
         throw new Error("Le montant affecté n'existe pas");
       }
 
       if (this.validateForGenericTable(event, create)) {
         delete montant.recette;
-        const updatedMontant = await this.montantsAffectesService.put(montant);
+        const updatedMontant = await this.amountsService.modify(montant);
         const projetCallback: ProjetCallback = {
           cb: event.callBack,
           id: updatedMontant.id_ma,
@@ -254,15 +251,15 @@ export class MontantsAffectesComponent implements OnChanges {
   async onCreate(
     event: GenericTableEntityEvent<MontantAffecte>
   ): Promise<void> {
-    let create = true;
+    const create = true;
     try {
-      let montant = event.entity;
+      const montant = event.entity;
       if (!montant) {
         throw new Error("Le montant affecté n'existe pas");
       }
 
       if (this.validateForGenericTable(event, create)) {
-        const createdMontant = await this.montantsAffectesService.post(
+        const createdMontant = await this.amountsService.add(
           montant,
           Number(this.receipt.id_r)
         );
@@ -294,7 +291,7 @@ export class MontantsAffectesComponent implements OnChanges {
         throw new Error("Le montant affecté n'existe pas");
       }
       const dialogRef = this.dialog.open(GenericDialogComponent, {
-        data: <IMessage>{
+        data: {
           header: 'Suppression du montant affecté',
           content:
             'Voulez-vous supprimer ce montant affecté de montant ' +
@@ -306,12 +303,12 @@ export class MontantsAffectesComponent implements OnChanges {
           action: {
             name: 'Confirmer',
           },
-        },
+        } as IMessage,
       });
 
       dialogRef.afterClosed().subscribe(async (result) => {
         if (result) {
-          await this.montantsAffectesService.delete(montant);
+          await this.amountsService.delete(montant);
           const projetCallback: ProjetCallback = {
             cb: event.callBack,
             id: montant.id_ma,

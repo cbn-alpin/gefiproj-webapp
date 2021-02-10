@@ -3,20 +3,23 @@ import { Injectable } from '@angular/core';
 import { MontantAffecte } from '../models/montantAffecte';
 import { Recette } from '../models/recette';
 import { CrudService } from './crud.service';
+import { ProjectsService } from './projects.service';
 import { SpinnerService } from './spinner.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class MontantsAffectesService {
+export class AmountsService {
   /**
    * Url relative de l'API Recette
    */
-  public readonly rEndPoint = '/api/receipts';
+  public readonly rEndPoint = ProjectsService.endPoint;
+
   /**
    * Url relative de l'API.
    */
   public readonly aEndPoint = '/api/amounts';
+
   /**
    * Effectue les appels au serveur d'API pour une entité donnée.
    */
@@ -55,13 +58,13 @@ export class MontantsAffectesService {
       return Promise.reject(error);
     }
   }
+
   /**
    * Retourne les financements du projet indiqué.
    * @param project : projet ciblé.
    */
   public async getAmounts(receiptId: number): Promise<MontantAffecte[]> {
     try {
-      //const id = receiptId;
       const amountSrv = new CrudService<MontantAffecte>(
         this.http,
         this.spinnerSrv,
@@ -79,7 +82,7 @@ export class MontantsAffectesService {
    * Transmet le financement d'un projet modifié au serveur.
    * @param financement : le financement modifié
    */
-  public async put(montant: MontantAffecte): Promise<MontantAffecte> {
+  public async modify(montant: MontantAffecte): Promise<MontantAffecte> {
     return this.crudSrv.modify(
       montant,
       montant?.id_ma);
@@ -89,7 +92,7 @@ export class MontantsAffectesService {
    * Transmet le financement d'un projet au serveur.
    * @param financement : le financement à créer
    */
-  public async post(montant: MontantAffecte, receiptId: number): Promise<MontantAffecte> {
+  public async add(montant: MontantAffecte, receiptId: number): Promise<MontantAffecte> {
     try {
       montant.id_r = receiptId;
       return this.crudSrv.add(montant);

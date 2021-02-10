@@ -1,18 +1,22 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import {CrudService} from './crud.service';
-import {EntreeSortie} from '../models/entrees-sorties';
-import {HttpClient} from '@angular/common/http';
-import {SpinnerService} from './spinner.service';
+import { EntreeSortie } from '../models/entrees-sorties';
+import { CrudService } from './crud.service';
+import { SpinnerService } from './spinner.service';
 
+/**
+ * Gère les entrées-sorties avec l'API.
+ */
 @Injectable({
   providedIn: 'root'
 })
-export class EntreesSortiesService {
+export class PreviousReceiptsService {
 
   /**
    * Url relative de l'API Entrées/Sorties
    */
   public readonly EndPoint = '/api/receipts/previous';
+
   /**
    * Effectue les appels au serveur d'API pour une entité donnée.
    */
@@ -23,8 +27,8 @@ export class EntreesSortiesService {
    * @param spinnerSrv : gère le spinner/sablier.
    */
   constructor(
-    private http: HttpClient,
-    private spinnerSrv: SpinnerService,
+    http: HttpClient,
+    spinnerSrv: SpinnerService,
   ) {
     this.crudService = new CrudService<EntreeSortie>(
       http,
