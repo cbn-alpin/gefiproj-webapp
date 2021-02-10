@@ -100,18 +100,18 @@ export class GenericTableService<T> {
    * Bloque la modification de certain champs.
    * Le bloquage sur la colonne est gérer par le parent.
    * Le bloquage sur une cellule d'une ligne spécifique est à implémenter dans la fonction.
-   * @param entity : l'object à modifié
+   * @param gtEntity : l'object à modifié
    * @param entityType : données lié au type de l'entité
    */
   public disabledEditField(
-    entity: GenericTableEntity<T>,
+    gtEntity: GenericTableEntity<T>,
     entityType: EntityType
   ): boolean {
     let disabled: boolean;
-    const _entity = entity.data as any;
+    const entity = gtEntity.data as any;
     const entityCodeIsStatutFinancement = entityType.code === 'statut_f';
     const userHasAdminRightAndFinancementIsBalance =
-      this.isAdministrator && _entity.solde;
+      this.isAdministrator && entity.solde;
     if (userHasAdminRightAndFinancementIsBalance) {
       disabled = entityCodeIsStatutFinancement ? false : true;
     } else {

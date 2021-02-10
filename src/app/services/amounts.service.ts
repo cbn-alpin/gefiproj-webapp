@@ -3,9 +3,8 @@ import { Injectable } from '@angular/core';
 import { MontantAffecte } from '../models/montantAffecte';
 import { Recette } from '../models/recette';
 import { CrudService } from './crud.service';
-import { ProjectsService } from './projects.service';
+import { ReceiptsService } from './receipts.service';
 import { SpinnerService } from './spinner.service';
-import {ReceiptsService} from './receipts.service';
 
 @Injectable({
   providedIn: 'root'
@@ -71,7 +70,6 @@ export class AmountsService {
         this.spinnerSrv,
         `${this.rEndPoint}/${receiptId}/amounts`);
 
-      // TODO méthode dans ReceiptServ
       return amountSrv.getAll();
     } catch (error) {
       console.error(error);
