@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { GenericTableCellType } from 'src/app/shared/components/generic-table/globals/generic-table-cell-types';
 import { GenericTableOptions } from 'src/app/shared/components/generic-table/models/generic-table-options';
 import { SortInfo } from 'src/app/shared/components/generic-table/models/sortInfo';
-import { PopupService } from 'src/app/shared/services/popup.service';
 import { basicSort } from 'src/app/shared/tools/utils';
 import { Historique } from './../../models/historique';
 import { HistoricalService } from './../../services/historical.service';
 
+/**
+ * Encapsule une modification historisée.
+ */
 interface HistoriqueEvo extends Historique {
   initiales_u: string;
   code_p: number;
@@ -17,6 +18,9 @@ interface HistoriqueEvo extends Historique {
   entity: 'Projet' | 'Financement' | 'Recette' | 'Affectation' | string;
 }
 
+/**
+ * Décrit une modification.
+ */
 interface MessageInModification {
   version?: number;
   modification?: 'C' | 'U' | 'D';
@@ -48,11 +52,13 @@ export class HistoriqueComponent implements OnInit {
    */
   private readonly namesMap = {
     id: { code: 'id_h', name: 'Identifiant' },
-    initiales: { code: 'initiales', name: 'Modificateur' },
+    initiales: { code: 'initiales_u', name: 'Modificateur' },
     projectName: { code: 'nom_p', name: 'Nom du projet' },
     projectCode: { code: 'code_p', name: 'Code du projet' },
     date: { code: 'date_h', name: 'Date' },
-    message: { code: 'message', name: 'Description' },
+    typeModif: { code: 'typeModif', name: 'Modification' },
+    entity: { code: 'entity', name: 'Entité' },
+    message: { code: 'message', name: 'Information' }
   };
 
   /**
@@ -87,11 +93,23 @@ export class HistoriqueComponent implements OnInit {
         sortEnabled: true
       },
       {
+        code: this.namesMap.typeModif.code,
+        type: GenericTableCellType.TEXT,
+        name: this.namesMap.typeModif.name,
+        sortEnabled: true
+      },
+      {
+        code: this.namesMap.entity.code,
+        type: GenericTableCellType.TEXT,
+        name: this.namesMap.entity.name,
+        sortEnabled: true
+      },
+      {
         code: this.namesMap.message.code,
         type: GenericTableCellType.TEXT,
         name: this.namesMap.message.name,
         sortEnabled: false
-      },
+      }
     ],
     entityPlaceHolders: [],
     entitySelectBoxOptions: [],
@@ -111,8 +129,6 @@ export class HistoriqueComponent implements OnInit {
    * @param expensesSrv : permet de charger les dépenses.
    */
   constructor(
-    private dialog: MatDialog,
-    private popupService: PopupService,
     private expensesSrv: HistoricalService
   ) {}
 
@@ -142,12 +158,16 @@ export class HistoriqueComponent implements OnInit {
     }
   }
 
+  /**
+   * Ajoute des propriétés facilitant l'affichage des données dans le tableau générique.
+   * @param modification : modification historisée ciblée.
+   */
   private InjectProperties(modification: Historique): HistoriqueEvo {
     const message: MessageInModification = JSON.parse(modification.description_h || '{}') || {};
     const typesModif = ['Non déterminé', 'Ajout', 'Modification', 'Suppression'];
     const indexTypeModif = ['C', 'D', 'U'].indexOf(message.modification || 'M') + 1;
     const entities = ['Non déterminé', 'Projet', 'Financement', 'Recette', 'Affectation'];
-    const indexEntity = ['P', 'F', 'R', 'A'].indexOf(message.modification || 'M') + 1;
+    const indexEntity = ['P', 'F', 'R', 'A'].indexOf(message.table || 'M') + 1;
 
     return Object.assign({
       initiales_u: modification.user?.initiales_u || '',
@@ -163,7 +183,7 @@ export class HistoriqueComponent implements OnInit {
    * Le trie du tableau a changé.
    * @param sort : défini le trie à appliquer.
    */
-  onSortChanged(sort: SortInfo): void {
+  public onSortChanged(sort: SortInfo): void {
     try {
       if (sort) {
         this.sortInfo = sort;

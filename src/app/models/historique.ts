@@ -5,6 +5,6 @@ export interface Historique {
     id_h?: number;
     user: Utilisateur;
     project: Projet;
-    date_h: Date;
-    description_h: string;
+    date_h: Date | string;
+    description_h?: string;
 }

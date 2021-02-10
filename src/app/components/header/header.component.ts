@@ -40,7 +40,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
     {
       label: 'Recettes comptables',
       link: '/recette-comptable'
-    },
+    }/*,
+    {
+      label: 'Historiques',
+      link: '/historiques'
+    }*/,
     {
       label: 'Rapports',
       link: '/rapports'
@@ -58,14 +62,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.user$ = this.auth.userObservable;
     this.subscription = this.user$.subscribe((user) => {
       this.user = user;
-      if(user){
-      if(this.isAdministrator){
-        let menu = {
-          label: 'Utilisateurs',
-          link: '/utilisateurs'
-        };
-        this.menuItems.push(menu);
-      }
+      if (user){
+        if (this.isAdministrator){
+          const menu = {
+            label: 'Utilisateurs',
+            link: '/utilisateurs'
+          };
+          this.menuItems.push(menu);
+        }
       }
     });
   }
@@ -76,7 +80,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   public logout(): void {
     this.auth.logout();
-    let menu = {
+    const menu = {
       label: 'Utilisateurs',
       link: '/utilisateurs'
     };

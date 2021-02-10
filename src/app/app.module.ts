@@ -18,20 +18,23 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ConnexionComponent } from './components/connexion/connexion.component';
 import { DepensesComponent } from './components/depenses/depenses.component';
+import { EntreesSortiesComponent } from './components/entrees-sorties/entrees-sorties.component';
 import { FinancementsComponent } from './components/financements/financements.component';
 import { FinanceursComponent } from './components/financeurs/financeurs.component';
 import { HeaderComponent } from './components/header/header.component';
+import { HistoriqueComponent } from './components/historique/historique.component';
 import { HomeComponent } from './components/home/home.component';
 import { MontantsAffectesComponent } from './components/montants-affectes/montants-affectes.component';
 import {
   EditProjectDialogComponent,
-  ProjetComponent,
+  ProjetComponent
 } from './components/projet/projet.component';
 import { RapportsComponent } from './components/rapports/rapports.component';
 import { RecettesComptablesComponent } from './components/recettes-comptables/recettes-comptables.component';
@@ -40,8 +43,6 @@ import { UtilisateursComponent } from './components/utilisateurs/utilisateurs.co
 import { AuthService } from './services/authentication/auth.service';
 import { AuthenticationHttpInterceptorService } from './services/authentication/authentication-http-interceptor.service';
 import { SharedModule } from './shared/shared.module';
-import { EntreesSortiesComponent } from './components/entrees-sorties/entrees-sorties.component';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 /**
  * Retourne le token courant.
@@ -74,6 +75,7 @@ registerLocaleData(localeFr, 'fr-FR');
     EditProjectDialogComponent,
     RecettesComptablesComponent,
     EntreesSortiesComponent,
+    HistoriqueComponent
   ],
   imports: [
     BrowserAnimationsModule,
