@@ -44,6 +44,11 @@ a:hover, a:visited, a:focus, a:active {
 
 
 .financements .table-generic, .recettes .table-generic, .montants-affectes .table-generic {
-    max-height: 300px;   
+    max-height: 300px;
+}
+
+.financements .table-generic, .financeurs .table-generic, .entrees-sorties .table-generic,
+.depenses .table-generic, .utilisateurs .table-generic, .projets .table-generic, .recettes-comptables .table-generic{
+    min-width: 80vw;
 }
 
