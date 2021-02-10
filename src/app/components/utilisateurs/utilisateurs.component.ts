@@ -7,7 +7,7 @@ import { SpinnerService } from '../../services/spinner.service';
 import { UsersService } from '../../services/users.service';
 import {
   GenericDialogComponent,
-  IMessage
+  IMessage,
 } from '../../shared/components/generic-dialog/generic-dialog.component';
 import { GenericTableCellType } from '../../shared/components/generic-table/globals/generic-table-cell-types';
 import { EntitySelectBoxOptions } from '../../shared/components/generic-table/models/entity-select-box-options';
@@ -203,21 +203,21 @@ export class UtilisateursComponent implements OnInit {
    * Un user a été ajouté dans le tableau.
    * @param event : encapsule le user à ajouter.
    */
-  public async onCreate(event: GenericTableEntityEvent<Utilisateur>): Promise<void> {
+  public async onCreate(
+    event: GenericTableEntityEvent<Utilisateur>
+  ): Promise<void> {
     const create = true;
     try {
       const user = event?.entity;
       if (!user) {
-        throw new Error('L\'utilisateur n\'existe pas');
+        throw new Error("L'utilisateur n'existe pas");
       }
-      if (this.validateForGenericTable(event, create )) {
+      if (this.validateForGenericTable(event, create)) {
         user.roles = [];
         user.roles.push(user.role);
         delete user.role;
         user.password_u = this.generatePassword();
-        const createdUser = await this.userService.add(
-          user
-        );
+        const createdUser = await this.userService.add(user);
         createdUser.role = createdUser.roles[0];
         event.callBack(null);
         this.create(createdUser);
@@ -233,85 +233,78 @@ export class UtilisateursComponent implements OnInit {
             showCancel: false,
           } as IMessage,
         });
-        dialogRef
-          .afterClosed()
-          .subscribe(async (result) => {
-          });
+        dialogRef.afterClosed().subscribe(async (result) => {});
         this.refreshDataTable();
       }
     } catch (error) {
       console.error(error);
-      this.popupService.error(
-        'Impossible de créer l\'utilisateur : ' + error.message
-      );
+      this.popupService.error(error);
     }
   }
   /**
    * Le mot de passe d'un user a été modifié dans le tableau.
    * @param event : encapsule le user à modifier.
    */
-  public async onChangePwd(event: GenericTableEntityEvent<Utilisateur>): Promise<void> {
+  public async onChangePwd(
+    event: GenericTableEntityEvent<Utilisateur>
+  ): Promise<void> {
     try {
       const user = event?.entity;
-      if (!user) { throw new Error('L\'utilisateur n\'existe pas'); }
+      if (!user) {
+        throw new Error("L'utilisateur n'existe pas");
+      }
       user.new_password = this.generatePassword();
 
       const dialogRef = this.dialog.open(GenericDialogComponent, {
-          data: {
-            header: `Changer le mot de passe de l'utilisateur ${user.email_u}`,
-            content: `Voulez vous changer le mot de passe de l'utilisateur
+        data: {
+          header: `Changer le mot de passe de l'utilisateur ${user.email_u}`,
+          content: `Voulez vous changer le mot de passe de l'utilisateur
              <strong>${user.email_u}</strong> à <strong> ${user.new_password} </strong> ? `,
-            type: 'warning',
-            action: {
-              name: 'Confirmer',
-            },
-          } as IMessage,
-        });
-      dialogRef
-          .afterClosed()
-          .subscribe(async (result) => {
-           if (result) {
-             user.roles = [];
-             user.roles.push(user.role);
-             delete user.role;
-             delete user.password_u;
-             await this.userService.modifyPwd(
-               user
-             );
-             user.role = user.roles[0];
-             event.callBack(null);
-             this.popupService.success(
-               'Le mot de passe de l\'utilisateur ' +
-               user.email_u +
-               ' a été modifié.'
-             );
-           }
-          });
+          type: 'warning',
+          action: {
+            name: 'Confirmer',
+          },
+        } as IMessage,
+      });
+      dialogRef.afterClosed().subscribe(async (result) => {
+        if (result) {
+          user.roles = [];
+          user.roles.push(user.role);
+          delete user.role;
+          delete user.password_u;
+          await this.userService.modifyPwd(user);
+          user.role = user.roles[0];
+          event.callBack(null);
+          this.popupService.success(
+            "Le mot de passe de l'utilisateur " +
+              user.email_u +
+              ' a été modifié.'
+          );
+        }
+      });
     } catch (error) {
       console.error(error);
-      this.popupService.error(
-        'Impossible de générer un nouveau mot de passe : ' + error.message
-      );
+      this.popupService.error(error);
     }
   }
   /**
    * Un user a été modifié dans le tableau.
    * @param event : encapsule le user à modifier.
    */
-  public async onEdit(event: GenericTableEntityEvent<Utilisateur>): Promise<void> {
+  public async onEdit(
+    event: GenericTableEntityEvent<Utilisateur>
+  ): Promise<void> {
     const create = false;
     try {
       const user = event?.entity;
       if (!user) {
-        throw new Error('L\'utilisateur n\'existe pas');
+        throw new Error("L'utilisateur n'existe pas");
       }
-      if (this.validateForGenericTable(event , create)) {
+      if (this.validateForGenericTable(event, create)) {
         user.roles = [];
         user.roles.push(user.role);
         delete user.role;
-        const modifiedUser = await this.userService.modify(
-          user
-        );
+        const modifiedUser = await this.userService.modify(user);
         modifiedUser.role = modifiedUser.roles[0];
         event.callBack(null);
         this.modify(modifiedUser);
@@ -319,9 +312,7 @@ export class UtilisateursComponent implements OnInit {
       }
     } catch (error) {
       console.error(error);
-      this.popupService.error(
-        'Impossible de modifier l\'utilisateur : ' + error.message
-      );
+      this.popupService.error(error);
     }
   }
   /**
@@ -344,15 +335,16 @@ export class UtilisateursComponent implements OnInit {
     create: boolean
   ): boolean {
     if (!gtEvent) {
-      throw new Error('Le paramètre \'gtEvent\' est invalide');
+      throw new Error("Le paramètre 'gtEvent' est invalide");
     }
     try {
       const user = gtEvent?.entity;
       const formErrors: GenericTableFormError[] = [];
       if (create) {
         this.verifFormsCreate(user, formErrors);
+      } else {
+        this.verifFormsModify(user, formErrors);
       }
-      else { this.verifFormsModify(user, formErrors); }
       if (formErrors.length > 0) {
         gtEvent.callBack({
           formErrors,
@@ -381,29 +373,28 @@ export class UtilisateursComponent implements OnInit {
     if (!user.nom_u) {
       const error = {
         name: this.namesMap.nom_u.code,
-        message: 'Le nom de l\'utilisateur doit être défini.',
+        message: "Le nom de l'utilisateur doit être défini.",
       };
       formErrors.push(error);
     }
     if (!user.prenom_u) {
       const error = {
         name: this.namesMap.prenom_u.code,
-        message: 'Le prénom de l\'utilisateur doit être défini.',
+        message: "Le prénom de l'utilisateur doit être défini.",
       };
       formErrors.push(error);
     }
     if (!user.email_u) {
       const error = {
         name: this.namesMap.email_u.code,
-        message: 'L\'email de l\'utilisateur doit être défini.',
+        message: "L'email de l'utilisateur doit être défini.",
       };
       formErrors.push(error);
-    }
-    else{
+    } else {
       if (!new RegExp(emailRegex).test(user.email_u)) {
         const error = {
           name: this.namesMap.email_u.code,
-          message: 'L\'email de l\'utilisateur n\'est pas valide.',
+          message: "L'email de l'utilisateur n'est pas valide.",
         };
         formErrors.push(error);
       }
@@ -411,14 +402,14 @@ export class UtilisateursComponent implements OnInit {
     if (!user.initiales_u) {
       const error = {
         name: this.namesMap.initiales_u.code,
-        message: 'Les initiales de l\'utilisateur doivent être définis.',
+        message: "Les initiales de l'utilisateur doivent être définis.",
       };
       formErrors.push(error);
     }
     if (!user.role) {
       const error = {
         name: this.namesMap.role.code,
-        message: 'Le rôle de l\'utilisateur doit être défini.',
+        message: "Le rôle de l'utilisateur doit être défini.",
       };
       formErrors.push(error);
     }
@@ -436,7 +427,7 @@ export class UtilisateursComponent implements OnInit {
     if (!this.checkUniqueEmailCreate(user)) {
       const error = {
         name: this.namesMap.email_u.code,
-        message: 'L\'email saisi existe déjà !',
+        message: "L'email saisi existe déjà !",
       };
       formErrors.push(error);
     }
@@ -461,7 +452,7 @@ export class UtilisateursComponent implements OnInit {
     if (!this.checkUniqueEmailModify(user)) {
       const error = {
         name: this.namesMap.email_u.code,
-        message: 'L\'email saisi existe déjà !',
+        message: "L'email saisi existe déjà !",
       };
       formErrors.push(error);
     }
@@ -520,8 +511,8 @@ export class UtilisateursComponent implements OnInit {
    */
   private checkUniqueEmailModify(newUser: Utilisateur): boolean {
     return (
-      this.utilisateurs.find(user =>
-        user.id_u !== newUser.id_u && user.email_u === newUser.email_u
+      this.utilisateurs.find(
+        (user) => user.id_u !== newUser.id_u && user.email_u === newUser.email_u
       ) == null
     );
   }
@@ -531,7 +522,8 @@ export class UtilisateursComponent implements OnInit {
    */
   private checkUniqueInitialesModify(newUser: Utilisateur): boolean {
     return (
-      this.utilisateurs.find(user =>
+      this.utilisateurs.find(
+        (user) =>
           user.id_u !== newUser.id_u && user.initiales_u === newUser.initiales_u
       ) == null
     );

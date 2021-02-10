@@ -1,3 +1,5 @@
+@import "~src/style/variables";
+
 .project-details{
   margin-bottom: 20px;
 }
@@ -61,4 +63,13 @@
 .libelle{
   min-width: 100px;
   display: inline-block;
+}
+
+.button-to-right {
+  float: right;
+}
+
+.mat-success {
+  background-color: $color-success;
+  color: $white;
 }

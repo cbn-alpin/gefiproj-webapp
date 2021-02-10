@@ -71,6 +71,13 @@ export class GenericTableComponent<T>
   }
 
   /**
+   * Fourni le paramétrage d'affichage et les données du tableau.
+   */
+  get options(): GenericTableOptions<T> {
+    return this._options;
+  }
+
+  /**
    * Indique si les éléments affichés sont en lecture seule (=pas de modification possible si à 'true').
    */
   @Input() isReadOnly = false;
@@ -124,13 +131,6 @@ export class GenericTableComponent<T>
    * Récupère le trie courant.
    */
   @ViewChild(MatSort) sort: MatSort;
-
-  /**
-   * Fourni le paramétrage d'affichage et les données du tableau.
-   */
-  get options(): GenericTableOptions<T> {
-    return this._options;
-  }
 
   /**
    * Indique le titre de la colonne à trier.
@@ -224,7 +224,7 @@ export class GenericTableComponent<T>
     }
   }
 
-  public ngOnChanges(changes: SimpleChanges) {
+  public ngOnChanges(changes: SimpleChanges): void {
     if (changes.selectedRow && changes.selectedRow.currentValue) {
       this.loadSelectedEntity();
     }
@@ -238,7 +238,7 @@ export class GenericTableComponent<T>
     }
   }
 
-  public ngOnDestroy() {
+  public ngOnDestroy(): void {
     this.destroyed$.next(true);
     this.destroyed$.complete();
   }
@@ -288,8 +288,8 @@ export class GenericTableComponent<T>
       (dataCopy) => dataCopy.id === entity.id
     );
     const entityCopied = getDeepCopy(entityToCopy);
-    this.genericTableEntities = this.genericTableEntities.map((entity) =>
-      entity?.id === entityCopied?.id ? entityCopied : entity
+    this.genericTableEntities = this.genericTableEntities.map(o =>
+      o?.id === entityCopied?.id ? entityCopied : o
     );
     this.genericTableErrorService.cleanErrors(entity);
   }

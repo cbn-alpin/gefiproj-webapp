@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { Utilisateur } from './../models/utilisateur';
@@ -10,7 +10,7 @@ import { SpinnerService } from './spinner.service';
  * Effectue les appels au serveur d'API pour les utilisateurs.
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UsersService {
   /**
@@ -45,24 +45,27 @@ export class UsersService {
    * @param http : permet d'effectuer les appels au serveur d'API.
    */
   constructor(
-     private readonly spinnerSrv: SpinnerService,
-     private readonly authSrv: AuthService,
-     private readonly http: HttpClient) {
+    private readonly spinnerSrv: SpinnerService,
+    private readonly authSrv: AuthService,
+    private readonly http: HttpClient
+  ) {
     this.crudSrv = new CrudService<Utilisateur>(
       http,
       spinnerSrv,
-      this.endPointUser);
+      this.endPointUser
+    );
     this.crudSrvPost = new CrudService<Utilisateur>(
       http,
       spinnerSrv,
-      this.endPointAuth);
+      this.endPointAuth
+    );
   }
 
   /**
    * Retourne les utilisateurs depuis le serveur.
    */
-  public async getAll(): Promise<Utilisateur[]> {
-    return this.crudSrv.getAll();
+  public async getAll(params?: HttpParams): Promise<Utilisateur[]> {
+    return this.crudSrv.getAll(params);
   }
 
   /**
@@ -78,9 +81,7 @@ export class UsersService {
    * @param user : utilisateur modifié.
    */
   public async modify(user: Utilisateur): Promise<Utilisateur> {
-    return this.crudSrv.modify(
-      user,
-      user?.id_u);
+    return this.crudSrv.modify(user, user?.id_u);
   }
 
   /**
@@ -91,10 +92,13 @@ export class UsersService {
     this.crudSrvChange = new CrudService<Utilisateur>(
       this.http,
       this.spinnerSrv,
-      `${this.endPointUser}/${user.id_u}/change-password`);
+      `${this.endPointUser}/${user.id_u}/change-password`
+    );
 
-    return this.crudSrvChange.add( // Via POST
-      user);
+    return this.crudSrvChange.add(
+      // Via POST
+      user
+    );
   }
 
   /**
@@ -105,22 +109,22 @@ export class UsersService {
     try {
       this.spinnerSrv.show();
       const accessToken = this.authSrv.accessToken;
-      const headers = Object.assign({
-        Authorization: `Bearer ${accessToken}`
-      }, AuthService.headers);
+      const headers = Object.assign(
+        {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        AuthService.headers
+      );
 
-      return await this.http
-         .post(
-           this.endPointAuth,
-           user, {
-             headers: new HttpHeaders(headers)
-           })
-         .toPromise() as Utilisateur;
+      return (await this.http
+        .post(this.endPointAuth, user, {
+          headers: new HttpHeaders(headers),
+        })
+        .toPromise()) as Utilisateur;
     } catch (error) {
       console.error(error);
       return Promise.reject(error);
-    }
-    finally {
+    } finally {
       this.spinnerSrv.hide();
     }
   }

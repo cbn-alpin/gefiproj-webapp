@@ -1,21 +1,18 @@
 /* tslint:disable:no-unused-variable */
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
-import { DebugElement } from '@angular/core';
-
-import { RecettesComptablesComponent } from './recettes-comptables.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ConnexionComponent } from '../connexion/connexion.component';
 import { HomeComponent } from '../home/home.component';
+import { RecettesComptablesComponent } from './recettes-comptables.component';
 
 describe('RecettesComptablesComponent', () => {
   let component: RecettesComptablesComponent;
   let fixture: ComponentFixture<RecettesComptablesComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         RouterTestingModule.withRoutes([

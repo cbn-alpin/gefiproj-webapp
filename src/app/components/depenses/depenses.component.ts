@@ -127,7 +127,7 @@ export class DepensesComponent implements OnInit {
     try {
       let expense = event?.entity;
       if (!expense) {
-        throw new Error('La dépense n\'existe pas');
+        throw new Error("La dépense n'existe pas");
       }
 
       if (this.validateForGenericTable(event)) {
@@ -143,7 +143,7 @@ export class DepensesComponent implements OnInit {
     } catch (error) {
       console.error(error);
       event?.callBack({
-        apiError: 'Impossible de créer la dépense.',
+        apiError: error,
       });
     }
   }
@@ -156,7 +156,7 @@ export class DepensesComponent implements OnInit {
     try {
       let expense = event?.entity;
       if (!expense) {
-        throw new Error('La dépense n\'existe pas');
+        throw new Error("La dépense n'existe pas");
       }
 
       if (this.validateForGenericTable(event)) {
@@ -172,7 +172,7 @@ export class DepensesComponent implements OnInit {
     } catch (error) {
       console.error(error);
       event?.callBack({
-        apiError: 'Impossible de modifiée la dépense.',
+        apiError: error,
       });
     }
   }
@@ -185,7 +185,7 @@ export class DepensesComponent implements OnInit {
     try {
       const expense = event?.entity;
       if (!expense) {
-        throw new Error('La dépense n\'existe pas');
+        throw new Error("La dépense n'existe pas");
       }
 
       // Etes-vous sûr ?
@@ -224,7 +224,7 @@ export class DepensesComponent implements OnInit {
     } catch (error) {
       console.error(error);
       event?.callBack({
-        apiError: 'Impossible de supprimer la dépense.',
+        apiError: error,
       });
     }
   }
@@ -261,7 +261,7 @@ export class DepensesComponent implements OnInit {
     gtEvent: GenericTableEntityEvent<Depense>
   ): boolean {
     if (!gtEvent) {
-      throw new Error('Le paramètre \'gtEvent\' est invalide');
+      throw new Error("Le paramètre 'gtEvent' est invalide");
     }
 
     try {
@@ -301,7 +301,7 @@ export class DepensesComponent implements OnInit {
       if (isSameExpense) {
         const error = {
           name: this.namesMap.year.code,
-          message: 'L\'année doit être unique',
+          message: "L'année doit être unique",
         };
 
         formErrors.push(error);
