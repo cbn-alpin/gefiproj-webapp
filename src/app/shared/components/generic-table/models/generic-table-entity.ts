@@ -12,18 +12,9 @@ export interface GenericTableFormError {
   message: string;
 }
 
-// TODO: Not need -> to delete
-export interface GenericTableBusinessError {
-  name: string;
-  message: string;
-}
-
 export interface GenericTableEntityErrors {
   // Error in form like invalid format
   formErrors?: GenericTableFormError[];
-  // Business error like code project is already used
-  // TODO: businessErrors is never use in app -> to delete
-  businessErrors?: GenericTableBusinessError[];
-  // Api error like call api success 200 or error 400 (server back is dead)
+  // Api error like call api success 200 or error 400 (server back is dead) or code project is already used
   apiError?: string;
 }

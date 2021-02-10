@@ -40,15 +40,9 @@ export class GenericTableErrorService<T> {
     const hasFormErrors = this.hasFormErrors(entity, genericTableEntityErrors);
     if (!hasFormErrors) {
       this.cleanErrors(entity);
-      const hasBusinessErrors = this.hasBusinessErrors(
-        entity,
-        genericTableEntityErrors
-      );
-      if (!hasBusinessErrors) {
-        const hasApiErrors = this.hasApiErrors(genericTableEntityErrors);
-        if (!hasApiErrors) {
-          canDoAction = true;
-        }
+      const hasApiErrors = this.hasApiErrors(genericTableEntityErrors);
+      if (!hasApiErrors) {
+        canDoAction = true;
       }
     }
     return canDoAction;
@@ -60,17 +54,6 @@ export class GenericTableErrorService<T> {
   ): boolean {
     if (genericTableEntityErrors?.formErrors?.length > 0) {
       entity.errors = genericTableEntityErrors.formErrors;
-      return true;
-    }
-    return false;
-  }
-
-  private hasBusinessErrors(
-    entity: GenericTableEntity<T>,
-    genericTableEntityErrors: GenericTableEntityErrors
-  ): boolean {
-    if (genericTableEntityErrors?.businessErrors?.length > 0) {
-      entity.errors = genericTableEntityErrors.businessErrors;
       return true;
     }
     return false;
