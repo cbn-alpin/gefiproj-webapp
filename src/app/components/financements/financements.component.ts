@@ -90,11 +90,11 @@ export class FinancementsComponent implements OnInit, OnChanges {
     );
   }
 
-  public showCreateAction: boolean = true;
+  public showCreateAction = true;
 
-  public showEditAction: boolean = true;
+  public showEditAction = true;
 
-  public showDeleteAction: boolean = true;
+  public showDeleteAction = true;
 
   /**
    * Représente un nouveau financement et définit les colonnes à afficher.
@@ -141,7 +141,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
   /**
    * Liste de statut
    */
-  private statuts_financement: SelectBoxOption<any>[] = [
+  private statutsFinancement: SelectBoxOption<any>[] = [
     { id: Statut_F.ANTR, label: Statut_F.ANTR },
     { id: Statut_F.ATR, label: Statut_F.ATR },
     { id: Statut_F.SOLDE, label: Statut_F.SOLDE },
@@ -178,9 +178,9 @@ export class FinancementsComponent implements OnInit, OnChanges {
     }
   }
 
-  public async ngOnInit() {
-    this.initGenericTableOptions();
+  public async ngOnInit(): Promise<void> {
     try {
+      this.initGenericTableOptions();
       this.pipe = new DatePipe('fr-FR');
       await this.loadFinanceurs();
       this.initDtOptions();
@@ -220,7 +220,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
     try {
       let financement: Financement = event.entity;
       if (!financement) {
-        throw new Error("Le financement n'existe pas");
+        throw new Error('Le financement n\'existe pas');
       }
       financement = this.transformFormat(financement);
 
@@ -263,9 +263,11 @@ export class FinancementsComponent implements OnInit, OnChanges {
     if (copiedFinancement.hasOwnProperty('difference')) {
       delete copiedFinancement.difference;
     }
-    if (copiedFinancement?.financeur) delete copiedFinancement?.financeur;
-    if (copiedFinancement.hasOwnProperty('solde'))
+    if (copiedFinancement?.financeur) {
+      delete copiedFinancement?.financeur; }
+    if (copiedFinancement.hasOwnProperty('solde')) {
       delete copiedFinancement.solde;
+    }
     if (!copiedFinancement.hasOwnProperty('id_p')) {
       copiedFinancement.id_p = Number(this.projectId);
     }
@@ -297,7 +299,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
     gtEvent: GenericTableEntityEvent<Financement>
   ): Promise<boolean> {
     if (!gtEvent) {
-      throw new Error("Le paramètre 'gtEvent' est invalide");
+      throw new Error('Le paramètre \'gtEvent\' est invalide');
     }
 
     try {
@@ -435,7 +437,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
     try {
       let financement: Financement = event.entity;
       if (!financement) {
-        throw new Error("Le financement n'existe pas");
+        throw new Error('Le financement n\'existe pas');
       }
       financement = this.transformFormat(financement);
       if (await this.validateForGenericTable(event)) {
@@ -478,7 +480,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
   ): Promise<void> {
     const financement = event.entity;
     if (!financement) {
-      throw new Error("Le financement n'existe pas");
+      throw new Error('Le financement n\'existe pas');
     }
 
     const dialogRef = this.dialog.open(GenericDialogComponent, {
@@ -690,7 +692,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
     };
     const statutSelectBoxOption: EntitySelectBoxOptions<any> = {
       name: this.namesMap.statut_f.code,
-      values: this.statuts_financement,
+      values: this.statutsFinancement,
     };
     const entitySelectBoxOptions = [
       financeursSelectBoxOption,

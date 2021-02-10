@@ -29,14 +29,14 @@ export class GenericDialogComponent implements OnInit {
       name: null,
     },
     showCancel: true,
-  }
+  };
 
   constructor(
     public dialogRef: MatDialogRef<GenericDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: IMessage
   ) {
 
-    this.message = {...this.message,...data};
+    this.message = {...this.message, ...data};
   }
 
   ngOnInit(): void {}
@@ -44,28 +44,28 @@ export class GenericDialogComponent implements OnInit {
   /**
    * Confirm and close popup
    */
-  onConfirmClick() {
+  onConfirmClick(): void {
     this.dialogRef.close(true);
   }
 
   /**
    * Cancel and close popup
    */
-  onCancelClick() {
+  onCancelClick(): void {
     this.dialogRef.close();
   }
 
   /**
    * Cancel and close popup
    */
-  showCancel() : boolean{
+  showCancel(): boolean{
      return this.message.showCancel;
   }
 
   /**
    * Get color button confirm
    */
-  getConfirmColor() {
+  getConfirmColor(): string {
     return this.message.type === 'warning' ? 'warn' : 'primary';
   }
 }

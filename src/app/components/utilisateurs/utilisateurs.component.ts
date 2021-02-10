@@ -7,7 +7,7 @@ import { SpinnerService } from '../../services/spinner.service';
 import { UsersService } from '../../services/users.service';
 import {
   GenericDialogComponent,
-  IMessage,
+  IMessage
 } from '../../shared/components/generic-dialog/generic-dialog.component';
 import { GenericTableCellType } from '../../shared/components/generic-table/globals/generic-table-cell-types';
 import { EntitySelectBoxOptions } from '../../shared/components/generic-table/models/entity-select-box-options';
@@ -15,8 +15,8 @@ import { GenericTableFormError } from '../../shared/components/generic-table/mod
 import { GenericTableEntityEvent } from '../../shared/components/generic-table/models/generic-table-entity-event';
 import { GenericTableOptions } from '../../shared/components/generic-table/models/generic-table-options';
 import { SelectBoxOption } from '../../shared/components/generic-table/models/SelectBoxOption';
-import { PopupService } from '../../shared/services/popup.service';
 import { SortInfo } from '../../shared/components/generic-table/models/sortInfo';
+import { PopupService } from '../../shared/services/popup.service';
 import { basicSort } from '../../shared/tools/utils';
 
 @Component({
@@ -36,7 +36,7 @@ export class UtilisateursComponent implements OnInit {
   /**
    * Liste des roles
    */
-  private roles_user: SelectBoxOption<any>[] = [
+  private rolesUser: SelectBoxOption<any>[] = [
     { id: Roles.Admin, label: Roles.Admin },
     { id: Roles.Consultant, label: Roles.Consultant },
   ];
@@ -100,7 +100,7 @@ export class UtilisateursComponent implements OnInit {
     private readonly dialog: MatDialog,
     private readonly spinnerSrv: SpinnerService
   ) {}
-  public async ngOnInit() {
+  public async ngOnInit(): Promise<void> {
     try {
       this.initGenericTableOptions();
       await this.loadUtilisateurs();
@@ -133,7 +133,7 @@ export class UtilisateursComponent implements OnInit {
   private initDtOptions(): void {
     const rolesSelectBoxOption: EntitySelectBoxOptions<any> = {
       name: this.namesMap.role.code,
-      values: this.roles_user,
+      values: this.rolesUser,
     };
     const entitySelectBoxOptions = [rolesSelectBoxOption];
     this.options = Object.assign({}, this.options, {
@@ -203,45 +203,46 @@ export class UtilisateursComponent implements OnInit {
    * Un user a été ajouté dans le tableau.
    * @param event : encapsule le user à ajouter.
    */
-  public async onCreate(event: GenericTableEntityEvent<Utilisateur>) {
-    let create = true;
+  public async onCreate(event: GenericTableEntityEvent<Utilisateur>): Promise<void> {
+    const create = true;
     try {
-      let user = event?.entity;
-      if (!user)
-        throw new Error("L'utilisateur n'existe pas");
+      const user = event?.entity;
+      if (!user) {
+        throw new Error('L\'utilisateur n\'existe pas');
+      }
       if (this.validateForGenericTable(event, create )) {
-              user.roles = [];
-              user.roles.push(user.role);
-              delete user.role;
-              user.password_u = this.generatePassword();
-              let createdUser = await this.userService.add(
-                user
-              );
-              createdUser.role = createdUser.roles[0];
-              event.callBack(null);
-              this.create(createdUser);
-              const dialogRef = this.dialog.open(GenericDialogComponent, {
-                data: {
-                  header: `Mot de passe du nouvel utilisateur ${user.email_u}`,
-                  content: `Le mot de passe de l'utilisateur que vous venez de créer
-                  avec l'email <strong>${user.email_u}</strong> est : <strong>${user.password_u}</strong> .`,
-                  type: 'information',
-                  action: {
-                    name: 'Fermer',
-                  },
-                  showCancel: false,
-                } as IMessage,
-              });
-              dialogRef
-                .afterClosed()
-                .subscribe(async (result) => {
-                });
+        user.roles = [];
+        user.roles.push(user.role);
+        delete user.role;
+        user.password_u = this.generatePassword();
+        const createdUser = await this.userService.add(
+          user
+        );
+        createdUser.role = createdUser.roles[0];
+        event.callBack(null);
+        this.create(createdUser);
+        const dialogRef = this.dialog.open(GenericDialogComponent, {
+          data: {
+            header: `Mot de passe du nouvel utilisateur ${user.email_u}`,
+            content: `Le mot de passe de l'utilisateur que vous venez de créer
+            avec l'email <strong>${user.email_u}</strong> est : <strong>${user.password_u}</strong> .`,
+            type: 'information',
+            action: {
+              name: 'Fermer',
+            },
+            showCancel: false,
+          } as IMessage,
+        });
+        dialogRef
+          .afterClosed()
+          .subscribe(async (result) => {
+          });
         this.refreshDataTable();
       }
     } catch (error) {
       console.error(error);
       this.popupService.error(
-        "Impossible de créer l'utilisateur : " + error.message
+        'Impossible de créer l\'utilisateur : ' + error.message
       );
     }
   }
@@ -249,13 +250,13 @@ export class UtilisateursComponent implements OnInit {
    * Le mot de passe d'un user a été modifié dans le tableau.
    * @param event : encapsule le user à modifier.
    */
-  public async onChangePwd(event: GenericTableEntityEvent<Utilisateur>) {
+  public async onChangePwd(event: GenericTableEntityEvent<Utilisateur>): Promise<void> {
     try {
-      let user = event?.entity;
-      if (!user) throw new Error("L'utilisateur n'existe pas");
-      user.new_password = this.generatePassword();;
+      const user = event?.entity;
+      if (!user) { throw new Error('L\'utilisateur n\'existe pas'); }
+      user.new_password = this.generatePassword();
 
-        const dialogRef = this.dialog.open(GenericDialogComponent, {
+      const dialogRef = this.dialog.open(GenericDialogComponent, {
           data: {
             header: `Changer le mot de passe de l'utilisateur ${user.email_u}`,
             content: `Voulez vous changer le mot de passe de l'utilisateur
@@ -266,10 +267,10 @@ export class UtilisateursComponent implements OnInit {
             },
           } as IMessage,
         });
-        dialogRef
+      dialogRef
           .afterClosed()
           .subscribe(async (result) => {
-           if(result) {
+           if (result) {
              user.roles = [];
              user.roles.push(user.role);
              delete user.role;
@@ -297,17 +298,18 @@ export class UtilisateursComponent implements OnInit {
    * Un user a été modifié dans le tableau.
    * @param event : encapsule le user à modifier.
    */
-  public async onEdit(event: GenericTableEntityEvent<Utilisateur>) {
-    let create = false;
+  public async onEdit(event: GenericTableEntityEvent<Utilisateur>): Promise<void> {
+    const create = false;
     try {
-      let user = event?.entity;
-      if (!user)
-        throw new Error("L'utilisateur n'existe pas");
+      const user = event?.entity;
+      if (!user) {
+        throw new Error('L\'utilisateur n\'existe pas');
+      }
       if (this.validateForGenericTable(event , create)) {
         user.roles = [];
         user.roles.push(user.role);
         delete user.role;
-        let modifiedUser = await this.userService.modify(
+        const modifiedUser = await this.userService.modify(
           user
         );
         modifiedUser.role = modifiedUser.roles[0];
@@ -318,7 +320,7 @@ export class UtilisateursComponent implements OnInit {
     } catch (error) {
       console.error(error);
       this.popupService.error(
-        "Impossible de modifier l'utilisateur : " + error.message
+        'Impossible de modifier l\'utilisateur : ' + error.message
       );
     }
   }
@@ -326,7 +328,7 @@ export class UtilisateursComponent implements OnInit {
    * Génère un mot de passe
    */
   private generatePassword(): string {
-    let passes = ['P@ssword', 'P@assCode', 'KeyWord@'];
+    const passes = ['P@ssword', 'P@assCode', 'KeyWord@'];
     return (
       passes[Math.floor(Math.random() * Math.floor(3))] +
       Math.floor(Math.random() * Math.floor(999999))
@@ -342,14 +344,15 @@ export class UtilisateursComponent implements OnInit {
     create: boolean
   ): boolean {
     if (!gtEvent) {
-      throw new Error("Le paramètre 'gtEvent' est invalide");
+      throw new Error('Le paramètre \'gtEvent\' est invalide');
     }
     try {
       const user = gtEvent?.entity;
       const formErrors: GenericTableFormError[] = [];
-      if(create)
+      if (create) {
         this.verifFormsCreate(user, formErrors);
-      else this.verifFormsModify(user, formErrors);
+      }
+      else { this.verifFormsModify(user, formErrors); }
       if (formErrors.length > 0) {
         gtEvent.callBack({
           formErrors,
@@ -378,21 +381,21 @@ export class UtilisateursComponent implements OnInit {
     if (!user.nom_u) {
       const error = {
         name: this.namesMap.nom_u.code,
-        message: "Le nom de l'utilisateur doit être défini.",
+        message: 'Le nom de l\'utilisateur doit être défini.',
       };
       formErrors.push(error);
     }
     if (!user.prenom_u) {
       const error = {
         name: this.namesMap.prenom_u.code,
-        message: "Le prénom de l'utilisateur doit être défini.",
+        message: 'Le prénom de l\'utilisateur doit être défini.',
       };
       formErrors.push(error);
     }
     if (!user.email_u) {
       const error = {
         name: this.namesMap.email_u.code,
-        message: "L'email de l'utilisateur doit être défini.",
+        message: 'L\'email de l\'utilisateur doit être défini.',
       };
       formErrors.push(error);
     }
@@ -400,7 +403,7 @@ export class UtilisateursComponent implements OnInit {
       if (!new RegExp(emailRegex).test(user.email_u)) {
         const error = {
           name: this.namesMap.email_u.code,
-          message: "L'email de l'utilisateur n'est pas valide.",
+          message: 'L\'email de l\'utilisateur n\'est pas valide.',
         };
         formErrors.push(error);
       }
@@ -408,14 +411,14 @@ export class UtilisateursComponent implements OnInit {
     if (!user.initiales_u) {
       const error = {
         name: this.namesMap.initiales_u.code,
-        message: "Les initiales de l'utilisateur doivent être définis.",
+        message: 'Les initiales de l\'utilisateur doivent être définis.',
       };
       formErrors.push(error);
     }
     if (!user.role) {
       const error = {
         name: this.namesMap.role.code,
-        message: "Le rôle de l'utilisateur doit être défini.",
+        message: 'Le rôle de l\'utilisateur doit être défini.',
       };
       formErrors.push(error);
     }
@@ -433,7 +436,7 @@ export class UtilisateursComponent implements OnInit {
     if (!this.checkUniqueEmailCreate(user)) {
       const error = {
         name: this.namesMap.email_u.code,
-        message: "L'email saisi existe déjà !",
+        message: 'L\'email saisi existe déjà !',
       };
       formErrors.push(error);
     }
@@ -458,7 +461,7 @@ export class UtilisateursComponent implements OnInit {
     if (!this.checkUniqueEmailModify(user)) {
       const error = {
         name: this.namesMap.email_u.code,
-        message: "L'email saisi existe déjà !",
+        message: 'L\'email saisi existe déjà !',
       };
       formErrors.push(error);
     }
@@ -517,8 +520,8 @@ export class UtilisateursComponent implements OnInit {
    */
   private checkUniqueEmailModify(newUser: Utilisateur): boolean {
     return (
-      this.utilisateurs.find(
-        (user) => user.id_u != newUser.id_u && user.email_u === newUser.email_u
+      this.utilisateurs.find(user =>
+        user.id_u !== newUser.id_u && user.email_u === newUser.email_u
       ) == null
     );
   }
@@ -528,9 +531,8 @@ export class UtilisateursComponent implements OnInit {
    */
   private checkUniqueInitialesModify(newUser: Utilisateur): boolean {
     return (
-      this.utilisateurs.find(
-        (user) =>
-          user.id_u != newUser.id_u && user.initiales_u === newUser.initiales_u
+      this.utilisateurs.find(user =>
+          user.id_u !== newUser.id_u && user.initiales_u === newUser.initiales_u
       ) == null
     );
   }

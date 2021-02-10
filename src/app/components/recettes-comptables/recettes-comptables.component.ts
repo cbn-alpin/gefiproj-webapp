@@ -129,7 +129,7 @@ export class RecettesComptablesComponent implements OnInit {
     try {
       let accounting = event?.entity;
       if (!accounting) {
-        throw new Error("La recette comptable n'existe pas");
+        throw new Error('La recette comptable n\'existe pas');
       }
 
       if (this.validateForGenericTable(event)) {
@@ -160,7 +160,7 @@ export class RecettesComptablesComponent implements OnInit {
     try {
       let accounting = event?.entity;
       if (!accounting) {
-        throw new Error("La recette comptable n'existe pas");
+        throw new Error('La recette comptable n\'existe pas');
       }
 
       if (this.validateForGenericTable(event)) {
@@ -191,7 +191,7 @@ export class RecettesComptablesComponent implements OnInit {
     try {
       const accounting = event?.entity;
       if (!accounting) {
-        throw new Error("La recette comptable n'existe pas");
+        throw new Error('La recette comptable n\'existe pas');
       }
 
       // Etes-vous sûr ?
@@ -271,7 +271,7 @@ export class RecettesComptablesComponent implements OnInit {
     gtEvent: GenericTableEntityEvent<RecetteComptable>
   ): boolean {
     if (!gtEvent) {
-      throw new Error("Le paramètre 'gtEvent' est invalide");
+      throw new Error('Le paramètre \'gtEvent\' est invalide');
     }
 
     try {
@@ -312,7 +312,7 @@ export class RecettesComptablesComponent implements OnInit {
       if (isSameAccounting) {
         const error = {
           name: this.namesMap.year.code,
-          message: "L'année doit être unique",
+          message: 'L\'année doit être unique',
         };
 
         formErrors.push(error);

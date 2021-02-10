@@ -58,15 +58,15 @@ export class PopupService {
 }
 
 export class MockPopupService extends PopupService {
-  info() {
+  info(): void {
     return;
   }
 
-  error() {
+  error(): void {
     return;
   }
 
-  success() {
+  success(): void {
     return;
   }
 }
