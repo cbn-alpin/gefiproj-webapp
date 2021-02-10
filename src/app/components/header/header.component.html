@@ -33,9 +33,11 @@
     <!--DROP MENU-->
     <mat-menu #dropMenu="matMenu">
       <ng-container *ngFor="let item of menuItems; let index = index;">
+        <div *ngIf="user">
           <button [routerLink]="item.link" routerLinkActive="active" mat-menu-item>
               {{item.label}}
           </button>
+        </div>
       </ng-container>
       <ng-container *ngIf="user">
         <button mat-menu-item (click)="logout()">

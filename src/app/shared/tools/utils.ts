@@ -6,7 +6,7 @@ import { SortInfo } from '../components/generic-table/models/sortInfo';
  * @param sortInfo : infos du trie.
  */
 export function basicSort(array: any[], sortInfo: SortInfo): any[] {
-  if (sortInfo == null) {
+  if (!sortInfo || !sortInfo.direction || !sortInfo.name) {
     return array;
   }
   const { name, direction } = sortInfo;

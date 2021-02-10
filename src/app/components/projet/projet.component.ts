@@ -60,13 +60,7 @@ export class ProjetComponent implements OnInit {
 
   public projet: Projet;
 
-  public financementsDefaultSortInfo: DefaultSortInfo = {
-    sortInfo: {
-      name: 'montant_arrete_f',
-      direction: 'asc',
-    },
-    headerName: 'Montant Arreté',
-  };
+  public financementsDefaultSortInfo: DefaultSortInfo;
 
   public recettesDefaultSortInfo: DefaultSortInfo = {
     sortInfo: {
@@ -359,7 +353,7 @@ export class ProjetComponent implements OnInit {
         const financements = await this.financementsService.getAll(projetId);
         this.financements = basicSort(
           financements,
-          this.financementsDefaultSortInfo.sortInfo
+          this.financementsDefaultSortInfo?.sortInfo
         );
         this.selectedFinancement = this.financements.find(
           (financement) => financement.id_f === this.selectedFinancementId
@@ -380,7 +374,7 @@ export class ProjetComponent implements OnInit {
         const recettes = await this.recettesService.getAll(financementId);
         this.recettes = basicSort(
           recettes,
-          this.recettesDefaultSortInfo.sortInfo
+          this.recettesDefaultSortInfo?.sortInfo
         );
         this.selectedRecette = this.recettes.find(
           (recette) => recette.id_r === this.selectedRecetteId

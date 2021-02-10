@@ -80,7 +80,7 @@ export class EntreesSortiesComponent implements OnInit {
       },
       {
         code: this.namesMap.montant_es.code,
-        type: GenericTableCellType.CURRENCY,
+        type: GenericTableCellType.NEGATIVECURRENCY,
         name: this.namesMap.montant_es.name,
         sortEnabled: false,
         isMandatory: true,
@@ -302,9 +302,23 @@ export class EntreesSortiesComponent implements OnInit {
       };
       formErrors.push(error);
     }
+    if (isNaN(inout.montant_es)) {
+      const error = {
+        name: this.namesMap.montant_es.code,
+        message: 'Un montant ne doit comprendre que des chiffres.',
+      };
+      formErrors.push(error);
+    }
     if (this.verifUniqueYears(inout, create)) {
       const error = {
         name: this.namesMap.annee_recette_es.code,
+        message: 'Le couple (année recette, année affectation) existe déjà.',
+      };
+      formErrors.push(error);
+    }
+    if (this.verifUniqueYears(inout, create)) {
+      const error = {
+        name: this.namesMap.annee_affectation_es.code,
         message: 'Le couple (année recette, année affectation) existe déjà.',
       };
       formErrors.push(error);
@@ -316,7 +330,6 @@ export class EntreesSortiesComponent implements OnInit {
    * @param create : s'il s'agit d'une création ou d'une modification
    */
   private verifUniqueYears(inOut: EntreeSortie, create: boolean): boolean {
-    console.log('Create : ', create);
     if (create) {
       const index = this.entreesSorties.findIndex(
         (p) =>

@@ -268,6 +268,48 @@
           </mat-form-field>
         </div>
 
+        <!-- NegativeCurrency -->
+        <div class="currency">
+          <mat-form-field
+            *ngIf="genericTableTypeService.isNegativeCurrency(options, columnName.code)"
+            [ngClass]="{
+              errors: genericTableErrorService.hasErrors(
+                element,
+                columnName.code
+              )
+            }"
+            floatLabel="never"
+          >
+            <input
+              matInput
+              decimals="5"
+              negativeNumeric
+              [disabled]="
+                element.state === GenericTableEntityState.READ ||
+                genericTableService.disabledEditField(element, columnName) ||
+                isReadOnlyProperty(element.data, columnName.code)
+              "
+              matTooltipClass="tooltip-error"
+              [matTooltip]="
+                genericTableErrorService.getErrorMessage(
+                  element.errors,
+                  columnName.code
+                )
+              "
+              [ngModel]="
+                element.state === GenericTableEntityState.READ
+                  ? (element.data[columnName.code] | number: '1.0-0':'fr-FR') +
+                    ' €'
+                  : element.data[columnName.code]
+              "
+              (ngModelChange)="element.data[columnName.code] = $event"
+              [placeholder]="
+                genericTableService.getPlaceHolder(options, columnName.code)
+              "
+            />
+          </mat-form-field>
+        </div>
+
         <!-- Boolean -->
         <div class="checkbox">
           <mat-checkbox
