@@ -1,20 +1,20 @@
 import { Component, OnInit } from '@angular/core';
-import { EntreeSortie } from '../../models/entrees-sorties';
-import { GenericTableOptions } from '../../shared/components/generic-table/models/generic-table-options';
-import { GenericTableCellType } from '../../shared/components/generic-table/globals/generic-table-cell-types';
-import { IsAdministratorGuardService } from '../../services/authentication/is-administrator-guard.service';
 import { MatDialog } from '@angular/material/dialog';
-import { PopupService } from '../../shared/services/popup.service';
+import { first } from 'rxjs/operators';
+import { EntreeSortie } from '../../models/entrees-sorties';
+import { IsAdministratorGuardService } from '../../services/authentication/is-administrator-guard.service';
 import { PreviousReceiptsService } from '../../services/previous-receipts.service';
-import { GenericTableEntityEvent } from '../../shared/components/generic-table/models/generic-table-entity-event';
-import { GenericTableFormError } from '../../shared/components/generic-table/models/generic-table-entity';
-import { SortInfo } from '../../shared/components/generic-table/models/sortInfo';
-import { basicSort } from '../../shared/tools/utils';
 import {
   GenericDialogComponent,
-  IMessage,
+  IMessage
 } from '../../shared/components/generic-dialog/generic-dialog.component';
-import { first } from 'rxjs/operators';
+import { GenericTableCellType } from '../../shared/components/generic-table/globals/generic-table-cell-types';
+import { GenericTableFormError } from '../../shared/components/generic-table/models/generic-table-entity';
+import { GenericTableEntityEvent } from '../../shared/components/generic-table/models/generic-table-entity-event';
+import { GenericTableOptions } from '../../shared/components/generic-table/models/generic-table-options';
+import { SortInfo } from '../../shared/components/generic-table/models/sortInfo';
+import { PopupService } from '../../shared/services/popup.service';
+import { basicSort } from '../../shared/tools/utils';
 
 @Component({
   selector: 'app-entrees-sorties',
@@ -31,10 +31,12 @@ export class EntreesSortiesComponent implements OnInit {
    * Liste des entrées/sorties.
    */
   entreesSorties: EntreeSortie[] = [];
+
   /**
-   *Utiliser pour le tri du tableau
+   * Utiliser pour le tri du tableau
    */
   private sortInfo: SortInfo;
+
   /**
    * Mapping pour les noms des attributs d'une entrée/sortie.
    */
@@ -43,7 +45,7 @@ export class EntreesSortiesComponent implements OnInit {
     annee_recette_es: { code: 'annee_recette_es', name: 'Année de recette' },
     annee_affectation_es: {
       code: 'annee_affectation_es',
-      name: "Année d'affectation",
+      name: 'Année d\'affectation',
     },
     montant_es: { code: 'montant_es', name: 'Montant affecté' },
   };
@@ -142,7 +144,7 @@ export class EntreesSortiesComponent implements OnInit {
     try {
       let inOut = event.entity;
       if (!inOut) {
-        throw new Error("L'entrée/sortie n'existe pas");
+        throw new Error('L\'entrée/sortie n\'existe pas');
       }
       if (this.validateForGenericTable(event, false)) {
         inOut = await this.previousReceiptsService.add(inOut);
@@ -157,7 +159,7 @@ export class EntreesSortiesComponent implements OnInit {
     } catch (error) {
       console.error(error);
       this.popupService.error(
-        "Impossible de créer l'entrée/sortie : " + error.message
+        'Impossible de créer l\'entrée/sortie : ' + error.message
       );
     }
   }
@@ -171,7 +173,7 @@ export class EntreesSortiesComponent implements OnInit {
     try {
       let inOut = event.entity;
       if (!inOut) {
-        throw new Error("L'entrée/sortie n'existe pas");
+        throw new Error('L\'entrée/sortie n\'existe pas');
       }
       if (this.validateForGenericTable(event, false)) {
         inOut = await this.previousReceiptsService.modify(inOut);
@@ -198,10 +200,10 @@ export class EntreesSortiesComponent implements OnInit {
     try {
       const inOut = event?.entity;
       if (!inOut) {
-        throw new Error("L'entrée/sortie n'existe pas");
+        throw new Error('L\'entrée/sortie n\'existe pas');
       }
       const data: IMessage = {
-        header: "Suppression de l'entrée/sortie",
+        header: 'Suppression de l\'entrée/sortie',
         content: `Vous vous apprêtez à supprimer l'entrée/sortie de l'année d'affectation ${inOut.annee_affectation_es}. Etes-vous certain de vouloir la supprimer ?`,
         type: 'warning',
         action: {
@@ -250,7 +252,7 @@ export class EntreesSortiesComponent implements OnInit {
     create: boolean
   ): boolean {
     if (!gtEvent) {
-      throw new Error("Le paramètre 'gtEvent' est invalide");
+      throw new Error('Le paramètre \'gtEvent\' est invalide');
     }
     try {
       const inOut = gtEvent?.entity;
@@ -284,7 +286,7 @@ export class EntreesSortiesComponent implements OnInit {
     if (!inout.annee_affectation_es) {
       const error = {
         name: this.namesMap.annee_affectation_es.code,
-        message: "Une année d 'affectation doit être définie.",
+        message: 'Une année d \'affectation doit être définie.',
       };
       formErrors.push(error);
     }
@@ -343,7 +345,7 @@ export class EntreesSortiesComponent implements OnInit {
     if (!create) {
       const index = this.entreesSorties.findIndex(
         (p) =>
-          p.id_es != inOut.id_es &&
+          p.id_es !== inOut.id_es &&
           p.annee_affectation_es === inOut.annee_affectation_es &&
           p.annee_recette_es === inOut.annee_recette_es
       );

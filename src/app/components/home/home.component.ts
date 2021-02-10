@@ -176,7 +176,7 @@ export class HomeComponent implements OnInit {
    */
   sortInfo: SortInfo;
 
-  public disableToggleButton: boolean = false;
+  public disableToggleButton = false;
 
   /**
    * Affiche les projets.
@@ -327,7 +327,7 @@ export class HomeComponent implements OnInit {
     try {
       const project = event?.entity;
       if (!project) {
-        throw new Error("Le projet n'existe pas");
+        throw new Error('Le projet n\'existe pas');
       }
 
       this.injectManager(project);
@@ -371,7 +371,7 @@ export class HomeComponent implements OnInit {
     gtEvent: GenericTableEntityEvent<Projet>
   ): boolean {
     if (!gtEvent) {
-      throw new Error("Le paramètre 'gtEvent' est invalide");
+      throw new Error('Le paramètre \'gtEvent\' est invalide');
     }
 
     try {
@@ -528,7 +528,7 @@ export class HomeComponent implements OnInit {
     try {
       let project = event?.entity;
       if (!project) {
-        throw new Error("Le projet n'existe pas");
+        throw new Error('Le projet n\'existe pas');
       }
 
       this.injectManager(project);
@@ -593,7 +593,7 @@ export class HomeComponent implements OnInit {
     try {
       const project = event?.entity;
       if (!project) {
-        throw new Error("Le projet n'existe pas");
+        throw new Error('Le projet n\'existe pas');
       }
 
       // Vérification des RG

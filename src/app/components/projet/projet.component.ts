@@ -89,7 +89,7 @@ export class ProjetComponent implements OnInit {
 
   public isResponsable: boolean;
 
-  public disableEditProjetButton: boolean = false;
+  public disableEditProjetButton = false;
 
   public get isAdministrator(): boolean {
     return !!this.adminSrv.isAdministrator();
@@ -272,7 +272,7 @@ export class ProjetComponent implements OnInit {
     }
   }
 
-  public async refreshAll() {
+  public async refreshAll(): Promise<void> {
     await this.loadFinancementsFromProjetId(this.projet.id_p);
     if (this.selectedFinancement?.id_f) {
       // Le financement id match avec les nouveaux financements => on le sélectionne
@@ -427,8 +427,8 @@ export class ProjetComponent implements OnInit {
   }
 
   public async openEditProjectDialog(): Promise<void> {
-    let projectName = this.projet.nom_p;
-    let edited = false;
+    const projectName = this.projet.nom_p;
+    const edited = false;
     await this.loadAllUsers(this.projetToEdit.id_p);
     const dialogRef = this.dialog.open(EditProjectDialogComponent, {
       width: '600px',
@@ -436,8 +436,8 @@ export class ProjetComponent implements OnInit {
         project: this.projetToEdit,
         users: this.managers,
         manager: this.manager,
-        projectName: projectName,
-        edited: edited,
+        projectName,
+        edited,
       },
     });
 
@@ -458,7 +458,7 @@ export class ProjetComponent implements OnInit {
   /**
    * Met à jour les données d'affichage.
    */
-  private async refreshProject() {
+  private async refreshProject(): Promise<void> {
     try {
       this.projet = await this.projetsService.get(this.projet.id_p);
       this.manager = this.projet.responsable;
@@ -487,14 +487,12 @@ export class ProjetComponent implements OnInit {
 }
 
 @Component({
+  // tslint:disable-next-line: component-selector
   selector: 'edit-project-dialog',
   templateUrl: 'edit-project-popup.component.html',
   styleUrls: ['./projet.component.scss'],
 })
 export class EditProjectDialogComponent implements OnInit {
-  public formGroup: FormGroup;
-  public errorStateMatcher1: ErrorStateMatcher;
-  public errorStateMatcher2: ErrorStateMatcher;
 
   public get min(): number {
     const date = new Date(Date.now());
@@ -506,8 +504,6 @@ export class EditProjectDialogComponent implements OnInit {
     return (date.getFullYear() % 100) + 10;
   }
 
-  private readonly patternCode = '^\\d{5}$';
-
   constructor(
     public dialogRef: MatDialogRef<EditProjectDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: DialogData,
@@ -515,8 +511,15 @@ export class EditProjectDialogComponent implements OnInit {
     private readonly projectsService: ProjectsService,
     private readonly popupService: PopupService
   ) {}
+  public formGroup: FormGroup;
+  public errorStateMatcher1: ErrorStateMatcher;
+  public errorStateMatcher2: ErrorStateMatcher;
 
-  ngOnInit() {
+  private readonly patternCode = '^\\d{5}$';
+
+  public managerId = this.data.manager.id_u;
+
+  ngOnInit(): void {
     this.formGroup = this.fb.group({
       nom: [
         {
@@ -537,8 +540,6 @@ export class EditProjectDialogComponent implements OnInit {
     this.errorStateMatcher1 = new MyCustomErrorStateMatcher();
     this.errorStateMatcher2 = new MyCustomErrorStateMatcher();
   }
-
-  public managerId = this.data.manager.id_u;
 
   onNoClick(): void {
     this.dialogRef.close();
@@ -584,9 +585,8 @@ export class EditProjectDialogComponent implements OnInit {
     try {
       const projectCodes = projets.map((project) => project.code_p);
       const tempArray =
-        projets.find(
-          (_projet) =>
-            _projet.id_p === projet.id_p && _projet.code_p === projet.code_p
+        projets.find(p =>
+            p.id_p === projet.id_p && p.code_p === projet.code_p
         ) != null
           ? projectCodes
           : projectCodes.concat(projet.code_p);
@@ -605,9 +605,8 @@ export class EditProjectDialogComponent implements OnInit {
     try {
       const projectNames = projets.map((project) => project.nom_p);
       const tempArray =
-        projets.find(
-          (_projet) =>
-            _projet.id_p === projet.id_p && _projet.nom_p === projet.nom_p
+        projets.find(p =>
+            p.id_p === projet.id_p && p.nom_p === projet.nom_p
         ) != null
           ? projectNames
           : projectNames.concat(projet.nom_p);
