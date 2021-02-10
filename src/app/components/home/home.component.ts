@@ -19,6 +19,7 @@ import { Utilisateur } from './../../models/utilisateur';
 import { GenericTableEntityEvent } from './../../shared/components/generic-table/models/generic-table-entity-event';
 import { GenericTableOptions } from './../../shared/components/generic-table/models/generic-table-options';
 import { PopupService } from '../../shared/services/popup.service';
+import { HttpParams } from '@angular/common/http';
 
 /**
  * Affiche les projets.
@@ -258,8 +259,9 @@ export class HomeComponent implements OnInit {
   async loadManagers(): Promise<Utilisateur[]> {
     try {
       this.spinnerSrv.show();
-      this.managers = (await this.usersSrv.getAll()) // RG : tous les utilisateurs actifs peuvent être responsable projets
-        .filter((m) => m.active_u)
+      let params = new HttpParams();
+      params = params.append('is_responsable_or_active', 'true');
+      this.managers = (await this.usersSrv.getAll(params)) // RG : tous les utilisateurs actifs peuvent être responsable projets
         .sort((m1, m2) => this.compareManagers(m1, m2));
     } catch (error) {
       console.error(error);
