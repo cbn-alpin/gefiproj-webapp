@@ -2,7 +2,8 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
 import { Utilisateur } from '../../models/utilisateur';
 import { AuthService } from '../../services/authentication/auth.service';
-import {IsAdministratorGuardService} from '../../services/authentication/is-administrator-guard.service';
+import { IsAdministratorGuardService } from '../../services/authentication/is-administrator-guard.service';
+import { PopupService } from '../../shared/services/popup.service';
 
 export interface MenuItem {
   label: string;
@@ -13,7 +14,7 @@ export interface MenuItem {
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss']
+  styleUrls: ['./header.component.scss'],
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   public user$: Observable<Utilisateur>;
@@ -23,32 +24,32 @@ export class HeaderComponent implements OnInit, OnDestroy {
     {
       label: 'Accueil',
       link: '/home',
-      icon: 'home'
+      icon: 'home',
     },
     {
       label: 'Financeurs',
-      link: '/financeurs'
+      link: '/financeurs',
     },
     {
       label: 'Dépenses',
-      link: '/depenses'
+      link: '/depenses',
     },
     {
       label: 'Entrées/Sorties',
-      link: '/entrees-sorties'
+      link: '/entrees-sorties',
     },
     {
       label: 'Recettes comptables',
-      link: '/recette-comptable'
-    }/*,
+      link: '/recette-comptable',
+    } /*,
     {
       label: 'Historiques',
       link: '/historiques'
     }*/,
     {
       label: 'Rapports',
-      link: '/rapports'
-    }
+      link: '/rapports',
+    },
   ];
 
   private subscription: Subscription;
@@ -56,17 +57,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
   constructor(
     private readonly auth: AuthService,
     private readonly isAdministratorGuardService: IsAdministratorGuardService,
-  ) { }
+    private readonly popupService: PopupService
+  ) {}
 
   public ngOnInit(): void {
     this.user$ = this.auth.userObservable;
     this.subscription = this.user$.subscribe((user) => {
       this.user = user;
-      if (user){
-        if (this.isAdministrator){
+      if (user) {
+        if (this.isAdministrator) {
           const menu = {
             label: 'Utilisateurs',
-            link: '/utilisateurs'
+            link: '/utilisateurs',
           };
           this.menuItems.push(menu);
         }
@@ -78,15 +80,21 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 
-  public logout(): void {
-    this.auth.logout();
-    const menu = {
-      label: 'Utilisateurs',
-      link: '/utilisateurs'
-    };
-    const index = this.menuItems.findIndex((p) => p.label === menu.label);
-    if (index >= 0) {
-      this.menuItems.splice(index, 1);
+  public async logout(): Promise<void> {
+    try {
+      await this.auth.logout();
+      const menu = {
+        label: 'Utilisateurs',
+        link: '/utilisateurs',
+      };
+      const index = this.menuItems.findIndex((p) => p.label === menu.label);
+      if (index >= 0) {
+        this.menuItems.splice(index, 1);
+      }
+    } catch (e) {
+      console.error(e);
+
+      this.popupService.error(e);
     }
   }
 

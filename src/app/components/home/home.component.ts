@@ -327,7 +327,7 @@ export class HomeComponent implements OnInit {
     try {
       const project = event?.entity;
       if (!project) {
-        throw new Error('Le projet n\'existe pas');
+        throw new Error("Le projet n'existe pas");
       }
 
       this.injectManager(project);
@@ -346,7 +346,7 @@ export class HomeComponent implements OnInit {
     } catch (error) {
       console.error(error);
       event?.callBack({
-        apiError: 'Impossible de modifier le projet.',
+        apiError: error,
       });
     }
   }
@@ -371,7 +371,7 @@ export class HomeComponent implements OnInit {
     gtEvent: GenericTableEntityEvent<Projet>
   ): boolean {
     if (!gtEvent) {
-      throw new Error('Le paramètre \'gtEvent\' est invalide');
+      throw new Error("Le paramètre 'gtEvent' est invalide");
     }
 
     try {
@@ -528,7 +528,7 @@ export class HomeComponent implements OnInit {
     try {
       let project = event?.entity;
       if (!project) {
-        throw new Error('Le projet n\'existe pas');
+        throw new Error("Le projet n'existe pas");
       }
 
       this.injectManager(project);
@@ -547,7 +547,7 @@ export class HomeComponent implements OnInit {
     } catch (error) {
       console.error(error);
       event?.callBack({
-        apiError: 'Impossible de créer le projet.',
+        apiError: error,
       });
     }
   }
@@ -593,7 +593,7 @@ export class HomeComponent implements OnInit {
     try {
       const project = event?.entity;
       if (!project) {
-        throw new Error('Le projet n\'existe pas');
+        throw new Error("Le projet n'existe pas");
       }
 
       // Vérification des RG
@@ -645,7 +645,7 @@ export class HomeComponent implements OnInit {
     } catch (error) {
       console.error(error);
       event?.callBack({
-        apiError: 'Impossible de supprimer le projet.',
+        apiError: error,
       });
     }
   }
