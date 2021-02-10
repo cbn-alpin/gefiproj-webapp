@@ -204,7 +204,6 @@ export class UtilisateursComponent implements OnInit {
    * @param event : encapsule le user à ajouter.
    */
   public async onCreate(event: GenericTableEntityEvent<Utilisateur>) {
-    console.log('Call onCreate ! ');
     let create = true;
     try {
       let user = event?.entity;
@@ -251,7 +250,6 @@ export class UtilisateursComponent implements OnInit {
    * @param event : encapsule le user à modifier.
    */
   public async onChangePwd(event: GenericTableEntityEvent<Utilisateur>) {
-    console.log('Call onChangePwd ! ');
     try {
       let user = event?.entity;
       if (!user) throw new Error("L'utilisateur n'existe pas");
@@ -301,7 +299,6 @@ export class UtilisateursComponent implements OnInit {
    */
   public async onEdit(event: GenericTableEntityEvent<Utilisateur>) {
     let create = false;
-    console.log('Call onEdit ! ');
     try {
       let user = event?.entity;
       if (!user)
@@ -377,7 +374,7 @@ export class UtilisateursComponent implements OnInit {
     user: Utilisateur,
     formErrors: GenericTableFormError[]
   ): void {
-    const emailRegex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$';
+    const emailRegex = '^[A-Za-z0-9\\.\\+-]+@[A-Za-z0-9\\.-]+\\.[a-zA-Z]*$';
     if (!user.nom_u) {
       const error = {
         name: this.namesMap.nom_u.code,
