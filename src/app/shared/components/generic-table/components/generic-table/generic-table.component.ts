@@ -83,8 +83,6 @@ export class GenericTableComponent<T>
 
   @Input() canSelect = false;
 
-  @Input() autoSelectFirstRow = false;
-
   @Input() selectedRow: T;
 
   @Input() showChangePwdAction = false;
@@ -117,8 +115,6 @@ export class GenericTableComponent<T>
    * Notifie le composant parent que le trie a changé.
    */
   @Output() sortEvent = new EventEmitter<SortInfo>();
-
-  @Output() startEditEvent = new EventEmitter<T>();
 
   @Output() startAction = new EventEmitter();
 
