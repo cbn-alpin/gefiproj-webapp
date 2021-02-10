@@ -87,9 +87,9 @@ export class GenericTableComponent<T>
 
   @Input() showChangePwdAction = false;
 
-  @Input() showCreateAction: boolean = true;
+  @Input() showCreateAction = true;
 
-  @Input() showEditAction: boolean = true;
+  @Input() showEditAction = true;
 
   @Output() changePwdEvent: EventEmitter<
     GenericTableEntityEvent<T>
@@ -156,7 +156,7 @@ export class GenericTableComponent<T>
 
   public GenericTableEntityState = GenericTableEntityState;
 
-  public canSelectSelectedEntity: boolean = true;
+  public canSelectSelectedEntity = true;
 
   /**
    * Indique que la table est vide.
@@ -180,7 +180,7 @@ export class GenericTableComponent<T>
    */
   public genericTableEntitiesCopy: GenericTableEntity<T>[];
 
-  public actionsHeaderColumnName: string = 'Actions';
+  public actionsHeaderColumnName = 'Actions';
 
   public selectedEntity: GenericTableEntity<T>;
 

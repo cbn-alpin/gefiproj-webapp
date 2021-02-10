@@ -3,15 +3,16 @@ import {
   ElementRef,
   HostListener,
   Input,
-  OnInit,
+  OnInit
 } from '@angular/core';
 
 @Directive({
+  // tslint:disable-next-line: directive-selector
   selector: 'input[numeric]',
 })
 export class NumericDirective implements OnInit {
-  @Input() decimals: number = 0;
-  @Input() year: boolean = false;
+  @Input() decimals = 0;
+  @Input() year = false;
 
   private patternNumberWithoutDecimals: string;
   private patternNumberWithDecimals: string;
@@ -32,9 +33,9 @@ export class NumericDirective implements OnInit {
     'Paste',
   ];
 
-  constructor(private _el: ElementRef) {}
+  constructor(private elementRef: ElementRef) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.patternNumberWithoutDecimals = '^[0-9]*$';
     this.patternNumberWithDecimals =
       '^\\s*((\\d+(\\.\\d{0,' +
@@ -46,8 +47,8 @@ export class NumericDirective implements OnInit {
   }
 
   @HostListener('keydown', ['$event'])
-  onKeyDown(e: KeyboardEvent) {
-    const initialValue = this._el.nativeElement.value;
+  onKeyDown(e: KeyboardEvent): void {
+    const initialValue = this.elementRef.nativeElement.value;
     const finalValue = initialValue + e.key;
     let resMatched;
     if (

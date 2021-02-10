@@ -1,11 +1,12 @@
-import {Directive, ElementRef, HostListener, Input} from '@angular/core';
+import { Directive, ElementRef, HostListener, Input, OnInit } from '@angular/core';
 
 @Directive({
+  // tslint:disable-next-line: directive-selector
   selector: '[negativeNumeric]'
 })
-export class NegativeNumericDirective {
-  @Input() decimals: number = 0;
-  @Input() year: boolean = false;
+export class NegativeNumericDirective implements OnInit {
+  @Input() decimals = 0;
+  @Input() year = false;
 
   private patternNumberWithoutDecimals: string;
   private patternNumberWithDecimals: string;
@@ -26,17 +27,17 @@ export class NegativeNumericDirective {
     'Paste',
   ];
 
-  constructor(private _el: ElementRef) {}
+  constructor(private elementRef: ElementRef) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.patternNumberWithoutDecimals = '^\-?[0-9]{0,13}$';
-    this.patternNumberWithDecimals = '^\-?[0-9]{0,13}[\.]?([0-9]{0,'+this.decimals+'})?$';
+    this.patternNumberWithDecimals = '^\-?[0-9]{0,13}[\.]?([0-9]{0,' + this.decimals + '})?$';
     this.patternYear = '^\\d{0,4}$';
   }
 
   @HostListener('keydown', ['$event'])
-  onKeyDown(e: KeyboardEvent) {
-    const initialValue = this._el.nativeElement.value;
+  onKeyDown(e: KeyboardEvent): void {
+    const initialValue = this.elementRef.nativeElement.value;
     const finalValue = this.getNextValue(e, initialValue);
     let resMatched;
     if (
@@ -78,8 +79,8 @@ export class NegativeNumericDirective {
 
   private getNextValue(e: KeyboardEvent, currentValue: string): string {
     let result = currentValue;
-    const startSel = this._el.nativeElement.selectionStart;
-    const endSel = this._el.nativeElement.selectionEnd;
+    const startSel = this.elementRef.nativeElement.selectionStart;
+    const endSel = this.elementRef.nativeElement.selectionEnd;
     result = currentValue.substr(0, startSel)
       .concat(e.key)
       .concat(currentValue.substr(endSel));
