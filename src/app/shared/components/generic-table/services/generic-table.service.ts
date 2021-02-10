@@ -96,10 +96,6 @@ export class GenericTableService<T> {
     );
   }
 
-  public getDateValue(dateString: string): Date {
-    return new Date(dateString);
-  }
-
   /**
    *
    * @param genericTableEntities
@@ -111,26 +107,30 @@ export class GenericTableService<T> {
     genericTableEntitiesCopy: GenericTableEntity<T>[],
     entityKeep?: GenericTableEntity<T>
   ): GenericTableEntity<T>[] {
-    const entities = genericTableEntities.map((entity) => {
-      if (
-        (entityKeep &&
-          entity.id !== entityKeep.id &&
-          entity.state === GenericTableEntityState.EDIT) ||
-        (!entityKeep && entity.state === GenericTableEntityState.EDIT)
-      ) {
-        const entityToCopy = genericTableEntitiesCopy.find(
-          (entityCopy) => entityCopy.id === entity.id
-        );
-        entity = getDeepCopy(entityToCopy);
-      }
+    try {
+      const entities = genericTableEntities.map((entity) => {
+        if (
+          (entityKeep &&
+            entity.id !== entityKeep.id &&
+            entity.state === GenericTableEntityState.EDIT) ||
+          (!entityKeep && entity.state === GenericTableEntityState.EDIT)
+        ) {
+          const entityToCopy = genericTableEntitiesCopy.find(
+            (entityCopy) => entityCopy.id === entity.id
+          );
+          entity = getDeepCopy(entityToCopy);
+        }
 
-      if (entity.state === GenericTableEntityState.NEW) {
-        entity = null;
-      }
-      return entity;
-    });
+        if (entity.state === GenericTableEntityState.NEW) {
+          entity = null;
+        }
+        return entity;
+      });
 
-    return entities;
+      return entities;
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   /**

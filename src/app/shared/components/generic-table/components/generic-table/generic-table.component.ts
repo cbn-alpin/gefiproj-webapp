@@ -267,14 +267,6 @@ export class GenericTableComponent<T>
     this.genericTableEntitiesCopy = getDeepCopy(this.genericTableEntities);
     this.genericTableAction = GenericTableAction.EDIT;
     this.showMandatoryIcon = true;
-    const cleanedGenericTableEntities = this.genericTableService.getOtherEntitiesReseted(
-      this.genericTableEntities,
-      this.genericTableEntitiesCopy,
-      entity
-    );
-    this.genericTableEntities = cleanedGenericTableEntities.filter(
-      (cleanedEntity) => cleanedEntity !== null
-    );
     entity.state = GenericTableEntityState.EDIT;
   }
 
@@ -283,9 +275,8 @@ export class GenericTableComponent<T>
     this.genericTableAction = GenericTableAction.EDIT;
     const genericTableEntityEvent: GenericTableEntityEvent<T> = {
       entity: entity.data,
-      updatedGenericTable: this.genericTableEntities.map((row) => row.data),
-      callBack: (genericTableEntityErrors?: GenericTableEntityErrors, up?: T) =>
-        this.handleAction(entity, genericTableEntityErrors, up),
+      callBack: (genericTableEntityErrors?: GenericTableEntityErrors) =>
+        this.handleAction(entity, genericTableEntityErrors),
     };
     this.editEvent.emit(genericTableEntityEvent);
   }
@@ -316,10 +307,6 @@ export class GenericTableComponent<T>
       state: GenericTableEntityState.NEW,
       id: this.genericTableEntities.length,
     };
-    this.genericTableEntities = this.genericTableService.getOtherEntitiesReseted(
-      this.genericTableEntities,
-      this.genericTableEntitiesCopy
-    );
     this.genericTableEntities = [entity].concat(this.genericTableEntities);
   }
 
@@ -328,9 +315,8 @@ export class GenericTableComponent<T>
     this.genericTableAction = GenericTableAction.NEW;
     const genericTableEntityEvent: GenericTableEntityEvent<T> = {
       entity: entity.data,
-      updatedGenericTable: this.genericTableEntities.map((row) => row.data),
-      callBack: (genericTableEntityErrors?: GenericTableEntityErrors, up?: T) =>
-        this.handleAction(entity, genericTableEntityErrors, up),
+      callBack: (genericTableEntityErrors?: GenericTableEntityErrors) =>
+        this.handleAction(entity, genericTableEntityErrors),
     };
     this.createEvent.emit(genericTableEntityEvent);
   }
@@ -350,7 +336,6 @@ export class GenericTableComponent<T>
     this.genericTableAction = GenericTableAction.DELETE;
     const genericTableEntityEvent: GenericTableEntityEvent<T> = {
       entity: entity.data,
-      updatedGenericTable: this.genericTableEntities.map((data) => data.data),
       callBack: (genericTableEntityErrors: GenericTableEntityErrors) =>
         this.handleAction(entity, genericTableEntityErrors),
     };
@@ -362,9 +347,8 @@ export class GenericTableComponent<T>
     this.genericTableAction = GenericTableAction.CHANGEPWD;
     const genericTableEntityEvent: GenericTableEntityEvent<T> = {
       entity: entity.data,
-      updatedGenericTable: this.genericTableEntities.map((row) => row.data),
-      callBack: (genericTableEntityErrors?: GenericTableEntityErrors, up?: T) =>
-        this.handleAction(entity, genericTableEntityErrors, up),
+      callBack: (genericTableEntityErrors?: GenericTableEntityErrors) =>
+        this.handleAction(entity, genericTableEntityErrors),
     };
     this.changePwdEvent.emit(genericTableEntityEvent);
   }
@@ -431,18 +415,13 @@ export class GenericTableComponent<T>
 
   private handleAction(
     entity: GenericTableEntity<T>,
-    genericTableEntityErrors: GenericTableEntityErrors,
-    up?: T
+    genericTableEntityErrors: GenericTableEntityErrors
   ): void {
     const canDoAction = this.genericTableErrorService.handleErrors(
       entity,
       genericTableEntityErrors
     );
     if (canDoAction) {
-      if (up) {
-        this.selectedRow = up;
-        this.loadSelectedEntity();
-      }
       if (
         this.genericTableAction === GenericTableAction.EDIT ||
         this.genericTableAction === GenericTableAction.NEW

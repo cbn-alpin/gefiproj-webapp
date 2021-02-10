@@ -1,4 +1,7 @@
 export interface EntityPlaceholder {
-    name: string;
-    value: string;
+  /**
+   * Nom de la propriété ciblée.
+   */
+  name: string;
+  value: string;
 }
