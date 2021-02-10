@@ -5,6 +5,7 @@ import { Recette } from '../models/recette';
 import { CrudService } from './crud.service';
 import { ProjectsService } from './projects.service';
 import { SpinnerService } from './spinner.service';
+import {ReceiptsService} from './receipts.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,7 @@ export class AmountsService {
   /**
    * Url relative de l'API Recette
    */
-  public readonly rEndPoint = ProjectsService.endPoint;
+  public readonly rEndPoint = ReceiptsService.endPoint;
 
   /**
    * Url relative de l'API.

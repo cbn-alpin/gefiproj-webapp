@@ -15,7 +15,7 @@ export class ReceiptsService {
   /**
    * End-point.
    */
-  private readonly endPoint = '/api/receipts';
+  public static readonly endPoint = '/api/receipts';
 
   /**
    * Gère les requêtes.
@@ -30,7 +30,7 @@ export class ReceiptsService {
   constructor(
     private readonly http: HttpClient,
     private readonly spinnerSrv: SpinnerService) {
-    this.crudSrv = new CrudService<Recette>(http, spinnerSrv, this.endPoint);
+    this.crudSrv = new CrudService<Recette>(http, spinnerSrv, ReceiptsService.endPoint);
   }
 
   /**
