@@ -154,7 +154,13 @@
   }
 
   .mat-sort-header-arrow {
-    color: $grey;
+    color: $white;
+  }
+
+  .mat-sort-header-disabled .mat-sort-header-container {
+    .mat-sort-header-arrow {
+      color: $grey;
+    }
   }
 }
 
