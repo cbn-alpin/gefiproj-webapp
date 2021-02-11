@@ -28,7 +28,7 @@ export class UtilisateursComponent implements OnInit {
   @Output()
   public usersChange: EventEmitter<Utilisateur[]> = new EventEmitter<
     Utilisateur[]
-  >();
+    >();
   /**
    * Liste des utilisateurs
    */
@@ -237,8 +237,9 @@ export class UtilisateursComponent implements OnInit {
         this.refreshDataTable();
       }
     } catch (error) {
-      console.error(error);
-      this.popupService.error(error);
+      event?.callBack({
+        apiError: error,
+      });
     }
   }
   /**
@@ -267,24 +268,31 @@ export class UtilisateursComponent implements OnInit {
         } as IMessage,
       });
       dialogRef.afterClosed().subscribe(async (result) => {
-        if (result) {
-          user.roles = [];
-          user.roles.push(user.role);
-          delete user.role;
-          delete user.password_u;
-          await this.userService.modifyPwd(user);
-          user.role = user.roles[0];
-          event.callBack(null);
-          this.popupService.success(
-            "Le mot de passe de l'utilisateur " +
+        try {
+          if (result) {
+            user.roles = [];
+            user.roles.push(user.role);
+            delete user.role;
+            delete user.password_u;
+            await this.userService.modifyPwd(user);
+            user.role = user.roles[0];
+            event.callBack(null);
+            this.popupService.success(
+              "Le mot de passe de l'utilisateur " +
               user.email_u +
               ' a été modifié.'
-          );
+            );
+          }
+        }catch (error) {
+          event?.callBack({
+            apiError: error,
+          });
         }
       });
     } catch (error) {
-      console.error(error);
-      this.popupService.error(error);
+      event?.callBack({
+        apiError: error,
+      });
     }
   }
   /**
@@ -311,8 +319,9 @@ export class UtilisateursComponent implements OnInit {
         this.refreshDataTable();
       }
     } catch (error) {
-      console.error(error);
-      this.popupService.error(error);
+      event?.callBack({
+        apiError: error,
+      });
     }
   }
   /**

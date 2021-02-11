@@ -171,7 +171,7 @@ export class RecettesComponent implements OnInit, OnChanges {
         this.createEvent.emit(projetCallback);
       } catch (error) {
         event?.callBack({
-          apiError: Messages.FAILURE_CREATE_RECETTE,
+          apiError: error,
         });
       }
     }
@@ -194,7 +194,7 @@ export class RecettesComponent implements OnInit, OnChanges {
         this.editEvent.emit(projetCallback);
       } catch (error) {
         event?.callBack({
-          apiError: Messages.FAILURE_UPDATE_RECETTE,
+          apiError: error,
         });
       }
     }
@@ -230,7 +230,7 @@ export class RecettesComponent implements OnInit, OnChanges {
             this.deleteEvent.emit(projetCallback);
           } catch (error) {
             event?.callBack({
-              apiError: Messages.FAILURE_DELETE_RECETTE,
+              apiError: error,
             });
           }
         }

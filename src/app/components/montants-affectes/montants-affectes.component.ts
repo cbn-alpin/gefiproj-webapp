@@ -160,10 +160,9 @@ export class MontantsAffectesComponent implements OnChanges {
         this.editEvent.emit(projetCallback);
       }
     } catch (error) {
-      console.log('er', error);
-      this.popupService.error(
-        'Impossible de modifier les montants affectés : ' + error.message
-      );
+      event?.callBack({
+        apiError: error,
+      });
     }
   }
 
@@ -271,10 +270,9 @@ export class MontantsAffectesComponent implements OnChanges {
         this.createEvent.emit(projetCallback);
       }
     } catch (error) {
-      console.error(error);
-      this.popupService.error(
-        'Impossible de créer le montant affecté : ' + error.message
-      );
+      event?.callBack({
+        apiError: error,
+      });
     }
   }
 
@@ -308,25 +306,28 @@ export class MontantsAffectesComponent implements OnChanges {
 
       dialogRef.afterClosed().subscribe(async (result) => {
         if (result) {
-          await this.amountsService.delete(montant);
-          const projetCallback: ProjetCallback = {
-            cb: event.callBack,
-            id: montant.id_ma,
-            message:
-              'Le montant affecté de montant ' +
-              montant.montant_ma +
-              ' €, a été supprimé du projet.',
-          };
-          this.deleteEvent.emit(projetCallback);
+          try{
+            await this.amountsService.delete(montant);
+            const projetCallback: ProjetCallback = {
+              cb: event.callBack,
+              id: montant.id_ma,
+              message:
+                'Le montant affecté de montant ' +
+                montant.montant_ma +
+                ' €, a été supprimé du projet.',
+            };
+            this.deleteEvent.emit(projetCallback);
+          }
+          catch (error) {
+            event?.callBack({
+              apiError: error,
+            });
+          }
         }
       });
     } catch (error) {
-      console.error(error);
-      this.popupService.error(
-        'Impossible de supprimer le montant affecté : ' + error.message
-      );
       event?.callBack({
-        apiError: 'Impossible de supprimer le montant affecté.',
+        apiError: error,
       });
     }
   }

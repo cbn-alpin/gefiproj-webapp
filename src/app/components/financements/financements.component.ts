@@ -239,18 +239,9 @@ export class FinancementsComponent implements OnInit, OnChanges {
         this.editEvent.emit(projetCallback);
       }
     } catch (error) {
-      console.error(error.error.errors);
-      if (error.error.errors) {
-        for (const err of error.error.errors) {
-          event?.callBack({
-            apiError: 'Impossible de modifier le financement : ' + err.message,
-          });
-        }
-      } else {
-        event?.callBack({
-          apiError: 'Impossible de modifier le financement : ' + error.error,
-        });
-      }
+      event?.callBack({
+        apiError: error,
+      });
     }
   }
 
@@ -456,18 +447,9 @@ export class FinancementsComponent implements OnInit, OnChanges {
         this.createEvent.emit(projetCallback);
       }
     } catch (error) {
-      console.error(error);
-      if (error.error.errors) {
-        for (const err of error.error.errors) {
-          event?.callBack({
-            apiError: 'Impossible de créer le financement : ' + err.message,
-          });
-        }
-      } else {
-        event?.callBack({
-          apiError: 'Impossible de créer le financement : ' + error.error,
-        });
-      }
+      event?.callBack({
+        apiError: error,
+      });
     }
   }
 
@@ -512,8 +494,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
             this.deleteEvent.emit(projetCallback);
           } catch (error) {
             event?.callBack({
-              apiError:
-                'Impossible de supprimer le financement : ' + error.error,
+              apiError: error,
             });
           }
         }
@@ -653,11 +634,11 @@ export class FinancementsComponent implements OnInit, OnChanges {
   private loadFinanceurInFinancement(financement: Financement): Financement {
     return financement.id_financeur
       ? {
-          ...financement,
-          financeur: this.financeurs.find(
-            (financeur) => financeur.id_financeur === financement.id_financeur
-          ),
-        }
+        ...financement,
+        financeur: this.financeurs.find(
+          (financeur) => financeur.id_financeur === financement.id_financeur
+        ),
+      }
       : financement;
   }
 
@@ -726,13 +707,13 @@ export class FinancementsComponent implements OnInit, OnChanges {
         (editableField) => editableField === entityType.code
       ) != null
         ? {
-            ...entityType,
-            disableEditing: false,
-          }
+          ...entityType,
+          disableEditing: false,
+        }
         : {
-            ...entityType,
-            disableEditing: true,
-          }
+          ...entityType,
+          disableEditing: true,
+        }
     );
   }
 

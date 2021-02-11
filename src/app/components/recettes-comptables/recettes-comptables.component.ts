@@ -143,9 +143,8 @@ export class RecettesComptablesComponent implements OnInit {
         );
       }
     } catch (error) {
-      console.error(error);
       event?.callBack({
-        apiError: 'Impossible de créer la recette comptable.',
+        apiError: error,
       });
     }
   }
@@ -174,9 +173,8 @@ export class RecettesComptablesComponent implements OnInit {
         );
       }
     } catch (error) {
-      console.error(error);
       event?.callBack({
-        apiError: 'Impossible de modifiée la recette comptable.',
+        apiError: error,
       });
     }
   }
@@ -228,9 +226,8 @@ export class RecettesComptablesComponent implements OnInit {
         });
       }
     } catch (error) {
-      console.error(error);
       event?.callBack({
-        apiError: 'Impossible de supprimer la recette comptable.',
+        apiError: error,
       });
     }
   }

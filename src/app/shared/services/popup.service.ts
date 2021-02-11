@@ -26,7 +26,7 @@ export class PopupService {
   public error(message: string | HttpErrorResponse | Error, title?: string, config?: MatSnackBarConfig): void {
     if (message && message instanceof HttpErrorResponse) {
       message = message.error?.message
-        ? message = message.error.message + (message.message ? ` (Erreur HTTP : '${message.message}')` : '')
+        ? message = message.error.message
         : message.message;
     } else if (message && message instanceof Error) {
       message = message.message;

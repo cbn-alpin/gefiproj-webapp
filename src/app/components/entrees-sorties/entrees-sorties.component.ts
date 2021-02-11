@@ -147,6 +147,7 @@ export class EntreesSortiesComponent implements OnInit {
         throw new Error('L\'entrée/sortie n\'existe pas');
       }
       if (this.validateForGenericTable(event, false)) {
+        inOut.montant_es = Number(inOut.montant_es);
         inOut = await this.previousReceiptsService.add(inOut);
         event.callBack(null); // Valide la modification dans le composant DataTable fils
 
@@ -157,10 +158,9 @@ export class EntreesSortiesComponent implements OnInit {
         );
       }
     } catch (error) {
-      console.error(error);
-      this.popupService.error(
-        'Impossible de créer l\'entrée/sortie : ' + error.message
-      );
+      event?.callBack({
+        apiError: error,
+      });
     }
   }
   /**
@@ -176,7 +176,9 @@ export class EntreesSortiesComponent implements OnInit {
         throw new Error('L\'entrée/sortie n\'existe pas');
       }
       if (this.validateForGenericTable(event, false)) {
+        inOut.montant_es = Number(inOut.montant_es);
         inOut = await this.previousReceiptsService.modify(inOut);
+        event.callBack(null); // Valide la modification dans le composant DataTable fils
         this.updateInOut(inOut);
         this.refreshDataTable(); // Pour le trie
         this.popupService.success(
@@ -184,10 +186,9 @@ export class EntreesSortiesComponent implements OnInit {
         );
       }
     } catch (error) {
-      console.error(error);
-      this.popupService.error(
-        `Impossible de modifier l'entrée/sortie : ${error.message}`
-      );
+      event?.callBack({
+        apiError: error,
+      });
     }
   }
   /**
@@ -235,9 +236,8 @@ export class EntreesSortiesComponent implements OnInit {
         });
       }
     } catch (error) {
-      console.error(error);
       event?.callBack({
-        apiError: 'Impossible de supprimer la dépense.',
+        apiError: error,
       });
     }
   }
