@@ -51,8 +51,7 @@ export class ReceiptsService {
       }
     } catch (error) {
       console.error(error);
-
-      return Promise.reject('Impossible de charger les recettes');
+      return Promise.reject(error);
     }
   }
 
@@ -68,8 +67,7 @@ export class ReceiptsService {
       }
     } catch (error) {
       console.error(error);
-
-      return Promise.reject('Impossible de créer la recette');
+      return Promise.reject(error);
     }
   }
 
@@ -85,8 +83,7 @@ export class ReceiptsService {
       }
     } catch (error) {
       console.error(error);
-
-      return Promise.reject('Impossible de modifier la recette');
+      return Promise.reject(error);
     }
   }
 
@@ -102,8 +99,7 @@ export class ReceiptsService {
       }
     } catch (error) {
       console.error(error);
-
-      return Promise.reject('Impossible de supprimer la recette');
+      return Promise.reject(error);
     }
   }
 
