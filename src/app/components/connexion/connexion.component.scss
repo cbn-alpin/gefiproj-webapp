@@ -46,4 +46,8 @@
     color: white;
     background: $color-success;
   }
+
+  button[disabled] {
+    background: $grey;
+  }
 }

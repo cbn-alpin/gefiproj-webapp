@@ -6,6 +6,14 @@
 }
 
 .box {
+  padding: 25px;
+
+  .mb {
+    margin-bottom: 25px;
+  }
+}
+
+.box-border {
   border: solid 1px;
   padding: 25px;
 
