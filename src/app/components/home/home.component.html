@@ -1,9 +1,11 @@
 <div class="projets">
   <h1>{{ title }}</h1>
-  <span (click)="withClosed = !withClosed" class="project-not-solde">Projets non soldés</span>
-  <mat-slide-toggle [(ngModel)]="withClosed" [disabled]="disableToggleButton"
-    >Tous</mat-slide-toggle
-  >
+  <mat-slide-toggle [(ngModel)]="withClosed" [disabled]="disableToggleButton">
+    <span *ngIf="!withClosed">Cliquer pour voir aussi les projets soldés</span>
+    <span *ngIf="withClosed"
+      >Cliquer pour voir uniquement les projets non soldés</span
+    >
+  </mat-slide-toggle>
   <app-generic-table
     [title]=""
     [(options)]="options"
