@@ -1,32 +1,57 @@
 <div class="container mat-elevation-z8">
   <div class="header">
-    <img alt="LogoWhite" src="/assets/logo-white.png"/>
+    <img alt="LogoWhite" src="/assets/logo-white.png" />
   </div>
   <div class="body">
     <form class="example-form">
-    <!--Email-->
-    <mat-form-field class="example-full-width child">
-      <mat-label>Email</mat-label>
-      <input type="email" matInput [formControl]="emailFormControl" [errorStateMatcher]="emailMatcher"
-        placeholder="prenom-nom@example.com">
-      <mat-error *ngIf="emailFormControl.hasError('email') && !emailFormControl.hasError('required')">
-        Entrer une adresse mail valide
-      </mat-error>
-      <mat-error *ngIf="emailFormControl.hasError('required')">
-        <strong>L'email est requis.</strong>
-      </mat-error>
-    </mat-form-field>
-    <!--Mot de passe-->
-    <mat-form-field class="example-full-width child">
-      <mat-label>Mot de passe</mat-label>
-      <input type="password" matInput [formControl]="pwdFormControl" [errorStateMatcher]="pwdMatcher">
-      <mat-error *ngIf="pwdFormControl.hasError('required')">
-        <strong>Le mot de passe est requis.</strong>
-      </mat-error>
-    </mat-form-field>
-    <div class="action">
-      <button mat-flat-button (click)="onLogin()">Se connecter</button>
-    </div>
+      <!--Email-->
+      <mat-form-field class="example-full-width child">
+        <mat-label>Email</mat-label>
+        <input
+          type="email"
+          matInput
+          [formControl]="emailFormControl"
+          [errorStateMatcher]="emailMatcher"
+          placeholder="prenom-nom@example.com"
+        />
+        <mat-error
+          *ngIf="
+            emailFormControl.hasError('email') &&
+            !emailFormControl.hasError('required')
+          "
+        >
+          Entrer une adresse mail valide
+        </mat-error>
+        <mat-error *ngIf="emailFormControl.hasError('required')">
+          <strong>L'email est requis.</strong>
+        </mat-error>
+      </mat-form-field>
+      <!--Mot de passe-->
+      <mat-form-field class="example-full-width child">
+        <mat-label>Mot de passe</mat-label>
+        <input
+          type="password"
+          matInput
+          [formControl]="pwdFormControl"
+          [errorStateMatcher]="pwdMatcher"
+        />
+        <mat-error *ngIf="pwdFormControl.hasError('required')">
+          <strong>Le mot de passe est requis.</strong>
+        </mat-error>
+      </mat-form-field>
+      <div class="action">
+        <button
+          mat-flat-button
+          [disabled]="
+            emailFormControl.hasError('required') ||
+            emailFormControl.hasError('email') ||
+            pwdFormControl.hasError('required')
+          "
+          (click)="onLogin()"
+        >
+          Se connecter
+        </button>
+      </div>
     </form>
   </div>
 </div>
