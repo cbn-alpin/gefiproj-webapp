@@ -114,7 +114,7 @@ export class RapportsComponent implements OnInit {
   /**
    * Crée et affiche le bilan de suivi des financements v2 (sur une période).
    */
-  public async executeSuiviFinancementsVersion2(): Promise<void> {
+  public async executeSuiviFinancementsVersion2(formDirective: FormGroupDirective): Promise<void> {
     try {
       if (this.suiviFinancementsFormGroupVersion2.valid) {
         console.log('Suivi financements v2..');
@@ -127,6 +127,8 @@ export class RapportsComponent implements OnInit {
         }
 
         window.open(url, '_blank');
+        formDirective.resetForm();
+        this.suiviFinancementsFormGroupVersion2.reset();
       }
     } catch (error) {
       console.log(error);
@@ -137,7 +139,7 @@ export class RapportsComponent implements OnInit {
   /**
    * Crée et affiche un bilan financier.
    */
-  public async executeBilanFinancier(): Promise<void> {
+  public async executeBilanFinancier(formDirective: FormGroupDirective): Promise<void> {
     try {
       if (this.bilanFinancierFormGroup.valid) {
         console.log('Bilan fiancier..');
@@ -149,6 +151,8 @@ export class RapportsComponent implements OnInit {
         }
 
         window.open(url, '_blank');
+        formDirective.resetForm();
+        this.bilanFinancierFormGroup.reset()
       }
     } catch (error) {
       console.log(error);
