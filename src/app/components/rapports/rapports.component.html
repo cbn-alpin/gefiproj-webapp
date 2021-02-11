@@ -37,7 +37,7 @@
       </div>
 
       <div class="box-border">
-        <form [formGroup]="suiviFinancementsFormGroupVersion2">
+        <form [formGroup]="suiviFinancementsFormGroupVersion2" #formDirective1="ngForm">
           <div class="block">
             <div class="group">
               <div class="space-between">
@@ -144,7 +144,7 @@
                 <button
                   mat-flat-button
                   color="primary"
-                  (click)="executeSuiviFinancementsVersion2()"
+                  (click)="executeSuiviFinancementsVersion2(formDirective1)"
                 >
                   Exécuter
                 </button>
@@ -163,7 +163,7 @@
     <div class="box mat-elevation-z8">
       <h3>Suivi des bilans financiers</h3>
       <div class="box-border">
-        <form [formGroup]="bilanFinancierFormGroup">
+        <form [formGroup]="bilanFinancierFormGroup" #formDirective2="ngForm">
           <div class="block">
             <div class="group">
               <div class="space-between">
@@ -214,7 +214,7 @@
                   <button
                     mat-flat-button
                     color="primary"
-                    (click)="executeBilanFinancier()"
+                    (click)="executeBilanFinancier(formDirective2)"
                   >
                     Exécuter
                   </button>
