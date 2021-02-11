@@ -23,7 +23,9 @@
 .project-code-content{
   padding-right: 60px;
 }
-
+.project-status{
+  padding-left: 60px;
+}
 .project-line{
   width: 100%;
   margin-bottom: 20px;
@@ -45,7 +47,9 @@
 }
 
 .edit-project-container{
-  padding-left: 120px;
+  //padding-left: 120px;
+  text-align: center;
+
 }
 
 .edit-project-buttons{
@@ -72,4 +76,19 @@
 .mat-success {
   background-color: $color-success;
   color: $white;
+}
+
+.project-status-modal{
+  padding-right: 5px;
+  margin-left: -350px;
+
+}
+
+.ligne>.mat-form-field{
+  min-width: 400px;
+  padding-bottom: 10px;
+}
+
+.project-status-ligne{
+  min-width: 400px;
 }

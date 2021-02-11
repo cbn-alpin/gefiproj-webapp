@@ -23,9 +23,8 @@
       <span class="bold"> responsable : </span>{{ manager.initiales_u }}
     </span>
     <span class="project-status">
-      <mat-checkbox [checked]="projet.statut_p" [disabled]="true">
-        Soldé
-      </mat-checkbox>
+      <span *ngIf="projet.statut_p"> <span class="bold"> statut : </span> soldé</span>
+      <span *ngIf="!projet.statut_p"> <span class="bold"> statut : </span> non soldé</span>
     </span>
   </div>
   <hr class="project-line" />
