@@ -3,7 +3,7 @@ import {
   ElementRef,
   HostListener,
   Input,
-  OnInit
+  OnInit,
 } from '@angular/core';
 
 @Directive({
@@ -13,6 +13,7 @@ import {
 export class NumericDirective implements OnInit {
   @Input() decimals = 0;
   @Input() year = false;
+  @Input() negative = false;
 
   private patternNumberWithoutDecimals: string;
   private patternNumberWithDecimals: string;
@@ -36,20 +37,21 @@ export class NumericDirective implements OnInit {
   constructor(private elementRef: ElementRef) {}
 
   ngOnInit(): void {
-    this.patternNumberWithoutDecimals = '^[0-9]*$';
+    this.patternNumberWithoutDecimals =
+      '^' + (this.negative ? '-?' : '') + '[0-9]{0,13}$';
     this.patternNumberWithDecimals =
-      '^\\s*((\\d+(\\.\\d{0,' +
+      '^' +
+      (this.negative ? '-?' : '') +
+      '[0-9]{0,13}[.]?([0-9]{0,' +
       this.decimals +
-      '})?)|((\\d*(\\.\\d{1,' +
-      this.decimals +
-      '}))))\\s*$';
+      '})?$';
     this.patternYear = '^\\d{0,4}$';
   }
 
   @HostListener('keydown', ['$event'])
   onKeyDown(e: KeyboardEvent): void {
     const initialValue = this.elementRef.nativeElement.value;
-    const finalValue = initialValue + e.key;
+    const finalValue = this.getNextValue(e, initialValue);
     let resMatched;
     if (
       // Allow: Delete, Backspace, Tab, Escape, Enter, etc
@@ -66,7 +68,7 @@ export class NumericDirective implements OnInit {
       return;
     }
 
-    if (e.key === '.' || !isNaN(Number(e.key))) {
+    if (e.key === '.' || e.key === '-' || !isNaN(Number(e.key))) {
       if (this.year) {
         resMatched = finalValue.match(new RegExp(this.patternYear));
       } else if (this.decimals <= 0) {
@@ -86,5 +88,17 @@ export class NumericDirective implements OnInit {
     } else {
       e.preventDefault();
     }
+  }
+
+  private getNextValue(e: KeyboardEvent, currentValue: string): string {
+    let result = currentValue;
+    const startSel = this.elementRef.nativeElement.selectionStart;
+    const endSel = this.elementRef.nativeElement.selectionEnd;
+    result = currentValue
+      .substr(0, startSel)
+      .concat(e.key)
+      .concat(currentValue.substr(endSel));
+
+    return result;
   }
 }

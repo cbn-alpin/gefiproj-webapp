@@ -271,7 +271,12 @@
         <!-- NegativeCurrency -->
         <div class="currency">
           <mat-form-field
-            *ngIf="genericTableTypeService.isNegativeCurrency(options, columnName.code)"
+            *ngIf="
+              genericTableTypeService.isNegativeCurrency(
+                options,
+                columnName.code
+              )
+            "
             [ngClass]="{
               errors: genericTableErrorService.hasErrors(
                 element,
@@ -282,8 +287,9 @@
           >
             <input
               matInput
+              numeric
+              negative="true"
               decimals="5"
-              negativeNumeric
               [disabled]="
                 element.state === GenericTableEntityState.READ ||
                 genericTableService.disabledEditField(element, columnName) ||
