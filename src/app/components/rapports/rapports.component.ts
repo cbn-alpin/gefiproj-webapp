@@ -132,18 +132,17 @@ export class RapportsComponent implements OnInit {
    */
   public async executeSuiviFinancementsVersion1(): Promise<void> {
     try {
-      console.log('Suivi financements v1..');
       const url = await this.exportFundingsSrv.createExportV1();
       if (!url) {
-        throw new Error("La réponse ne contient pas l'URL du document");
+        throw new Error('La réponse ne contient pas l\'URL du document');
       }
 
       window.open(url, '_blank');
     } catch (error) {
-      console.log(error);
+      console.error(error);
       this.popupService.error(
         error,
-        "Impossible d'afficher le bilan de suivi des financements (v1)"
+        'Impossible d\'afficher le bilan de suivi des financements (v1)'
       );
     }
   }
@@ -154,7 +153,6 @@ export class RapportsComponent implements OnInit {
   public async executeSuiviFinancementsVersion2(): Promise<void> {
     try {
       if (this.suiviFinancementsFormGroupVersion2.valid) {
-        console.log('Suivi financements v2..');
         const minPeriod = parseInt(
           this.suiviFinancementsFormGroupVersion2.get('annee1')?.value,
           10
@@ -169,17 +167,16 @@ export class RapportsComponent implements OnInit {
           maxPeriod
         );
         if (!url) {
-          throw new Error("La réponse ne contient pas l'URL du document");
+          throw new Error('La réponse ne contient pas l\'URL du document');
         }
 
         window.open(url, '_blank');
         this.suiviFinancementsFormGroupVersion2.reset();
       }
     } catch (error) {
-      console.log(error);
       this.popupService.error(
         error,
-        "Impossible d'afficher le bilan de suivi des financements (v2)"
+        'Impossible d\'afficher le bilan de suivi des financements (v2)'
       );
     }
   }
@@ -190,7 +187,6 @@ export class RapportsComponent implements OnInit {
   public async executeBilanFinancier(): Promise<void> {
     try {
       if (this.bilanFinancierFormGroup.valid) {
-        console.log('Bilan fiancier..');
         const year = parseInt(
           this.bilanFinancierFormGroup.get('annee')?.value,
           10
@@ -198,17 +194,17 @@ export class RapportsComponent implements OnInit {
 
         const url = await this.exportReceiptsSrv.createExport(year);
         if (!url) {
-          throw new Error("La réponse ne contient pas l'URL du document");
+          throw new Error('La réponse ne contient pas l\'URL du document');
         }
 
         window.open(url, '_blank');
         this.bilanFinancierFormGroup.reset();
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       this.popupService.error(
         error,
-        "Impossible d'afficher le bilan financier (tentez de changer l'année de référence)"
+        'Impossible d\'afficher le bilan financier (tentez de changer l\'année de référence)'
       );
     }
   }

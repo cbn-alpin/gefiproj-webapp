@@ -59,7 +59,7 @@ export class ExportReceiptsService {
 
       return body?.url || null;
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return Promise.reject(error);
     } finally {
       this.spinnerSrv.hide();
