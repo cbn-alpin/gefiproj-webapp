@@ -98,6 +98,8 @@ export class GenericTableComponent<T>
 
   @Input() showEditAction = true;
 
+  @Input() disableAllActions = false;
+
   @Output() changePwdEvent: EventEmitter<
     GenericTableEntityEvent<T>
   > = new EventEmitter<GenericTableEntityEvent<T>>();
@@ -358,6 +360,7 @@ export class GenericTableComponent<T>
   public select(entity: GenericTableEntity<T>): void {
     if (
       !this.disableSelectAction &&
+      !this.disableAllActions &&
       entity.state === GenericTableEntityState.READ &&
       (!this.selectedEntity || this.selectedEntity.id !== entity.id)
     ) {
@@ -404,7 +407,7 @@ export class GenericTableComponent<T>
 
   public withHover(entity: GenericTableEntity<T>): boolean {
     return (
-      !this.disableSelectAction && entity.state === GenericTableEntityState.READ
+      !this.disableSelectAction && !this.disableAllActions && entity.state === GenericTableEntityState.READ
     );
   }
 

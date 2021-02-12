@@ -37,7 +37,7 @@
       </div>
 
       <div class="box-border">
-        <form [formGroup]="suiviFinancementsFormGroupVersion2" #formDirective1="ngForm">
+        <form [formGroup]="suiviFinancementsFormGroupVersion2">
           <div class="block">
             <div class="group">
               <div class="space-between">
@@ -53,14 +53,18 @@
                   <div class="child">
                     <!--Année 1-->
                     <mat-form-field>
-                      <mat-label>Année n</mat-label>
+                      <mat-label>Année n
+                        <mat-icon
+                          class="icon-star"
+                        >star</mat-icon>
+                      </mat-label>
                       <input
                         numeric
                         [year]="true"
                         matInput
                         [errorStateMatcher]="annee1Matcher"
                         formControlName="annee1"
-                        (change)="checkPeriod()"
+                        (ngModelChange)="checkPeriod()"
                         placeholder="Ex. 2018"
                       />
                       <mat-error
@@ -97,14 +101,18 @@
                   <div class="child">
                     <!--Année 2-->
                     <mat-form-field>
-                      <mat-label>Année N</mat-label>
+                      <mat-label>Année N
+                        <mat-icon
+                          class="icon-star"
+                        >star</mat-icon>
+                      </mat-label>
                       <input
                         numeric
                         [year]="true"
                         matInput
                         [errorStateMatcher]="annee2Matcher"
                         formControlName="annee2"
-                        (change)="checkPeriod()"
+                        (ngModelChange)="checkPeriod()"
                         placeholder="Ex. 2019"
                       />
                       <mat-error
@@ -144,7 +152,8 @@
                 <button
                   mat-flat-button
                   color="primary"
-                  (click)="executeSuiviFinancementsVersion2(formDirective1)"
+                  (click)="executeSuiviFinancementsVersion2()"
+                  [disabled]="suiviFinancementsFormGroupVersion2HasErrors()"
                 >
                   Exécuter
                 </button>
@@ -163,7 +172,7 @@
     <div class="box mat-elevation-z8">
       <h3>Suivi des bilans financiers</h3>
       <div class="box-border">
-        <form [formGroup]="bilanFinancierFormGroup" #formDirective2="ngForm">
+        <form [formGroup]="bilanFinancierFormGroup">
           <div class="block">
             <div class="group">
               <div class="space-between">
@@ -179,7 +188,11 @@
                     <!--Année-->
                     <div class="child vertical-align">
                       <mat-form-field>
-                        <mat-label>Année n</mat-label>
+                        <mat-label>Année n
+                          <mat-icon
+                            class="icon-star"
+                          >star</mat-icon>
+                        </mat-label>
                         <input
                           numeric
                           [year]="true"
@@ -214,7 +227,8 @@
                   <button
                     mat-flat-button
                     color="primary"
-                    (click)="executeBilanFinancier(formDirective2)"
+                    (click)="executeBilanFinancier()"
+                    [disabled]="bilanFinancierFormGroupHasErrors()"
                   >
                     Exécuter
                   </button>

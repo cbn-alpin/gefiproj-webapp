@@ -38,11 +38,12 @@
       [isAdministrator]="isAdministrator"
       [isResponsable]="isResponsable"
       [projectIsBalance]="isBalance"
+      [disableAllActions]="disableAllFinancementsActions"
       (selectEvent)="onSelectFinancement($event)"
       (createEvent)="onCreateFinancement($event)"
       (editEvent)="onEditFinancement($event)"
       (deleteEvent)="onDeleteFinancement($event)"
-      (startAction)="onStartAction()"
+      (startAction)="onStartFinancementAction()"
       (endAction)="onEndAction()"
     ></app-financements>
   </div>
@@ -62,11 +63,12 @@
         [selectedRecette]="selectedRecette"
         [isAdministrator]="isAdministrator"
         [projectIsBalance]="isBalance"
+        [disableAllActions]="disableAllRecettesActions"
         (selectEvent)="onSelectRecette($event)"
         (createEvent)="onCreateRecette($event)"
         (editEvent)="onEditRecette($event)"
         (deleteEvent)="onDeleteRecette($event)"
-        (startAction)="onStartAction()"
+        (startAction)="onStartRecettesAction()"
         (endAction)="onEndAction()"
       ></app-recettes>
     </div>
@@ -78,10 +80,11 @@
         [receipt]="selectedRecette"
         [isAdministrator]="isAdministrator"
         [projectIsBalance]="isBalance"
+        [disableAllActions]="disableAllMontantsAffectesActions"
         (createEvent)="onCreateMontantAffecte($event)"
         (editEvent)="onEditMontantAffecte($event)"
         (deleteEvent)="onDeleteMontantAffecte($event)"
-        (startAction)="onStartAction()"
+        (startAction)="onStartMontantsAffectesAction()"
         (endAction)="onEndAction()"
       ></app-montants-affectes>
     </div>
