@@ -173,42 +173,41 @@ export class UtilisateursComponent implements OnInit {
           type: GenericTableCellType.TEXT,
           code: this.namesMap.nom_u.code,
           sortEnabled: true,
-          isMandatory: true,
+          isMandatory: true
         },
         {
           name: this.namesMap.prenom_u.name,
           type: GenericTableCellType.TEXT,
           code: this.namesMap.prenom_u.code,
           sortEnabled: true,
-          isMandatory: true,
+          isMandatory: true
         },
         {
           name: this.namesMap.email_u.name,
           type: GenericTableCellType.TEXT,
           code: this.namesMap.email_u.code,
           sortEnabled: true,
-          isMandatory: true,
+          isMandatory: true
         },
         {
           name: this.namesMap.initiales_u.name,
           type: GenericTableCellType.TEXT,
           code: this.namesMap.initiales_u.code,
           sortEnabled: true,
-          isMandatory: true,
+          isMandatory: true
         },
         {
           name: this.namesMap.active_u.name,
           type: GenericTableCellType.BOOLEAN,
           code: this.namesMap.active_u.code,
-          sortEnabled: true,
-          isMandatory: true,
+          sortEnabled: true
         },
         {
           name: this.namesMap.role.name,
           type: GenericTableCellType.SELECTBOX,
           code: this.namesMap.role.code,
           sortEnabled: true,
-          isMandatory: true,
+          isMandatory: true
         },
       ],
       entityPlaceHolders: [],
@@ -229,7 +228,7 @@ export class UtilisateursComponent implements OnInit {
     try {
       const user = event?.entity;
       if (!user) {
-        throw new Error("L'utilisateur n'existe pas");
+        throw new Error('L\'utilisateur n\'existe pas');
       }
       if (this.validateForGenericTable(event, create)) {
         user.roles = [];
@@ -271,7 +270,7 @@ export class UtilisateursComponent implements OnInit {
     try {
       const user = event?.entity;
       if (!user) {
-        throw new Error("L'utilisateur n'existe pas");
+        throw new Error('L\'utilisateur n\'existe pas');
       }
       user.new_password = this.generatePassword();
 
@@ -297,7 +296,7 @@ export class UtilisateursComponent implements OnInit {
             user.role = user.roles[0];
             event.callBack(null);
             this.popupService.success(
-              "Le mot de passe de l'utilisateur " +
+              'Le mot de passe de l\'utilisateur ' +
               user.email_u +
               ' a été modifié.'
             );
@@ -325,7 +324,7 @@ export class UtilisateursComponent implements OnInit {
     try {
       const user = event?.entity;
       if (!user) {
-        throw new Error("L'utilisateur n'existe pas");
+        throw new Error('L\'utilisateur n\'existe pas');
       }
       if (this.validateForGenericTable(event, create)) {
         user.roles = [];
@@ -363,7 +362,7 @@ export class UtilisateursComponent implements OnInit {
     create: boolean
   ): boolean {
     if (!gtEvent) {
-      throw new Error("Le paramètre 'gtEvent' est invalide");
+      throw new Error('Le paramètre \'gtEvent\' est invalide');
     }
     try {
       const user = gtEvent?.entity;
@@ -401,28 +400,28 @@ export class UtilisateursComponent implements OnInit {
     if (!user.nom_u) {
       const error = {
         name: this.namesMap.nom_u.code,
-        message: "Le nom de l'utilisateur doit être défini.",
+        message: 'Le nom de l\'utilisateur doit être défini.',
       };
       formErrors.push(error);
     }
     if (!user.prenom_u) {
       const error = {
         name: this.namesMap.prenom_u.code,
-        message: "Le prénom de l'utilisateur doit être défini.",
+        message: 'Le prénom de l\'utilisateur doit être défini.',
       };
       formErrors.push(error);
     }
     if (!user.email_u) {
       const error = {
         name: this.namesMap.email_u.code,
-        message: "L'email de l'utilisateur doit être défini.",
+        message: 'L\'email de l\'utilisateur doit être défini.',
       };
       formErrors.push(error);
     } else {
       if (!new RegExp(emailRegex).test(user.email_u)) {
         const error = {
           name: this.namesMap.email_u.code,
-          message: "L'email de l'utilisateur n'est pas valide.",
+          message: 'L\'email de l\'utilisateur n\'est pas valide.',
         };
         formErrors.push(error);
       }
@@ -430,14 +429,14 @@ export class UtilisateursComponent implements OnInit {
     if (!user.initiales_u) {
       const error = {
         name: this.namesMap.initiales_u.code,
-        message: "Les initiales de l'utilisateur doivent être définis.",
+        message: 'Les initiales de l\'utilisateur doivent être définis.',
       };
       formErrors.push(error);
     }
     if (!user.role) {
       const error = {
         name: this.namesMap.role.code,
-        message: "Le rôle de l'utilisateur doit être défini.",
+        message: 'Le rôle de l\'utilisateur doit être défini.',
       };
       formErrors.push(error);
     }
@@ -455,7 +454,7 @@ export class UtilisateursComponent implements OnInit {
     if (!this.checkUniqueEmailCreate(user)) {
       const error = {
         name: this.namesMap.email_u.code,
-        message: "L'email saisi existe déjà !",
+        message: 'L\'email saisi existe déjà !',
       };
       formErrors.push(error);
     }
@@ -480,7 +479,7 @@ export class UtilisateursComponent implements OnInit {
     if (!this.checkUniqueEmailModify(user)) {
       const error = {
         name: this.namesMap.email_u.code,
-        message: "L'email saisi existe déjà !",
+        message: 'L\'email saisi existe déjà !',
       };
       formErrors.push(error);
     }

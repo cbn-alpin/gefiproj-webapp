@@ -432,7 +432,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
       const errord2 = {
         name: this.namesMap.date_limite_solde_f.code,
         message:
-          'format date non respecté : la date limite de solde est antérieur à la date arrêté ou commande.',
+          'format date non respecté : la date limite de solde est antérieure à la date arrêté ou commande.',
       };
       formErrors.push(errord1);
       formErrors.push(errord2);
@@ -451,7 +451,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
       const errord2 = {
         name: this.namesMap.date_solde_f.code,
         message:
-          'format date non respecté : la date de solde est antérieur à la date arrêté ou commande.',
+          'format date non respecté : la date de solde est antérieure à la date arrêté ou commande.',
       };
       formErrors.push(errord1);
       formErrors.push(errord2);

@@ -123,27 +123,27 @@ export class HomeComponent implements OnInit {
         type: GenericTableCellType.NUMBER,
         name: this.namesMap.code.name,
         sortEnabled: true,
-        isMandatory: true,
+        isMandatory: true
       },
       {
         code: this.namesMap.name.code,
         type: GenericTableCellType.TEXT,
         name: this.namesMap.name.name,
         sortEnabled: true,
-        isMandatory: true,
+        isMandatory: true
       },
       {
         code: this.namesMap.managerId.code,
         type: GenericTableCellType.SELECTBOX,
         name: this.namesMap.manager.name,
         sortEnabled: true,
-        isMandatory: true,
+        isMandatory: true
       },
       {
         code: this.namesMap.status.code,
         type: GenericTableCellType.BOOLEAN,
         name: this.namesMap.status.name,
-        sortEnabled: true,
+        sortEnabled: true
       },
     ],
     entityPlaceHolders: [],
@@ -329,7 +329,7 @@ export class HomeComponent implements OnInit {
     try {
       const project = event?.entity;
       if (!project) {
-        throw new Error("Le projet n'existe pas");
+        throw new Error('Le projet n\'existe pas');
       }
 
       this.injectManager(project);
@@ -373,7 +373,7 @@ export class HomeComponent implements OnInit {
     gtEvent: GenericTableEntityEvent<Projet>
   ): boolean {
     if (!gtEvent) {
-      throw new Error("Le paramètre 'gtEvent' est invalide");
+      throw new Error('Le paramètre \'gtEvent\' est invalide');
     }
 
     try {
@@ -530,7 +530,7 @@ export class HomeComponent implements OnInit {
     try {
       let project = event?.entity;
       if (!project) {
-        throw new Error("Le projet n'existe pas");
+        throw new Error('Le projet n\'existe pas');
       }
 
       this.injectManager(project);
@@ -595,7 +595,7 @@ export class HomeComponent implements OnInit {
     try {
       const project = event?.entity;
       if (!project) {
-        throw new Error("Le projet n'existe pas");
+        throw new Error('Le projet n\'existe pas');
       }
 
       // Vérification des RG

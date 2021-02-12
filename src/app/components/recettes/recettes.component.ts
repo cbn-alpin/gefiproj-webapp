@@ -505,7 +505,7 @@ export class RecettesComponent implements OnInit, OnChanges {
   }
 
   /**
-   * Vérifier si l'année de la recette est antérieur à celle du financement
+   * Vérifier si l'année de la recette est antérieure à celle du financement
    * @param recette : recette créée ou modifiée.
    * @private
    */
