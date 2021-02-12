@@ -209,6 +209,10 @@ export class MontantsAffectesComponent implements OnChanges {
     formErrors: GenericTableFormError[],
     create: boolean
   ): void {
+    if (montant.annee_ma && typeof montant.annee_ma === 'string') {
+      montant.annee_ma = parseInt(montant.annee_ma, 10);
+    }
+
     if (!montant.montant_ma) {
       const error = {
         name: this.namesMap.montant_ma.code,
@@ -220,10 +224,21 @@ export class MontantsAffectesComponent implements OnChanges {
     if (!montant.annee_ma) {
       const error = {
         name: this.namesMap.annee_ma.code,
-        message: 'Une année d \'affectation doit être définie.',
+        message: 'L\'année d\'affectation doit être définie.',
       };
       formErrors.push(error);
     }
+
+    const haveSame = this.montantsAffectes.findIndex(amount =>
+      amount.id_ma !== montant.id_ma && amount.annee_ma === montant.annee_ma) >= 0;
+    if (haveSame) {
+      const error = {
+        name: this.namesMap.annee_ma.code,
+        message: 'L\'année d\'affectation doit être unique.',
+      };
+      formErrors.push(error);
+    }
+
     if (create) {
       if (this.checkMontantCreate(montant)) {
         const error = {
@@ -292,11 +307,7 @@ export class MontantsAffectesComponent implements OnChanges {
         data: {
           header: 'Suppression du montant affecté',
           content:
-            'Voulez-vous supprimer ce montant affecté de montant ' +
-            montant.montant_ma +
-            ' de l\'année ' +
-            montant.annee_ma +
-            '?',
+            `Voulez-vous supprimer ce montant affecté de montant ${montant.montant_ma} de l'année ${montant.annee_ma} ?`,
           type: 'warning',
           action: {
             name: 'Confirmer',
