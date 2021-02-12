@@ -243,7 +243,7 @@ export class DepensesComponent implements OnInit {
 
   /**
    * Met à jour une dépense dans le repo interne.
-   * @param expense : version modifiée.
+   * @param expense : dépense modifiée.
    */
   private updateExpense(expense: Depense): void {
     const index = this.expenses.findIndex((p) => p.id_d === expense.id_d);
@@ -335,7 +335,7 @@ export class DepensesComponent implements OnInit {
 
   /**
    * Ajoute une dépense au repo interne.
-   * @param project : dépense à ajouter.
+   * @param expense : dépense à ajouter.
    */
   private addExpense(expense: Depense): void {
     this.expenses.push(expense);

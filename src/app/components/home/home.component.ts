@@ -355,7 +355,7 @@ export class HomeComponent implements OnInit {
 
   /**
    * Met à jour un projet dans le repo interne.
-   * @param project : version modifiée.
+   * @param project : projet modifié.
    */
   private updateProject(project: Projet): void {
     const index = this.projets.findIndex((p) => p.id_p === project.id_p);
@@ -719,10 +719,16 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  /**
+   * Détecte le début d'une action sur le tableau générique.
+   */
   public onStartAction(): void {
     this.disableToggleButton = true;
   }
 
+  /**
+   * Détecte la fin d'une action sur le tableau générique.
+   */
   public onEndAction(): void {
     this.disableToggleButton = false;
   }

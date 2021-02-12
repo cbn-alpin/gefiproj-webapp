@@ -327,7 +327,7 @@ export class FinanceursComponent implements OnInit {
 
   /**
    * Ajoute un financeur au repo interne.
-   * @param project : financeur à ajouter.
+   * @param funder : financeur à ajouter.
    */
   private addFunder(funder: Financeur): void {
     this.funders.push(funder);

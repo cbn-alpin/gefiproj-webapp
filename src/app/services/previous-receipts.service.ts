@@ -5,13 +5,12 @@ import { CrudService } from './crud.service';
 import { SpinnerService } from './spinner.service';
 
 /**
- * Gère les entrées-sorties avec l'API.
+ * Gère les les requêtes liées aux entrées-sorties.
  */
 @Injectable({
   providedIn: 'root'
 })
 export class PreviousReceiptsService {
-
   /**
    * Url relative de l'API Entrées/Sorties
    */
@@ -37,7 +36,7 @@ export class PreviousReceiptsService {
   }
 
   /**
-   * Retourne toutes les entrées/sorties.
+   * Retourne toutes les entrées/sorties depuis le serveur.
    */
   public async getAll(): Promise<EntreeSortie[]> {
     try {

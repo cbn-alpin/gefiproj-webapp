@@ -7,7 +7,7 @@ import { ProjectsService } from './projects.service';
 import { SpinnerService } from './spinner.service';
 
 /**
- * Gère les financements avec l'API.
+ * Gère les requêtes liées aux financements.
  */
 @Injectable({
   providedIn: 'root'
@@ -40,7 +40,7 @@ export class FundingsService {
   }
 
   /**
-   * Retourne les financements depuis le un projet en paramètre.
+   * Retourne les financements depuis un projet en paramètre depuis le serveur..
    * @param projetId : l'id du projet.
    */
   public async getAll(projetId: number): Promise<Financement[]> {
@@ -82,7 +82,7 @@ export class FundingsService {
   }
 
   /**
-   * Demande la suppression d'un financement
+   * Demande la suppression d'un financement au serveur.
    * @param financement : le financement à supprimer
    */
   public async delete(financement: Financement): Promise<void> {

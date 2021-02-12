@@ -12,9 +12,9 @@ import { CrudService } from './crud.service';
 })
 export class HistoricalService {
   /**
-   * Adresse relative de l'end-point.
+   * Adresse relative de de l'API.
    */
-  private endPoint = `/api/modifications `;
+  private endPoint = `/api/modifications`;
 
   /**
    * Effectue les appels au serveur d'API pour une entité donnée.
@@ -36,7 +36,7 @@ export class HistoricalService {
   }
 
   /**
-   * Retourne les financeurs depuis le serveur.
+   * Retourne l'historique depuis le serveur.
    */
   public async getAll(): Promise<Historique[]> {
     return [{ // todo à brancher sur API !

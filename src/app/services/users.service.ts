@@ -14,12 +14,12 @@ import { SpinnerService } from './spinner.service';
 })
 export class UsersService {
   /**
-   * Url relative de l'API.
+   * Url relative de l'API Utilisateurs.
    */
   private readonly endPointUser = '/api/users';
 
   /**
-   * Url relative de l'API.
+   * Url relative de l'API Authentification.
    */
   private readonly endPointAuth = `${environment.backendServer}/api/auth/register`;
 
@@ -69,15 +69,15 @@ export class UsersService {
   }
 
   /**
-   * Retourne le utilisateur demandé depuis le serveur.
-   * @param id : identifiant du utilisateur demandé.
+   * Retourne l'utilisateur demandé depuis le serveur.
+   * @param id : identifiant de l'utilisateur demandé.
    */
   public async get(id: number): Promise<Utilisateur> {
     return this.crudSrv.get(id);
   }
 
   /**
-   * Transmet le utilisateur modifié au serveur.
+   * Transmet l'utilisateur modifié au serveur.
    * @param user : utilisateur modifié.
    */
   public async modify(user: Utilisateur): Promise<Utilisateur> {
@@ -85,7 +85,7 @@ export class UsersService {
   }
 
   /**
-   * Transmet le utilisateur avec son mot de passe modifié au serveur.
+   * Transmet l'utilisateur avec son mot de passe modifié au serveur.
    * @param user : utilisateur modifié.
    */
   public async modifyPwd(user: Utilisateur): Promise<Utilisateur> {
@@ -102,7 +102,7 @@ export class UsersService {
   }
 
   /**
-   * Transmet le nouveau utilisateur au serveur.
+   * Transmet le nouvel utilisateur au serveur.
    * @param user : utilisateur à créer.
    */
   public async add(user: Utilisateur): Promise<Utilisateur> {

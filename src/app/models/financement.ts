@@ -1,5 +1,7 @@
 import { Financeur } from './financeur';
-
+/**
+ * Représente un financement.
+ */
 export interface Financement {
   id_f?: number;
   id_p: number;
@@ -18,7 +20,9 @@ export interface Financement {
   difference?: number;
   solde?: boolean;
 }
-
+/**
+ * Représente les statuts possibles d'un financement.
+ */
 export enum Statut_F {
   ANTR = 'ANTR',
   ATR = 'ATR',

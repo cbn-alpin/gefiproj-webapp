@@ -19,12 +19,18 @@ import { SortInfo } from '../../shared/components/generic-table/models/sortInfo'
 import { PopupService } from '../../shared/services/popup.service';
 import { basicSort } from '../../shared/tools/utils';
 
+/**
+ * Affiche les utilisateurs.
+ */
 @Component({
   selector: 'app-utilisateurs',
   templateUrl: './utilisateurs.component.html',
   styleUrls: ['./utilisateurs.component.scss'],
 })
 export class UtilisateursComponent implements OnInit {
+  /**
+   * Indique si la liste des utilisateurs à changer.
+   */
   @Output()
   public usersChange: EventEmitter<Utilisateur[]> = new EventEmitter<
     Utilisateur[]
@@ -93,6 +99,15 @@ export class UtilisateursComponent implements OnInit {
   public get showActions(): boolean {
     return !!this.isAdministratorGuardService.isAdministrator();
   }
+
+  /**
+   * Affiche les utilisateurs
+   * @param isAdministratorGuardService : permet de vérifier si l'utilisateur est un administrateur.
+   * @param userService : permet de charger les utilisateurs.
+   * @param popupService : affiche une information.
+   * @param dialog : affiche une boîte de dialogue.
+   * @param spinnerSrv : gère le spinner/sablier.
+   */
   constructor(
     private readonly isAdministratorGuardService: IsAdministratorGuardService,
     private readonly userService: UsersService,
@@ -100,6 +115,10 @@ export class UtilisateursComponent implements OnInit {
     private readonly dialog: MatDialog,
     private readonly spinnerSrv: SpinnerService
   ) {}
+
+  /**
+   * Initialise le composant.
+   */
   public async ngOnInit(): Promise<void> {
     try {
       this.initGenericTableOptions();
@@ -553,6 +572,9 @@ export class UtilisateursComponent implements OnInit {
     }
   }
 
+  /**
+   * Rafraichit le tableau générique.
+   */
   private refreshDataTable(): void {
     this.options = {
       ...this.options,

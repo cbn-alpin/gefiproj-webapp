@@ -6,7 +6,7 @@ import { CrudService } from './crud.service';
 import { SpinnerService } from './spinner.service';
 
 /**
- * Effectue les appels au serveur d'API pour les projets.
+ * Effectue les requêtes liées aux projets.
  */
 @Injectable({
   providedIn: 'root'

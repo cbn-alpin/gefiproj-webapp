@@ -16,6 +16,9 @@ import { SortInfo } from '../../shared/components/generic-table/models/sortInfo'
 import { PopupService } from '../../shared/services/popup.service';
 import { basicSort } from '../../shared/tools/utils';
 
+/**
+ * Affiche les entrées/sorties.
+ */
 @Component({
   selector: 'app-entrees-sorties',
   templateUrl: './entrees-sorties.component.html',
@@ -107,6 +110,14 @@ export class EntreesSortiesComponent implements OnInit {
   public get isAdministrator(): boolean {
     return !!this.adminSrv.isAdministrator();
   }
+
+  /**
+   * Affiche les dépenses.
+   * @param adminSrv : permet de vérifier si l'utilisateur est un administrateur.
+   * @param dialog : affiche une boîte de dialogue.
+   * @param popupService : affiche une information.
+   * @param previousReceiptsService : permet de charger les entrée/sorties.
+   */
   constructor(
     private adminSrv: IsAdministratorGuardService,
     private dialog: MatDialog,
@@ -114,6 +125,9 @@ export class EntreesSortiesComponent implements OnInit {
     private previousReceiptsService: PreviousReceiptsService
   ) {}
 
+  /**
+   * Initialise le composant.
+   */
   async ngOnInit(): Promise<void> {
     try {
       await this.loadData();
@@ -135,7 +149,7 @@ export class EntreesSortiesComponent implements OnInit {
     }
   }
   /**
-   * Une entrée/sortie a été ajouter au tableau.
+   * Une entrée/sortie a été créé et initialisé dans le tableau.
    * @param event : encapsule l'entrée/sortie à ajouter.
    */
   public async onCreate(
@@ -244,8 +258,8 @@ export class EntreesSortiesComponent implements OnInit {
 
   /**
    * Vérifie la validité de l'entrée/sortie en paramètre. Si l'entrée/sortie est invalide, le tableau générique en est notifié.
-   * @param gtEvent : encapsule une nouvelle l'entrée/sortie ou une l'entrée/sortie modifiée.
-   * @param create : s'il s'agit d'un create ou d'un modify
+   * @param gtEvent : encapsule une nouvelle entrée/sortie ou une entrée/sortie modifiée.
+   * @param create : s'il s'agit d'une creation ou d'une modification.
    */
   private validateForGenericTable(
     gtEvent: GenericTableEntityEvent<EntreeSortie>,
@@ -273,10 +287,10 @@ export class EntreesSortiesComponent implements OnInit {
     }
   }
   /**
-   * Vérifie le forms de l'entrée/sortie
+   * Vérifie la validité des champs d'une entrée/sortie.
    * @param inout : l'entrée/sortie à vérifier.
    * @param formErrors : liste des erreurs de validation.
-   * @param create : s'il s'agit d'un create ou d'un modify
+   * @param create : s'il s'agit d'une creation ou d'une modification.
    */
   private verifForms(
     inout: EntreeSortie,
@@ -327,9 +341,9 @@ export class EntreesSortiesComponent implements OnInit {
     }
   }
   /**
-   * Vérifie l'unicité du couple (anner_r,annee_a) d'une entrée/sortie
+   * Vérifie l'unicité du couple (anner_r,annee_a) d'une entrée/sortie.
    * @param inOut : l'entrée/sortie à vérifier.
-   * @param create : s'il s'agit d'une création ou d'une modification
+   * @param create : s'il s'agit d'une création ou d'une modification.
    */
   private verifUniqueYears(inOut: EntreeSortie, create: boolean): boolean {
     if (create) {
@@ -371,6 +385,10 @@ export class EntreesSortiesComponent implements OnInit {
     }
   }
 
+  /**
+   * Rafraichit le tableau générique
+   * @private
+   */
   private refreshDataTable(): void {
     this.options = {
       ...this.options,
@@ -388,7 +406,7 @@ export class EntreesSortiesComponent implements OnInit {
 
   /**
    * Met à jour une entrée/sortie dans le repo interne.
-   * @param inOut : version modifiée.
+   * @param inOut : entrée/sortie modifiée.
    */
   private updateInOut(inOut: EntreeSortie): void {
     const index = this.entreesSorties.findIndex((p) => p.id_es === inOut.id_es);

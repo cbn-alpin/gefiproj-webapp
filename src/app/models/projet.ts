@@ -1,7 +1,8 @@
 import { Utilisateur } from './utilisateur';
 import { SortInfo } from '../shared/components/generic-table/models/sortInfo';
-import { GenericTableEntityErrors } from '../shared/components/generic-table/models/generic-table-entity';
-
+/**
+ * Représente un projet.
+ */
 export interface Projet {
   id_p: number;
 

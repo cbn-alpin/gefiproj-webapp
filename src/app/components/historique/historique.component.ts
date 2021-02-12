@@ -29,7 +29,7 @@ interface MessageInModification {
 }
 
 /**
- * Affiche l'historique des modifications'.
+ * Affiche l'historique des modifications.
  */
 @Component({
   selector: 'app-historique',
@@ -43,12 +43,12 @@ export class HistoriqueComponent implements OnInit {
   public readonly title = 'Historique des modifications';
 
   /**
-   * Liste des dépenses.
+   * Liste des historiques de modifications.
    */
   public expenses: HistoriqueEvo[] = [];
 
   /**
-   * Mapping pour les noms des attributs d'une dépense.
+   * Mapping pour les noms des attributs d'une historique.
    */
   private readonly namesMap = {
     id: { code: 'id_h', name: 'Identifiant' },
@@ -62,7 +62,7 @@ export class HistoriqueComponent implements OnInit {
   };
 
   /**
-   * Paramètres du tableau des dépenses.
+   * Paramètres du tableau des historique.
    */
   public options: GenericTableOptions<Historique> = {
     dataSource: [],
@@ -123,7 +123,7 @@ export class HistoriqueComponent implements OnInit {
   public sortInfo: SortInfo;
 
   /**
-   * Affiche les dépenses.
+   * Affiche les historiques de modifications.
    * @param dialog : affiche une boîte de dialogue.
    * @param popupService : affiche une information.
    * @param expensesSrv : permet de charger les dépenses.
@@ -145,7 +145,7 @@ export class HistoriqueComponent implements OnInit {
   }
 
   /**
-   * Charge les dépenses.
+   * Charge les historiques de modifications.
    */
   private async loadData(): Promise<void> {
     try {

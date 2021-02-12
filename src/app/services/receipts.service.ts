@@ -6,24 +6,24 @@ import { CrudService } from './crud.service';
 import { SpinnerService } from './spinner.service';
 
 /**
- * Gère les recettes avec le serveur d'API.
+ * Gère les requêtes liées aux recettes.
  */
 @Injectable({
   providedIn: 'root',
 })
 export class ReceiptsService {
   /**
-   * End-point.
+   * Url relative de l'API.
    */
   public static readonly endPoint = '/api/receipts';
 
   /**
-   * Gère les requêtes.
+   * Effectue les appels au serveur d'API pour une entité donnée.
    */
   private readonly crudSrv: CrudService<Recette>;
 
   /**
-   * Gère les recettes avec le serveur d'API.
+   * Effectue les appels au serveur d'API pour les recettes.
    * @param http : permet d'effectuer les appels au serveur d'API.
    * @param spinnerSrv : gère le spinner/sablier.
    */
@@ -56,8 +56,8 @@ export class ReceiptsService {
   }
 
   /**
-   * Ajoute une recette.
-   * @param receipt : recette à ajouter.
+   * Transmet la nouvelle recette au serveur.
+   * @param receipt : recette à créer.
    */
   public async add(receipt: Recette): Promise<Recette> {
     const cleanRecette = this.cleanReceipt(receipt);
@@ -72,7 +72,7 @@ export class ReceiptsService {
   }
 
   /**
-   * Modifie une recette.
+   * Transmet la recette modifiée au serveur.
    * @param receipt : recette à modifier.
    */
   public async modify(receipt: Recette): Promise<Recette> {
@@ -88,7 +88,7 @@ export class ReceiptsService {
   }
 
   /**
-   * Supprime une recette.
+   * Demande la suppression de la recette au serveur.
    * @param receipt : recette à supprimer.
    */
   public async delete(receipt: Recette): Promise<void> {
@@ -104,7 +104,7 @@ export class ReceiptsService {
   }
 
   /**
-   * Supprime les propriétés supplémentaires.
+   * Supprime les propriétés non attendues par le serveur.
    * @param receipt : recette à nettoyer.
    */
   public cleanReceipt(receipt: Recette): Recette {

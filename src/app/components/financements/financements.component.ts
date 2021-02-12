@@ -34,6 +34,9 @@ import { ReceiptsService } from '../../services/receipts.service';
 import { EntityType } from '../../shared/components/generic-table/models/entity-types';
 import { Recette } from '../../models/recette';
 
+/**
+ * Affiche les financement.
+ */
 @Component({
   selector: 'app-financements',
   templateUrl: './financements.component.html',
@@ -41,31 +44,63 @@ import { Recette } from '../../models/recette';
 })
 export class FinancementsComponent implements OnInit, OnChanges {
   /**
-   * Données source du tableau générique
-   * @private
+   * Liste des financement.
    */
   @Input() public financements: Financement[];
 
+  /**
+   * Financement selectionné par défaut.
+   */
   @Input() public selectedFinancement: Financement;
 
+  /**
+   * l'ordre de tri par défaut.
+   */
   @Input() public defaultSortInfo: DefaultSortInfo;
 
+  /**
+   * Indique si l'utilisateur est un administrateur ou pas.
+   */
   @Input() public isAdministrator: boolean;
 
+  /**
+   * Indique si l'utilisateur est le responsable du projet.
+   */
   @Input() public isResponsable: boolean;
 
+  /**
+   * Indique si le projet est soldé ou pas.
+   */
   @Input() public projectIsBalance: boolean;
 
+  /**
+   * Evénement de selection sur le tableau générique.
+   */
   @Output() public selectEvent = new EventEmitter<Financement>();
 
+  /**
+   * Evénement de création sur le tableau générique.
+   */
   @Output() public createEvent = new EventEmitter<ProjetCallback>();
 
+  /**
+   * Evénement d'édition sur le tableau générique.
+   */
   @Output() public editEvent = new EventEmitter<ProjetCallback>();
 
+  /**
+   * Evénement de suppression sur le tableau générique.
+   */
   @Output() public deleteEvent = new EventEmitter<ProjetCallback>();
 
+  /**
+   * Indique le début d'une action sur le tableau générique.
+   */
   @Output() public startAction = new EventEmitter<void>();
 
+  /**
+   * Indique la fin d'une action sur le tableau générique.
+   */
   @Output() public endAction = new EventEmitter<void>();
 
   /**
@@ -80,20 +115,31 @@ export class FinancementsComponent implements OnInit, OnChanges {
 
   /**
    * Liste de financeurs
-   * @private
    */
   public financeurs: Financeur[];
 
+  /**
+   * Afficher ou pas la colonne Actions du tableau générique.
+   */
   public get showActions(): boolean {
     return (
       (this.isResponsable || this.isAdministrator) && !this.projectIsBalance
     );
   }
 
+  /**
+   * Afficher ou pas l'action de création sur le tableau générique.
+   */
   public showCreateAction = true;
 
+  /**
+   * Afficher ou pas l'action d'édition sur le tableau générique.
+   */
   public showEditAction = true;
 
+  /**
+   * Afficher ou pas l'action de suppression sur le tableau générique.
+   */
   public showDeleteAction = true;
 
   /**
@@ -134,12 +180,12 @@ export class FinancementsComponent implements OnInit, OnChanges {
   };
 
   /**
-   * Paramètres du tableau de financement.
+   * Paramètres du tableau de financements.
    */
   options: GenericTableOptions<Financement>;
 
   /**
-   * Liste de statut
+   * Liste des statuts d'un financement
    */
   private statutsFinancement: SelectBoxOption<any>[] = [
     { id: Statut_F.ANTR, label: Statut_F.ANTR },
@@ -152,16 +198,20 @@ export class FinancementsComponent implements OnInit, OnChanges {
    */
   pipe: DatePipe;
 
+  /**
+   * L'ordre du tri dans le tableau générique.
+   */
   private sortInfo: SortInfo;
 
   /**
-   * @param adminSrv
-   * @param fundingsService
-   * @param financeurService
-   * @param route
-   * @param router
-   * @param popupService
-   * @param dialog
+   * Affiche les financements
+   * @param adminSrv : permet de vérifier si l'utilisateur est un administrateur.
+   * @param fundingsService : permet de charger les financements.
+   * @param financeurService : permet de charger les financeurs.
+   * @param route : permet la navigation.
+   * @param router : permet la navigation.
+   * @param popupService : affiche une information.
+   * @param dialog : affiche une boîte de dialogue.
    */
   constructor(
     private fundingsService: FundingsService,
@@ -178,6 +228,9 @@ export class FinancementsComponent implements OnInit, OnChanges {
     }
   }
 
+  /**
+   * Initialise le composant.
+   */
   public async ngOnInit(): Promise<void> {
     try {
       this.initGenericTableOptions();
@@ -190,7 +243,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
   }
 
   /**
-   * Initialise le composant.
+   * Raffraichi le composant si on detecte des changements.
    */
   public async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (
@@ -246,7 +299,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
   }
 
   /**
-   * transforme le format du formulaire
+   * transforme le format du formulaire pour une création ou d'une modification.
    * @param financement
    */
   private transformFormat(financement: Financement): Financement {
@@ -332,7 +385,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
   }
 
   /**
-   * Vérifie le forms du financement.
+   * Vérifie la validité des champs d'un financement.
    * @param financement : financement à vérifier.
    * @param formErrors : liste des erreurs de validation.
    */
@@ -419,8 +472,8 @@ export class FinancementsComponent implements OnInit, OnChanges {
   }
 
   /**
-   * Un financements a été créé et initialisé dans le tableau.
-   * @param event : encapsule le financement à modifier.
+   * Un financement a été créé et initialisé dans le tableau.
+   * @param event : encapsule le financement à ajouter.
    */
   public async onCreate(
     event: GenericTableEntityEvent<Financement>
@@ -455,7 +508,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
 
   /**
    * Un financements a été supprimé du tableau.
-   * @param event : encapsule le financement à modifier.
+   * @param event : encapsule le financement à supprimer.
    */
   public async onDelete(
     event: GenericTableEntityEvent<Financement>
@@ -526,10 +579,16 @@ export class FinancementsComponent implements OnInit, OnChanges {
     }
   }
 
+  /**
+   * Détecte le début d'une action sur le tableau générique.
+   */
   public onStartAction(): void {
     this.startAction.emit();
   }
 
+  /**
+   * Détecte la fin d'une action sur le tableau générique.
+   */
   public onEndAction(): void {
     this.endAction.emit();
   }
@@ -631,6 +690,10 @@ export class FinancementsComponent implements OnInit, OnChanges {
     this.updateEntityTypesWithUserRight();
   }
 
+  /**
+   * Charge le financeur d'un financement.
+   * @param financement : le financement concerné.
+   */
   private loadFinanceurInFinancement(financement: Financement): Financement {
     return financement.id_financeur
       ? {
@@ -684,7 +747,9 @@ export class FinancementsComponent implements OnInit, OnChanges {
       entitySelectBoxOptions,
     });
   }
-
+  /**
+   * Rafraichit le tableau générique.
+   */
   private refreshDataTable(): void {
     this.options = {
       ...this.options,
@@ -693,9 +758,9 @@ export class FinancementsComponent implements OnInit, OnChanges {
   }
 
   /**
-   * Désactive l'édition des colonnes qui ne correspondent pas aux colonnes passé en paramètre
-   * @param entityTypes
-   * @param editableFields
+   * Désactive l'édition des colonnes qui ne correspondent pas aux colonnes passé en paramètre.
+   * @param entityTypes : les types des champs de l'entité.
+   * @param editableFields : les champs modifiables.
    * @private
    */
   private disableAllEditingFieldsExcept(
@@ -732,7 +797,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
   }
 
   /**
-   * Désactive l'édition de certaines colonnes selon les rôles de l'utilisateur
+   * Désactive l'édition de certaines colonnes selon le rôle de l'utilisateur.
    * @private
    */
   private updateEntityTypesWithUserRight(): void {
@@ -771,10 +836,10 @@ export class FinancementsComponent implements OnInit, OnChanges {
   }
 
   /**
-   * Vérifie que la date arrête du financement est inférieur ou égale à l'année de toutes ses recettes
-   * @param financement
-   * @param recettes
-   * @param formErrors
+   * Vérifie que la date arrête du financement est inférieur ou égale à l'année de toutes ses recettes.
+   * @param financement : le financement concerné.
+   * @param recettes : les recettes du financement concerné.
+   * @param formErrors : liste des erreurs de validation.
    * @private
    */
   private async checkValidityOfDateArreteFinancementWithRecetteYears(
@@ -804,8 +869,8 @@ export class FinancementsComponent implements OnInit, OnChanges {
 
   /**
    * Vérifie que le montant du financement est supérieur ou égale à la somme des montants de ses recettes
-   * @param financement
-   * @param formErrors
+   * @param financement : le financement concerné.
+   * @param formErrors : liste des erreurs de validation.
    * @private
    */
   private async checkValidityOfAmountFinancementWithRecetteAmount(
@@ -829,6 +894,11 @@ export class FinancementsComponent implements OnInit, OnChanges {
     }
   }
 
+  /**
+   * Récupère les recette d'un financement.
+   * @param financement : le financement concerné.
+   * @private
+   */
   private async getRecettesFromFinancement(
     financement: Financement
   ): Promise<Recette[]> {

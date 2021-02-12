@@ -66,7 +66,7 @@ export class AuthService {
   private jwtSrv: JwtHelperService;
 
   /**
-   * Promise gérant un rafraichissement le Token.
+   * Promise gérant un rafraichissement du Token.
    */
   private promiseRefreshToken: Promise<any> = null;
 

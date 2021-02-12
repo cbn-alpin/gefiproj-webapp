@@ -24,6 +24,9 @@ import { SortInfo } from '../../shared/components/generic-table/models/sortInfo'
 import { PopupService } from '../../shared/services/popup.service';
 import { basicSort } from '../../shared/tools/utils';
 
+/**
+ * Affiche les montants affectés.
+ */
 @Component({
   selector: 'app-montants-affectes',
   templateUrl: './montants-affectes.component.html',
@@ -40,8 +43,14 @@ export class MontantsAffectesComponent implements OnChanges {
    */
   @Input() public receipt: Recette;
 
+  /**
+   * Indique si l'utilisateur est un administrateur ou pas.
+   */
   @Input() public isAdministrator: boolean;
 
+  /**
+   * Indique si le projet est soldé ou pas.
+   */
   @Input() public projectIsBalance: boolean;
 
   /**
@@ -50,16 +59,34 @@ export class MontantsAffectesComponent implements OnChanges {
    */
   @Input() public montantsAffectes: MontantAffecte[];
 
+  /**
+   * Evénement de création sur le tableau générique.
+   */
   @Output() public createEvent = new EventEmitter<ProjetCallback>();
 
+  /**
+   * Evénement d'édition sur le tableau générique.
+   */
   @Output() public editEvent = new EventEmitter<ProjetCallback>();
 
+  /**
+   * Evénement de suppression sur le tableau générique.
+   */
   @Output() public deleteEvent = new EventEmitter<ProjetCallback>();
 
+  /**
+   * Indique le début d'une action sur le tableau générique.
+   */
   @Output() public startAction = new EventEmitter<void>();
 
+  /**
+   * Indique la fin d'une action sur le tableau générique.
+   */
   @Output() public endAction = new EventEmitter<void>();
 
+  /**
+   * Afficher ou pas la colonne Actions du tableau générique.
+   */
   public get showActions(): boolean {
     return this.isAdministrator && !this.projectIsBalance;
   }
@@ -120,8 +147,17 @@ export class MontantsAffectesComponent implements OnChanges {
    */
   pipe: DatePipe;
 
+  /**
+   * L'ordre du tri dans le tableau générique.
+   */
   private sortInfo: SortInfo;
 
+  /**
+   * Affiche les montants affectés
+   * @param amountsService : permet de charger les montants affectés.
+   * @param popupService : affiche une information.
+   * @param dialog : affiche une boîte de dialogue.
+   */
   constructor(
     private readonly amountsService: AmountsService,
     private readonly popupService: PopupService,
@@ -245,7 +281,7 @@ export class MontantsAffectesComponent implements OnChanges {
 
   /**
    * Un montant affecté a été créé et initialisé dans le tableau.
-   * @param event : encapsule le montant affecté à modifier.
+   * @param event : encapsule le montant affecté à ajouter.
    */
   async onCreate(
     event: GenericTableEntityEvent<MontantAffecte>
@@ -278,7 +314,7 @@ export class MontantsAffectesComponent implements OnChanges {
 
   /**
    * Supprimer un montant affecté avec confirmation avec un popup
-   * @param entity
+   * @param event : encapsule le montant affecté à supprimer.
    */
   async onDelete(
     event: GenericTableEntityEvent<MontantAffecte>
@@ -347,10 +383,16 @@ export class MontantsAffectesComponent implements OnChanges {
     }
   }
 
+  /**
+   * Détecte le début d'une action sur le tableau générique.
+   */
   public onStartAction(): void {
     this.startAction.emit();
   }
 
+  /**
+   * Détecte la fin d'une action sur le tableau générique.
+   */
   public onEndAction(): void {
     this.endAction.emit();
   }
@@ -381,6 +423,9 @@ export class MontantsAffectesComponent implements OnChanges {
     return Number(montant.montant_ma) + sumAmounts > this.receipt.montant_r;
   }
 
+  /**
+   * Rafraichit le tableau générique.
+   */
   private refreshDataTable(): void {
     this.options = {
       ...this.options,

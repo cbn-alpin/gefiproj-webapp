@@ -1,3 +1,6 @@
+/**
+ * Représente un financeur.
+ */
 export interface Financeur {
   id_financeur: number;
   nom_financeur: string;

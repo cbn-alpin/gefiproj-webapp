@@ -31,40 +31,87 @@ import { SortInfo } from '../../shared/components/generic-table/models/sortInfo'
 import { PopupService } from '../../shared/services/popup.service';
 import { basicSort } from '../../shared/tools/utils';
 
+/**
+ * Affiche les recettes.
+ */
 @Component({
   selector: 'app-recettes',
   templateUrl: './recettes.component.html',
   styleUrls: ['./recettes.component.scss'],
 })
 export class RecettesComponent implements OnInit, OnChanges {
+  /**
+   * Le financement lié aux recettes.
+   */
   @Input() public financement: Financement;
-
+  /**
+   * La liste des recettes.
+   */
   @Input() public recettes: Recette[];
 
+  /**
+   * La recette selectionnée.
+   */
   @Input() public selectedRecette: Recette;
 
+  /**
+   * l'ordre de tri par défaut.
+   */
   @Input() public defaultSortInfo: DefaultSortInfo;
 
+  /**
+   * Indique si l'utilisateur est un administrateur ou pas.
+   */
   @Input() public isAdministrator: boolean;
 
+  /**
+   * Indique si le projet est soldé ou pas.
+   */
   @Input() public projectIsBalance: boolean;
 
+  /**
+   * Evénement de selection sur le tableau générique.
+   */
   @Output() public selectEvent = new EventEmitter<Recette>();
 
+  /**
+   * Evénement de création sur le tableau générique.
+   */
   @Output() public createEvent = new EventEmitter<ProjetCallback>();
 
+  /**
+   * Evénement d'édition sur le tableau générique.
+   */
   @Output() public editEvent = new EventEmitter<ProjetCallback>();
 
+  /**
+   * Evénement de suppression sur le tableau générique.
+   */
   @Output() public deleteEvent = new EventEmitter<ProjetCallback>();
 
+  /**
+   * Indique le début d'une action sur le tableau générique.
+   */
   @Output() public startAction = new EventEmitter<void>();
 
+  /**
+   * Indique la fin d'une action sur le tableau générique.
+   */
   @Output() public endAction = new EventEmitter<void>();
 
+  /**
+   * Titre du tableau générique
+   */
   public title = 'Recettes';
 
+  /**
+   * Paramètres du tableau de recettes.
+   */
   public options: GenericTableOptions<Recette>;
 
+  /**
+   * Afficher ou pas la colonne Actions du tableau générique.
+   */
   public get showActions(): boolean {
     return this.isAdministrator && !this.projectIsBalance;
   }
@@ -129,8 +176,18 @@ export class RecettesComponent implements OnInit, OnChanges {
     { name: this.namesMap.MONTANT.code, value: '25 000' },
   ];
 
+  /**
+   * L'ordre du tri dans le tableau générique.
+   */
   private sortInfo: SortInfo;
 
+  /**
+   * Affiche les recettes
+   * @param receiptsService : permet de charger les recttes.
+   * @param amountsService : permet de charger les montants affectés.
+   * @param popupService : affiche une information.
+   * @param dialog : affiche une boîte de dialogue.
+   */
   constructor(
     private readonly receiptsService: ReceiptsService,
     private readonly popupService: PopupService,
@@ -138,10 +195,16 @@ export class RecettesComponent implements OnInit, OnChanges {
     private readonly amountsService: AmountsService
   ) {}
 
+  /**
+   * Initialise le composant.
+   */
   public ngOnInit(): void {
     this.initGenericTableOptions();
   }
 
+  /**
+   * Raffraichi le composant si on detecte des changements.
+   */
   public ngOnChanges(changes: SimpleChanges): void {
     if (
       changes.recettes &&
@@ -152,6 +215,10 @@ export class RecettesComponent implements OnInit, OnChanges {
     }
   }
 
+  /**
+   * Une recette a été créée et initialisé dans le tableau.
+   * @param event : encapsule la recette à ajouter.
+   */
   public async onCreate(
     event: GenericTableEntityEvent<Recette>
   ): Promise<void> {
@@ -177,6 +244,10 @@ export class RecettesComponent implements OnInit, OnChanges {
     }
   }
 
+  /**
+   * Une recette a été modifiée dans le tableau.
+   * @param event : encapsule la recette à modifier.
+   */
   public async onEdit(event: GenericTableEntityEvent<Recette>): Promise<void> {
     const recette = event.entity;
     const formErrors = await this.checkFormErrors(recette);
@@ -200,6 +271,10 @@ export class RecettesComponent implements OnInit, OnChanges {
     }
   }
 
+  /**
+   * Une recette a été supprimée dans le tableau.
+   * @param event : encapsule la recette à supprimer.
+   */
   public async onDelete(
     event: GenericTableEntityEvent<Recette>
   ): Promise<void> {
@@ -351,10 +426,16 @@ export class RecettesComponent implements OnInit, OnChanges {
     this.selectEvent.emit(genericTableEntityEvent.entity);
   }
 
+  /**
+   * Détecte le début d'une action sur le tableau générique.
+   */
   public onStartAction(): void {
     this.startAction.emit();
   }
 
+  /**
+   * Détecte la fin d'une action sur le tableau générique.
+   */
   public onEndAction(): void {
     this.endAction.emit();
   }
@@ -372,6 +453,11 @@ export class RecettesComponent implements OnInit, OnChanges {
     };
   }
 
+  /**
+   * Vérifier si l'année de la recette créée ou modifiée existe déjà.
+   * @param recette : la recette créée ou modifiée.
+   * @private
+   */
   private hasDuplicateYear(recette: Recette): boolean {
     const year = recette.annee_r;
     const years = this.recettes.map(r => +r.annee_r);
@@ -386,6 +472,11 @@ export class RecettesComponent implements OnInit, OnChanges {
     );
   }
 
+  /**
+   * Vérifier si le montant des recettes d'un financement est spérieur au montant du financement.
+   * @param recette : la recette créér ou modifiée.
+   * @private
+   */
   private hasAmountGreaterThanFounding(recette: Recette): boolean {
     const amounts = this.recettes
       .filter(r => r.id_r !== recette.id_r)
@@ -395,6 +486,11 @@ export class RecettesComponent implements OnInit, OnChanges {
     return sum > this.financement.montant_arrete_f;
   }
 
+  /**
+   * Vérifier si l'année de la recette est antérieur à celle du financement
+   * @param recette : recette créée ou modifiée.
+   * @private
+   */
   private hasYearLowerThanFounding(recette: Recette): boolean {
     const yearFounding = !!this.financement.date_arrete_f
       ? new Date(this.financement.date_arrete_f).getFullYear()
@@ -402,6 +498,9 @@ export class RecettesComponent implements OnInit, OnChanges {
     return yearFounding ? recette.annee_r < yearFounding : false;
   }
 
+  /**
+   * Rafraichit le tableau générique.
+   */
   private refreshDataTable(): void {
     this.options = {
       ...this.options,

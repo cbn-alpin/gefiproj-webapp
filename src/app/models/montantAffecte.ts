@@ -1,5 +1,7 @@
 import { Recette } from './recette';
-
+/**
+ * Représente un montant affecté.
+ */
 export interface MontantAffecte {
   id_ma?: number;
   recette?: Recette;

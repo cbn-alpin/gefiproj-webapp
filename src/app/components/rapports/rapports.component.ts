@@ -12,18 +12,29 @@ import { ErrorStateMatcher } from '@angular/material/core';
 import { ExportFundingsService } from 'src/app/services/export-fundings.service';
 import { PopupService } from 'src/app/shared/services/popup.service';
 
+/**
+ * La génération des rapports.
+ */
 @Component({
   selector: 'app-rapports',
   templateUrl: './rapports.component.html',
   styleUrls: ['./rapports.component.scss'],
 })
 export class RapportsComponent implements OnInit {
+
+  /**
+   * Pour la validation des champs de saisis.
+   */
   public suiviFinancementsFormGroupVersion2: FormGroup;
   public bilanFinancierFormGroup: FormGroup;
   public annee1Matcher: ErrorStateMatcher;
   public annee2Matcher: ErrorStateMatcher;
   public annee3Matcher: ErrorStateMatcher;
 
+  /**
+   * Pattern utilisé pour la vérification de la validité d'une année saisie.
+   * @private
+   */
   private readonly patternYear = '^\\d{4}$';
 
   /**
@@ -40,6 +51,9 @@ export class RapportsComponent implements OnInit {
     private readonly exportReceiptsSrv: ExportReceiptsService
   ) {}
 
+  /**
+   * Initialisation du composant.
+   */
   ngOnInit(): void {
     this.suiviFinancementsFormGroupVersion2 = this.fb.group({
       annee1: [
@@ -62,6 +76,9 @@ export class RapportsComponent implements OnInit {
     this.annee3Matcher = new MyErrorStateMatcher();
   }
 
+  /**
+   * Vérifie la validité de la période saisie.
+   */
   public checkPeriod(): void {
     const fbValidOrPeriodError =
       (this.suiviFinancementsFormGroupVersion2.get('annee1').valid &&

@@ -38,28 +38,58 @@ export interface DialogData {
   edited: boolean;
 }
 
+/**
+ * Affiche les détails d'un projet.
+ */
 @Component({
   selector: 'app-projet',
   templateUrl: './projet.component.html',
   styleUrls: ['./projet.component.scss'],
 })
 export class ProjetComponent implements OnInit {
+  /**
+   * La liste des finacement liés au projet.
+   */
   public financements: Financement[];
 
+  /**
+   * La liste des recettes liées aux financements liés au projet.
+   */
   public recettes: Recette[];
 
+  /**
+   * La liste des montants affectés liés aux recettes liées aux financements liés au projet.
+   */
   public montantsAffectes: MontantAffecte[];
 
+  /**
+   * Le financement selectionné.
+   */
   public selectedFinancement: Financement;
 
+  /**
+   * La recette selectionnée.
+   */
   public selectedRecette: Recette;
 
+  /**
+   * L'id du projet.
+   */
   public projetId: number;
 
+  /**
+   * Le projet.
+   */
   public projet: Projet;
 
+  /**
+   * Le tri par défaut de la liste des financements.
+   */
   public financementsDefaultSortInfo: DefaultSortInfo;
 
+  /**
+   * Le tri par défaut de la liste des recettes.
+   */
   public recettesDefaultSortInfo: DefaultSortInfo = {
     sortInfo: {
       name: 'annee_r',
@@ -73,10 +103,12 @@ export class ProjetComponent implements OnInit {
    * projet modifié
    */
   public projetToEdit: Projet;
+
   /**
    * Responsable du projet.
    */
   manager: Utilisateur;
+
   /**
    * La liste des utilisateur
    */
@@ -87,18 +119,49 @@ export class ProjetComponent implements OnInit {
    */
   public isBalance: boolean;
 
+  /**
+   * Indique si l'utilisateur connecté est le responsable du projet.
+   */
   public isResponsable: boolean;
 
+  /**
+   * Indique si le bouton d'édition du projet est désactivé ou pas.
+   */
   public disableEditProjetButton = false;
 
+  /**
+   * Indique si l'utilisateur connecté est admin ou pas.
+   */
   public get isAdministrator(): boolean {
     return !!this.adminSrv.isAdministrator();
   }
 
+  /**
+   * L'id du financement selectionné.
+   * @private
+   */
   private selectedFinancementId: number;
 
+  /**
+   * L'id de la recette selectionnée.
+   * @private
+   */
   private selectedRecetteId: number;
 
+  /**
+   * Affiche le détails d'un projet.
+   * @param adminSrv : permet de vérifier si l'utilisateur est un administrateur.
+   * @param projetsService : permet de charger les projets.
+   * @param recettesService : permet de charger les recettes.
+   * @param financementsService : permet de charger les financements.
+   * @param amountsService : permet de charger les montants affectés.
+   * @param usersSrv : permet de charger les utilisateurs.
+   * @param route : permet la navigation.
+   * @param authService : permet de vérifier les données de l'utilisateur connecté.
+   * @param router : permet la navigation.
+   * @param popupService : affiche une information.
+   * @param dialog : affiche une boîte de dialogue.
+   */
   constructor(
     public readonly dialog: MatDialog,
     private readonly adminSrv: IsAdministratorGuardService,
@@ -118,6 +181,9 @@ export class ProjetComponent implements OnInit {
     }
   }
 
+  /**
+   * Initialise le composant.
+   */
   public async ngOnInit(): Promise<void> {
     try {
       await this.loadData(this.projetId);
@@ -129,6 +195,13 @@ export class ProjetComponent implements OnInit {
     }
   }
 
+  /**
+   * Charge les détails du projet selon son id.
+   * Charge les financements du projet.
+   * Charge les recette du financement selectionné par défaut.
+   * Charge les montants affectés de la recettes selectionnée par défaut.
+   * @param projetId : l'id du projet
+   */
   public async loadData(projetId: number): Promise<Projet> {
     try {
       const promiseDetails = this.loadProjetDetailsFromProjetId(projetId);
@@ -151,6 +224,10 @@ export class ProjetComponent implements OnInit {
     }
   }
 
+  /**
+   * Gére le chargement des données lors de la sélection d'un financement.
+   * @param financement : financement selectionné.
+   */
   public async onSelectFinancement(financement: Financement): Promise<void> {
     this.selectedFinancement = financement;
     this.selectedFinancementId = financement.id_f;
@@ -166,12 +243,20 @@ export class ProjetComponent implements OnInit {
     }
   }
 
+  /**
+   * Gére le chargement des données lors de la sélection d'une recette.
+   * @param recette : recette selectionnée.
+   */
   public onSelectRecette(recette: Recette): void {
     this.selectedRecette = recette;
     this.selectedRecetteId = recette.id_r;
     this.loadMontantsFromRecetteId(recette.id_r);
   }
 
+  /**
+   * Un financements a été supprimé du tableau.
+   * @param projetCallback : encapsule le financement à supprimer.
+   */
   public onDeleteFinancement(projetCallback: ProjetCallback): void {
     if (this.selectedFinancementId === projetCallback.id) {
       const index = this.financements.findIndex(
@@ -192,6 +277,10 @@ export class ProjetComponent implements OnInit {
     this.refreshFinancements(projetCallback);
   }
 
+  /**
+   * Une recette a été supprimé du tableau.
+   * @param projetCallback : encapsule lea recette à supprimer.
+   */
   public onDeleteRecette(projetCallback: ProjetCallback): void {
     if (this.selectedRecetteId === projetCallback.id) {
       const index = this.recettes.findIndex(
@@ -209,10 +298,18 @@ export class ProjetComponent implements OnInit {
     this.refreshRecettes(projetCallback);
   }
 
+  /**
+   * Un montant affecté a été supprimé du tableau.
+   * @param projetCallback : encapsule le montant affecté à supprimer.
+   */
   public onDeleteMontantAffecte(projetCallback: ProjetCallback): void {
     this.refreshMontantsAffectes(projetCallback);
   }
 
+  /**
+   * Un financements a été ajouté au tableau.
+   * @param projetCallback : encapsule le financement à ajouter.
+   */
   public onCreateFinancement(projetCallback: ProjetCallback): void {
     this.selectedFinancementId = projetCallback.id;
     this.recettes = [];
@@ -222,28 +319,52 @@ export class ProjetComponent implements OnInit {
     this.refreshFinancements(projetCallback);
   }
 
+  /**
+   * Une recette a été ajoutée au tableau.
+   * @param projetCallback : encapsule la recette à ajouter.
+   */
   public onCreateRecette(projetCallback: ProjetCallback): void {
     this.selectedRecetteId = projetCallback.id;
     this.montantsAffectes = [];
     this.refreshRecettes(projetCallback);
   }
 
+  /**
+   * Un montant affecté a été ajoutée au tableau.
+   * @param projetCallback : encapsule le montant affecté à ajouter.
+   */
   public onCreateMontantAffecte(projetCallback: ProjetCallback): void {
     this.refreshMontantsAffectes(projetCallback);
   }
 
+  /**
+   * Un financement a été modifié.
+   * @param projetCallback : encapsule le financement à modifiér.
+   */
   public onEditFinancement(projetCallback: ProjetCallback): void {
     this.refreshFinancements(projetCallback);
   }
 
+  /**
+   * Une recette a été modifiée.
+   * @param projetCallback : encapsule la recette à modifiér.
+   */
   public onEditRecette(projetCallback: ProjetCallback): void {
     this.refreshRecettes(projetCallback);
   }
 
+  /**
+   * Un montant affecté a été modifié.
+   * @param projetCallback : encapsule le montant affecté à modifiér.
+   */
   public onEditMontantAffecte(projetCallback: ProjetCallback): void {
     this.refreshMontantsAffectes(projetCallback);
   }
 
+  /**
+   * Raffraichit le tableau des financements.
+   * @param projetCallback
+   */
   public async refreshFinancements(
     projetCallback: ProjetCallback
   ): Promise<void> {
@@ -254,6 +375,10 @@ export class ProjetComponent implements OnInit {
     }
   }
 
+  /**
+   * Raffraichit le tableau des recettes.
+   * @param projetCallback
+   */
   public async refreshRecettes(projetCallback: ProjetCallback): Promise<void> {
     await this.refreshAll();
     projetCallback?.cb(); // -> Valide la modification de la ligne du tableau
@@ -262,6 +387,10 @@ export class ProjetComponent implements OnInit {
     }
   }
 
+  /**
+   * Raffraichit le tableau des montants affectés.
+   * @param projetCallback
+   */
   public async refreshMontantsAffectes(
     projetCallback: ProjetCallback
   ): Promise<void> {
@@ -272,6 +401,10 @@ export class ProjetComponent implements OnInit {
     }
   }
 
+  /**
+   * Raffraichit tout les tableaux.
+   * @param projetCallback
+   */
   public async refreshAll(): Promise<void> {
     await this.loadFinancementsFromProjetId(this.projet.id_p);
     if (this.selectedFinancement?.id_f) {
@@ -318,6 +451,11 @@ export class ProjetComponent implements OnInit {
     );
   }
 
+  /**
+   * Charge les données du projet depuis le serveur.
+   * @param projetId : l'id du projet à charger.
+   * @private
+   */
   private async loadProjetDetailsFromProjetId(projetId: number): Promise<void> {
     try {
       if (projetId) {
@@ -332,6 +470,11 @@ export class ProjetComponent implements OnInit {
     }
   }
 
+  /**
+   * Charge tout les utilisateurs depuis le serveur.
+   * @param projetId : l'id du projet.
+   * @private
+   */
   private async loadAllUsers(projetId: number): Promise<void> {
     try {
       if (projetId) {
@@ -344,6 +487,11 @@ export class ProjetComponent implements OnInit {
     }
   }
 
+  /**
+   * Charge les financements d'un projet.
+   * @param projetId : l'id du projet.
+   * @private
+   */
   private async loadFinancementsFromProjetId(projetId: number): Promise<void> {
     try {
       if (projetId) {
@@ -363,6 +511,11 @@ export class ProjetComponent implements OnInit {
     }
   }
 
+  /**
+   * Charge les recettes d'un financement.
+   * @param financementId : l'id du financement.
+   * @private
+   */
   private async loadRecettesFromFinancementId(
     financementId: number
   ): Promise<void> {
@@ -384,6 +537,11 @@ export class ProjetComponent implements OnInit {
     }
   }
 
+  /**
+   * Charge les montants affectés d'une recette.
+   * @param recetteId : l'id de la recette.
+   * @private
+   */
   private async loadMontantsFromRecetteId(recetteId: number): Promise<void> {
     try {
       if (recetteId) {
@@ -398,12 +556,22 @@ export class ProjetComponent implements OnInit {
     }
   }
 
+  /**
+   * Vérifier si l'utilisateur connecté est le responsable du projet.
+   * @param projet ; le projet concerné.
+   * @private
+   */
   private checkIfUserHasResponsableRight(projet: Projet): void {
     this.isResponsable =
       this.authService.userAuth.id_u ===
       (projet.responsable ? projet.responsable.id_u : projet.id_u);
   }
 
+  /**
+   * Vérifier si le projet est soldé ou pas.
+   * @param projet : le projet concerné.
+   * @private
+   */
   private checkIfProjetIsBalance(projet: Projet): void {
     this.isBalance = projet.statut_p;
   }
@@ -418,14 +586,23 @@ export class ProjetComponent implements OnInit {
   //   console.log('SELECTED RECETTES ID: ', this.selectedRecetteId);
   // }
 
+  /**
+   * Détecte le début d'une action sur le tableau générique.
+   */
   public onStartAction(): void {
     this.disableEditProjetButton = true;
   }
 
+  /**
+   * Détecte la fin d'une action sur le tableau générique.
+   */
   public onEndAction(): void {
     this.disableEditProjetButton = false;
   }
 
+  /**
+   * Gère la popup de l'édition d'un projet
+   */
   public async openEditProjectDialog(): Promise<void> {
     const projectName = this.projet.nom_p;
     const edited = false;
@@ -469,6 +646,10 @@ export class ProjetComponent implements OnInit {
     }
   }
 
+  /**
+   * Envoie le projet modifié au serveur.
+   * @param editedProject : le projet à modifié.
+   */
   public async updateProjectInfos(editedProject: Projet): Promise<void> {
     editedProject.id_u = editedProject.responsable.id_u;
     try {

@@ -1,5 +1,4 @@
 import { Roles } from './roles';
-
 /**
  * Représente un utilisateur.
  */

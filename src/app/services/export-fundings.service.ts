@@ -13,6 +13,9 @@ import { SpinnerService } from './spinner.service';
   providedIn: 'root'
 })
 export class ExportFundingsService {
+  /**
+   * Url relative de l'API.
+   */
   private endPoint = `${environment.backendServer}/api/export/fundings`;
 
   /**

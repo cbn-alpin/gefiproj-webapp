@@ -6,6 +6,9 @@ import { CrudService } from './crud.service';
 import { ReceiptsService } from './receipts.service';
 import { SpinnerService } from './spinner.service';
 
+/**
+ * Gère les requêtes liées aux montants affectés.
+ */
 @Injectable({
   providedIn: 'root'
 })
@@ -16,7 +19,7 @@ export class AmountsService {
   public readonly rEndPoint = ReceiptsService.endPoint;
 
   /**
-   * Url relative de l'API.
+   * Url relative de l'API MontantsAffectés
    */
   public readonly aEndPoint = '/api/amounts';
 
@@ -41,8 +44,8 @@ export class AmountsService {
   }
 
   /**
-   * Retourne les montants affectés depuis une recette en paramètre.
-   * @param projetId : l'id du projet.
+   * Retourne les montants affectés depuis une recette en paramètre depuis le serveur.
+   * @param receiptId : l'id de la recette.
    */
   public async getAll(receiptId: number): Promise<MontantAffecte[]> {
     try {
@@ -60,8 +63,8 @@ export class AmountsService {
   }
 
   /**
-   * Retourne les financements du projet indiqué.
-   * @param project : projet ciblé.
+   * Retourne les montants affectés de la recette indiquée depuis le serveur.
+   * @param receiptId : L'id de la recette
    */
   public async getAmounts(receiptId: number): Promise<MontantAffecte[]> {
     try {
@@ -78,8 +81,8 @@ export class AmountsService {
   }
 
   /**
-   * Transmet le financement d'un projet modifié au serveur.
-   * @param financement : le financement modifié
+   * Transmet le montant affecté modifié au serveur.
+   * @param montant : le montant affecté modifié
    */
   public async modify(montant: MontantAffecte): Promise<MontantAffecte> {
     return this.crudSrv.modify(
@@ -88,8 +91,9 @@ export class AmountsService {
   }
 
   /**
-   * Transmet le financement d'un projet au serveur.
-   * @param financement : le financement à créer
+   * Transmet le montant affecté au serveur.
+   * @param montant : le montant affecté à créer
+   * @param receiptId : La recette de ce montant affecté
    */
   public async add(montant: MontantAffecte, receiptId: number): Promise<MontantAffecte> {
     try {
@@ -101,8 +105,8 @@ export class AmountsService {
   }
 
   /**
-   * Demande la suppression d'un financement
-   * @param financement : le financement à supprimer
+   * Demande la suppression d'un montant affecté au serveur.
+   * @param montant : le montant affecté à supprimer
    */
   public async delete(montant: MontantAffecte): Promise<void> {
     return this.crudSrv.delete(montant.id_ma);

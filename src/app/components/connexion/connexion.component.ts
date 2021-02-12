@@ -10,17 +10,36 @@ import { AuthService } from 'src/app/services/authentication/auth.service';
 import { UserLogin } from 'src/app/services/authentication/user-login';
 import { PopupService } from '../../shared/services/popup.service';
 
+/**
+ * Affiche la page de connexion.
+ */
 @Component({
   selector: 'app-connexion',
   templateUrl: './connexion.component.html',
   styleUrls: ['./connexion.component.scss'],
 })
 export class ConnexionComponent implements OnInit {
+  /**
+    * Pour la validation de l'email
+   */
   public emailFormControl: FormControl;
+  /**
+   * Pour la validation du password
+   */
   public pwdFormControl: FormControl;
+  /**
+   * Pour la vérification de l'email
+   */
   public emailMatcher: ErrorStateMatcher;
+  /**
+   * Pour la vérification du password
+   */
   public pwdMatcher: ErrorStateMatcher;
 
+  /**
+   * @param authSrv : permet de récupérer l'utilisateur authentifié.
+   * @param popupService : affiche une information.
+   */
   constructor(
     private readonly authSrv: AuthService,
     private readonly popupService: PopupService
@@ -39,6 +58,10 @@ export class ConnexionComponent implements OnInit {
     this.pwdMatcher = new MyErrorStateMatcher();
   }
 
+  /**
+   * Gère la connexion d'un utilisateur
+   * Vérifie la validité de l'email et du mot de passe saisis
+   */
   public async onLogin(): Promise<void> {
     try {
       if (this.emailFormControl.valid && this.pwdFormControl.valid) {
