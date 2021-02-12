@@ -419,6 +419,22 @@ export class FinancementsComponent implements OnInit, OnChanges {
       formErrors.push(error);
     }
 
+    if (financement.commentaire_admin_f && financement.commentaire_admin_f.length > 240) {
+      const error = {
+        name: this.namesMap.commentaire_admin_f.code,
+        message: 'Le commentaire administrateur est trop long.',
+      };
+      formErrors.push(error);
+    }
+
+    if (financement.commentaire_resp_f && financement.commentaire_resp_f.length > 240) {
+      const error = {
+        name: this.namesMap.commentaire_resp_f.code,
+        message: 'Le commentaire du responsable est trop long.',
+      };
+      formErrors.push(error);
+    }
+
     if (
       financement.date_arrete_f &&
       financement.date_limite_solde_f &&
