@@ -1,3 +1,5 @@
+@import "~src/style/variables";
+
 .rapports {
 }
 
@@ -54,6 +56,11 @@ mat-icon {
 
 mat-form-field {
   width: 100px;
+}
+
+.icon-star {
+  font-size: 12px !important;
+  color: $color-alert;
 }
 
 //::ng-deep {

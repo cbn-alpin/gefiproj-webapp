@@ -6,7 +6,7 @@ import {
   FormGroup,
   FormGroupDirective,
   NgForm,
-  Validators
+  Validators,
 } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
 import { ExportFundingsService } from 'src/app/services/export-fundings.service';
@@ -80,33 +80,50 @@ export class RapportsComponent implements OnInit {
    * Vérifie la validité de la période saisie.
    */
   public checkPeriod(): void {
-    const fbValidOrPeriodError =
-      (this.suiviFinancementsFormGroupVersion2.get('annee1').valid &&
-        this.suiviFinancementsFormGroupVersion2.get('annee2').valid) ||
-      this.suiviFinancementsFormGroupVersion2
-        .get('annee1')
-        .hasError('period') ||
-      this.suiviFinancementsFormGroupVersion2.get('annee2').hasError('period');
     if (
-      fbValidOrPeriodError &&
-      this.suiviFinancementsFormGroupVersion2.get('annee1').value >=
-        this.suiviFinancementsFormGroupVersion2.get('annee2').value
-    ) {
-      this.suiviFinancementsFormGroupVersion2
+      !this.suiviFinancementsFormGroupVersion2
         .get('annee1')
-        .setErrors({ period: true });
-      this.suiviFinancementsFormGroupVersion2
+        .hasError('required') &&
+      !this.suiviFinancementsFormGroupVersion2
+        .get('annee1')
+        .hasError('pattern') &&
+      !this.suiviFinancementsFormGroupVersion2
         .get('annee2')
-        .setErrors({ period: true });
-    }
-
-    if (
-      fbValidOrPeriodError &&
-      this.suiviFinancementsFormGroupVersion2.get('annee1').value <
-        this.suiviFinancementsFormGroupVersion2.get('annee2').value
+        .hasError('required') &&
+      !this.suiviFinancementsFormGroupVersion2
+        .get('annee2')
+        .hasError('pattern')
     ) {
-      this.suiviFinancementsFormGroupVersion2.get('annee1').setErrors(null);
-      this.suiviFinancementsFormGroupVersion2.get('annee2').setErrors(null);
+      const fbValidOrPeriodError =
+        (this.suiviFinancementsFormGroupVersion2.get('annee1').valid &&
+          this.suiviFinancementsFormGroupVersion2.get('annee2').valid) ||
+        this.suiviFinancementsFormGroupVersion2
+          .get('annee1')
+          .hasError('period') ||
+        this.suiviFinancementsFormGroupVersion2
+          .get('annee2')
+          .hasError('period');
+      if (
+        fbValidOrPeriodError &&
+        this.suiviFinancementsFormGroupVersion2.get('annee1').value >=
+          this.suiviFinancementsFormGroupVersion2.get('annee2').value
+      ) {
+        this.suiviFinancementsFormGroupVersion2
+          .get('annee1')
+          .setErrors({ period: true });
+        this.suiviFinancementsFormGroupVersion2
+          .get('annee2')
+          .setErrors({ period: true });
+      }
+
+      if (
+        fbValidOrPeriodError &&
+        this.suiviFinancementsFormGroupVersion2.get('annee1').value <
+          this.suiviFinancementsFormGroupVersion2.get('annee2').value
+      ) {
+        this.suiviFinancementsFormGroupVersion2.get('annee1').setErrors(null);
+        this.suiviFinancementsFormGroupVersion2.get('annee2').setErrors(null);
+      }
     }
   }
 
@@ -118,63 +135,93 @@ export class RapportsComponent implements OnInit {
       console.log('Suivi financements v1..');
       const url = await this.exportFundingsSrv.createExportV1();
       if (!url) {
-        throw new Error('La réponse ne contient pas l\'URL du document');
+        throw new Error("La réponse ne contient pas l'URL du document");
       }
 
       window.open(url, '_blank');
     } catch (error) {
       console.log(error);
-      this.popupService.error(error, 'Impossible d\'afficher le bilan de suivi des financements (v1)');
+      this.popupService.error(
+        error,
+        "Impossible d'afficher le bilan de suivi des financements (v1)"
+      );
     }
   }
 
   /**
    * Crée et affiche le bilan de suivi des financements v2 (sur une période).
    */
-  public async executeSuiviFinancementsVersion2(formDirective: FormGroupDirective): Promise<void> {
+  public async executeSuiviFinancementsVersion2(): Promise<void> {
     try {
       if (this.suiviFinancementsFormGroupVersion2.valid) {
         console.log('Suivi financements v2..');
-        const minPeriod = parseInt(this.suiviFinancementsFormGroupVersion2.get('annee1')?.value, 10);
-        const maxPeriod = parseInt(this.suiviFinancementsFormGroupVersion2.get('annee2')?.value, 10);
+        const minPeriod = parseInt(
+          this.suiviFinancementsFormGroupVersion2.get('annee1')?.value,
+          10
+        );
+        const maxPeriod = parseInt(
+          this.suiviFinancementsFormGroupVersion2.get('annee2')?.value,
+          10
+        );
 
-        const url = await this.exportFundingsSrv.createExportV2(minPeriod, maxPeriod);
+        const url = await this.exportFundingsSrv.createExportV2(
+          minPeriod,
+          maxPeriod
+        );
         if (!url) {
-          throw new Error('La réponse ne contient pas l\'URL du document');
+          throw new Error("La réponse ne contient pas l'URL du document");
         }
 
         window.open(url, '_blank');
-        formDirective.resetForm();
         this.suiviFinancementsFormGroupVersion2.reset();
       }
     } catch (error) {
       console.log(error);
-      this.popupService.error(error, 'Impossible d\'afficher le bilan de suivi des financements (v2)');
+      this.popupService.error(
+        error,
+        "Impossible d'afficher le bilan de suivi des financements (v2)"
+      );
     }
   }
 
   /**
    * Crée et affiche un bilan financier.
    */
-  public async executeBilanFinancier(formDirective: FormGroupDirective): Promise<void> {
+  public async executeBilanFinancier(): Promise<void> {
     try {
       if (this.bilanFinancierFormGroup.valid) {
         console.log('Bilan fiancier..');
-        const year = parseInt(this.bilanFinancierFormGroup.get('annee')?.value, 10);
+        const year = parseInt(
+          this.bilanFinancierFormGroup.get('annee')?.value,
+          10
+        );
 
         const url = await this.exportReceiptsSrv.createExport(year);
         if (!url) {
-          throw new Error('La réponse ne contient pas l\'URL du document');
+          throw new Error("La réponse ne contient pas l'URL du document");
         }
 
         window.open(url, '_blank');
-        formDirective.resetForm();
         this.bilanFinancierFormGroup.reset();
       }
     } catch (error) {
       console.log(error);
-      this.popupService.error(error, 'Impossible d\'afficher le bilan financier (tentez de changer l\'année de référence)');
+      this.popupService.error(
+        error,
+        "Impossible d'afficher le bilan financier (tentez de changer l'année de référence)"
+      );
     }
+  }
+
+  public suiviFinancementsFormGroupVersion2HasErrors(): boolean {
+    return (
+      !!this.suiviFinancementsFormGroupVersion2.get('annee1').errors ||
+      !!this.suiviFinancementsFormGroupVersion2.get('annee2').errors
+    );
+  }
+
+  public bilanFinancierFormGroupHasErrors(): boolean {
+    return !!this.bilanFinancierFormGroup.get('annee').errors;
   }
 }
 
@@ -184,11 +231,6 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
     control: FormControl | null,
     form: FormGroupDirective | NgForm | null
   ): boolean {
-    const isSubmitted = form && form.submitted;
-    return !!(
-      control &&
-      control.invalid &&
-      (control.dirty || control.touched || isSubmitted)
-    );
+    return !!(control && control.invalid && (control.dirty || control.touched));
   }
 }
