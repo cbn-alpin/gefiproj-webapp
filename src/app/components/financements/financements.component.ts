@@ -110,7 +110,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
     id_f: { code: 'id_f', name: 'Identifiant Financement' },
     id_p: { code: 'id_p', name: 'Identifiant Projet' },
     id_financeur: { code: 'id_financeur', name: 'Identifiant Financeur' },
-    montant_arrete_f: { code: 'montant_arrete_f', name: 'Montant Arreté' },
+    montant_arrete_f: { code: 'montant_arrete_f', name: 'Montant arreté' },
     date_arrete_f: { code: 'date_arrete_f', name: 'Date arreté ou commande' },
     date_limite_solde_f: {
       code: 'date_limite_solde_f',
@@ -442,7 +442,7 @@ export class FinancementsComponent implements OnInit, OnChanges {
         const projetCallback: ProjetCallback = {
           cb: event.callBack,
           id: createdFinancement.id_f,
-          message: 'Le financement a été crée',
+          message: 'Le financement a été créé',
         };
         this.createEvent.emit(projetCallback);
       }

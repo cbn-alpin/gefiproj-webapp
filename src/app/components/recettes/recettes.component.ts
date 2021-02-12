@@ -120,15 +120,6 @@ export class RecettesComponent implements OnInit, OnChanges {
     },
   ];
 
-  /**
-   * Tableau des placeholders
-   * @private
-   */
-  private entityPlaceHolders: EntityPlaceholder[] = [
-    { name: this.namesMap.ANNEE.code, value: '2019' },
-    { name: this.namesMap.MONTANT.code, value: '25 000' },
-  ];
-
   private sortInfo: SortInfo;
 
   constructor(
@@ -293,15 +284,20 @@ export class RecettesComponent implements OnInit, OnChanges {
   ): GenericTableFormError[] {
     const year = recette.annee_r;
     let msg = '';
+    const min = 2010;
+    const max = new Date(Date.now()).getFullYear() + 20;
+
     if (!year) {
       msg = 'Année recette requise';
     } else if (!/^(\d{4})$/.test(String(year))) {
       msg = 'Format année non respecté';
     } else if (this.hasDuplicateYear(recette)) {
       msg = 'Année doit être unique';
+    } else if (!this.isConsistent(recette, min, max)) {
+      msg = `L'Année doit être comprise dans la plage [${min};${max}]`;
     } else if (this.hasYearLowerThanFounding(recette)) {
       msg =
-        'Année de la recette doit être postérieur ou égale à la date de commande ou darrêté du financement';
+        'Année de la recette doit être postérieure ou égale à la date de commande ou d\'arrêté du financement';
     }
     if (msg !== '') {
       genericTableFormErrors = genericTableFormErrors.concat({
@@ -365,11 +361,22 @@ export class RecettesComponent implements OnInit, OnChanges {
       defaultEntity: this.defaultEntity,
       entitySelectBoxOptions: [],
       entityTypes: this.entityTypes,
-      entityPlaceHolders: this.entityPlaceHolders,
+      entityPlaceHolders: null,
       sortName: this.defaultSortInfo?.headerName,
       sortDirection: this.defaultSortInfo?.sortInfo?.direction,
       idPropertyName: this.namesMap.ID.code,
     };
+  }
+
+  /**
+   * Vérifie que l'année est définie sur une période cohérente.
+   * @param recette : recette à vérifiée.
+   * @param min : date min.
+   * @param max : date max.
+   */
+  private isConsistent(recette: Recette, min = 2010, max = 2100): boolean {
+    const year = recette.annee_r;
+    return year >= min && year <= max;
   }
 
   private hasDuplicateYear(recette: Recette): boolean {

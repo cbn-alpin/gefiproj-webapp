@@ -498,7 +498,7 @@ export class HomeComponent implements OnInit {
     const date = new Date(Date.now());
     const year = date.getFullYear() % 100;
     const min = Math.max(10, year - 10); // Démarrage en 2010
-    const max = year + 10;
+    const max = year + 20;
     if (codeVal / 1000 < min || Math.floor(codeVal / 1000) > max) {
       const error = {
         name: this.namesMap.code.code,

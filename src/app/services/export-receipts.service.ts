@@ -34,9 +34,9 @@ export class ExportReceiptsService {
       this.spinnerSrv.show();
 
       const min = 2010;
-      const max = new Date(Date.now()).getFullYear() + 20;
+      const max = new Date(Date.now()).getFullYear() + 30;
       if (isNaN(year) || year < min || year > max) {
-        throw new Error('La date définie est incorrecte');
+        throw new Error(`La date définie est incorrecte (plage autorisée : [${min};${max}])`);
       }
 
       const params: ExportReceiptsRequest = {
