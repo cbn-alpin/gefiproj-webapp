@@ -518,7 +518,7 @@ export class EditProjectDialogComponent implements OnInit {
   }
   public get max(): number {
     const date = new Date(Date.now());
-    return (date.getFullYear() % 100) + 10;
+    return (date.getFullYear() % 100) + 20;
   }
 
   constructor(

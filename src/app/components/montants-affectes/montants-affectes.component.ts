@@ -229,6 +229,22 @@ export class MontantsAffectesComponent implements OnChanges {
       formErrors.push(error);
     }
 
+    const min = 2010;
+    const max = new Date(Date.now()).getFullYear() + 20;
+    if (
+      montant.annee_ma < min ||
+      montant.annee_ma > max
+    ) {
+      const error = {
+        name: this.namesMap.annee_ma.code,
+        message: `L'année d\'affectation doit être un entier supérieure à ${
+          min - 1
+        } et inférieure à ${max + 1}`,
+      };
+
+      formErrors.push(error);
+    }
+
     const haveSame = this.montantsAffectes.findIndex(amount =>
       amount.id_ma !== montant.id_ma && amount.annee_ma === montant.annee_ma) >= 0;
     if (haveSame) {
