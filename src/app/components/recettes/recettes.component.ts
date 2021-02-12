@@ -69,6 +69,8 @@ export class RecettesComponent implements OnInit, OnChanges {
    */
   @Input() public projectIsBalance: boolean;
 
+  @Input() public disableAllActions = false;
+
   /**
    * Evénement de selection sur le tableau générique.
    */

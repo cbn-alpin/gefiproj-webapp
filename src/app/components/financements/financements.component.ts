@@ -73,6 +73,8 @@ export class FinancementsComponent implements OnInit, OnChanges {
    */
   @Input() public projectIsBalance: boolean;
 
+  @Input() public disableAllActions = false;
+
   /**
    * Evénement de selection sur le tableau générique.
    */

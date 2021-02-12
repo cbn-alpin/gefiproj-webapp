@@ -24,7 +24,7 @@
         mat-sort-header
         [disabled]="
           genericTableService.isSortDisabled(options, columnName.code) ||
-          disableSortAction
+          disableSortAction || disableAllActions
         "
       >
         {{ columnName.name }}
@@ -390,10 +390,10 @@
           (click)="onCreate()"
           [disabled]="
             genericTableService.canCreate(genericTableEntities) ||
-            disableCreateAction
+            disableCreateAction || disableAllActions
           "
           [matTooltip]="'Créer'"
-          [matTooltipDisabled]="disableCreateAction"
+          [matTooltipDisabled]="disableCreateAction || disableAllActions"
         >
           <mat-icon>add_circle</mat-icon>
         </button>
@@ -408,8 +408,8 @@
               mat-icon-button
               (click)="onNavigate(element)"
               [matTooltip]="'Détails'"
-              [disabled]="disableNavigateAction"
-              [matTooltipDisabled]="disableNavigateAction"
+              [disabled]="disableNavigateAction || disableAllActions"
+              [matTooltipDisabled]="disableNavigateAction || disableAllActions"
             >
               <mat-icon>open_in_browser</mat-icon>
             </button>
@@ -421,8 +421,8 @@
               mat-icon-button
               (click)="onEdit($event, element)"
               [matTooltip]="'Modifier'"
-              [disabled]="disableEditAction"
-              [matTooltipDisabled]="disableEditAction"
+              [disabled]="disableEditAction || disableAllActions"
+              [matTooltipDisabled]="disableEditAction || disableAllActions"
             >
               <mat-icon>edit</mat-icon>
             </button>
@@ -432,8 +432,8 @@
               mat-icon-button
               (click)="delete($event, element)"
               [matTooltip]="'Supprimer'"
-              [disabled]="disableDeleteAction"
-              [matTooltipDisabled]="disableDeleteAction"
+              [disabled]="disableDeleteAction || disableAllActions"
+              [matTooltipDisabled]="disableDeleteAction || disableAllActions"
             >
               <mat-icon>delete</mat-icon>
             </button>
@@ -442,9 +442,9 @@
               *ngIf="!isReadOnly && showChangePwdAction"
               mat-icon-button
               (click)="changePwd($event, element)"
-              [disabled]="disablePwdAction"
+              [disabled]="disablePwdAction || disableAllActions"
               [matTooltip]="'Changer mot de passe'"
-              [matTooltipDisabled]="disablePwdAction"
+              [matTooltipDisabled]="disablePwdAction || disableAllActions"
             >
               <mat-icon>vpn_key</mat-icon>
             </button>

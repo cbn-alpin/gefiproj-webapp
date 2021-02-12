@@ -53,6 +53,8 @@ export class MontantsAffectesComponent implements OnChanges {
    */
   @Input() public projectIsBalance: boolean;
 
+  @Input() public disableAllActions = false;
+
   /**
    * Données source du tableau générique
    * @private

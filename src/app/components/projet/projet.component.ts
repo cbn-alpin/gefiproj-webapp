@@ -137,6 +137,12 @@ export class ProjetComponent implements OnInit {
     return !!this.adminSrv.isAdministrator();
   }
 
+  public disableAllFinancementsActions = false;
+
+  public disableAllRecettesActions = false;
+
+  public disableAllMontantsAffectesActions = false;
+
   /**
    * L'id du financement selectionné.
    * @private
@@ -606,11 +612,22 @@ export class ProjetComponent implements OnInit {
   //   console.log('SELECTED RECETTES ID: ', this.selectedRecetteId);
   // }
 
-  /**
-   * Détecte le début d'une action sur le tableau générique.
-   */
-  public onStartAction(): void {
+  public onStartFinancementAction(): void {
     this.disableEditProjetButton = true;
+    this.disableAllRecettesActions = true;
+    this.disableAllMontantsAffectesActions = true;
+  }
+
+  public onStartRecettesAction(): void {
+    this.disableEditProjetButton = true;
+    this.disableAllFinancementsActions = true;
+    this.disableAllMontantsAffectesActions = true;
+  }
+
+  public onStartMontantsAffectesAction(): void {
+    this.disableEditProjetButton = true;
+    this.disableAllRecettesActions = true;
+    this.disableAllFinancementsActions = true;
   }
 
   /**
@@ -618,6 +635,9 @@ export class ProjetComponent implements OnInit {
    */
   public onEndAction(): void {
     this.disableEditProjetButton = false;
+    this.disableAllRecettesActions = false;
+    this.disableAllFinancementsActions = false;
+    this.disableAllMontantsAffectesActions = false;
   }
 
   /**
