@@ -36,7 +36,7 @@ export class MontantsAffectesComponent implements OnChanges {
   /**
    * Titre du tableau générique
    */
-  readonly title = 'Montants Affectés';
+  readonly title = 'Montants affectés';
 
   /**
    * Recette selectionnée
@@ -106,7 +106,7 @@ export class MontantsAffectesComponent implements OnChanges {
    * Mapping pour les noms des attributs d'un montant affecté.
    */
   private readonly namesMap = {
-    id_ma: { code: 'id_ma', name: 'Identifiant Montant Affecté' },
+    id_ma: { code: 'id_ma', name: 'Identifiant Montant affecté' },
     recette: { code: 'id_r', name: 'Recette' },
     montant_ma: { code: 'montant_ma', name: 'Montant' },
     annee_ma: { code: 'annee_ma', name: 'Année d\'affectation' },
@@ -245,6 +245,10 @@ export class MontantsAffectesComponent implements OnChanges {
     formErrors: GenericTableFormError[],
     create: boolean
   ): void {
+    if (montant.annee_ma && typeof montant.annee_ma === 'string') {
+      montant.annee_ma = parseInt(montant.annee_ma, 10);
+    }
+
     if (!montant.montant_ma) {
       const error = {
         name: this.namesMap.montant_ma.code,
@@ -256,10 +260,37 @@ export class MontantsAffectesComponent implements OnChanges {
     if (!montant.annee_ma) {
       const error = {
         name: this.namesMap.annee_ma.code,
-        message: 'Une année d \'affectation doit être définie.',
+        message: 'L\'année d\'affectation doit être définie.',
       };
       formErrors.push(error);
     }
+
+    const min = 2010;
+    const max = new Date(Date.now()).getFullYear() + 20;
+    if (
+      montant.annee_ma < min ||
+      montant.annee_ma > max
+    ) {
+      const error = {
+        name: this.namesMap.annee_ma.code,
+        message: `L'année d\'affectation doit être un entier supérieure à ${
+          min - 1
+        } et inférieure à ${max + 1}`,
+      };
+
+      formErrors.push(error);
+    }
+
+    const haveSame = this.montantsAffectes.findIndex(amount =>
+      amount.id_ma !== montant.id_ma && amount.annee_ma === montant.annee_ma) >= 0;
+    if (haveSame) {
+      const error = {
+        name: this.namesMap.annee_ma.code,
+        message: 'L\'année d\'affectation doit être unique.',
+      };
+      formErrors.push(error);
+    }
+
     if (create) {
       if (this.checkMontantCreate(montant)) {
         const error = {
@@ -328,11 +359,7 @@ export class MontantsAffectesComponent implements OnChanges {
         data: {
           header: 'Suppression du montant affecté',
           content:
-            'Voulez-vous supprimer ce montant affecté de montant ' +
-            montant.montant_ma +
-            ' de l\'année ' +
-            montant.annee_ma +
-            '?',
+            `Voulez-vous supprimer ce montant affecté de montant ${montant.montant_ma} de l'année ${montant.annee_ma} ?`,
           type: 'warning',
           action: {
             name: 'Confirmer',

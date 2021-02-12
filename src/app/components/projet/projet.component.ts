@@ -1,3 +1,4 @@
+import { HttpParams } from '@angular/common/http';
 import { Component, Inject, OnInit } from '@angular/core';
 import {
   FormBuilder,
@@ -207,6 +208,7 @@ export class ProjetComponent implements OnInit {
       const promiseDetails = this.loadProjetDetailsFromProjetId(projetId);
       const promiseFinancement = this.loadFinancementsFromProjetId(projetId);
       await Promise.all([promiseDetails, promiseFinancement]);
+
       this.projetToEdit = getDeepCopy(this.projet);
       this.manager = this.projet.responsable;
       if (this.financements && this.financements.length > 0) {
@@ -465,8 +467,8 @@ export class ProjetComponent implements OnInit {
       }
     } catch (error) {
       console.error(error);
-
       this.popupService.error(error);
+      return Promise.reject(error);
     }
   }
 
@@ -478,12 +480,30 @@ export class ProjetComponent implements OnInit {
   private async loadAllUsers(projetId: number): Promise<void> {
     try {
       if (projetId) {
-        this.managers = await this.usersSrv.getAll();
+        let params = new HttpParams();
+        params = params.append('is_responsable_or_active', 'true');
+        this.managers = (await this.usersSrv.getAll(params)) // RG : tous les utilisateurs actifs peuvent être responsable projets
+          .sort((m1, m2) => this.compareManagers(m1, m2));
       }
     } catch (error) {
       console.error(error);
 
       this.popupService.error(error);
+    }
+  }
+
+  /**
+   * Compare les utilisateurs en paramètres, via leurs initiales.
+   * @param user1 : un utilisateur.
+   * @param user2 : un utilisateur.
+   */
+  private compareManagers(user1: Utilisateur, user2: Utilisateur): number {
+    if (user1.initiales_u < user2.initiales_u) {
+      return -1;
+    } else if (user1.initiales_u > user2.initiales_u) {
+      return 1;
+    } else {
+      return 0;
     }
   }
 
@@ -506,8 +526,8 @@ export class ProjetComponent implements OnInit {
       }
     } catch (error) {
       console.error(error);
-
       this.popupService.error(error);
+      return Promise.reject(error);
     }
   }
 
@@ -643,6 +663,7 @@ export class ProjetComponent implements OnInit {
       this.checkIfProjetIsBalance(this.projet);
     } catch (error) {
       console.error(error);
+      this.popupService.error(error);
     }
   }
 
@@ -658,11 +679,7 @@ export class ProjetComponent implements OnInit {
       this.popupService.success('Le projet a bien été modifié ! ');
     } catch (error) {
       console.error(error);
-      for (const err of error.error.errors) {
-        this.popupService.error(
-          'Impossible de modifier le projet : ' + err.message
-        );
-      }
+      this.popupService.error(error);
     }
   }
 }
@@ -682,7 +699,7 @@ export class EditProjectDialogComponent implements OnInit {
   }
   public get max(): number {
     const date = new Date(Date.now());
-    return (date.getFullYear() % 100) + 10;
+    return (date.getFullYear() % 100) + 20;
   }
 
   constructor(

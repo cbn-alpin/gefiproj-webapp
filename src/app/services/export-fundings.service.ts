@@ -70,9 +70,9 @@ export class ExportFundingsService {
       this.spinnerSrv.show();
 
       const min = 2010;
-      const max = (minPeriod || 0) + 100;
+      const max = Math.max((minPeriod || 0) + 1, min) + 30;
       if (isNaN(minPeriod) || isNaN(maxPeriod) || minPeriod > maxPeriod || minPeriod < min || maxPeriod > max) {
-        throw new Error('La période définie est incorrecte');
+        throw new Error(`La période définie est incorrecte (plage autorisée : [${min};${max}])`);
       }
 
       const params: ExportFundingsRequest = {

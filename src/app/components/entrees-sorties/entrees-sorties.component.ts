@@ -297,10 +297,14 @@ export class EntreesSortiesComponent implements OnInit {
     formErrors: GenericTableFormError[],
     create: boolean
   ): void {
+    const minYearForReceipt = 2000;
+    const minYearForAmount = 2010;
+    const max = new Date(Date.now()).getFullYear() + 20;
+
     if (!inout.annee_affectation_es) {
       const error = {
         name: this.namesMap.annee_affectation_es.code,
-        message: 'Une année d \'affectation doit être définie.',
+        message: 'Une année d\'affectation doit être définie.',
       };
       formErrors.push(error);
     }
@@ -308,6 +312,20 @@ export class EntreesSortiesComponent implements OnInit {
       const error = {
         name: this.namesMap.annee_recette_es.code,
         message: 'Une année de recette doit être définie.',
+      };
+      formErrors.push(error);
+    }
+    if (inout.annee_affectation_es < minYearForReceipt || inout.annee_affectation_es > max) {
+      const error = {
+        name: this.namesMap.annee_affectation_es.code,
+        message: `Une année d'affectation doit être comprise dans la période [${minYearForAmount};${max}].`,
+      };
+      formErrors.push(error);
+    }
+    if (inout.annee_recette_es < minYearForReceipt || inout.annee_recette_es > max) {
+      const error = {
+        name: this.namesMap.annee_recette_es.code,
+        message: `Une année de recette doit être comprise dans la période [${minYearForReceipt};${max}].`,
       };
       formErrors.push(error);
     }
@@ -347,8 +365,7 @@ export class EntreesSortiesComponent implements OnInit {
    */
   private verifUniqueYears(inOut: EntreeSortie, create: boolean): boolean {
     if (create) {
-      const index = this.entreesSorties.findIndex(
-        (p) =>
+      const index = this.entreesSorties.findIndex(p =>
           p.annee_affectation_es === inOut.annee_affectation_es &&
           p.annee_recette_es === inOut.annee_recette_es
       );

@@ -169,7 +169,7 @@ export class RapportsComponent implements OnInit {
 
         window.open(url, '_blank');
         formDirective.resetForm();
-        this.bilanFinancierFormGroup.reset()
+        this.bilanFinancierFormGroup.reset();
       }
     } catch (error) {
       console.log(error);

@@ -139,7 +139,7 @@ export class FinanceursComponent implements OnInit {
         this.addFunder(funder);
         this.refreshDataTable(); // Pour le trie
         this.popupService.success(
-          `Le financeur \'${funder.nom_financeur}\' a été cré.`
+          `Le financeur \'${funder.nom_financeur}\' a été créé.`
         );
       }
     } catch (error) {
