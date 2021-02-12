@@ -33,7 +33,7 @@ export class MontantsAffectesComponent implements OnChanges {
   /**
    * Titre du tableau générique
    */
-  readonly title = 'Montants Affectés';
+  readonly title = 'Montants affectés';
 
   /**
    * Recette selectionnée
@@ -79,7 +79,7 @@ export class MontantsAffectesComponent implements OnChanges {
    * Mapping pour les noms des attributs d'un montant affecté.
    */
   private readonly namesMap = {
-    id_ma: { code: 'id_ma', name: 'Identifiant Montant Affecté' },
+    id_ma: { code: 'id_ma', name: 'Identifiant Montant affecté' },
     recette: { code: 'id_r', name: 'Recette' },
     montant_ma: { code: 'montant_ma', name: 'Montant' },
     annee_ma: { code: 'annee_ma', name: 'Année d\'affectation' },

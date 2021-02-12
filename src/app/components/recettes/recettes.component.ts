@@ -301,7 +301,7 @@ export class RecettesComponent implements OnInit, OnChanges {
       msg = 'Année doit être unique';
     } else if (this.hasYearLowerThanFounding(recette)) {
       msg =
-        'Année de la recette doit être postérieur ou égale à la date de commande ou darrêté du financement';
+        'Année de la recette doit être postérieure ou égale à la date de commande ou d\'arrêté du financement';
     }
     if (msg !== '') {
       genericTableFormErrors = genericTableFormErrors.concat({
