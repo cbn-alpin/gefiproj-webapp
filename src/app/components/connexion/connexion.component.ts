@@ -20,7 +20,7 @@ import { PopupService } from '../../shared/services/popup.service';
 })
 export class ConnexionComponent implements OnInit {
   /**
-    * Pour la validation de l'email
+   * Pour la validation de l'email
    */
   public emailFormControl: FormControl;
   /**
@@ -74,7 +74,7 @@ export class ConnexionComponent implements OnInit {
         const isAuth = this.authSrv.isAuthenticated();
         if (!isAuth) {
           this.popupService.error(
-            "Ce compte n'est pas valide : utilisateur inactif ou sans rôle."
+            'Ce compte n\'est pas valide : utilisateur inactif ou sans rôle.'
           );
         }
       }

@@ -84,7 +84,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.user$ = this.auth.userObservable;
     this.subscription = this.user$.subscribe((user) => {
       this.user = user;
-      //Vérifier si l'utilisateur est admin ou pas pour cacher les menus non visibles pour le consultant.
+      // Vérifier si l'utilisateur est admin ou pas pour cacher les menus non visibles pour le consultant.
       if (user) {
         if (this.isAdministrator) {
           const menu = {

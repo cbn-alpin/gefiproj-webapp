@@ -43,7 +43,7 @@ export class FinanceursComponent implements OnInit {
     name: { code: 'nom_financeur', name: 'Nom' },
     ref: {
       code: 'ref_arret_attributif_financeur',
-      name: "Ref de l'arrêté attributif",
+      name: 'Ref de l\'arrêté attributif',
     },
   };
 
@@ -129,7 +129,7 @@ export class FinanceursComponent implements OnInit {
     try {
       let funder = event?.entity;
       if (!funder) {
-        throw new Error("Le financeur n'existe pas");
+        throw new Error('Le financeur n\'existe pas');
       }
 
       if (this.validateForGenericTable(event)) {
@@ -158,7 +158,7 @@ export class FinanceursComponent implements OnInit {
     try {
       let funder = event?.entity;
       if (!funder) {
-        throw new Error("Le financeur n'existe pas");
+        throw new Error('Le financeur n\'existe pas');
       }
 
       if (this.validateForGenericTable(event)) {
@@ -187,7 +187,7 @@ export class FinanceursComponent implements OnInit {
     try {
       const funder = event?.entity;
       if (!funder) {
-        throw new Error("Le financeur n'existe pas");
+        throw new Error('Le financeur n\'existe pas');
       }
 
       // RG
@@ -278,7 +278,7 @@ export class FinanceursComponent implements OnInit {
     gtEvent: GenericTableEntityEvent<Financeur>
   ): boolean {
     if (!gtEvent) {
-      throw new Error("Le paramètre 'gtEvent' est invalide");
+      throw new Error('Le paramètre \'gtEvent\' est invalide');
     }
 
     try {
