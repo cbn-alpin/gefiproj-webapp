@@ -284,6 +284,15 @@ export class RecettesComptablesComponent implements OnInit {
         accounting.montant_rc = parseFloat(accounting.montant_rc as string);
       }
 
+      if (!accounting.annee_rc || isNaN(accounting.annee_rc)) {
+        const error = {
+          name: this.namesMap.year.code,
+          message: 'L\'année doit être définie'
+        };
+
+        formErrors.push(error);
+      }
+
       const min = 2010;
       const max = new Date(Date.now()).getFullYear() + 20;
       if (
