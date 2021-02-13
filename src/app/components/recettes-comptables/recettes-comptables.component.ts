@@ -296,7 +296,6 @@ export class RecettesComptablesComponent implements OnInit {
       const min = 2010;
       const max = new Date(Date.now()).getFullYear() + 20;
       if (
-        isNaN(accounting.annee_rc) ||
         accounting.annee_rc < min ||
         accounting.annee_rc > max
       ) {
