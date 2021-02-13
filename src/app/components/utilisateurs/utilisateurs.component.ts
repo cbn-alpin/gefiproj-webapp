@@ -253,6 +253,9 @@ export class UtilisateursComponent implements OnInit {
         });
         dialogRef.afterClosed().subscribe(async (result) => {});
         this.refreshDataTable();
+        this.popupService.success(
+          `L'utilisateur '${user.initiales_u}' a été créé.`
+        );
       }
     } catch (error) {
       event?.callBack({
@@ -335,6 +338,9 @@ export class UtilisateursComponent implements OnInit {
         event.callBack(null);
         this.modify(modifiedUser);
         this.refreshDataTable();
+        this.popupService.success(
+          `L'utilisateur '${user.initiales_u}' a été modifié.`
+        );
       }
     } catch (error) {
       event?.callBack({
@@ -465,6 +471,15 @@ export class UtilisateursComponent implements OnInit {
       };
       formErrors.push(error);
     }
+
+    const lengthInitiales = (user?.initiales_u || '').length;
+    if (lengthInitiales < 2 || lengthInitiales > 3) {
+      const error = {
+        name: this.namesMap.initiales_u.code,
+        message: 'Les initiales doivent faire 2 ou 3 caractères',
+      };
+      formErrors.push(error);
+    }
   }
   /**
    * La vérification des champs du tableau lors d'une modification
@@ -487,6 +502,15 @@ export class UtilisateursComponent implements OnInit {
       const error = {
         name: this.namesMap.initiales_u.code,
         message: 'Les initiales saisis existent déjà !',
+      };
+      formErrors.push(error);
+    }
+
+    const lengthInitiales = (user?.initiales_u || '').length;
+    if (lengthInitiales < 2 || lengthInitiales > 3) {
+      const error = {
+        name: this.namesMap.initiales_u.code,
+        message: 'Les initiales doivent faire 2 ou 3 caractères',
       };
       formErrors.push(error);
     }
