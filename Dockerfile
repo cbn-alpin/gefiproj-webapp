@@ -11,5 +11,6 @@ COPY . ./
 RUN ng build --prod
 
 ### STAGE 2: Run ###
-FROM nginx:1.17.1-alpine
-COPY --from=builder /opt/web/dist/cbnaFront /usr/share/nginx/html
+FROM socialengine/nginx-spa:latest
+COPY --from=builder /opt/web/dist/cbnaFront /app
+RUN chmod -R 777 /app
