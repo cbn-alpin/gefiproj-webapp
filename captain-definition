@@ -1,8 +1,4 @@
 {
   "schemaVersion": 2,
-  "dockerfileLines": [
-      "FROM socialengine/nginx-spa:latest",
-      "COPY ./build/cbnaFront /app",
-      "RUN chmod -R 777 /app"
-    ]
+  "dockerfilePath" :"./Dockerfile"
 }
