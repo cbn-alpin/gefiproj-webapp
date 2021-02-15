@@ -1,3 +1,5 @@
+[![Github Actions Status](https://github.com/cbn-alpin/gefiproj-webapp/workflows/main/badge.svg)](https://github.com/cbn-alpin/gefiproj-webapp/actions)
+
 # GeFiProj (CBNA)
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 10.1.4.
