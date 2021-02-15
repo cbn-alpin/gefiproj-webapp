@@ -1,4 +1,4 @@
-[![Github Actions Status](https://github.com/cbn-alpin/gefiproj-webapp/workflows/main/badge.svg)](https://github.com/cbn-alpin/gefiproj-webapp/actions)
+[![Github Actions Status](https://action-badges.now.sh/cbn-alpin/gefiproj-webapp?action=main)]()
 
 # GeFiProj (CBNA)
 
