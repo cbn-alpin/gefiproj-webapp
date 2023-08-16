@@ -59,6 +59,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: [push_to_registry]
     steps:
+      - name: Set REPO_NAME env variable
+        run: echo "REPO_NAME=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
+        shell: bash
+
       - name: Deploy docker container webhook
         uses: joelwmale/webhook-action@master
         with:
@@ -67,6 +71,6 @@ jobs:
           body: >-
             {
               "event": "deployment",
-              "repository": "${GITHUB_REPOSITORY#*/}",
-              "image": "cbna/${GITHUB_REPOSITORY#*/}:main"
+              "repository": "${{ env.REPO_NAME }}",
+              "image": "cbna/${{ env.REPO_NAME }}:main"
             }
