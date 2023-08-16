@@ -11,6 +11,7 @@ ENV PATH="./node_modules/.bin:$PATH"
 COPY . ./
 RUN ng build --prod
 
+
 #+----------------------------------------------------------------------+
 # STAGE 2: Run
 FROM socialengine/nginx-spa:latest
@@ -21,8 +22,8 @@ RUN sed -i -r 's/^# (alias|export|eval)/\1/' "$HOME/.bashrc"
 # Install additional packages
 RUN apt-get update \
   && DEBIAN_FRONTEND=noninteractive \
-  apt-get install -y --quiet --no-install-recommends \
-  vim curl \
+    apt-get install -y --quiet --no-install-recommends \
+    vim curl \
   && apt-get -y autoremove \
   && apt-get clean autoclean \
   && rm -fr /var/lib/apt/lists/{apt,dpkg,cache,log} /tmp/* /var/tmp/*
@@ -36,3 +37,10 @@ RUN echo "runtime! defaults.vim" > /etc/vim/vimrc.local \
 COPY --from=builder /opt/web/dist/cbnaFront /app
 
 RUN chmod -R 777 /app
+
+HEALTHCHECK \
+  --interval=30s \
+  --timeout=30s \
+  --start-period=5s \
+  --retries=3 \
+  CMD curl --fail --silent http://localhost:80/ || exit 1
